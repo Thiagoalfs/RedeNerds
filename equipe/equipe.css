@@ -3,23 +3,20 @@
     --border-color-1: #7DB9DF;
 }
 
-#container {
-    margin: 10px 100px 10px 100px;
-}
-
 .skin {
     position: relative;
     display: inline-block;
 }
 
-.skin:hover {
-    border: 1px solid var(--border-color);
+.skin img:hover {
+    transform: scale(1.1);
 }
 
 .skin img {
     max-width: 200px;
     margin: 0px;
     display: block;
+    transition: ease 0.2s;
 }
 
 .nametag-box {
@@ -34,10 +31,12 @@
     position: absolute;
     bottom: 14px;
     left:0;
+    filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.7));
 }
 
 .nametag {
     font-weight: 500;
+    filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.7));
 }
 
 .skins-wrapper{
@@ -49,7 +48,7 @@
 
 .equipe-header-color {
     width: 100%;
-    height: 4px;
+    height: 2px;
     background: linear-gradient(90deg, var(--border-color-2), rgba(185, 113, 218, 0));
 }
 

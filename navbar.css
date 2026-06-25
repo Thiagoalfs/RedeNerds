@@ -6,8 +6,8 @@ nav {
     display: flex;
     align-items: center;
     flex-direction: row;
-    padding: 10px;
-    border-bottom: 1px solid white;
+    padding: 5px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.3);
     font-weight: 600;
 }
 
@@ -32,15 +32,19 @@ li{
 }
 
 li:hover {
-    color: red;
     transition: ease 0.2s;
-    transform: scale(1.1);
+    transform: scale(1.05);
     cursor:pointer;
 }
 
 #navbar-img {
-    height: 64px;
-    width: 64px;
+    height: 48px;
+    width: 48px;
     cursor:pointer;
     margin-left: 10px;
+    transition: 0.2s ease;
+}
+
+#navbar-img:hover {
+    transform: scale(1.05);
 }

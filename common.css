@@ -1,11 +1,20 @@
 @import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
 
+:root {
+    --border-color-2: #B971DA;
+    --border-color-1: #7DB9DF;
+}
+
 body {
     font-family: Poppins;
     background-color: #030407;
     color: white;
     width: 100%;
     margin: 0px;
+}
+
+#container {
+    margin: 0px 100px 0px 100px;
 }
 
 #page-wrapper {
@@ -61,6 +70,11 @@ body {
 
 #img-titulo {
     max-width: 700px;
+    transition: 0.2s ease;
+}
+
+#img-titulo:hover {
+    transform: scale(1.02)
 }
 
 #big-header-text h1 {
@@ -83,8 +97,27 @@ body {
     border: none;
     border-radius: 10px;
     cursor: pointer;
+    transition: ease 0.2s;
+}
+
+.discord:hover {
+    transform: scale(1.03);
 }
 
 .fa-brands {
     color: white;
+}
+
+.split {
+    width: 100%;
+    height: 1px;
+    width: 200px;
+    background: var(--border-color-1);
+}
+
+.split-div{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 20px;
 }
