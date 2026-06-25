@@ -25,7 +25,7 @@
 .nametag-box {
     display: flex;
     align-items: center;
-    background: linear-gradient(to right, #4bb3f5, var(--border-color-1));;
+    background: linear-gradient(to right, rgb(75, 179, 245), rgb(39, 172, 255));;
     clip-path: polygon(0 0, calc(100% - 20px) 0, 100% 50%, calc(100% - 20px) 100%, 0 100%);
     height: 28px;
     padding: 0px 50px 0px 14px;
@@ -50,7 +50,7 @@
 .equipe-header-color {
     width: 100%;
     height: 4px;
-    background: linear-gradient(90deg, var(--border-color-2), transparent);
+    background: linear-gradient(90deg, var(--border-color-2), rgba(185, 113, 218, 0));
 }
 
 .equipe-header {
