@@ -9,10 +9,13 @@ const items = [
     { name: "Hopper (Fabricação liberada)", img:"https://static.wikia.nocookie.net/minecraft/images/e/e1/HopperOld.png/revision/latest/scale-to-width/360?cb=20190905231536", mod:"Minecraft"},
     { name: "Thorn Pendant", img:"https://i.mcmod.cn/item/icon/128x128/31/314251.png", mod:"Artifacts"},
     { name: "Building Gadget", img:"https://media.forgecdn.net/avatars/thumbnails/161/452/64/64/636672128890190531.png", mod:"Building Gadgets"},
-    
-    
-
-  // adicione seus itens aqui...
+    { name: "Rotten Egg", img:"", mod:"Mob Grinding Utils"},
+    { name: "Planarium", img:"https://www.minecraft-guides.com/wp-content/uploads/mcg-icons/other%20mods/ars_nouveau__planarium.png", mod:"Ars Nouveau"},
+    { name: "Eternal Water Block", img: "https://evilcraft.rubensworks.net/book/assets/icon/evilcraft__eternal_water.png", mod:"EvilCraft"},
+    { name: "Eternal Water Bucket", img:"https://evilcraft.rubensworks.net/book/assets/icon/evilcraft__bucket_eternal_water.png", mod:"EvilCraft"},
+    { name: "Black Hole", img:"", mod:"Oritech"},
+    { name: "Arcane Catalyst", img:"https://api.moddedmc.wiki/api/v1/docs/oritech/asset/oritech:item/enchantment_catalyst_block?", mod:"Oritech"},
+    { name: "Enchanter", img:"https://ftbwiki.org/images/thumb/9/94/Block_Enchanter_%28EnderIO%29.png/192px-Block_Enchanter_%28EnderIO%29.png.webp", mod:"EnderIO"}
 ];
 
 function render(list) {
