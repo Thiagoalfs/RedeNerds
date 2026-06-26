@@ -1,0 +1,9 @@
+.banned-container { max-width: 480px; }
+.search-wrap { position: relative; margin-bottom: 12px; }
+.search-wrap i { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); color: #888; }
+.search-wrap input { width: 100%; padding: 8px 12px 8px 34px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.2); background: #0d0f14; color: white; font-family: Poppins; box-sizing: border-box; }
+.list-box { border: 1px solid rgba(255,255,255,0.15); border-radius: 12px; max-height: 320px; overflow-y: auto; background: #0d0f14; }
+.item { display: flex; align-items: center; gap: 12px; padding: 10px 14px; border-bottom: 1px solid rgba(255,255,255,0.08); }
+.item:last-child { border-bottom: none; }
+.item img { width: 32px; height: 32px; image-rendering: pixelated; }
+.item span { font-size: 14px; color: white; font-family: Poppins; }

@@ -18,6 +18,8 @@
             <li><a href="../regras/regras.html"><i class="fa-solid fa-scale-balanced"></i> Regras</a></li>
             <li><a href="../equipe/equipe.html"><i class="fa-solid fa-users"></i> Equipe</a></li>
             <li><a href="../download/download.html"><i class="fa-solid fa-download"></i> Downloads</a></li>
+            <li><a href="../novidades/novidades.html"><i class="fa-solid fa-newspaper"></i> Novidades</a></li>
+            <li><a href="../informacoes/informacoes.html"><i class="fa-solid fa-circle-question"></i> Informações</a></li>
         </ul>
     </nav>
     <div id="page-wrapper">
@@ -28,12 +30,20 @@
                 <img id="img-titulo" src="../assets/images/tituloprincipal.png">
                 <div id="big-header-text">
                     <h1>Regras</h1>
-                    <p>Ao jogar no NerdCube, você concorda com as regras abaixo, tendo ciência de que o descumprimento das mesmas causará punições</p>
+                    <p>Ao jogar no NerdCube, você concorda com as regras abaixo, tendo ciência de que o descumprimento das mesmas resultarão em punições adequadas.</p>
                     <div id="big-header-buttons">
                         <a href="https://discord.gg/qmu2kjg8h"><button class="discord">
                             <i class="fa-brands fa-discord"></i>
                             Servidor Oficial
                         </button></a>
+                        <button class="ip" onclick="navigator.clipboard.writeText('nerdsquadrados.elgaehost.com.br').then(() => {
+                            this.innerHTML = '<i class=\'fa-solid fa-check\'></i> Copiado para área de transferência!';
+                            setTimeout(() => { 
+                                this.innerHTML = '<i class=\'fa-solid fa-clipboard\'></i> nerdsquadrados.elgaehost.com.br'; 
+                            }, 2000);
+                        })">
+                            <i class="fa-solid fa-clipboard"></i> nerdsquadrados.elgaehost.com.br
+                        </button>
                     </div>
                 </div>
             </div>
@@ -64,14 +74,16 @@
             <p>Os administradores e moderadores estão aqui para manter o servidor funcionando e em harmonia. As decisões e orientações da staff devem ser respeitadas. Se houver alguma contestação, faça de forma privada e educada via ticket.</p>
             <h3>12. Chunk Loader está proibido e banido, caso tente burlar de qualquer maneira recebera um aviso, e depois um ban.</h3>
             <p>O uso de blocos ou sistemas de Chunk Loader está completamente proibido devido ao impacto massivo no desempenho do servidor. Qualquer tentativa de burlar essa regra (usando mecânicas alternativas para manter áreas carregadas artificialmente enquanto estiver offline) resultará em um aviso prévio e, em caso de reincidência, banimento.</p>
-            <h3>13. Itens perdidos com crashes, restart e etc só serão devolvidos se você tiver uma prova de que os possuía, caso contrário não.</h3>
+            <h3>13. Itens perdidos com crashes, restart e etc só serão devolvidos se você tiver uma prova de que os possuía.</h3>
             <p>O servidor não se responsabiliza por itens perdidos devido a crashes, reinicializações (restarts) ou instabilidades. A staff apenas realizará a devolução caso o jogador apresente provas concretas (como prints ou gravações de vídeo) de que possuía os itens antes do ocorrido.</p>
-            <h3>14. Não divulgue outros servers, passivo de aviso.</h3>
+            <h3>14. Não divulgue outros servers.</h3>
             <p>O chat do jogo e os canais da comunidade são exclusivos para assuntos do nosso servidor. Divulgar IPs, links de Discord ou fazer propaganda de outros servidores de Minecraft resultará em aviso e silenciamento.</p>
             <h3>15. PROIBIDIO QUALQUER CLAIM NO NETHER OU THE END.</h3>
             <p>As dimensões do Nether e do The End são consideradas áreas públicas de exploração e coleta de recursos, que podem passar por limpezas periódicas (resets). Por conta disso, é expressamente proibido dar claim ou tentar proteger qualquer território nessas dimensões.</p>
-            <h2>Quebrar as regras pode resultar em advertência, suspensão ou banimento.</h2>
         </main>
+    </div>
+    <div id="footer">
+        <p class="footer-text">© Copyright 2026 <span class="bold">NerdCube</span>. Todos os direitos reservados. </p>
     </div>
 </body>
 </html>

@@ -14,7 +14,7 @@ body {
 }
 
 #container {
-    margin: 0px 100px 0px 100px;
+    margin: 20px 100px 30px 100px;
 }
 
 #page-wrapper {
@@ -70,11 +70,6 @@ body {
 
 #img-titulo {
     max-width: 700px;
-    transition: 0.2s ease;
-}
-
-#img-titulo:hover {
-    transform: scale(1.02)
 }
 
 #big-header-text h1 {
@@ -87,8 +82,7 @@ body {
     font-size: 22px;
 }
 
-.discord {
-    background-color: #7289DA;
+button {
     font-size: 16px;
     font-weight: 500;
     color: white;
@@ -98,10 +92,19 @@ body {
     border-radius: 10px;
     cursor: pointer;
     transition: ease 0.2s;
+    width: fit-content;
 }
 
-.discord:hover {
-    transform: scale(1.03);
+button:hover {
+    filter: brightness(0.85);
+}
+
+.discord {
+    background-color: #7289DA;
+}
+
+.ip {
+    color: rgb(46, 46, 46);
 }
 
 .fa-brands {
@@ -119,7 +122,7 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
-    margin: 20px;
+    margin-top: 20px;
 }
 
 .bold {

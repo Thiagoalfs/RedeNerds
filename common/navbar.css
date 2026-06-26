@@ -1,3 +1,8 @@
+:root {
+    --border-color-2: #B971DA;
+    --border-color-1: #7DB9DF;
+}
+
 nav {
     position: sticky;
     top: 0;
@@ -9,17 +14,19 @@ nav {
     padding: 5px;
     border-bottom: 1px solid rgba(255, 255, 255, 0.3);
     font-weight: 600;
+    max-height: 50px;
 }
 
 #navbar a {
     color: white;
     text-decoration: none;
+    transition: color ease 0.2s;
 }
 
 #navbar {
     display: flex;
     flex-direction: row;
-    gap: 40px;
+    gap: 30px;
 }
 
 ul {
@@ -28,13 +35,13 @@ ul {
 }
 
 li{
-    gap:10px;
+    gap:5px;
+    font-weight: 400;
 }
 
-li:hover {
-    transition: ease 0.2s;
-    transform: scale(1.05);
-    cursor:pointer;
+li:hover, li:hover a{
+    color: var(--border-color-2) !important;
+    cursor: pointer;
 }
 
 #navbar-img {
