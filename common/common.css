@@ -128,3 +128,8 @@ button:hover {
 .bold {
     font-weight: 600;
 }
+
+a {
+    text-decoration: none;
+    color: white;
+}
