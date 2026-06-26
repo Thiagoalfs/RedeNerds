@@ -121,3 +121,7 @@ body {
     justify-content: center;
     margin: 20px;
 }
+
+.bold {
+    font-weight: 600;
+}
