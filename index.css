@@ -4,12 +4,7 @@
     margin:10px;
 }
 
-#left-content {
-    width: 50%;
-}
+#como-jogar h2 {
+    margin: 0;
 
-#right-content {
-    width: 50%;
-    display:flex;
-    justify-content: center;
 }

@@ -1,0 +1,36 @@
+#container {
+    display:flex;
+    flex-direction: row;
+}
+
+.number {
+    background-color: var(--border-color-1);
+    color: white;
+    padding: 14px 30px 14px 30px;
+    border-radius: 50%;
+    font-size: 32px;
+}
+
+.inline {
+    margin: 0px 20px 0px 20px;
+}
+
+.number-1 {
+    padding: 12px 32px 12px 32px;
+}
+
+.box {
+    border: 1px solid var(--border-color-1);
+    background-color: rgba(6, 24, 38, 0.62);;
+    border-radius: 8px;
+    padding: 20px;
+    margin: 20px;
+    height: 700px;
+}
+
+@media (max-width: 1200px) {
+    #container {
+        display: flex;
+        flex-direction: column;
+    }
+}
