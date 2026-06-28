@@ -133,3 +133,20 @@ a {
     text-decoration: none;
     color: white;
 }
+
+@media (max-width:1450px) {
+    #big-header-img-content{
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+    }
+    #big-header-text {
+        text-align: center;
+        gap:20px;
+    }
+    #big-header-div {
+        height: 900px;
+    }
+}
+

@@ -1,6 +1,7 @@
 #news-container {
     display: flex;
     flex-direction: row;
+    justify-content: space-between;
     gap: 20px;
     max-width: 100%;
     flex-wrap: wrap;
@@ -44,6 +45,33 @@ p {
     margin: 10px;
 }
 
-h3 {
-    margin-left: 10px;
+.news-header {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    margin: 10px;
+}
+
+.news-tag {
+    background-color:#47dd86;
+    padding: 2px 6px 2px 6px;
+    border-radius: 6px;
+}
+
+@media (max-width: 1100px) {
+    .news-div {
+        max-width: 100%;
+    }
+}
+
+@media (min-width: 1100px) {
+    .news-div {
+        max-width: 45%;
+    }
+}
+
+@media (min-width: 1400px) {
+    .news-div {
+        max-width: 32%;
+    }
 }

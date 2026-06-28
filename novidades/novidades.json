@@ -1,0 +1,26 @@
+{
+    "1": {
+        "title": "Lançamento do modpack",
+        "description": "Texto completo da notícia aqui...",
+        "date": "19/06/2026",
+        "tag": "Minecraft",
+        "image": "../assets/images/fundo.png",
+        "author": "xPernaLongax"
+    },
+    "2": {
+        "title": "Atualização do modpack #1",
+        "description": "Texto completo da notícia aqui...",
+        "date": "22/06/2026",
+        "tag": "Minecraft",
+        "image": "../assets/images/fundo.png",
+        "author": "xPernaLongax"
+    },
+    "3": {
+        "title": "Nerf no Pipez",
+        "description": "Texto completo da notícia aqui...",
+        "date": "22/06/2026",
+        "tag": "Minecraft",
+        "image": "../assets/images/fundo.png",
+        "author": "xPernaLongax"
+    }
+}
