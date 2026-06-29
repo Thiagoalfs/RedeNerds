@@ -8,7 +8,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     newsContainer.innerHTML = `<p style="text-align:center; padding: 20px;">Carregando novidades...</p>`;
 
-    fetch("novidades.json")
+    fetch("/novidades/json/novidades.json")
         .then(response => {
             if (!response.ok) {
                 throw new Error(`Não encontrei o arquivo JSON. Status: ${response.status}`);
