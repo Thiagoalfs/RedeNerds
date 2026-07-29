@@ -1,18 +1,5 @@
-#container {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: space-between;
-    margin:10px;
-    gap: 30px;
-}
-
-#como-jogar h2 {
-    margin: 0;
-
-}
-
 /* =========================
-   Seção de Servidores
+   Página de Servidores
    ========================= */
 
 #servers-section {
@@ -22,12 +9,6 @@
     align-items: center;
     gap: 25px;
     margin-bottom: 20px;
-}
-
-.servers-intro {
-    max-width: 600px;
-    margin: 0 auto;
-    color: #d0d0d0;
 }
 
 .servers-grid {
@@ -53,10 +34,6 @@
     position: relative;
 }
 
-.server-card:hover {
-    transform: translateY(-8px);
-    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.5);
-}
 
 /* Card 1 - ATM 11 TTS (Roxo) */
 .server-card-1 {
@@ -90,7 +67,7 @@
     background: linear-gradient(135deg, #1f4f7a 0%, #7DB9DF 100%);
 }
 
-/* Card 3 - Nerd Dead (Vermelho/Laranja) */
+/* Card 3 - Nerd Dead (Vermelho) */
 .server-card-3 {
     border-color: #E85D5D;
     box-shadow: 0 0 15px rgba(232, 93, 93, 0.15);
@@ -122,9 +99,6 @@
     transition: transform 0.4s ease;
 }
 
-.server-card:hover .server-card-banner img {
-    transform: scale(1.08);
-}
 
 .server-card-banner-fallback {
     width: 100%;
@@ -189,145 +163,4 @@
     .servers-grid {
         grid-template-columns: repeat(2, 1fr);
     }
-}
-
-/* ============================================
-   Landing page (index.html)
-   - Reaproveita variáveis de common/common.css
-     --border-color-1: #7DB9DF  (azul)
-     --border-color-2: #B971DA  (roxo)
-   - Não altera navbar / footer / common.css
-   ============================================ */
-
-/* --- Hero (#big-header-div em common.css) --- */
-
-#big-header-text h1 {
-    font-weight: 900;
-}
-
-#big-header-text p {
-    max-width: 620px;
-    color: #e6e6e6;
-}
-
-/* --- Seção "O que é a NerdCube" --- */
-
-#about {
-    width: 100%;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 30px;
-    margin: 30px 0 50px 0;
-    text-align: center;
-}
-
-#about .subtitle {
-    margin: 0;
-}
-
-.about-text {
-    max-width: 760px;
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
-    color: #c5c5c5;
-    font-size: 16px;
-    line-height: 1.7;
-}
-
-.about-text p {
-    margin: 0;
-}
-
-.about-text strong {
-    color: white;
-    font-weight: 600;
-}
-
-/* --- CTAs (cards de chamada) --- */
-
-#cta-row {
-    width: 100%;
-    max-width: 720px;
-    margin: 0 auto 60px auto;
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: 20px;
-}
-
-.cta-card {
-    display: flex;
-    align-items: center;
-    gap: 18px;
-    padding: 22px 24px;
-    background-color: #0b0f15;
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    border-radius: 12px;
-    color: white;
-    text-decoration: none;
-    transition: border-color 0.2s ease, transform 0.2s ease;
-}
-
-.cta-card:hover {
-    transform: translateY(-2px);
-}
-
-.cta-card-icon {
-    width: 44px;
-    height: 44px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 10px;
-    font-size: 20px;
-    flex-shrink: 0;
-}
-
-.cta-card-text {
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
-    flex: 1;
-    min-width: 0;
-}
-
-.cta-card-title {
-    font-size: 16px;
-    font-weight: 600;
-    color: white;
-}
-
-.cta-card-desc {
-    font-size: 13px;
-    color: #a0a0a0;
-}
-
-.cta-card-arrow {
-    color: #888;
-    font-size: 14px;
-    transition: transform 0.2s ease, color 0.2s ease;
-}
-
-.cta-card:hover .cta-card-arrow {
-    transform: translateX(3px);
-    color: white;
-}
-
-/* Tema azul — Servidores (alinhado com --border-color-1) */
-.cta-card-servers .cta-card-icon {
-    background-color: rgba(125, 185, 223, 0.12);
-    color: #7DB9DF;
-}
-.cta-card-servers:hover {
-    border-color: #7DB9DF;
-}
-
-/* Tema roxo — Discord (alinhado com --border-color-2) */
-.cta-card-discord .cta-card-icon {
-    background-color: rgba(185, 113, 218, 0.12);
-    color: #B971DA;
-}
-.cta-card-discord:hover {
-    border-color: #B971DA;
 }

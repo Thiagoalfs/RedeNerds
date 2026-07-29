@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Servidores - NerdCube</title>
+    <link rel="icon" type="image/x-icon" href="../assets/images/logo.webp">
+    <link rel="stylesheet" href="servidores.css">
+    <link rel="stylesheet" href="../common/footer.css">
+    <link rel="stylesheet" href="../common/navbar.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+    <link rel="stylesheet" href="../common/common.css">
+</head>
+<body>
+    <nav>
+        <a href="../index.html"><img id="navbar-img" src="../assets/images/logo.webp"></a>
+        <ul id="navbar">
+            <li><a href="servidores.html"><i class="fa-solid fa-server"></i> Servidores</a></li>
+            <li><a href="../regras/regras.html"><i class="fa-solid fa-scale-balanced"></i> Regras</a></li>
+            <li><a href="../equipe/equipe.html"><i class="fa-solid fa-users"></i> Equipe</a></li>
+            <li><a href="../download/download.html"><i class="fa-solid fa-download"></i> Downloads</a></li>
+            <li><a href="../novidades/novidades.html"><i class="fa-solid fa-newspaper"></i> Novidades</a></li>
+            <li><a href="../informacoes/suporte.html"><i class="fa-solid fa-life-ring"></i> Suporte</a></li>
+        </ul>
+        <button id="navbar-toggle" type="button" aria-label="Abrir menu" aria-expanded="false" aria-controls="navbar">
+            <i class="fa-solid fa-bars" aria-hidden="true"></i>
+        </button>
+    </nav>
+    <div id="page-wrapper">
+        <div id="big-header-div">
+            <img id="img-fundo" src="../assets/images/fundo.png">
+
+            <div id="big-header-img-content">
+                <img id="img-titulo" src="../assets/images/tituloprincipal.png">
+                <div id="big-header-text">
+                    <h1>Servidores</h1>
+                    <p>Conheça todos os servidores que fazem parte da rede NerdCube. Clique em um card para saber mais detalhes.</p>
+                    <div id="big-header-buttons">
+                        <a href="https://discord.gg/qmu2kjg8h"><button class="discord">
+                            <i class="fa-brands fa-discord"></i>
+                            Servidor Oficial
+                        </button></a>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="split-div"><div class="split"></div></div>
+        <main id="container">
+            <section id="servers-section">
+                <div class="centered-content">
+                    <h2 class="subtitle">Nossos Servidores</h2>
+                    <p style="max-width: 640px; color: #c5c5c5; margin: 0;">
+                        Cada servidor da rede NerdCube tem uma proposta diferente.
+                        Escolha um para saber mais detalhes, regras e como entrar.
+                    </p>
+                </div>
+
+                <div class="servers-grid">
+                    <!-- Card 1 - ATM 11 TTS -->
+                    <a href="atm11tts.html" class="server-card server-card-1">
+                        <div class="server-card-banner banner-1">
+                            <img src="../assets/images/fundo.png" alt="ATM 11 TTS">
+                        </div>
+                        <div class="server-card-content">
+                            <h3>ATM 11 TTS</h3>
+                            <p>Modpack principal focado em magia, tecnologia e exploração.
+                               Uma experiência completa de Minecraft com mods.</p>
+                            <span class="server-card-link">
+                                Ver detalhes <i class="fa-solid fa-arrow-right"></i>
+                            </span>
+                        </div>
+                    </a>
+
+                    <!-- Card 2 - Xomaps Server -->
+                    <a href="xomaps-server.html" class="server-card server-card-2">
+                        <div class="server-card-banner banner-2">
+                            <img src="../assets/images/fundo.png" alt="Xomaps Server">
+                        </div>
+                        <div class="server-card-content">
+                            <h3>Xomaps Server</h3>
+                            <p>Sobrevivência semi-vanilla com qualidade de vida, sistema de claims,
+                               economia entre jogadores e mapa interativo.</p>
+                            <span class="server-card-link">
+                                Ver detalhes <i class="fa-solid fa-arrow-right"></i>
+                            </span>
+                        </div>
+                    </a>
+
+                    <!-- Card 3 - Nerd Dead -->
+                    <a href="nerd-dead.html" class="server-card server-card-3">
+                        <div class="server-card-banner banner-3">
+                            <img src="../assets/images/fundo.png" alt="Nerd Dead">
+                        </div>
+                        <div class="server-card-content">
+                            <h3>Nerd Dead</h3>
+                            <p>Sobrevivência hardcore em cenário pós-apocalíptico, com hordas
+                               de mobs, recursos raros e mecânicas de tensão constantes.</p>
+                            <span class="server-card-link">
+                                Ver detalhes <i class="fa-solid fa-arrow-right"></i>
+                            </span>
+                        </div>
+                    </a>
+                </div>
+            </section>
+        </main>
+    </div>
+    <div id="footer">
+        <p class="footer-text">© Copyright 2026 <span class="bold">NerdCube</span>. Todos os direitos reservados. </p>
+    </div>
+    <script src="../common/navbar.js"></script>
+</body>
+</html>

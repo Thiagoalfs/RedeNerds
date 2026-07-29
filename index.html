@@ -1,5 +1,6 @@
+<!-- index.html (raiz do projeto) -->
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -12,69 +13,87 @@
     <link rel="stylesheet" href="common/common.css">
 </head>
 <body>
-    <nav>
-        <a href="index.html"><img id="navbar-img" src="assets/images/logo.webp"></a>
+        <nav>
+        <a href="index.html"><img id="navbar-img" src="assets/images/logo.webp" alt="NerdCube"></a>
         <ul id="navbar">
+            <li><a href="servidores/servidores.html"><i class="fa-solid fa-server"></i> Servidores</a></li>
             <li><a href="regras/regras.html"><i class="fa-solid fa-scale-balanced"></i> Regras</a></li>
             <li><a href="equipe/equipe.html"><i class="fa-solid fa-users"></i> Equipe</a></li>
             <li><a href="download/download.html"><i class="fa-solid fa-download"></i> Downloads</a></li>
             <li><a href="novidades/novidades.html"><i class="fa-solid fa-newspaper"></i> Novidades</a></li>
-            <li><a href="informacoes/informacoes.html"><i class="fa-solid fa-circle-question"></i> Informações</a></li>
-            
+            <li><a href="informacoes/suporte.html"><i class="fa-solid fa-life-ring"></i> Suporte</a></li>
         </ul>
+        <button id="navbar-toggle" type="button" aria-label="Abrir menu" aria-expanded="false" aria-controls="navbar">
+            <i class="fa-solid fa-bars" aria-hidden="true"></i>
+        </button>
     </nav>
+
     <div id="page-wrapper">
-        <div id="big-header-div">
-            <img id="img-fundo" src="assets/images/fundo.png">
+        <!-- HERO: reaproveita #big-header-div já estilizado em common.css -->
+        <header id="big-header-div">
+            <img id="img-fundo" src="assets/images/fundo.png" alt="">
 
             <div id="big-header-img-content">
-                <img id="img-titulo" src="assets/images/tituloprincipal.png">
+                <img id="img-titulo" src="assets/images/tituloprincipal.png" alt="NerdCube">
                 <div id="big-header-text">
                     <h1>NerdCube</h1>
-                    <p>Servidor feito de Nerds para Nerds. Venha jogar nosso modpack com outros jogadores! Temos máquinas, magias, exploração e muito mais!</p>
+                    <p>Rede de servidores de Minecraft da comunidade. ATM 11 TTS, Xomaps, Nerd Dead — tudo num lugar só.</p>
                     <div id="big-header-buttons">
                         <a href="https://discord.gg/qmu2kjg8h"><button class="discord">
                             <i class="fa-brands fa-discord"></i>
                             Servidor Oficial
                         </button></a>
-                        <button class="ip" onclick="navigator.clipboard.writeText('nerdsquadrados.elgaehost.com.br').then(() => {
-                            this.innerHTML = '<i class=\'fa-solid fa-check\'></i> Copiado para área de transferência!';
-                            setTimeout(() => { 
-                                this.innerHTML = '<i class=\'fa-solid fa-clipboard\'></i> nerdsquadrados.elgaehost.com.br'; 
-                            }, 2000);
-                        })">
-                            <i class="fa-solid fa-clipboard"></i> nerdsquadrados.elgaehost.com.br
-                        </button>
                     </div>
                 </div>
             </div>
-        </div>
+        </header>
+
         <div class="split-div"><div class="split"></div></div>
+
         <main id="container">
-            <section id="left-content">
-                <div id="como-jogar" class="centered-content">
-                    <h2 class="subtitle">Como jogar?</h2>
-                    <p>Para jogar no nosso servidor, você precisa ter o Minecraft Java Edition e o modpack NerdCube instalado. Você pode baixar o modpack na aba de downloads.</p>
-                    <a href="download/download.html"><button class="discord">
-                        <i class="fa-solid fa-download"></i>
-                        Baixar Modpack
-                    </button></a>
+
+            <section id="about">
+                <div class="centered-content">
+                    <h2 class="subtitle">O que é a NerdCube</h2>
+                </div>
+                <div class="about-text">
+                    <p>
+                        A NerdCube é uma rede de servidores de Minecraft mantida por um grupo pequeno
+                        de pessoas que gosta de construir, explorar e testar coisas novas. Não é uma
+                        rede com 50 modos de jogo — são três servidores, cada um com uma proposta
+                        clara, e a ideia é que você saiba em cinco minutos o que vai encontrar em
+                        cada um.
+                    </p>
+                    <p>
+                        O ATM 11 TTS é o carro‑chefe: modpack de magia, tecnologia e exploração.
+                        O Xomaps é sobrevivência semi‑vanilla com claims, economia e mapa.
+                        O Nerd Dead é o hardcore pós‑apocalíptico, pra quem quer tensão.
+                    </p>
+                    <p>
+                        Tudo passa pela nossa comunidade no Discord — é por lá que avisamos
+                        atualizações, organizamos eventos e tiramos dúvidas.
+                    </p>
                 </div>
             </section>
 
-            <section id="right-content">
-                <iframe src="https://discord.com/widget?id=1514603566755610705&theme=dark" 
-                width="350" 
-                height="500" 
-                allowtransparency="true" 
-                frameborder="0" 
-                sandbox="allow-popups allow-popups-to-escape-sandbox allow-same-origin allow-scripts">
-                </iframe>
+            <section id="cta-row">
+
+                <a href="servidores/servidores.html" class="cta-card cta-card-servers">
+                    <span class="cta-card-icon"><i class="fa-solid fa-server"></i></span>
+                    <span class="cta-card-text">
+                        <span class="cta-card-title">Ver servidores</span>
+                        <span class="cta-card-desc">Detalhes de cada um e como entrar.</span>
+                    </span>
+                    <span class="cta-card-arrow"><i class="fa-solid fa-arrow-right"></i></span>
+                </a>
+
             </section>
         </main>
     </div>
-    <div id="footer">
+
+        <div id="footer">
         <p class="footer-text">© Copyright 2026 <span class="bold">NerdCube</span>. Todos os direitos reservados. </p>
     </div>
+    <script src="common/navbar.js"></script>
 </body>
 </html>

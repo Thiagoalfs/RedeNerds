@@ -12,15 +12,19 @@
     <link rel="stylesheet" href="../common/common.css">
 </head>
 <body>
-    <nav>
+        <nav>
         <a href="../index.html"><img id="navbar-img" src="../assets/images/logo.webp"></a>
         <ul id="navbar">
+            <li><a href="../servidores/servidores.html"><i class="fa-solid fa-server"></i> Servidores</a></li>
             <li><a href="../regras/regras.html"><i class="fa-solid fa-scale-balanced"></i> Regras</a></li>
             <li><a href="../equipe/equipe.html"><i class="fa-solid fa-users"></i> Equipe</a></li>
             <li><a href="../download/download.html"><i class="fa-solid fa-download"></i> Downloads</a></li>
             <li><a href="../novidades/novidades.html"><i class="fa-solid fa-newspaper"></i> Novidades</a></li>
-            <li><a href="../informacoes/informacoes.html"><i class="fa-solid fa-circle-question"></i> Informações</a></li>
+            <li><a href="../informacoes/suporte.html"><i class="fa-solid fa-life-ring"></i> Suporte</a></li>
         </ul>
+        <button id="navbar-toggle" type="button" aria-label="Abrir menu" aria-expanded="false" aria-controls="navbar">
+            <i class="fa-solid fa-bars" aria-hidden="true"></i>
+        </button>
     </nav>
     <div id="page-wrapper">
         <div id="big-header-div">
@@ -36,81 +40,81 @@
                             <i class="fa-brands fa-discord"></i>
                             Servidor Oficial
                         </button></a>
-                        <button class="ip" onclick="navigator.clipboard.writeText('nerdsquadrados.elgaehost.com.br').then(() => {
-                            this.innerHTML = '<i class=\'fa-solid fa-check\'></i> Copiado para área de transferência!';
-                            setTimeout(() => { 
-                                this.innerHTML = '<i class=\'fa-solid fa-clipboard\'></i> nerdsquadrados.elgaehost.com.br'; 
-                            }, 2000);
-                        })">
-                            <i class="fa-solid fa-clipboard"></i> nerdsquadrados.elgaehost.com.br
-                        </button>
+                        
                     </div>
                 </div>
             </div>
         </div>
         <div class="split-div"><div class="split"></div></div>
         <main id="container">
-            <div id="left-content">
-                <div id="minecraft-original" class="box">
-                    <div class="centered-content">
-                        <h2 class="subtitle">Minecraft Original</h2>
-                    </div>
-                    <div class="inline">
-                        <p class="number number-1">1</p>
-                        <p class="inline-text">Baixe o nosso modpack no <span class="clicable" onclick="window.location='https://www.curseforge.com/minecraft/share/9UXcDXdr'">site do CurseForge</span></p>
-                    </div>
-                    <i class="fa-solid fa-arrow-down centered-content"></i>
-                    <div class="inline">
-                        <p class="number">2</p>
-                        <p class="inline-text">Adicione o <span class="clicable" onclick="window.location='https://cdn.discordapp.com/attachments/1515138867760730234/1517658955667738795/nerdkube-0.6.3.jar?ex=6a41a18b&is=6a40500b&hm=4b62ea03d86ad2142a9780368ba004dad461af9b1555fe5b791612ffa0dfd392&'">nosso mod do NerdCube</span> à lista de mods do CurseForge</p>
-                    </div>
-                    <i class="fa-solid fa-arrow-down centered-content"></i>
-                    <div class="inline">
-                        <p class="number">3</p>
-                        <p class="inline-text">Entre no servidor utilizando o IP: <span class="clicable" onclick="navigator.clipboard.writeText('nerdsquadrados.elgaehost.com.br').then(() => {
-                            this.innerHTML = '<i class=\'fa-solid fa-check\'></i> Copiado para área de transferência!';
-                            setTimeout(() => { 
-                                this.innerHTML =  'nerdsquadrados.elgaehost.com.br'; 
-                            }, 2000);
-                        })">nerdsquadrados.elgaehost.com.br</span></p>
-                    </div>
+            <section id="downloads-section">
+                <div class="centered-content">
+                    <h2 class="subtitle">Modpacks da NerdCube</h2>
+                    <p class="downloads-intro">
+                        Cada servidor da rede tem um modpack próprio. Selecione abaixo o servidor
+                        que você quer entrar e baixe o modpack correspondente.
+                    </p>
                 </div>
-            </div>
-            <div id="right-content" class="centered-content">
-                <div id="minecraft-pirata" class="box">
-                    <div class="centered-content">
-                        <h2 class="subtitle">Minecraft Pirata</h2>
-                    </div>
-                    <div class="inline">
-                        <p class="number number-1">1</p>
-                        <p class="inline-text">Baixe a nossa <span class="clicable" onclick="window.location='https://drive.google.com/file/d/1BUl00rE6PzbgdqfCIr7X1X2qdh8aV7-C/view?usp=sharing'">.minecraft do modpack</span>, contendo os arquivos de configurações e mods</p>
-                    </div>
-                    <i class="fa-solid fa-arrow-down centered-content"></i>
-                    <div class="inline">
-                        <p class="number">2</p>
-                        <p class="inline-text">Crie uma instância do Minecraft na versão 1.21.1 com Neoforge</p>
-                    </div>
-                    <i class="fa-solid fa-arrow-down centered-content"></i>
-                    <div class="inline">
-                        <p class="number">3</p>
-                        <p class="inline-text">Abra a .minecraft dessa instância e substitua todos os arquivos com os arquivos do .zip do nosso modpack</p>
-                    </div>
-                    <i class="fa-solid fa-arrow-down centered-content"></i>
-                    <div class="inline">
-                        <p class="number">4</p>
-                        <p class="inline-text">Entre no servidor utilizando o IP: <span class="clicable" onclick="navigator.clipboard.writeText('nerdsquadrados.elgaehost.com.br').then(() => {
-                            this.innerHTML = '<i class=\'fa-solid fa-check\'></i> Copiado para área de transferência!';
-                            setTimeout(() => { 
-                                this.innerHTML =  'nerdsquadrados.elgaehost.com.br'; 
-                            }, 2000);
-                        })">nerdsquadrados.elgaehost.com.br</span></p>
-                    </div>
+
+                <div class="downloads-list">
+
+                    <!-- ATM 11 TTS (Roxo) -->
+                    <article class="download-card download-card-1">
+                        <div class="download-card-image">
+                            <img src="../assets/images/fundo.png" alt="ATM 11 TTS">
+                        </div>
+                        <div class="download-card-text">
+                            <h3 class="download-card-title">ATM 11 TTS</h3>
+                            <p class="download-card-desc">
+                                Magia, tecnologia e exploração. O carro-chefe da rede.
+                            </p>
+                        </div>
+                        <!-- Placeholder: trocar por LINK_DOWNLOAD_ATM11 quando disponível -->
+                        <a href="LINK_DOWNLOAD_ATM11" target="_blank" rel="noopener" class="download-card-btn">
+                            Baixar modpack <i class="fa-solid fa-arrow-up-right-from-square"></i>
+                        </a>
+                    </article>
+
+                    <!-- Xomaps Server (Azul) -->
+                    <article class="download-card download-card-2">
+                        <div class="download-card-image">
+                            <img src="../assets/images/fundo.png" alt="Xomaps Server">
+                        </div>
+                        <div class="download-card-text">
+                            <h3 class="download-card-title">Xomaps Server</h3>
+                            <p class="download-card-desc">
+                                Sobrevivência semi-vanilla com claims, economia e mapa interativo.
+                            </p>
+                        </div>
+                        <a href="https://www.curseforge.com/minecraft/modpacks/xomaps-potato-master"
+                        target="_blank" rel="noopener" class="download-card-btn">
+                            Baixar modpack <i class="fa-solid fa-arrow-up-right-from-square"></i>
+                        </a>
+                    </article>
+
+                    <!-- Nerd Dead (Vermelho) — coming soon -->
+                    <article class="download-card download-card-3">
+                        <div class="download-card-image">
+                            <img src="../assets/images/fundo.png" alt="Nerd Dead">
+                        </div>
+                        <div class="download-card-text">
+                            <h3 class="download-card-title">Nerd Dead</h3>
+                            <p class="download-card-desc">
+                                Hardcore pós-apocalíptico com hordas e sobrevivência extrema.
+                            </p>
+                        </div>
+                        <a href="#" class="download-card-btn download-card-btn-disabled" aria-disabled="true">
+                            Em breve <i class="fa-solid fa-hourglass-half"></i>
+                        </a>
+                    </article>
+
                 </div>
-            </div>
+            </section>
         </main>
     </div>
-    <div id="footer">
+        <div id="footer">
         <p class="footer-text">© Copyright 2026 <span class="bold">NerdCube</span>. Todos os direitos reservados. </p>
     </div>
+    <script src="../common/navbar.js"></script>
 </body>
 </html>

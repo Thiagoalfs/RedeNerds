@@ -44,6 +44,27 @@ li:hover, li:hover a{
     cursor: pointer;
 }
 
+/* Link ativo (página atual) */
+li.active a,
+li.active {
+    color: var(--border-color-2) !important;
+}
+
+li.active a {
+    position: relative;
+}
+
+li.active a::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: -6px;
+    height: 2px;
+    background: var(--border-color-2);
+    border-radius: 2px;
+}
+
 #navbar-img {
     height: 48px;
     width: 48px;
@@ -54,4 +75,90 @@ li:hover, li:hover a{
 
 #navbar-img:hover {
     transform: scale(1.05);
+}
+
+/* ============================================
+   Navbar — comportamento mobile (≤768px)
+   ============================================ */
+
+/* Desktop: botão hambúrguer escondido */
+#navbar-toggle {
+    display: none;
+    background: transparent;
+    border: none;
+    color: white;
+    font-size: 22px;
+    padding: 4px 8px;
+    margin-left: auto;   /* empurra pra direita enquanto #navbar está visível */
+    cursor: pointer;
+    border-radius: 6px;
+    transition: color 0.2s ease, background-color 0.2s ease;
+}
+
+#navbar-toggle:hover {
+    color: var(--border-color-2);
+}
+
+#navbar-toggle:focus-visible {
+    outline: 2px solid var(--border-color-2);
+    outline-offset: 2px;
+}
+
+@media (max-width: 768px) {
+
+    /* Mostra o botão e esconde a ul por padrão */
+    #navbar-toggle {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    #navbar {
+        /* Dropdown: posicionado relativo ao <nav> sticky */
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        flex-direction: column;
+        align-items: stretch;
+        gap: 0;
+        background-color: #030407;
+        border-top: 1px solid rgba(255, 255, 255, 0.15);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+        padding: 8px 0;
+        max-height: 0;
+        overflow: hidden;
+        opacity: 0;
+        pointer-events: none;
+        transition: max-height 0.25s ease, opacity 0.2s ease;
+    }
+
+    /* Quando o nav está com a classe .navbar-open */
+    nav.navbar-open #navbar {
+        max-height: calc(100vh - 50px); /* desconta a altura do nav */
+        opacity: 1;
+        pointer-events: auto;
+        overflow-y: auto;
+    }
+
+    #navbar li {
+        width: 100%;
+    }
+
+    #navbar li a {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 14px 20px;
+        border-radius: 0;
+    }
+
+    /* Mantém o destaque do link ativo igual ao desktop */
+    nav.navbar-open li.active a::after {
+        display: none; /* em mobile não precisamos do underline pequeno */
+    }
+
+    nav.navbar-open li.active a {
+        background-color: rgba(185, 113, 218, 0.08);
+    }
 }

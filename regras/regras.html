@@ -12,15 +12,19 @@
     <link rel="stylesheet" href="../common/common.css">
 </head>
 <body>
-    <nav>
+        <nav>
         <a href="../index.html"><img id="navbar-img" src="../assets/images/logo.webp"></a>
         <ul id="navbar">
+            <li><a href="../servidores/servidores.html"><i class="fa-solid fa-server"></i> Servidores</a></li>
             <li><a href="../regras/regras.html"><i class="fa-solid fa-scale-balanced"></i> Regras</a></li>
             <li><a href="../equipe/equipe.html"><i class="fa-solid fa-users"></i> Equipe</a></li>
             <li><a href="../download/download.html"><i class="fa-solid fa-download"></i> Downloads</a></li>
             <li><a href="../novidades/novidades.html"><i class="fa-solid fa-newspaper"></i> Novidades</a></li>
-            <li><a href="../informacoes/informacoes.html"><i class="fa-solid fa-circle-question"></i> Informações</a></li>
+            <li><a href="../informacoes/suporte.html"><i class="fa-solid fa-life-ring"></i> Suporte</a></li>
         </ul>
+        <button id="navbar-toggle" type="button" aria-label="Abrir menu" aria-expanded="false" aria-controls="navbar">
+            <i class="fa-solid fa-bars" aria-hidden="true"></i>
+        </button>
     </nav>
     <div id="page-wrapper">
         <div id="big-header-div">
@@ -36,14 +40,6 @@
                             <i class="fa-brands fa-discord"></i>
                             Servidor Oficial
                         </button></a>
-                        <button class="ip" onclick="navigator.clipboard.writeText('nerdsquadrados.elgaehost.com.br').then(() => {
-                            this.innerHTML = '<i class=\'fa-solid fa-check\'></i> Copiado para área de transferência!';
-                            setTimeout(() => { 
-                                this.innerHTML = '<i class=\'fa-solid fa-clipboard\'></i> nerdsquadrados.elgaehost.com.br'; 
-                            }, 2000);
-                        })">
-                            <i class="fa-solid fa-clipboard"></i> nerdsquadrados.elgaehost.com.br
-                        </button>
                     </div>
                 </div>
             </div>
@@ -82,8 +78,9 @@
             <p>As dimensões do Nether e do The End são consideradas áreas públicas de exploração e coleta de recursos, que podem passar por limpezas periódicas (resets). Por conta disso, é expressamente proibido dar claim ou tentar proteger qualquer território nessas dimensões.</p>
         </main>
     </div>
-    <div id="footer">
+        <div id="footer">
         <p class="footer-text">© Copyright 2026 <span class="bold">NerdCube</span>. Todos os direitos reservados. </p>
     </div>
+    <script src="../common/navbar.js"></script>
 </body>
 </html>

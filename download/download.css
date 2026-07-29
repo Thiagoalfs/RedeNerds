@@ -34,3 +34,209 @@
         flex-direction: column;
     }
 }
+
+/* =========================
+   Página de Downloads (cards horizontais grandes, com imagem)
+   - Cores reaproveitadas de servidores/servidores.css
+   ========================= */
+
+#downloads-section {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 25px;
+    margin-bottom: 20px;
+}
+
+.downloads-intro {
+    max-width: 640px;
+    margin: 0 auto;
+    color: #c5c5c5;
+    text-align: center;
+}
+
+.downloads-list {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    width: 100%;
+    max-width: 1100px;
+    padding: 10px 0;
+}
+
+.download-card {
+    display: flex;
+    align-items: stretch;
+    gap: 24px;
+    background-color: #0b0f15;
+    border-radius: 14px;
+    padding: 18px;
+    border: 2px solid transparent;
+    transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+    min-height: 180px;
+}
+
+/* Imagem à esquerda */
+.download-card-image {
+    flex-shrink: 0;
+    width: 220px;
+    border-radius: 10px;
+    overflow: hidden;
+    background-color: #1a1f29;
+}
+
+.download-card-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    transition: transform 0.4s ease;
+}
+
+
+/* Card 1 - ATM 11 TTS (Roxo) */
+.download-card-1 {
+    border-color: #B971DA;
+    box-shadow: 0 0 15px rgba(185, 113, 218, 0.15);
+}
+.download-card-1:hover {
+    box-shadow: 0 8px 24px rgba(185, 113, 218, 0.45);
+    border-color: #D89BF0;
+}
+.download-card-1 .download-card-btn {
+    border-color: #B971DA;
+    color: #B971DA;
+}
+.download-card-1 .download-card-btn:not(.download-card-btn-disabled):hover {
+    background-color: #B971DA;
+    color: white;
+}
+
+/* Card 2 - Xomaps Server (Azul) */
+.download-card-2 {
+    border-color: #7DB9DF;
+    box-shadow: 0 0 15px rgba(125, 185, 223, 0.15);
+}
+.download-card-2:hover {
+    box-shadow: 0 8px 24px rgba(125, 185, 223, 0.45);
+    border-color: #A6D4F0;
+}
+.download-card-2 .download-card-btn {
+    border-color: #7DB9DF;
+    color: #7DB9DF;
+}
+.download-card-2 .download-card-btn:not(.download-card-btn-disabled):hover {
+    background-color: #7DB9DF;
+    color: white;
+}
+
+/* Card 3 - Nerd Dead (Vermelho) */
+.download-card-3 {
+    border-color: #E85D5D;
+    box-shadow: 0 0 15px rgba(232, 93, 93, 0.15);
+}
+.download-card-3:hover {
+    box-shadow: 0 8px 24px rgba(232, 93, 93, 0.45);
+    border-color: #F08080;
+}
+.download-card-3 .download-card-btn {
+    border-color: #E85D5D;
+    color: #E85D5D;
+}
+.download-card-3 .download-card-btn:not(.download-card-btn-disabled):hover {
+    background-color: #E85D5D;
+    color: white;
+}
+
+/* Texto (título + descrição) */
+.download-card-text {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 8px;
+    padding: 4px 0;
+}
+
+.download-card-title {
+    margin: 0;
+    font-size: 24px;
+    font-weight: 700;
+    color: white;
+}
+
+.download-card-desc {
+    margin: 0;
+    color: #c5c5c5;
+    font-size: 15px;
+    line-height: 1.5;
+}
+
+/* Botão de download */
+.download-card-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    flex-shrink: 0;
+    align-self: center;
+    padding: 12px 22px;
+    border: 1.5px solid;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 15px;
+    text-decoration: none;
+    background: transparent;
+    transition: background-color 0.2s ease, color 0.2s ease, gap 0.2s ease;
+    margin-left: auto;
+    white-space: nowrap;
+}
+
+
+
+/* Botão desabilitado (Nerd Dead) */
+.download-card-btn-disabled {
+    cursor: not-allowed;
+    opacity: 0.55;
+}
+
+.download-card-btn-disabled:hover {
+    background-color: transparent !important;
+    color: #E85D5D !important;
+}
+
+/* Tablet: reduz imagem */
+@media (max-width: 900px) {
+    .download-card-image {
+        width: 160px;
+    }
+
+    .download-card-title {
+        font-size: 20px;
+    }
+}
+
+/* Mobile: empilha verticalmente */
+@media (max-width: 600px) {
+    .download-card {
+        flex-direction: column;
+        padding: 14px;
+        gap: 14px;
+    }
+
+    .download-card-image {
+        width: 100%;
+        height: 140px;
+    }
+
+    .download-card-text {
+        padding: 0;
+    }
+
+    .download-card-btn {
+        margin-left: 0;
+        align-self: stretch;
+        justify-content: center;
+    }
+}
