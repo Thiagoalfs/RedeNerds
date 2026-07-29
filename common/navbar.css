@@ -39,7 +39,7 @@ li{
     font-weight: 400;
 }
 
-li:hover, li:hover a{
+nav li:hover, nav li:hover a{
     color: var(--border-color-2) !important;
     cursor: pointer;
 }

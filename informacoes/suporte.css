@@ -6,16 +6,6 @@
     --text-muted: #c5c5c5;
 }
 
-/* ============================================
-   Suporte - Reset de conflitos do common.css
-   O common.css define:
-     - .centered-content: display:flex; flex-direction:column;
-                          justify-content:center; gap:20px
-     - .subtitle: padding 0 20px 5px 20px; border-bottom: 1px solid
-   Aqui sobrescrevemos para evitar overlap e
-   a barrinha roxa esticada.
-   ============================================ */
-
 #suporte-container {
     display: block;
     width: 100%;
@@ -112,6 +102,14 @@
     gap: 10px;
 }
 
+/* <p> com max-width dentro de .centered-content — centraliza o bloco do parágrafo */
+#canais-section > .centered-content > p,
+#faq-section > .centered-content > p,
+#dicas-section > .centered-content > p {
+    margin-left: auto;
+    margin-right: auto;
+}
+
 /* ============================================
    Cards de canais de atendimento
    2 cards (Discord + Ticket)
@@ -152,7 +150,6 @@
     border-color: #7289DA;
 }
 .canal-card-discord:hover {
-    transform: translateY(-4px);
     border-color: #8FA8F5;
     box-shadow: 0 12px 28px rgba(114, 137, 218, 0.4);
     z-index: 2;
@@ -162,7 +159,6 @@
     border-color: var(--border-color-2);
 }
 .canal-card-ticket:hover {
-    transform: translateY(-4px);
     border-color: #D89BF0;
     box-shadow: 0 12px 28px rgba(185, 113, 218, 0.4);
     z-index: 2;
@@ -329,7 +325,6 @@
 }
 
 .status-card:hover {
-    transform: translateY(-4px);
     border-color: var(--border-color-1);
     z-index: 2;
 }

@@ -16,7 +16,7 @@
     <nav>
         <a href="index.html"><img id="navbar-img" src="assets/images/logo.webp" alt="NerdCube"></a>
         <ul id="navbar">
-            <li><a href="servidores/servidores.html"><i class="fa-solid fa-server"></i> Servidores</a></li>
+            <li><a href="#servers-section"><i class="fa-solid fa-server"></i> Servidores</a></li>
             <li><a href="regras/regras.html"><i class="fa-solid fa-scale-balanced"></i> Regras</a></li>
             <li><a href="equipe/equipe.html"><i class="fa-solid fa-users"></i> Equipe</a></li>
             <li><a href="download/download.html"><i class="fa-solid fa-download"></i> Downloads</a></li>
@@ -36,8 +36,10 @@
             <div id="big-header-img-content">
                 <img id="img-titulo" src="assets/images/tituloprincipal.png" alt="NerdCube">
                 <div id="big-header-text">
-                    <h1>NerdCube</h1>
-                    <p>Rede de servidores de Minecraft da comunidade. ATM 11 TTS, Xomaps, Nerd Dead — tudo num lugar só.</p>
+                    <h1>Rede Nerd</h1>
+                    <p>Uma rede feita por gente que gosta de construir, explorar
+                    e testar coisas novas. Sem dezenas de modos de jogo — apenas três
+                    servidores, cada um com uma proposta clara.</p>
                     <div id="big-header-buttons">
                         <a href="https://discord.gg/qmu2kjg8h"><button class="discord">
                             <i class="fa-brands fa-discord"></i>
@@ -47,49 +49,61 @@
                 </div>
             </div>
         </header>
-
-        <div class="split-div"><div class="split"></div></div>
-
         <main class="page">
+            <!-- Grid: Servidores -->
+            <section id="servers-section">
+                <div class="centered-content">
+                    <h2 class="section-title">Nossos Servidores</h2>
+                    <p style="max-width: 640px; color: #c5c5c5; margin: 0;">
+                    </p>
+                </div>
 
-            <!-- Sobre -->
-            <section class="section">
-                <h2 class="section-title">O que é a NerdCube</h2>
-                <p class="section-lead">
-                    Uma rede pequena, feita por gente que gosta de construir, explorar
-                    e testar coisas novas. Sem dezenas de modos de jogo — apenas três
-                    servidores, cada um com uma proposta clara.
-                </p>
-            </section>
+                <div class="servers-grid">
+                    <!-- Card 1 - ATM 11 TTS -->
+                    <a href="servidores/atm11tts.html" class="server-card server-card-1">
+                        <div class="server-card-banner banner-1">
+                            <img src="../assets/images/fundo.png" alt="ATM 11 TTS">
+                        </div>
+                        <div class="server-card-content">
+                            <h3>ATM 11 TTS</h3>
+                            <p>Modpack principal focado em magia, tecnologia e exploração.
+                               Uma experiência completa de Minecraft com mods.</p>
+                            <span class="server-card-link">
+                                Ver detalhes <i class="fa-solid fa-arrow-right"></i>
+                            </span>
+                        </div>
+                    </a>
 
-            <!-- Card: Servidores -->
-            <section class="section">
-                <h2 class="section-title">Servidores</h2>
-                <a href="servidores/servidores.html" class="redirect-card redirect-servers">
-                    <div class="redirect-icon">
-                        <i class="fa-solid fa-server"></i>
-                    </div>
-                    <div class="redirect-body">
-                        <h3 class="redirect-title">Conheça nossos servidores</h3>
-                        <p class="redirect-desc">ATM 11 TTS, Xomaps e Nerd Dead — veja detalhes, modpacks e como entrar em cada um.</p>
-                    </div>
-                    <span class="redirect-arrow"><i class="fa-solid fa-arrow-right"></i></span>
-                </a>
-            </section>
+                    <!-- Card 2 - Xomaps Server -->
+                    <a href="servidores/xomaps-server.html" class="server-card server-card-2">
+                        <div class="server-card-banner banner-2">
+                            <img src="../assets/images/fundo.png" alt="Xomaps Server">
+                        </div>
+                        <div class="server-card-content">
+                            <h3>Xomaps Server</h3>
+                            <p>Sobrevivência semi-vanilla com qualidade de vida, sistema de claims,
+                               economia entre jogadores e mapa interativo.</p>
+                            <span class="server-card-link">
+                                Ver detalhes <i class="fa-solid fa-arrow-right"></i>
+                            </span>
+                        </div>
+                    </a>
 
-            <!-- Card: Como entrar (Downloads) -->
-            <section class="section">
-                <h2 class="section-title">Como entrar</h2>
-                <a href="download/download.html" class="redirect-card redirect-download">
-                    <div class="redirect-icon">
-                        <i class="fa-solid fa-download"></i>
-                    </div>
-                    <div class="redirect-body">
-                        <h3 class="redirect-title">Baixe o modpack</h3>
-                        <p class="redirect-desc">Vá até a página de downloads, pegue o modpack do servidor que quer jogar e instale no seu launcher.</p>
-                    </div>
-                    <span class="redirect-arrow"><i class="fa-solid fa-arrow-right"></i></span>
-                </a>
+                    <!-- Card 3 - Nerd Dead -->
+                    <a href="servidores/nerd-dead.html" class="server-card server-card-3">
+                        <div class="server-card-banner banner-3">
+                            <img src="../assets/images/fundo.png" alt="Nerd Dead">
+                        </div>
+                        <div class="server-card-content">
+                            <h3>Nerd Dead</h3>
+                            <p>Sobrevivência hardcore em cenário pós-apocalíptico, com hordas
+                               de mobs, recursos raros e mecânicas de tensão constantes.</p>
+                            <span class="server-card-link">
+                                Ver detalhes <i class="fa-solid fa-arrow-right"></i>
+                            </span>
+                        </div>
+                    </a>
+                </div>
             </section>
 
         </main>

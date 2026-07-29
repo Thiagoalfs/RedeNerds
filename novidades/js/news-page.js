@@ -1,23 +1,23 @@
 function parseDescription(text) {
-    const imageRegex = /https?:\/\/\S+\.(?:png|jpg|jpeg|gif|webp)|\.\.\/[^\s]+\.(?:png|jpg|jpeg|gif|webp)/gi;
+    const imageRegex = /https?:\/\/\S+\.(?:png|jpg|jpeg|gif|webp)|(?<=\s|^)\.\.\/[^\s]+\.(?:png|jpg|jpeg|gif|webp)/gi;
 
-    const parts = text.split(imageRegex);
-    const images = text.match(imageRegex) || [];
-
-    let html = "";
-
-    parts.forEach((part, index) => {
-        if (part) {
-            const lines = part.split("\n").map(line => line.trim()).filter(line => line !== "");
-            lines.forEach(line => {
-                html += `<p>${line}</p>`;
-            });
-        }
-
-        if (images[index]) {
-            html += `<div class="img-container"><img src="${images[index]}" alt="Imagem da notícia" style="display:block; margin: 16px 0; border-radius: 8px;"></div>`;
-        }
+    const images = [];
+    const sanitized = text.replace(imageRegex, match => {
+        const url = match.trim();
+        if (url) images.push(url);
+        return "";
     });
+
+    const paragraphs = sanitized
+        .split("\n")
+        .map(line => line.trim())
+        .filter(line => line !== "");
+
+    let html = paragraphs.map(line => `<p>${line}</p>`).join("");
+
+    html += images.map(url =>
+        `<div class="img-container"><img src="${url}" alt="Imagem da notícia" style="display:block; margin: 16px 0; border-radius: 8px;"></div>`
+    ).join("");
 
     return html;
 }
@@ -32,52 +32,54 @@ document.addEventListener("DOMContentLoaded", () => {
         return;
     }
 
-    fetch("/novidades/json/novidades.json")
-        .then(response => {
-            if (!response.ok) {
-                throw new Error(`Erro ao buscar o JSON. Status: ${response.status}`);
-            }
-            return response.json();
-        })
-        .then(data => {
-            const news = data[id];
+    if (!Array.isArray(window.NOVIDADES)) {
+        const message = "Lista de novidades não encontrada.";
+        console.error(message);
+        container.innerHTML = `<p style="color: red; text-align: center; padding: 20px;">${message}</p>`;
+        return;
+    }
 
-            if (!news) {
-                container.innerHTML = `<p style="text-align:center; padding: 20px;">Notícia não encontrada.</p>`;
-                return;
-            }
+    const news = window.NOVIDADES.find(item => String(item.id) === String(id));
 
-            // Atualiza o título da aba do navegador
-            document.title = news.title;
+    if (!news) {
+        container.innerHTML = `<p style="text-align:center; padding: 20px;">Notícia não encontrada.</p>`;
+        return;
+    }
 
-            container.innerHTML = `
-                <div id="novidade-container">
-                    <a href="novidades.html" id="voltar">
-                        <i class="fa-solid fa-arrow-left"></i> Voltar
-                    </a>
-                    <div id="novidade-img-div">
-                        <img id="novidade-img" src="${news.image}" alt="${news.title}">
+    document.title = news.title;
+
+    const categoryLabels = {
+        atm11: "ATM 11 TTS",
+        xomaps: "Xomaps Server",
+        nerddead: "Nerd Dead"
+    };
+
+    const toCategoryKey = value => String(value || "").trim().toLowerCase();
+    const categoryKey = toCategoryKey(news.category);
+    const categoryLabel = categoryLabels[categoryKey] || news.category || "";
+
+    container.innerHTML = `
+        <a href="novidades.html" id="voltar">
+            <i class="fa-solid fa-arrow-left"></i> Voltar
+        </a>
+        <article class="novidade-article" data-category="${categoryKey}">
+            <div class="novidade-banner">
+                <img src="${news.image}" alt="${news.title}">
+            </div>
+            <div class="novidade-meta">
+                ${categoryLabel ? `<span class="novidade-tag" data-category="${categoryKey}">${categoryLabel}</span>` : ""}
+                <h1>${news.title}</h1>
+                <div class="novidade-info">
+                    <div class="author">
+                        <img class="author-head" src="https://mc-heads.net/avatar/${news.author}" alt="${news.author}">
+                        <p>${news.author}</p>
                     </div>
-                    <div id="novidade-meta">
-                        <div id="novidade-header">
-                            <h1>${news.title}</h1>
-                            <p class="date">${news.date}</p>
-                        </div>
-                        <div id="novidade-info">
-                            <div class="author inline">
-                                <img class="author-head" src="https://mc-heads.net/avatar/${news.author}" alt="${news.author}">
-                                <p>${news.author}</p>
-                            </div>
-                        </div>
-                    </div>
-                    <div id="novidade-body">
-                        ${parseDescription(news.description)}
-                    </div>
+                    <p class="date">${news.date}</p>
                 </div>
-            `;
-        })
-        .catch(error => {
-            console.error(error);
-            container.innerHTML = `<p style="color: red; text-align: center; padding: 20px;">Erro: ${error.message}</p>`;
-        });
+            </div>
+            <div class="novidade-body">
+                ${parseDescription(news.description)}
+            </div>
+        </article>
+    `;
 });

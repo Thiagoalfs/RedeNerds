@@ -23,7 +23,7 @@
 
 .page {
     width: 100%;
-    max-width: 900px;
+    max-width: 1240px; /* 1200 (grid) + 40 (padding 20px cada lado) */
     margin: 0 auto;
     padding: 30px 20px 60px 20px;
     display: flex;
@@ -70,117 +70,13 @@
     max-width: 560px;
 }
 
-/* ----- Card de redirecionamento ----- */
-
-.redirect-card {
-    width: 100%;
-    max-width: 560px;
-    display: flex;
-    align-items: center;
-    gap: 16px;
-    padding: 20px;
-    background-color: var(--surface);
-    border: 1px solid var(--border-subtle);
-    border-radius: 12px;
-    text-decoration: none;
-    color: var(--text);
-    text-align: left;
-    transition: border-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
-    position: relative;
-}
-
-
-.redirect-icon {
-    flex-shrink: 0;
-    width: 48px;
-    height: 48px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 10px;
-    font-size: 20px;
-    background-color: rgba(255, 255, 255, 0.04);
-}
-
-.redirect-body {
-    flex: 1;
-    min-width: 0;
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-    padding-right: 28px;
-}
-
-.redirect-title {
-    margin: 0;
-    font-size: 16px;
-    font-weight: 600;
-    color: var(--text);
-}
-
-.redirect-desc {
-    margin: 0;
-    font-size: 14px;
-    color: var(--text-muted);
-    line-height: 1.5;
-}
-
-.redirect-arrow {
-    position: absolute;
-    right: 18px;
-    top: 50%;
-    transform: translateY(-50%);
-    color: #666;
-    font-size: 14px;
-    transition: transform 0.2s ease, color 0.2s ease;
-}
-
-.redirect-card:hover .redirect-arrow {
-    transform: translateY(-50%) translateX(3px);
-    color: var(--text);
-}
-
-/* ----- Variações de cor ----- */
-
-/* Servidores — azul */
-.redirect-servers {
-    border-left: 3px solid var(--border-color-1);
-}
-.redirect-servers .redirect-icon {
-    background-color: rgba(125, 185, 223, 0.12);
-    color: var(--border-color-1);
-}
-.redirect-servers:hover {
-    border-color: var(--border-color-1);
-    border-left-color: var(--border-color-1);
-    box-shadow: 0 8px 24px rgba(125, 185, 223, 0.18);
-}
-.redirect-servers:hover .redirect-arrow {
-    color: var(--border-color-1);
-}
-
-/* Downloads — roxo */
-.redirect-download {
-    border-left: 3px solid var(--border-color-2);
-}
-.redirect-download .redirect-icon {
-    background-color: rgba(185, 113, 218, 0.12);
-    color: var(--border-color-2);
-}
-.redirect-download:hover {
-    border-color: var(--border-color-2);
-    border-left-color: var(--border-color-2);
-    box-shadow: 0 8px 24px rgba(185, 113, 218, 0.18);
-}
-.redirect-download:hover .redirect-arrow {
-    color: var(--border-color-2);
-}
 
 /* ============================================
    Tablet (≥ 600px)
    ============================================ */
 @media (min-width: 600px) {
     .page {
+        max-width: 1264px; /* 1200 (grid) + 64 (padding 32px cada lado) */
         padding: 40px 32px 80px 32px;
         gap: 70px;
     }
@@ -209,11 +105,143 @@
    ============================================ */
 @media (min-width: 1024px) {
     .page {
+        max-width: 1280px; /* 1200 (grid) + 80 (padding 40px cada lado) */
         padding: 60px 40px 100px 40px;
         gap: 90px;
     }
 
     .section-title {
         font-size: 34px;
+    }
+}
+
+/* =========================================
+   Grid de servidores (cards na landing)
+   Reaproveita estilo de servidores.css
+   ========================================= */
+.servers-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 25px;
+    width: 100%;
+    max-width: 1200px;
+    padding: 10px 0;
+    align-self: stretch; /* estica a grid no cross-axis do .section (que tem align-items: center) */
+}
+
+.server-card {
+    display: flex;
+    flex-direction: column;
+    text-decoration: none;
+    color: white;
+    background-color: #0b0f15;
+    border-radius: 14px;
+    overflow: hidden;
+    border: 2px solid transparent;
+    transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+    cursor: pointer;
+    position: relative;
+}
+
+/* Card 1 - ATM 11 TTS (Roxo) */
+.server-card-1 {
+    border-color: #B971DA;
+    box-shadow: 0 0 15px rgba(185, 113, 218, 0.15);
+}
+.server-card-1:hover {
+    box-shadow: 0 12px 30px rgba(185, 113, 218, 0.45);
+    border-color: #D89BF0;
+}
+.server-card-1 .server-card-link { color: #B971DA; }
+.server-card-1 .banner-1 { background: linear-gradient(135deg, #5b1f8a 0%, #B971DA 100%); }
+
+/* Card 2 - Xomaps Server (Azul) */
+.server-card-2 {
+    border-color: #7DB9DF;
+    box-shadow: 0 0 15px rgba(125, 185, 223, 0.15);
+}
+.server-card-2:hover {
+    box-shadow: 0 12px 30px rgba(125, 185, 223, 0.45);
+    border-color: #A6D4F0;
+}
+.server-card-2 .server-card-link { color: #7DB9DF; }
+.server-card-2 .banner-2 { background: linear-gradient(135deg, #1f4f7a 0%, #7DB9DF 100%); }
+
+/* Card 3 - Nerd Dead (Vermelho) */
+.server-card-3 {
+    border-color: #E85D5D;
+    box-shadow: 0 0 15px rgba(232, 93, 93, 0.15);
+}
+.server-card-3:hover {
+    box-shadow: 0 12px 30px rgba(232, 93, 93, 0.45);
+    border-color: #F08080;
+}
+.server-card-3 .server-card-link { color: #E85D5D; }
+.server-card-3 .banner-3 { background: linear-gradient(135deg, #7a1f1f 0%, #E85D5D 100%); }
+
+/* Banner */
+.server-card-banner {
+    width: 100%;
+    height: 180px;
+    overflow: hidden;
+    position: relative;
+}
+
+.server-card-banner img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    transition: transform 0.4s ease;
+}
+
+/* Conteúdo do card */
+.server-card-content {
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    flex: 1;
+}
+
+.server-card-content h3 {
+    margin: 0;
+    font-size: 22px;
+    font-weight: 700;
+}
+
+.server-card-content p {
+    margin: 0;
+    color: #c5c5c5;
+    font-size: 14px;
+    flex: 1;
+    text-align: left; /* sobrescreve o .section { text-align: center } */
+}
+
+.server-card-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 5px;
+    font-weight: 600;
+    font-size: 14px;
+    transition: gap 0.3s ease;
+}
+
+.server-card:hover .server-card-link {
+    gap: 14px;
+}
+
+/* ----- Responsivo (idêntico ao servidores.css) ----- */
+@media (max-width: 900px) {
+    .servers-grid {
+        grid-template-columns: 1fr;
+        max-width: 500px;
+    }
+}
+
+@media (min-width: 901px) and (max-width: 1200px) {
+    .servers-grid {
+        grid-template-columns: repeat(2, 1fr);
     }
 }
