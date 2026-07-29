@@ -23,7 +23,7 @@
 
 .page {
     width: 100%;
-    max-width: 1240px; /* 1200 (grid) + 40 (padding 20px cada lado) */
+    max-width: 1240px;
     margin: 0 auto;
     padding: 30px 20px 60px 20px;
     display: flex;
@@ -76,7 +76,7 @@
    ============================================ */
 @media (min-width: 600px) {
     .page {
-        max-width: 1264px; /* 1200 (grid) + 64 (padding 32px cada lado) */
+        max-width: 1264px;
         padding: 40px 32px 80px 32px;
         gap: 70px;
     }
@@ -105,7 +105,7 @@
    ============================================ */
 @media (min-width: 1024px) {
     .page {
-        max-width: 1280px; /* 1200 (grid) + 80 (padding 40px cada lado) */
+        max-width: 1280px;
         padding: 60px 40px 100px 40px;
         gap: 90px;
     }
@@ -117,7 +117,6 @@
 
 /* =========================================
    Grid de servidores (cards na landing)
-   Reaproveita estilo de servidores.css
    ========================================= */
 .servers-grid {
     display: grid;
@@ -126,7 +125,7 @@
     width: 100%;
     max-width: 1200px;
     padding: 10px 0;
-    align-self: stretch; /* estica a grid no cross-axis do .section (que tem align-items: center) */
+    align-self: stretch;
 }
 
 .server-card {
@@ -143,7 +142,6 @@
     position: relative;
 }
 
-/* Card 1 - ATM 11 TTS (Roxo) */
 .server-card-1 {
     border-color: #B971DA;
     box-shadow: 0 0 15px rgba(185, 113, 218, 0.15);
@@ -155,7 +153,6 @@
 .server-card-1 .server-card-link { color: #B971DA; }
 .server-card-1 .banner-1 { background: linear-gradient(135deg, #5b1f8a 0%, #B971DA 100%); }
 
-/* Card 2 - Xomaps Server (Azul) */
 .server-card-2 {
     border-color: #7DB9DF;
     box-shadow: 0 0 15px rgba(125, 185, 223, 0.15);
@@ -167,7 +164,6 @@
 .server-card-2 .server-card-link { color: #7DB9DF; }
 .server-card-2 .banner-2 { background: linear-gradient(135deg, #1f4f7a 0%, #7DB9DF 100%); }
 
-/* Card 3 - Nerd Dead (Vermelho) */
 .server-card-3 {
     border-color: #E85D5D;
     box-shadow: 0 0 15px rgba(232, 93, 93, 0.15);
@@ -187,7 +183,6 @@
     transition: transform 0.4s ease;
 }
 
-/* Conteúdo do card */
 .server-card-content {
     padding: 20px;
     display: flex;
@@ -200,7 +195,7 @@
     color: #c5c5c5;
     font-size: 14px;
     flex: 1;
-    text-align: left; /* sobrescreve o .section { text-align: center } */
+    text-align: left;
 }
 
 .server-card-link {
@@ -227,7 +222,7 @@
     }
 
     .server-card-banner {
-        aspect-ratio: 16 / 9; /* banner mais compacto em mobile, igual ao .download-card-image (160px) */
+        aspect-ratio: 16 / 9;
     }
 
     .server-card-content {
@@ -251,8 +246,154 @@
 }
 
 /* =========================================
+   Seção Parceiros (index.html)
+   - Auto-adaptativa: 1, 2, 3, 4+ parceiros
+     ficam sempre centralizados
+   - Usa flex-wrap para que o grid se ajuste
+     à quantidade real de itens
+   ========================================= */
+.parceiros-grid {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: flex-start;
+    gap: 30px 28px;
+    width: 100%;
+    max-width: 100%;
+    padding: 10px 0;
+    margin: 0 auto;
+}
+
+.parceiro {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    text-align: center;
+    width: 150px;
+    flex: 0 0 auto;
+}
+
+.parceiro-avatar {
+    width: 110px;
+    height: 110px;
+    border-radius: 50%;
+    overflow: hidden;
+    background-color: var(--surface);
+    border: 2px solid var(--border-subtle);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    transition: border-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.parceiro-avatar:hover {
+    border-color: var(--border-color-1);
+    transform: translateY(-3px);
+    box-shadow: 0 8px 20px rgba(125, 185, 223, 0.25);
+}
+
+.parceiro-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+/* Fallback (ícone) — aparece quando a imagem não carrega */
+.parceiro-avatar-fallback {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-muted);
+    font-size: 38px;
+    pointer-events: none;
+}
+
+.parceiro-nome {
+    margin: 0;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text);
+    line-height: 1.3;
+    max-width: 100%;
+    word-wrap: break-word;
+}
+
+/* Ícones sociais (YT + TikTok) centralizados abaixo do nome */
+.parceiro-social {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    gap: 12px;
+    margin-top: 2px;
+}
+
+.parceiro-social-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background-color: rgba(255, 255, 255, 0.06);
+    color: var(--text-muted);
+    text-decoration: none;
+    font-size: 14px;
+    transition: transform 0.2s ease, background-color 0.2s ease, color 0.2s ease;
+}
+
+.parceiro-social-link:hover {
+    transform: translateY(-2px);
+    color: white;
+}
+
+.parceiro-social-link.yt:hover {
+    background-color: #FF0000;
+}
+
+.parceiro-social-link.tiktok:hover {
+    background-color: #000000;
+    box-shadow: 0 0 0 2px #25F4EE, 0 0 0 2px #FE2C55;
+}
+
+/* Tablet (≥ 600px) */
+@media (min-width: 600px) {
+    .parceiro {
+        width: 160px;
+    }
+
+    .parceiros-grid {
+        gap: 35px 30px;
+    }
+}
+
+/* Desktop (≥ 1024px) */
+@media (min-width: 1024px) {
+    .parceiro {
+        width: 170px;
+    }
+
+    .parceiro-avatar {
+        width: 130px;
+        height: 130px;
+    }
+
+    .parceiro-nome {
+        font-size: 15px;
+    }
+
+    .parceiros-grid {
+        gap: 40px 35px;
+    }
+}
+
+/* =========================================
    Seção Discord (index.html)
-   Layout 2 colunas: texto à esquerda, widget à direita
    ========================================= */
 .discord-grid {
     display: grid;
@@ -268,8 +409,8 @@
     display: flex;
     flex-direction: column;
     gap: 1rem;
-    text-align: center;          /* centraliza no mobile (default) */
-    align-items: center;         /* centraliza o botão (filho flex) */
+    text-align: center;
+    align-items: center;
     padding: 0 0.25rem;
 }
 
