@@ -179,14 +179,6 @@
 .server-card-3 .server-card-link { color: #E85D5D; }
 .server-card-3 .banner-3 { background: linear-gradient(135deg, #7a1f1f 0%, #E85D5D 100%); }
 
-/* Banner */
-.server-card-banner {
-    width: 100%;
-    height: 180px;
-    overflow: hidden;
-    position: relative;
-}
-
 .server-card-banner img {
     width: 100%;
     height: 100%;
@@ -203,13 +195,6 @@
     gap: 10px;
     flex: 1;
 }
-
-.server-card-content h3 {
-    margin: 0;
-    font-size: 22px;
-    font-weight: 700;
-}
-
 .server-card-content p {
     margin: 0;
     color: #c5c5c5;
@@ -232,16 +217,140 @@
     gap: 14px;
 }
 
-/* ----- Responsivo (idêntico ao servidores.css) ----- */
+/* ----- Responsivo ----- */
 @media (max-width: 900px) {
     .servers-grid {
         grid-template-columns: 1fr;
-        max-width: 500px;
+        max-width: 360px;
+        width: 100%;
+        margin: 0 auto;
+    }
+
+    .server-card-banner {
+        aspect-ratio: 16 / 9; /* banner mais compacto em mobile, igual ao .download-card-image (160px) */
+    }
+
+    .server-card-content {
+        padding: 14px;
+        gap: 8px;
+    }
+
+    .server-card-content h3 {
+        font-size: 18px;
+    }
+
+    .server-card-content p {
+        font-size: 13px;
     }
 }
 
 @media (min-width: 901px) and (max-width: 1200px) {
     .servers-grid {
         grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+/* =========================================
+   Seção Discord (index.html)
+   Layout 2 colunas: texto à esquerda, widget à direita
+   ========================================= */
+.discord-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+    width: 100%;
+    max-width: 1100px;
+    align-self: stretch;
+    margin: 0 auto;
+}
+
+.discord-text {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    text-align: center;          /* centraliza no mobile (default) */
+    align-items: center;         /* centraliza o botão (filho flex) */
+    padding: 0 0.25rem;
+}
+
+.discord-text h3 {
+    margin: 0;
+    font-size: 1.5rem;
+    color: #B971DA;
+    font-weight: 700;
+}
+
+.discord-text p {
+    margin: 0;
+    color: #c5c5c5;
+    font-size: 0.95rem;
+    line-height: 1.6;
+}
+
+.discord-cta {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.6rem;
+    padding: 0.75rem 1.5rem;
+    background: linear-gradient(135deg, #7B95E6 0%, #5865F2 100%);
+    color: white;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 0.95rem;
+    border-radius: 10px;
+    width: fit-content;
+    transition: transform 0.2s ease, box-shadow 0.2s ease, filter 0.2s ease;
+    box-shadow: 0 4px 14px rgba(88, 101, 242, 0.35);
+    box-sizing: border-box;
+}
+
+.discord-cta:hover {
+    transform: translateY(-2px);
+    filter: brightness(1.1);
+    box-shadow: 0 8px 22px rgba(88, 101, 242, 0.55);
+}
+
+.discord-cta i {
+    font-size: 1.1rem;
+}
+
+.discord-widget {
+    width: 100%;
+    border-radius: 12px;
+    overflow: hidden;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.discord-widget iframe {
+    display: block;
+    width: 100%;
+    border: none;
+}
+
+/* Desktop (≥ 900px): 2 colunas */
+@media (min-width: 900px) {
+    .discord-grid {
+        grid-template-columns: 1fr 1fr;
+        align-items: center;
+        gap: 2.5rem;
+    }
+
+    .discord-text {
+        text-align: left;
+        align-items: flex-start;
+    }
+
+    .discord-text h3 {
+        font-size: 1.75rem;
+    }
+
+    .discord-text p {
+        font-size: 1rem;
+    }
+
+    .discord-cta {
+        padding: 0.8rem 1.75rem;
+        font-size: 1rem;
     }
 }

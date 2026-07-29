@@ -1,71 +1,125 @@
+/* =========================================
+   ATM 11 TTS — Mobile-first
+   Tema: Roxo (#B971DA)
+   ========================================= */
+
+/* ---------- MOBILE (base) ---------- */
+
+/* Previne overflow horizontal na página inteira */
+#container,
+#server-detail.theme-1,
+.server-detail-content,
+.server-info {
+    min-width: 0;
+}
+
+.server-info p,
+.server-info h3,
+.server-features li {
+    overflow-wrap: break-word;
+    word-wrap: break-word;
+}
+
+/* Override do #container do common.css para margens responsivas */
+#container {
+    margin: 1.25rem 1rem 2rem 1rem;
+}
+
 #server-detail.theme-1 {
     width: 100%;
     display: flex;
     flex-direction: column;
-    align-items: center;
-    gap: 25px;
-    margin-bottom: 20px;
+    align-items: stretch;
+    gap: 1.25rem;
+    margin-bottom: 1.25rem;
+}
+
+/* Centraliza o cabeçalho (h2 .subtitle) sem afetar os cards */
+#server-detail.theme-1 > .centered-content {
+    align-self: center;
 }
 
 .server-detail-content {
     width: 100%;
     max-width: 900px;
-    padding: 30px;
+    margin: 0 auto;
+    padding: 1.25rem;
     background-color: #0b0f15;
-    border-radius: 14px;
-    border: 2px solid #B971DA;
+    border-radius: 12px;
+    border: 1.5px solid #B971DA;
     box-shadow: 0 0 20px rgba(185, 113, 218, 0.2);
+    box-sizing: border-box;
 }
 
 .server-info h3 {
-    font-size: 28px;
+    font-size: 1.5rem;
     color: #B971DA;
     margin-top: 0;
+    margin-bottom: 0.75rem;
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 0.5rem;
+    line-height: 1.2;
 }
 
 .server-info p {
     color: #d0d0d0;
     line-height: 1.6;
-    font-size: 16px;
+    font-size: 0.95rem;
+    margin: 0 0 1rem 0;
 }
 
 .server-features {
     list-style: none;
     padding: 0;
-    margin: 20px 0;
+    margin: 1rem 0;
     display: flex;
     flex-direction: column;
-    gap: 12px;
+    gap: 0.75rem;
 }
 
 .server-features li {
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 0.5rem;
     color: #e0e0e0;
-    font-size: 15px;
+    font-size: 0.9rem;
+    line-height: 1.4;
 }
 
 .server-features li i {
     color: #B971DA;
-    font-size: 14px;
+    font-size: 0.85rem;
+    flex-shrink: 0;
+}
+
+/* Botões CTA empilhados em mobile */
+.cta-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    margin-top: 0.75rem;
+    width: 100%;
 }
 
 .cta-button {
     display: inline-flex;
     align-items: center;
-    gap: 10px;
-    padding: 12px 28px;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.7rem 1.5rem;
     border-radius: 10px;
     text-decoration: none;
     color: white;
     font-weight: 600;
-    font-size: 15px;
+    font-size: 0.9rem;
+    font-family: inherit;
     transition: filter 0.2s ease, transform 0.2s ease;
-    margin-top: 10px;
+    border: none;
+    cursor: pointer;
+    width: 100%;
+    text-align: center;
+    box-sizing: border-box;
 }
 
 .cta-button:hover {
@@ -77,22 +131,11 @@
     background-color: #B971DA;
 }
 
-/* Container dos botões CTA (lado a lado) */
-.cta-buttons {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 12px;
-    margin-top: 10px;
-}
-
 /* Botão secundário "Copiar IP" — variante outline */
 .copy-ip-btn {
     background-color: transparent !important;
-    border: 2px solid currentColor;
+    border: 2px solid #B971DA !important;
     color: #B971DA;
-    cursor: pointer;
-    font-family: inherit;
-    padding: 10px 26px;
 }
 
 .copy-ip-btn:hover {
@@ -101,6 +144,92 @@
 }
 
 .copy-ip-btn.copied {
-    color: #47dd86;
-    border-color: #47dd86;
+    color: #47dd86 !important;
+    border-color: #47dd86 !important;
+}
+
+/* ---------- TABLET (≥ 600px) ---------- */
+@media (min-width: 600px) {
+    #container {
+        margin: 1.75rem 1.5rem 2.5rem 1.5rem;
+    }
+
+    #server-detail.theme-1 {
+        gap: 1.5rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .server-detail-content {
+        padding: 1.75rem;
+        border-radius: 14px;
+        border-width: 2px;
+    }
+
+    .server-info h3 {
+        font-size: 1.75rem;
+        gap: 0.6rem;
+    }
+
+    .server-info p {
+        font-size: 1rem;
+    }
+
+    .server-features li {
+        font-size: 0.95rem;
+        gap: 0.6rem;
+    }
+
+    /* Botões lado a lado */
+    .cta-buttons {
+        flex-direction: row;
+        flex-wrap: wrap;
+        gap: 0.75rem;
+        width: auto;
+    }
+
+    .cta-button {
+        width: auto;
+        padding: 0.7rem 1.75rem;
+    }
+}
+
+/* ---------- DESKTOP (≥ 1024px) ---------- */
+@media (min-width: 1024px) {
+    #container {
+        margin: 2.5rem auto 3rem auto;
+        max-width: 1100px;
+    }
+
+    #server-detail.theme-1 {
+        gap: 1.75rem;
+        margin-bottom: 1.75rem;
+    }
+
+    .server-detail-content {
+        padding: 2.25rem 2.5rem;
+    }
+
+    .server-info h3 {
+        font-size: 1.85rem;
+        gap: 0.65rem;
+    }
+
+    .server-features {
+        gap: 0.85rem;
+        margin: 1.5rem 0;
+    }
+
+    .server-features li {
+        font-size: 1rem;
+    }
+
+    .cta-buttons {
+        gap: 0.85rem;
+        margin-top: 1.25rem;
+    }
+
+    .cta-button {
+        padding: 0.8rem 1.85rem;
+        font-size: 0.95rem;
+    }
 }

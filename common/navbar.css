@@ -15,6 +15,8 @@ nav {
     border-bottom: 1px solid rgba(255, 255, 255, 0.3);
     font-weight: 600;
     max-height: 50px;
+    margin: 0;            /* zera qualquer espaçamento externo */
+    align-self: flex-start; /* evita o flex shrink que pode causar gap no topo */
 }
 
 #navbar a {
@@ -77,9 +79,6 @@ li.active a::after {
     transform: scale(1.05);
 }
 
-/* ============================================
-   Navbar — comportamento mobile (≤768px)
-   ============================================ */
 
 /* Desktop: botão hambúrguer escondido */
 #navbar-toggle {
@@ -89,7 +88,7 @@ li.active a::after {
     color: white;
     font-size: 22px;
     padding: 4px 8px;
-    margin-left: auto;   /* empurra pra direita enquanto #navbar está visível */
+    margin-left: auto; 
     cursor: pointer;
     border-radius: 6px;
     transition: color 0.2s ease, background-color 0.2s ease;
@@ -113,17 +112,18 @@ li.active a::after {
         justify-content: center;
     }
 
-    #navbar {
+        #navbar {
         /* Dropdown: posicionado relativo ao <nav> sticky */
         position: absolute;
         top: 100%;
+        margin-top: 0;
         left: 0;
         right: 0;
         flex-direction: column;
         align-items: stretch;
         gap: 0;
         background-color: #030407;
-        border-top: 1px solid rgba(255, 255, 255, 0.15);
+        border-top: none; /* evita dupla borda — a borda inferior do nav já serve */
         border-bottom: 1px solid rgba(255, 255, 255, 0.15);
         padding: 8px 0;
         max-height: 0;
