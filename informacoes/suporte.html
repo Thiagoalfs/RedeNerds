@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NerdCube</title>
+    <title>Suporte - NerdCube</title>
     <link rel="icon" type="image/x-icon" href="../assets/images/logo.webp">
     <link rel="stylesheet" href="suporte.css">
     <link rel="stylesheet" href="../common/footer.css">
@@ -12,7 +12,7 @@
     <link rel="stylesheet" href="../common/common.css">
 </head>
 <body>
-        <nav>
+    <nav>
         <a href="../index.html"><img id="navbar-img" src="../assets/images/logo.webp"></a>
         <ul id="navbar">
             <li><a href="../servidores/servidores.html"><i class="fa-solid fa-server"></i> Servidores</a></li>
@@ -29,44 +29,210 @@
     <div id="page-wrapper">
         <div id="big-header-div">
             <img id="img-fundo" src="../assets/images/fundo.png">
-
             <div id="big-header-img-content">
                 <img id="img-titulo" src="../assets/images/tituloprincipal.png">
                 <div id="big-header-text">
-                    <h1>Rede Nerd</h1>
-                    <p>Servidor feito de Nerds para Nerds. Venha jogar nosso modpack com outros jogadores! Temos máquinas, magias, exploração e muito mais!</p>
+                    <h1>Suporte</h1>
+                    <p>Precisa de ajuda? Estamos aqui para você. Encontre respostas rápidas nas perguntas frequentes ou entre em contato com nossa equipe pelos canais abaixo.</p>
                     <div id="big-header-buttons">
                         <a href="https://discord.gg/qmu2kjg8h"><button class="discord">
                             <i class="fa-brands fa-discord"></i>
                             Servidor Oficial
                         </button></a>
-                        
                     </div>
                 </div>
             </div>
         </div>
         <div class="split-div"><div class="split"></div></div>
-        <main id="container">
-            <section id="left-content">
-                <div id="como-jogar" class="centered-content">
-                    <h2 class="subtitle">Como jogar?</h2>
-                    <p>Para jogar no nosso servidor, você precisa ter o Minecraft Java Edition e o modpack NerdCube instalado. Você pode baixar o modpack na aba de downloads.</p>
-                    <a href="download/download.html"><button class="discord"><i class="fa-solid fa-download"></i>Baixar Modpack</button></a>
+
+        <main id="suporte-container">
+
+            <!-- Introdução -->
+            <div class="suporte-intro">
+                <h2 class="subtitle">Como podemos ajudar?</h2>
+                <p>Nosso suporte funciona principalmente pelo Discord, onde mantemos uma equipe ativa pronta para responder suas dúvidas, ouvir sugestões e resolver problemas técnicos ou relacionados a jogadores.</p>
+            </div>
+
+            <!-- Canais de atendimento -->
+            <section id="canais-section">
+                <div class="centered-content">
+                    <h2 class="subtitle">Canais de Atendimento</h2>
+                </div>
+
+                <div class="canais-grid">
+                    <!-- Discord -->
+                    <a href="https://discord.gg/qmu2kjg8h" target="_blank" rel="noopener" class="canal-card canal-card-discord">
+                        <div class="canal-icon">
+                            <i class="fa-brands fa-discord"></i>
+                        </div>
+                        <h3>Discord Oficial</h3>
+                        <p>Entre no nosso servidor do Discord para suporte em tempo real, participar da comunidade e ficar por dentro das novidades.</p>
+                        <span class="canal-card-cta">
+                            Entrar no Discord <i class="fa-solid fa-arrow-up-right-from-square"></i>
+                        </span>
+                    </a>
+
+                    <!-- Ticket -->
+                    <a href="https://discord.gg/qmu2kjg8h" target="_blank" rel="noopener" class="canal-card canal-card-ticket">
+                        <div class="canal-icon">
+                            <i class="fa-solid fa-ticket"></i>
+                        </div>
+                        <h3>Abrir Ticket</h3>
+                        <p>Para problemas mais específicos como bugs, denúncias, appeal de punição ou questões técnicas, abra um ticket dentro do nosso Discord.</p>
+                        <span class="canal-card-cta">
+                            Criar ticket <i class="fa-solid fa-arrow-up-right-from-square"></i>
+                        </span>
+                    </a>
+
                 </div>
             </section>
-            <section id="right-content">
-                <iframe src="https://discord.com/widget?id=1514603566755610705&theme=dark" 
-                width="350" 
-                height="500" 
-                allowtransparency="true" 
-                frameborder="0" 
-                sandbox="allow-popups allow-popups-to-escape-sandbox allow-same-origin allow-scripts">
+
+            <!-- FAQ -->
+            <section id="faq-section">
+                <div class="centered-content">
+                    <h2 class="subtitle">Perguntas Frequentes</h2>
+                    <p style="max-width: 640px; color: var(--text-muted);">Respostas rápidas para as dúvidas mais comuns da comunidade. Não encontrou o que procura? Abra um ticket.</p>
+                </div>
+
+                <div class="faq-list">
+                    <details class="faq-item">
+                        <summary>Como entro no servidor da NerdCube?</summary>
+                        <div class="faq-answer">
+                            Para jogar, você precisa ter o <strong>Minecraft Java Edition</strong> e o modpack do servidor instalado. Acesse a página de <a href="../download/download.html">Downloads</a>, baixe o modpack do servidor que deseja jogar e adicione-o no launcher de sua preferência (recomendamos o CurseForge ou Prism Launcher).
+                        </div>
+                    </details>
+
+                    <details class="faq-item">
+                        <summary>Quais são as regras do servidor?</summary>
+                        <div class="faq-answer">
+                            Todas as regras estão descritas na nossa <a href="../regras/regras.html">página de Regras</a>. É obrigatório ler antes de jogar. O descumprimento resulta em punições que podem variar de aviso até banimento permanente, dependendo da gravidade.
+                        </div>
+                    </details>
+
+                    <details class="faq-item">
+                        <summary>Como faço appeal de um banimento?</summary>
+                        <div class="faq-answer">
+                            Entre no nosso Discord e abra um ticket na categoria <strong>"Appeals"</strong>. Seja educado, explique a situação com calma e aguarde a análise da staff. Decisões de banimento só são revistas mediante apresentação de novos fatos relevantes.
+                        </div>
+                    </details>
+
+                    <details class="faq-item">
+                        <summary>O servidor está laggando/travando, o que eu faço?</summary>
+                        <div class="faq-answer">
+                            Primeiro, verifique sua própria conexão com a internet. Se o problema persistir, abra um ticket no Discord com as seguintes informações: prints ou vídeo do lag, horário aproximado, região do servidor que estava e descrição do que acontecia. Nossa equipe técnica vai investigar.
+                        </div>
+                    </details>
+
+                    <details class="faq-item">
+                        <summary>Perdi meus itens por causa de um crash. Posso recuperá-los?</summary>
+                        <div class="faq-answer">
+                            Sim, mas apenas mediante apresentação de provas. Conforme nossa <strong>Regra 13</strong>, abra um ticket no Discord com prints ou gravações que comprovem a posse dos itens antes do ocorrido. Sem provas concretas, infelizmente não é possível realizar a devolução.
+                        </div>
+                    </details>
+
+                    <details class="faq-item">
+                        <summary>Como reporto um jogador que está quebrando as regras?</summary>
+                        <div class="faq-answer">
+                            Utilize o comando <code>/report &lt;jogador&gt;</code> dentro do próprio jogo ou abra um ticket no Discord com o máximo de provas possíveis: prints, vídeos, logs e descrição detalhada da situação. Denúncias sem evidência dificilmente levam a punição.
+                        </div>
+                    </details>
+
+                    <details class="faq-item">
+                        <summary>Como aplico no servidor / faço parte da equipe?</summary>
+                        <div class="faq-answer">
+                            Fique de olho no nosso Discord: quando há vagas abertas para Moderador ou Helper, abrimos um canal de aplicação com formulário. Não aceitamos aplicações espontâneas por DM. Valorizamos jogadores ativos, maduros e que conhecem bem as regras.
+                        </div>
+                    </details>
+
+                    <details class="faq-item">
+                        <summary>Posso usar mods clientes (OptiFine, Sodium, etc.)?</summary>
+                        <div class="faq-answer">
+                            Mods de <strong>qualidade de vida e performance</strong> como OptiFine, Sodium, Iris, Shaders e similares são permitidos. Mods que deem <strong>vantagem injusta</strong> (X-Ray, KillAura, Fly, AutoClicker, ESP, Tracers etc.) são proibidos e resultam em banimento imediato.
+                        </div>
+                    </details>
+                </div>
+            </section>
+
+            <!-- Antes de abrir ticket -->
+            <section id="dicas-section">
+                <div class="centered-content">
+                    <h2 class="subtitle">Antes de abrir um ticket</h2>
+                    <p style="max-width: 640px; color: var(--text-muted);">Seguindo estas dicas, seu atendimento será muito mais rápido e eficiente.</p>
+                </div>
+
+                <div class="dicas-list">
+                    <div class="dica">
+                        <div class="dica-number">1</div>
+                        <div class="dica-content">
+                            <h4>Consulte a FAQ primeiro</h4>
+                            <p>Talvez sua dúvida já tenha sido respondida acima. Isso libera a equipe para focar em problemas mais complexos.</p>
+                        </div>
+                    </div>
+
+                    <div class="dica">
+                        <div class="dica-number">2</div>
+                        <div class="dica-content">
+                            <h4>Reúna provas concretas</h4>
+                            <p>Prints, vídeos, logs do jogo (pastebin) e datas/horários exatos aceleram muito a análise. Tickets sem evidência levam mais tempo.</p>
+                        </div>
+                    </div>
+
+                    <div class="dica">
+                        <div class="dica-number">3</div>
+                        <div class="dica-content">
+                            <h4>Seja claro e educado</h4>
+                            <p>Descreva o problema de forma direta, sem omitir informações importantes. Lembre-se: a staff está ali para te ajudar, não para te julgar.</p>
+                        </div>
+                    </div>
+
+                    <div class="dica">
+                        <div class="dica-number">4</div>
+                        <div class="dica-content">
+                            <h4>Não duplique tickets</h4>
+                            <p>Abrir vários tickets sobre o mesmo assunto só atrasa o atendimento. Aguarde pacientemente; responderemos o mais rápido possível.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Tempo de resposta / Status -->
+            <section id="status-section">
+                <div class="centered-content">
+                    <h2 class="subtitle">Tempos de Resposta</h2>
+                </div>
+
+                <div class="status-grid">
+                    <div class="status-card">
+                        <div class="status-icon"><i class="fa-brands fa-discord"></i></div>
+                        <h4>Discord</h4>
+                        <p>Resposta média em <strong>1 a 4 horas</strong> durante o horário ativo da staff (10h às 23h).</p>
+                    </div>
+
+                    <div class="status-card">
+                        <div class="status-icon"><i class="fa-solid fa-ticket"></i></div>
+                        <h4>Tickets</h4>
+                        <p>Resolução geralmente em <strong>até 24 horas</strong>, dependendo da complexidade do caso.</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Discord widget -->
+            <section id="discord-widget-section">
+                <iframe
+                    src="https://discord.com/widget?id=1514603566755610705&theme=dark"
+                    width="600"
+                    height="400"
+                    allowtransparency="true"
+                    frameborder="0"
+                    sandbox="allow-popups allow-popups-to-escape-sandbox allow-same-origin allow-scripts">
                 </iframe>
             </section>
+
         </main>
     </div>
-        <div id="footer">
-        <p class="footer-text">© Copyright 2026 <span class="bold">NerdCube</span>. Todos os direitos reservados. </p>
+
+    <div id="footer">
+        <p class="footer-text">© Copyright 2026 <span class="bold">NerdCube</span>. Todos os direitos reservados.</p>
     </div>
     <script src="../common/navbar.js"></script>
 </body>
