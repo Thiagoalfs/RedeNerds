@@ -370,6 +370,10 @@
     .parceiros-grid {
         gap: 35px 30px;
     }
+
+    #img-titulo {
+        max-width: 150px;
+    }
 }
 
 /* Desktop (≥ 1024px) */
@@ -389,6 +393,10 @@
 
     .parceiros-grid {
         gap: 40px 35px;
+    }
+
+    #img-titulo {
+        max-width: 400px;
     }
 }
 
