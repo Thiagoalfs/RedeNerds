@@ -78,3 +78,31 @@
 .theme-2-btn {
     background-color: #7DB9DF;
 }
+
+/* Container dos botões CTA (lado a lado) */
+.cta-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-top: 10px;
+}
+
+/* Botão secundário "Copiar IP" — variante outline */
+.copy-ip-btn {
+    background-color: transparent !important;
+    border: 2px solid currentColor;
+    color: #7DB9DF;
+    cursor: pointer;
+    font-family: inherit;
+    padding: 10px 26px;
+}
+
+.copy-ip-btn:hover {
+    background-color: rgba(125, 185, 223, 0.12) !important;
+    filter: none;
+}
+
+.copy-ip-btn.copied {
+    color: #47dd86;
+    border-color: #47dd86;
+}

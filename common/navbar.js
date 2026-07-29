@@ -1,6 +1,3 @@
-// common/navbar.js
-// Lógica do menu hambúrguer — funciona em todos os .html que importam este arquivo.
-
 (function () {
     'use strict';
 
