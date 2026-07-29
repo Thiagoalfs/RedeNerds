@@ -3,6 +3,13 @@
    Visual estilo "site de notícias"
    ========================= */
 
+/* Override do #container do common.css */
+#container {
+    margin: 1.25rem 0.75rem 2rem 0.75rem;
+    max-width: 100%;
+    box-sizing: border-box;
+}
+
 #novidade-container {
     max-width: 760px;
     margin: 30px auto 60px auto;

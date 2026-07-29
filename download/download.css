@@ -4,6 +4,13 @@
     --card-bg: #0b0f15;
 }
 
+/* Override do #container do common.css (margin fixo 100px nas laterais) */
+#container {
+    margin: 1.25rem 0.75rem 2rem 0.75rem;
+    max-width: 100%;
+    box-sizing: border-box;
+}
+
 #downloads-section {
     width: 100%;
     display: flex;
@@ -11,7 +18,7 @@
     align-items: center;
     gap: 25px;
     margin: 0;
-    padding: 0 16px 30px 16px;
+    padding: 0 0.75rem 30px 0.75rem; /* 12px lateral mínimo no mobile (não espreme o conteúdo) */
     box-sizing: border-box;
 }
 
@@ -41,9 +48,10 @@
     gap: 14px;
     background-color: var(--card-bg);
     border-radius: 14px;
-    padding: 14px;
+    padding: 16px;
     border: 2px solid transparent;
     transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+    box-sizing: border-box;
 }
 
 .download-card-image {
@@ -177,15 +185,11 @@
 /* ----- Tablet: ≥600px ----- */
 @media (min-width: 600px) {
     #downloads-section {
-        padding: 0 24px 40px 24px;
+        padding: 0 1.5rem 40px 1.5rem;
     }
 
     .downloads-list {
         gap: 22px;
-    }
-
-    .download-card {
-        padding: 16px;
     }
 
     .download-card-image {
@@ -244,6 +248,11 @@
 
 /* ----- Desktop: ≥1024px ----- */
 @media (min-width: 1024px) {
+    #container {
+        margin: 2.5rem auto 3rem auto;
+        max-width: 1200px;
+    }
+
     #downloads-section {
         padding: 0 0 40px 0;
     }

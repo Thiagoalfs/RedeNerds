@@ -13,8 +13,26 @@ body {
     margin: 0px;
 }
 
+/* Container padrão — Mobile-first
+   Margem lateral mínima no mobile (não espreme o conteúdo em telas pequenas)
+   e centralizada com max-width no desktop. */
 #container {
-    margin: 20px 100px 30px 100px;
+    margin: 1.25rem 0.5rem 2rem 0.5rem;
+    max-width: 100%;
+    box-sizing: border-box;
+}
+
+@media (min-width: 600px) {
+    #container {
+        margin: 1.5rem 1rem 2.25rem 1rem;
+    }
+}
+
+@media (min-width: 1024px) {
+    #container {
+        margin: 2.5rem auto 3rem auto;
+        max-width: 1200px;
+    }
 }
 
 #page-wrapper {
@@ -69,7 +87,7 @@ body {
 }
 
 #img-titulo {
-    max-width: 700px;
+    width: 500px;
 }
 
 #big-header-text h1 {
@@ -226,13 +244,17 @@ a {
 
 @media (max-width: 700px) {
     /* Esconde o título grande (logo NerdCube) no mobile em todas as páginas
-       EXCETO no index.html (que usa <main class="page">, sem id="container") */
-    body:has(main#container) #img-titulo {
+       EXCETO no index.html (que usa <main class="page">) */
+    body:has(main#container) #img-titulo,
+    body:has(main#suporte-container) #img-titulo,
+    body:has(main#novidade-container) #img-titulo {
         display: none;
     }
 
     /* Reduz a altura do hero no mobile nas páginas secundárias */
-    body:has(main#container) #big-header-div {
+    body:has(main#container) #big-header-div,
+    body:has(main#suporte-container) #big-header-div,
+    body:has(main#novidade-container) #big-header-div {
         height: 500px;
     }
 
