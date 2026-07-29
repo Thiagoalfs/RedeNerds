@@ -5,11 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Downloads</title>
     <link rel="icon" type="image/x-icon" href="../assets/images/logo.webp">
+    <link rel="stylesheet" href="../common/common.css">
     <link rel="stylesheet" href="download.css">
     <link rel="stylesheet" href="../common/footer.css">
     <link rel="stylesheet" href="../common/navbar.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
-    <link rel="stylesheet" href="../common/common.css">
 </head>
 <body>
         <nav>
@@ -57,7 +57,7 @@
 
                 <div class="downloads-list">
 
-                    <!-- ATM 11 TTS (Roxo) -->
+                                        <!-- ATM 11 TTS (Roxo) -->
                     <article class="download-card download-card-1">
                         <div class="download-card-image">
                             <img src="../assets/images/Allthemods11.png" alt="ATM 11 TTS">
@@ -68,10 +68,15 @@
                                 Magia, tecnologia e exploração. O carro-chefe da rede.
                             </p>
                         </div>
-                        <!-- Placeholder: trocar por LINK_DOWNLOAD_ATM11 quando disponível -->
-                        <a href="https://www.curseforge.com/minecraft/modpacks/all-the-mods-11" target="_blank" rel="noopener" class="download-card-btn">
-                            Baixar modpack <i class="fa-solid fa-arrow-up-right-from-square"></i>
-                        </a>
+                        <div class="download-card-buttons">
+                            <!-- Placeholder: trocar por LINK_DOWNLOAD_ATM11 quando disponível -->
+                            <a href="https://www.curseforge.com/minecraft/modpacks/all-the-mods-11" target="_blank" rel="noopener" class="download-card-btn">
+                                Baixar modpack <i class="fa-solid fa-arrow-up-right-from-square"></i>
+                            </a>
+                            <button type="button" class="download-card-btn copy-ip-btn" data-copy-ip="play.nerdcube.net">
+                                Copiar IP <i class="fa-solid fa-copy"></i>
+                            </button>
+                        </div>
                     </article>
 
                     <!-- Xomaps Server (Azul) -->
@@ -85,10 +90,15 @@
                                 Sobrevivência semi-vanilla com claims, economia e mapa interativo.
                             </p>
                         </div>
-                        <a href="https://www.curseforge.com/minecraft/modpacks/xomaps-potato-master"
-                        target="_blank" rel="noopener" class="download-card-btn">
-                            Baixar modpack <i class="fa-solid fa-arrow-up-right-from-square"></i>
-                        </a>
+                        <div class="download-card-buttons">
+                            <a href="https://www.curseforge.com/minecraft/modpacks/xomaps-potato-master"
+                            target="_blank" rel="noopener" class="download-card-btn">
+                                Baixar modpack <i class="fa-solid fa-arrow-up-right-from-square"></i>
+                            </a>
+                            <button type="button" class="download-card-btn copy-ip-btn" data-copy-ip="xomaps.nerdcube.net">
+                                Copiar IP <i class="fa-solid fa-copy"></i>
+                            </button>
+                        </div>
                     </article>
 
                     <!-- Nerd Dead (Vermelho) — coming soon -->
@@ -115,5 +125,6 @@
         <p class="footer-text">© Copyright 2026 <span class="bold">NerdCube</span>. Todos os direitos reservados. </p>
     </div>
     <script src="../common/navbar.js"></script>
+    <script src="../common/copy-ip.js"></script>
 </body>
 </html>

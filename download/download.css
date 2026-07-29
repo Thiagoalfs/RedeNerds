@@ -4,13 +4,6 @@
     --card-bg: #0b0f15;
 }
 
-/* =========================
-   Página de Downloads
-   Mobile-first
-   ========================= */
-
-/* ----- Mobile (default) ----- */
-
 #downloads-section {
     width: 100%;
     display: flex;
@@ -106,11 +99,53 @@
     border-radius: 8px;
     font-weight: 600;
     font-size: 15px;
+    line-height: 1;
     text-decoration: none;
     background: transparent;
     transition: background-color 0.2s ease, color 0.2s ease, gap 0.2s ease;
     white-space: nowrap;
     margin-left: 0;
+    font-family: inherit;
+    cursor: pointer;
+    box-sizing: border-box;
+}
+
+/* Container dos botões (Baixar modpack + Copiar IP) */
+.download-card-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    align-self: stretch;
+    align-items: stretch;
+    width: 100%;
+}
+
+/* Em mobile ambos os botões esticam 100% */
+.download-card-buttons .download-card-btn {
+    width: 100%;
+}
+
+/* Botão secundário "Copiar IP" — variante outline */
+.copy-ip-btn {
+    background-color: transparent !important;
+    padding: 12px 22px !important;
+    border: 1.5px solid !important;
+    border-radius: 8px !important;
+    font-size: 15px !important;
+    font-family: inherit !important;
+    font-weight: 600 !important;
+    line-height: 1 !important;
+    width: 100% !important;
+}
+
+.copy-ip-btn:hover {
+    filter: none;
+    opacity: 0.85;
+}
+
+.copy-ip-btn.copied {
+    color: #47dd86 !important;
+    border-color: #47dd86 !important;
 }
 
 .download-card-btn-disabled {
@@ -184,9 +219,26 @@
         font-size: 22px;
     }
 
-    .download-card-btn {
+        .download-card-btn {
+        align-self: center;
+    }
+
+        .download-card-buttons {
+        flex-direction: row;
         align-self: center;
         margin-left: auto;
+        gap: 12px;
+        width: auto;
+        align-items: center;
+    }
+
+    .download-card-buttons .download-card-btn {
+        align-self: center;
+        width: auto;          /* volta ao tamanho natural em desktop */
+    }
+
+    .download-card-buttons .copy-ip-btn {
+        width: auto !important; /* sobrescreve o !important do mobile */
     }
 }
 

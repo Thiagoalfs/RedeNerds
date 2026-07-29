@@ -225,6 +225,22 @@ a {
 }
 
 @media (max-width: 700px) {
+    /* Esconde o título grande (logo NerdCube) no mobile em todas as páginas
+       EXCETO no index.html (que usa <main class="page">, sem id="container") */
+    body:has(main#container) #img-titulo {
+        display: none;
+    }
+
+    /* Reduz a altura do hero no mobile nas páginas secundárias */
+    body:has(main#container) #big-header-div {
+        height: 500px;
+    }
+
+    /* index.html tem um hero um pouco maior no mobile */
+    body:has(main.page) #big-header-div {
+        height: 600px;
+    }
+
     #img-titulo {
         max-width: 400px;
     }

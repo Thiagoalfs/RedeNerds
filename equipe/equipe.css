@@ -1,60 +1,191 @@
+/* =========================================
+   Equipe — Mobile-first
+   ========================================= */
+
 :root {
     --border-color-2: #B971DA;
     --border-color-1: #7DB9DF;
+    --bg: #030407;
+    --surface: #0b0f15;
+    --border-subtle: rgba(255, 255, 255, 0.08);
 }
 
-.skin {
-    position: relative;
-    display: inline-block;
+/* Override do #container do common.css para margens responsivas */
+#container {
+    margin: 1.25rem 1rem 2rem 1rem;
 }
 
-.skin img:hover {
-    transform: scale(1.1);
-}
-
-.skin img {
-    max-width: 200px;
-    margin: 0px;
-    display: block;
-    transition: ease 0.2s;
-}
-
-.nametag-box {
-    display: flex;
-    align-items: center;
-    background: linear-gradient(to right, rgb(75, 179, 245), rgb(39, 172, 255));;
-    clip-path: polygon(0 0, calc(100% - 20px) 0, 100% 50%, calc(100% - 20px) 100%, 0 100%);
-    height: 28px;
-    padding: 0px 50px 0px 14px;
-    line-height: 1;
-    margin: 0px;
-    position: absolute;
-    bottom: 14px;
-    left:0;
-    filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.7));
-}
-
-.nametag {
-    font-weight: 500;
-    filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.7));
-}
-
-.skins-wrapper{
-    gap: 30px;
-    display: flex;
-    flex-direction: row;
-    overflow: hidden;
-}
-
-.equipe-header-color {
+/* ----- Container geral ----- */
+#equipe {
     width: 100%;
-    height: 2px;
-    background: linear-gradient(90deg, var(--border-color-2), rgba(185, 113, 218, 0));
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 1.75rem;
+    padding: 0 0.25rem;
+    box-sizing: border-box;
 }
 
+/* ----- Cabeçalho de cada cargo ----- */
 .equipe-header {
     display: flex;
     flex-direction: row;
     align-items: center;
-    gap: 30px;
+    gap: 1rem;
+    margin-bottom: 0.75rem;
+}
+
+.equipe-header h3 {
+    margin: 0;
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: white;
+    white-space: nowrap;
+}
+
+.equipe-header-color {
+    flex: 1;
+    height: 2px;
+    background: linear-gradient(90deg, var(--border-color-2), rgba(185, 113, 218, 0));
+    border-radius: 1px;
+}
+
+/* ----- Wrapper de skins: empilhado em mobile ----- */
+.skins-wrapper {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    width: 100%;
+    justify-content: flex-start;
+}
+
+/* ----- Skin card ----- */
+.skin {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background-color: var(--surface);
+    border-radius: 12px;
+    padding: 1rem;
+    border: 1px solid var(--border-subtle);
+    transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+    overflow: hidden;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.skin img {
+    width: 100%;
+    max-width: 180px;
+    height: auto;
+    aspect-ratio: 1 / 1;
+    object-fit: contain;
+    display: block;
+    margin: 0;
+    image-rendering: pixelated;
+    transition: transform 0.2s ease;
+}
+
+.skin:hover img {
+    transform: scale(1.05);
+}
+
+/* ----- Nametag (sobreposta à skin) ----- */
+.nametag-box {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    background: linear-gradient(to right, rgb(75, 179, 245), rgb(39, 172, 255));
+    clip-path: polygon(0 0, calc(100% - 16px) 0, 100% 50%, calc(100% - 16px) 100%, 0 100%);
+    height: 30px;
+    padding: 0 36px 0 14px;
+    margin: 0;
+    position: absolute;
+    bottom: 14px;
+    left: 0;
+    filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.7));
+    width: fit-content;
+    min-width: 75%;
+    max-width: 90%;
+    box-sizing: border-box;
+}
+
+.nametag {
+    margin: 0;
+    font-weight: 500;
+    color: white;
+    font-size: 0.95rem;
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.8));
+    white-space: nowrap;
+}
+
+/* ============================================
+   Tablet (≥ 600px) — 2 colunas
+   ============================================ */
+@media (min-width: 600px) {
+    #container {
+        margin: 1.75rem 1.5rem 2.5rem 1.5rem;
+    }
+
+    #equipe {
+        gap: 2rem;
+        padding: 0 0.5rem;
+    }
+
+    .equipe-header h3 {
+        font-size: 1.25rem;
+    }
+
+    .skins-wrapper {
+        gap: 1.25rem;
+    }
+
+    .skin {
+        width: calc(50% - 0.625rem); /* 2 colunas com gap de 1.25rem */
+    }
+
+    .skin img {
+        max-width: 200px;
+    }
+}
+
+/* ============================================
+   Tablet horizontal (≥ 768px) — 3 colunas
+   ============================================ */
+@media (min-width: 768px) {
+    .skin {
+        width: calc(33.333% - 0.833rem); /* 3 colunas com gap de 1.25rem */
+    }
+}
+
+/* ============================================
+   Desktop (≥ 1024px) — 4 colunas, alinhadas à esquerda
+   ============================================ */
+@media (min-width: 1024px) {
+    #container {
+        margin: 2.5rem auto 3rem auto;
+        max-width: 1300px;
+    }
+
+    #equipe {
+        gap: 2.5rem;
+        padding: 0;
+    }
+
+    .equipe-header h3 {
+        font-size: 1.4rem;
+    }
+
+    .skins-wrapper {
+        gap: 1.5rem;
+        justify-content: flex-start; /* alinha à esquerda */
+    }
+
+    .skin {
+        width: 200px;          /* largura fixa */
+        flex-shrink: 0;        /* não encolhe */
+        padding: 1.25rem;
+    }
 }
