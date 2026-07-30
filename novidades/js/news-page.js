@@ -49,8 +49,8 @@ document.addEventListener("DOMContentLoaded", () => {
     document.title = news.title;
 
     const categoryLabels = {
-        atm11: "ATM 11 TTS",
-        xomaps: "Xomaps Server",
+        atm10: "NerdSky",
+        xomaps: "Potato Nerd",
         nerddead: "Nerd Dead"
     };
 

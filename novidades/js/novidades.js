@@ -16,14 +16,15 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     const categoryLabels = {
-        atm11: "ATM 11 TTS",
-        xomaps: "Xomaps Server",
+        atm10: "NerdSky",
+        xomaps: "Potato Nerd",
         nerddead: "Nerd Dead"
     };
 
     const toCategoryKey = value => String(value || "").trim().toLowerCase();
 
-    const entries = window.NOVIDADES.slice().reverse();
+    // Mais recente primeiro; limita a 3 cards no novidades.html (demais ficam no mais.html)
+    const entries = window.NOVIDADES.slice().reverse().slice(0, 3);
 
     if (entries.length === 0) {
         newsContainer.innerHTML = `<p style="text-align:center; padding: 20px;">Nenhuma novidade por enquanto.</p>`;

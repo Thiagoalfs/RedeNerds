@@ -107,11 +107,11 @@
     letter-spacing: 0.3px;
 }
 
-.news-div-tag[data-category="atm11"] {
+.news-div-tag[data-category="nerdsky"] {
     background-color: #B971DA;
 }
 
-.news-div-tag[data-category="xomaps"] {
+.news-div-tag[data-category="potato nerd"] {
     background-color: #7DB9DF;
 }
 
@@ -168,27 +168,27 @@
 }
 
 /* Paleta por categoria */
-.news-div[data-category="atm11"] {
+.news-div[data-category="nerdsky"] {
     border-color: #B971DA;
     box-shadow: 0 0 15px rgba(185, 113, 218, 0.15);
 }
-.news-div[data-category="atm11"]:hover {
+.news-div[data-category="nerdsky"]:hover {
     box-shadow: 0 12px 30px rgba(185, 113, 218, 0.45);
     border-color: #D89BF0;
 }
-.news-div[data-category="atm11"] .news-div-link {
+.news-div[data-category="nerdsky"] .news-div-link {
     color: #B971DA;
 }
 
-.news-div[data-category="xomaps"] {
+.news-div[data-category="potato nerd"] {
     border-color: #7DB9DF;
     box-shadow: 0 0 15px rgba(125, 185, 223, 0.15);
 }
-.news-div[data-category="xomaps"]:hover {
+.news-div[data-category="potato nerd"]:hover {
     box-shadow: 0 12px 30px rgba(125, 185, 223, 0.45);
     border-color: #A6D4F0;
 }
-.news-div[data-category="xomaps"] .news-div-link {
+.news-div[data-category="potato nerd"] .news-div-link {
     color: #7DB9DF;
 }
 
@@ -224,6 +224,47 @@
         margin: 2.5rem auto 3rem auto;
         max-width: 1280px;
     }
+}
+.ver-mais-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    margin-top: 1.5rem;
+}
+
+.ver-mais-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.6rem;
+    padding: 0.75rem 1.5rem;
+    background: transparent;
+    color: var(--border-color-1);
+    border: 1.5px solid var(--border-color-1);
+    border-radius: 10px;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 0.95rem;
+    font-family: inherit;
+    transition: background-color 0.2s ease, color 0.2s ease, gap 0.2s ease, transform 0.2s ease;
+    box-sizing: border-box;
+    cursor: pointer;
+}
+
+.ver-mais-btn:hover {
+    background-color: var(--border-color-1);
+    color: #030407;
+    gap: 0.9rem;
+    transform: translateY(-2px);
+}
+
+.ver-mais-btn i {
+    transition: transform 0.2s ease;
+}
+
+.ver-mais-btn:hover i {
+    transform: translateX(3px);
 }
 
 @media (min-width: 901px) and (max-width: 1200px) {

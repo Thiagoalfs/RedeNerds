@@ -1,0 +1,219 @@
+:root {
+    --border-color-2: #B971DA;
+    --border-color-1: #7DB9DF;
+    --card-bg: #0b0f15;
+    --border-subtle: rgba(255, 255, 255, 0.08);
+    --text-muted: #c5c5c5;
+}
+
+/* Lista vertical: 1 card por linha, mobile-first */
+#all-news-container {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+    width: 100%;
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 10px 0;
+    box-sizing: border-box;
+}
+
+/* Card horizontal: mobile (default) — empilhado (imagem em cima) */
+.all-news-card {
+    display: flex;
+    flex-direction: column;
+    text-decoration: none;
+    color: white;
+    background-color: var(--card-bg);
+    border-radius: 12px;
+    overflow: hidden;
+    border: 2px solid transparent;
+    transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+    cursor: pointer;
+    position: relative;
+    box-sizing: border-box;
+}
+
+.all-news-card:hover {
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+}
+
+/* Cores por categoria */
+.all-news-card[data-category="nerdsky"] { border-color: #B971DA; box-shadow: 0 0 12px rgba(185, 113, 218, 0.12); }
+.all-news-card[data-category="nerdsky"]:hover { box-shadow: 0 8px 24px rgba(185, 113, 218, 0.4); border-color: #D89BF0; }
+
+.all-news-card[data-category="potato nerd"] { border-color: #7DB9DF; box-shadow: 0 0 12px rgba(125, 185, 223, 0.12); }
+.all-news-card[data-category="potato nerd"]:hover { box-shadow: 0 8px 24px rgba(125, 185, 223, 0.4); border-color: #A6D4F0; }
+
+.all-news-card[data-category="nerddead"] { border-color: #E85D5D; box-shadow: 0 0 12px rgba(232, 93, 93, 0.12); }
+.all-news-card[data-category="nerddead"]:hover { box-shadow: 0 8px 24px rgba(232, 93, 93, 0.4); border-color: #F08080; }
+
+/* Imagem (em mobile: largura 100%, no topo) */
+.all-news-image {
+    width: 100%;
+    height: 180px;
+    overflow: hidden;
+    background-color: #1a1f29;
+    flex-shrink: 0;
+}
+
+.all-news-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    transition: transform 0.4s ease;
+}
+
+/* Conteúdo do card */
+.all-news-content {
+    padding: 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    flex: 1;
+    box-sizing: border-box;
+}
+
+.all-news-tag {
+    display: inline-block;
+    align-self: flex-start;
+    padding: 3px 10px;
+    border-radius: 6px;
+    background-color: transparent;
+    color: white;
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.3px;
+    text-transform: uppercase;
+}
+
+.all-news-tag[data-category="nerdsky"] { background-color: #B971DA; }
+.all-news-tag[data-category="potato nerd"] { background-color: #7DB9DF; }
+.all-news-tag[data-category="nerddead"] { background-color: #E85D5D; }
+
+.all-news-title {
+    margin: 0;
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: white;
+    line-height: 1.3;
+}
+
+.all-news-desc {
+    margin: 0;
+    color: var(--text-muted);
+    font-size: 0.875rem;
+    line-height: 1.5;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.all-news-footer {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+    margin-top: 4px;
+    font-size: 0.8rem;
+    color: var(--text-muted);
+}
+
+.all-news-author {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0;
+}
+
+.all-news-author-head {
+    width: 24px;
+    height: 24px;
+    border-radius: 4px;
+    object-fit: cover;
+}
+
+.all-news-date {
+    margin: 0;
+    font-size: 0.8rem;
+}
+
+.all-news-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-weight: 600;
+    font-size: 0.85rem;
+    margin-top: 4px;
+    transition: gap 0.3s ease;
+}
+
+.all-news-card[data-category="nerdsky"] .all-news-link { color: #B971DA; }
+.all-news-card[data-category="potato nerd"] .all-news-link { color: #7DB9DF; }
+.all-news-card[data-category="nerddead"] .all-news-link { color: #E85D5D; }
+
+.all-news-card:hover .all-news-link {
+    gap: 12px;
+}
+
+/* ============================================
+   Tablet (≥ 600px): layout horizontal
+   Imagem à esquerda, conteúdo à direita
+   ============================================ */
+@media (min-width: 600px) {
+    .all-news-card {
+        flex-direction: row;
+        align-items: stretch;
+        gap: 0;
+    }
+
+    .all-news-image {
+        width: 200px;
+        height: auto;
+        min-height: 160px;
+    }
+
+    .all-news-content {
+        flex: 1;
+        padding: 20px;
+    }
+
+    .all-news-title {
+        font-size: 1.2rem;
+    }
+}
+
+/* ============================================
+   Desktop (≥ 1024px): mais respiro
+   ============================================ */
+@media (min-width: 1024px) {
+    #all-news-container {
+        max-width: 1000px;
+        gap: 1.5rem;
+    }
+
+    .all-news-image {
+        width: 260px;
+    }
+
+    .all-news-content {
+        padding: 24px;
+    }
+
+    .all-news-title {
+        font-size: 1.35rem;
+    }
+}
+
+/* ============================================
+   Estado vazio / loading
+   ============================================ */
+.all-news-empty {
+    text-align: center;
+    padding: 2rem;
+    color: var(--text-muted);
+}

@@ -5,7 +5,7 @@ window.NOVIDADES = [
         description: "É com grande entusiasmo que anunciamos o lançamento oficial do nosso modpack!\n\nApós semanas de testes e ajustes, a versão 1.0 está finalmente disponível para todos os jogadores. O pack foi cuidadosamente montado para oferecer uma experiência equilibrada entre tecnologia, magia e exploração.\n\nPara instalar, baixe o arquivo pelo link na aba de downloads e importe no seu launcher. Qualquer dúvida, fale com a gente no Discord.",
         date: "19/06/2026",
         image: "../assets/images/fundo.png",
-        category: "ATM11",
+        category: "NerdSky",
         author: "xPernaLongax"
     },
     {
@@ -23,7 +23,7 @@ window.NOVIDADES = [
         description: "Realizamos um ajuste no mod Pipez após identificarmos que os canos estavam transportando itens rápido demais, causando lag severo no servidor.\n\nA taxa de transferência dos pipes foi reduzida de 64 para 16 itens por tick. Sabemos que isso impacta algumas farms, mas a mudança foi necessária para manter o servidor estável para todo mundo.",
         date: "22/06/2026",
         image: "../assets/images/fundo.png",
-        category: "XOMAPS",
+        category: "Potato Nerd",
         author: "xPernaLongax"
     }
 ];
