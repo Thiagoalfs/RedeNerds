@@ -30,6 +30,54 @@
             <a href="novidades.html" id="voltar">
                 <i class="fa-solid fa-arrow-left"></i> Voltar para Novidades
             </a>
+
+            <!-- Barra de pesquisa + filtro por categoria -->
+            <div id="news-controls">
+                <div class="news-search-wrapper">
+                    <i class="fa-solid fa-magnifying-glass news-search-icon"></i>
+                    <input
+                        type="search"
+                        id="news-search"
+                        class="news-search-input"
+                        placeholder="Buscar por título, autor ou conteúdo..."
+                        autocomplete="off"
+                    >
+                    <button type="button" id="news-search-clear" class="news-search-clear" aria-label="Limpar busca">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                </div>
+
+                <div class="news-filter-wrapper">
+                    <button type="button" id="news-filter-btn" class="news-filter-btn" aria-haspopup="true" aria-expanded="false">
+                        <i class="fa-solid fa-filter"></i>
+                        <span id="news-filter-label">Todas</span>
+                        <i class="fa-solid fa-chevron-down news-filter-chevron"></i>
+                    </button>
+                    <ul id="news-filter-dropdown" class="news-filter-dropdown" role="menu" hidden>
+                        <li role="menuitem" data-category="all" aria-selected="true">
+                            <span class="filter-dot filter-dot-all"></span>
+                            Todas
+                        </li>
+                        <li role="menuitem" data-category="NerdSky">
+                            <span class="filter-dot filter-dot-nerdsky"></span>
+                            NerdSky
+                        </li>
+                        <li role="menuitem" data-category="Potato Nerd">
+                            <span class="filter-dot filter-dot-potato"></span>
+                            Potato Nerd
+                        </li>
+                        <li role="menuitem" data-category="NerdDead">
+                            <span class="filter-dot filter-dot-nerddead"></span>
+                            Nerd Dead
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <div id="news-results-info" class="news-results-info" hidden>
+                <span id="news-results-count">0</span> resultado(s) encontrado(s)
+            </div>
+
             <section id="all-news-container"></section>
         </main>
     </div>

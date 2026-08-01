@@ -46,9 +46,9 @@
         0 0 0 1px rgba(255, 255, 255, 0.04);
 }
 
-.novidade-article[data-category="nerdsky"]    { border-top-color: #B971DA; }
-.novidade-article[data-category="potato nerd"]   { border-top-color: #7DB9DF; }
-.novidade-article[data-category="nerddead"] { border-top-color: #E85D5D; }
+.novidade-article[data-category="NerdSky"]    { border-top-color: #B971DA; }
+.novidade-article[data-category="Potato Nerd"]   { border-top-color: #7DB9DF; }
+.novidade-article[data-category="NerdDead"] { border-top-color: #E85D5D; }
 
 /* Banner / hero */
 .novidade-banner {
@@ -100,9 +100,9 @@
     text-transform: uppercase;
 }
 
-.novidade-tag[data-category="nerdsky"]    { background-color: #B971DA; }
-.novidade-tag[data-category="potato nerd"]   { background-color: #7DB9DF; }
-.novidade-tag[data-category="nerddead"] { background-color: #E85D5D; }
+.novidade-tag[data-category="NerdSky"]    { background-color: #B971DA; }
+.novidade-tag[data-category="Potato Nerd"]   { background-color: #7DB9DF; }
+.novidade-tag[data-category="NerdDead"] { background-color: #E85D5D; }
 
 .novidade-meta h1 {
     margin: 0;
@@ -132,7 +132,7 @@
 .novidade-info .author-head {
     width: 32px;
     height: 32px;
-    border-radius: 50%;
+    border-radius: 4px;
 }
 
 .novidade-info .author p {

@@ -111,15 +111,15 @@
     letter-spacing: 0.3px;
 }
 
-.news-div-tag[data-category="nerdsky"] {
+.news-div-tag[data-category="NerdSky"] {
     background-color: #B971DA;
 }
 
-.news-div-tag[data-category="potato nerd"] {
+.news-div-tag[data-category="Potato Nerd"] {
     background-color: #7DB9DF;
 }
 
-.news-div-tag[data-category="nerddead"] {
+.news-div-tag[data-category="NerdDead"] {
     background-color: #E85D5D;
 }
 
@@ -172,39 +172,39 @@
 }
 
 /* Paleta por categoria */
-.news-div[data-category="nerdsky"] {
+.news-div[data-category="NerdSky"] {
     border-color: #B971DA;
     box-shadow: 0 0 15px rgba(185, 113, 218, 0.15);
 }
-.news-div[data-category="nerdsky"]:hover {
+.news-div[data-category="NerdSky"]:hover {
     box-shadow: 0 12px 30px rgba(185, 113, 218, 0.45);
     border-color: #D89BF0;
 }
-.news-div[data-category="nerdsky"] .news-div-link {
+.news-div[data-category="NerdSky"] .news-div-link {
     color: #B971DA;
 }
 
-.news-div[data-category="potato nerd"] {
+.news-div[data-category="Potato Nerd"] {
     border-color: #7DB9DF;
     box-shadow: 0 0 15px rgba(125, 185, 223, 0.15);
 }
-.news-div[data-category="potato nerd"]:hover {
+.news-div[data-category="Potato Nerd"]:hover {
     box-shadow: 0 12px 30px rgba(125, 185, 223, 0.45);
     border-color: #A6D4F0;
 }
-.news-div[data-category="potato nerd"] .news-div-link {
+.news-div[data-category="Potato Nerd"] .news-div-link {
     color: #7DB9DF;
 }
 
-.news-div[data-category="nerddead"] {
+.news-div[data-category="NerdDead"] {
     border-color: #E85D5D;
     box-shadow: 0 0 15px rgba(232, 93, 93, 0.15);
 }
-.news-div[data-category="nerddead"]:hover {
+.news-div[data-category="NerdDead"]:hover {
     box-shadow: 0 12px 30px rgba(232, 93, 93, 0.45);
     border-color: #F08080;
 }
-.news-div[data-category="nerddead"] .news-div-link {
+.news-div[data-category="NerdDead"] .news-div-link {
     color: #E85D5D;
 }
 

@@ -8,13 +8,14 @@ document.addEventListener("DOMContentLoaded", () => {
 
     newsContainer.innerHTML = `<p style="text-align:center; padding: 20px;">Carregando novidades...</p>`;
 
+        // Valores EXATOS salvos no banco (case-sensitive!)
     const categoryLabels = {
-        atm10: "NerdSky",
-        xomaps: "Potato Nerd",
-        nerddead: "Nerd Dead"
+        "NerdSky": "NerdSky",
+        "Potato Nerd": "Potato Nerd",
+        "NerdDead": "Nerd Dead"
     };
 
-    const toCategoryKey = value => String(value || "").trim().toLowerCase();
+    const toCategoryKey = value => String(value || "").trim();
 
     fetch("https://redenerds.com.br/novidades.php")
         .then(res => res.json())
