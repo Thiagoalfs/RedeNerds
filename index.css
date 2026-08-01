@@ -117,15 +117,20 @@
 
 /* =========================================
    Grid de servidores (cards na landing)
+   - Flexbox auto-adaptativo: 1, 2, 3 ou mais
+     cards ficam sempre centralizados e bem distribuídos
    ========================================= */
 .servers-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: stretch;
     gap: 25px;
     width: 100%;
     max-width: 1200px;
     padding: 10px 0;
     align-self: stretch;
+    margin: 0 auto;
 }
 
 .server-card {
@@ -140,6 +145,8 @@
     transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
     cursor: pointer;
     position: relative;
+    flex: 1 1 280px;
+    max-width: 380px;
 }
 
 .server-card-1 {
@@ -213,12 +220,14 @@
 }
 
 /* ----- Responsivo ----- */
-@media (max-width: 900px) {
+@media (max-width: 700px) {
     .servers-grid {
-        grid-template-columns: 1fr;
         max-width: 360px;
-        width: 100%;
-        margin: 0 auto;
+    }
+
+    .server-card {
+        flex: 1 1 100%;
+        max-width: 100%;
     }
 
     .server-card-banner {
@@ -236,12 +245,6 @@
 
     .server-card-content p {
         font-size: 13px;
-    }
-}
-
-@media (min-width: 901px) and (max-width: 1200px) {
-    .servers-grid {
-        grid-template-columns: repeat(2, 1fr);
     }
 }
 
