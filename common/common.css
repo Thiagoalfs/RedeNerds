@@ -83,7 +83,8 @@ body {
     align-items: center;
     justify-content: center;
     width: calc(100% - 60px);
-    gap: 80px;
+    gap: 120px;
+    max-width: 1200px;
 }
 
 #img-titulo {
