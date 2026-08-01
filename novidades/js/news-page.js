@@ -1,6 +1,8 @@
 function parseDescription(text) {
     const imageRegex = /https?:\/\/\S+\.(?:png|jpg|jpeg|gif|webp)|(?<=\s|^)\.\.\/[^\s]+\.(?:png|jpg|jpeg|gif|webp)/gi;
 
+    text = text.replace(/\\n/g, "\n");
+
     const images = [];
     const sanitized = text.replace(imageRegex, match => {
         const url = match.trim();
@@ -21,7 +23,6 @@ function parseDescription(text) {
 
     return html;
 }
-
 document.addEventListener("DOMContentLoaded", () => {
     const container = document.getElementById("novidade-container");
     const params = new URLSearchParams(window.location.search);
@@ -32,22 +33,6 @@ document.addEventListener("DOMContentLoaded", () => {
         return;
     }
 
-    if (!Array.isArray(window.NOVIDADES)) {
-        const message = "Lista de novidades não encontrada.";
-        console.error(message);
-        container.innerHTML = `<p style="color: red; text-align: center; padding: 20px;">${message}</p>`;
-        return;
-    }
-
-    const news = window.NOVIDADES.find(item => String(item.id) === String(id));
-
-    if (!news) {
-        container.innerHTML = `<p style="text-align:center; padding: 20px;">Notícia não encontrada.</p>`;
-        return;
-    }
-
-    document.title = news.title;
-
     const categoryLabels = {
         atm10: "NerdSky",
         xomaps: "Potato Nerd",
@@ -55,31 +40,50 @@ document.addEventListener("DOMContentLoaded", () => {
     };
 
     const toCategoryKey = value => String(value || "").trim().toLowerCase();
-    const categoryKey = toCategoryKey(news.category);
-    const categoryLabel = categoryLabels[categoryKey] || news.category || "";
 
-    container.innerHTML = `
-        <a href="novidades.html" id="voltar">
-            <i class="fa-solid fa-arrow-left"></i> Voltar
-        </a>
-        <article class="novidade-article" data-category="${categoryKey}">
-            <div class="novidade-banner">
-                <img src="${news.image}" alt="${news.title}">
-            </div>
-            <div class="novidade-meta">
-                ${categoryLabel ? `<span class="novidade-tag" data-category="${categoryKey}">${categoryLabel}</span>` : ""}
-                <h1>${news.title}</h1>
-                <div class="novidade-info">
-                    <div class="author">
-                        <img class="author-head" src="https://mc-heads.net/avatar/${news.author}" alt="${news.author}">
-                        <p>${news.author}</p>
+    fetch(`https://redenerds.com.br/novidades.php?id=${id}`)
+        .then(res => res.json())
+        .then(news => {
+            if (!news || news.erro) {
+                container.innerHTML = `<p style="text-align:center; padding: 20px;">Notícia não encontrada.</p>`;
+                return;
+            }
+
+            document.title = news.titulo + " - RedeNerds";
+            document.querySelector('meta[name="description"]').setAttribute("content", news.conteudo.substring(0, 150));
+            document.querySelector('meta[property="og:title"]').setAttribute("content", news.titulo);
+            document.querySelector('meta[property="og:image"]').setAttribute("content", news.capa);
+
+            const categoryKey = toCategoryKey(news.category);
+            const categoryLabel = categoryLabels[categoryKey] || news.category || "";
+
+            container.innerHTML = `
+                <a href="novidades.html" id="voltar">
+                    <i class="fa-solid fa-arrow-left"></i> Voltar
+                </a>
+                <article class="novidade-article" data-category="${categoryKey}">
+                    <div class="novidade-banner">
+                        <img src="${news.capa}" alt="${news.titulo}">
                     </div>
-                    <p class="date">${news.date}</p>
-                </div>
-            </div>
-            <div class="novidade-body">
-                ${parseDescription(news.description)}
-            </div>
-        </article>
-    `;
+                    <div class="novidade-meta">
+                        ${categoryLabel ? `<span class="novidade-tag" data-category="${categoryKey}">${categoryLabel}</span>` : ""}
+                        <h1>${news.titulo}</h1>
+                        <div class="novidade-info">
+                            <div class="author">
+                                <img class="author-head" src="https://mc-heads.net/avatar/${news.autor}" alt="${news.autor}">
+                                <p>${news.autor}</p>
+                            </div>
+                            <p class="date">${new Date(news.criado_em).toLocaleDateString("pt-BR")}</p>
+                        </div>
+                    </div>
+                    <div class="novidade-body">
+                        ${parseDescription(news.conteudo)}
+                    </div>
+                </article>
+            `;
+        })
+        .catch(err => {
+            console.error("Erro ao carregar notícia:", err);
+            container.innerHTML = `<p style="color: red; text-align: center; padding: 20px;">Erro ao carregar notícia.</p>`;
+        });
 });

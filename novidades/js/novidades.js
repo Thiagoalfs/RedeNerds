@@ -8,13 +8,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
     newsContainer.innerHTML = `<p style="text-align:center; padding: 20px;">Carregando novidades...</p>`;
 
-    if (!Array.isArray(window.NOVIDADES)) {
-        const message = "Lista de novidades não encontrada.";
-        console.error(message);
-        newsContainer.innerHTML = `<p style="color: red; text-align: center; padding: 20px;">${message}</p>`;
-        return;
-    }
-
     const categoryLabels = {
         atm10: "NerdSky",
         xomaps: "Potato Nerd",
@@ -23,39 +16,46 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const toCategoryKey = value => String(value || "").trim().toLowerCase();
 
-    // Mais recente primeiro; limita a 3 cards no novidades.html (demais ficam no mais.html)
-    const entries = window.NOVIDADES.slice().reverse().slice(0, 3);
+    fetch("https://redenerds.com.br/novidades.php")
+        .then(res => res.json())
+        .then(data => {
+            const entries = data.slice(0, 3);
 
-    if (entries.length === 0) {
-        newsContainer.innerHTML = `<p style="text-align:center; padding: 20px;">Nenhuma novidade por enquanto.</p>`;
-        return;
-    }
+            if (entries.length === 0) {
+                newsContainer.innerHTML = `<p style="text-align:center; padding: 20px;">Nenhuma novidade por enquanto.</p>`;
+                return;
+            }
 
-    newsContainer.innerHTML = entries.map(news => {
-        const categoryKey = toCategoryKey(news.category);
-        const categoryLabel = categoryLabels[categoryKey] || news.category || "";
-        return `
-        <a class="news-div" href="novidade.html?id=${news.id}" data-category="${categoryKey}">
-            <div class="news-div-banner">
-                <img class="news-img" src="${news.image}" alt="${news.title}">
-            </div>
-            <div class="news-div-content">
-                ${categoryLabel ? `<span class="news-div-tag" data-category="${categoryKey}">${categoryLabel}</span>` : ""}
-                <h3 class="news-div-title">${news.title}</h3>
-                <div class="news-div-footer">
-                    <div class="author">
-                        <img class="author-head" src="https://mc-heads.net/avatar/${news.author}" alt="${news.author}">
-                        <p>${news.author}</p>
+            newsContainer.innerHTML = entries.map(news => {
+                const categoryKey = toCategoryKey(news.category);
+                const categoryLabel = categoryLabels[categoryKey] || news.category || "";
+                return `
+                <a class="news-div" href="novidade.html?id=${news.id}" data-category="${categoryKey}">
+                    <div class="news-div-banner">
+                        <img class="news-img" src="${news.capa}" alt="${news.titulo}">
                     </div>
-                    <div class="date">
-                        <p>${news.date}</p>
+                    <div class="news-div-content">
+                        ${categoryLabel ? `<span class="news-div-tag" data-category="${categoryKey}">${categoryLabel}</span>` : ""}
+                        <h3 class="news-div-title">${news.titulo}</h3>
+                        <div class="news-div-footer">
+                            <div class="author">
+                                <img class="author-head" src="https://mc-heads.net/avatar/${news.autor}" alt="${news.autor}">
+                                <p>${news.autor}</p>
+                            </div>
+                            <div class="date">
+                                <p>${new Date(news.criado_em).toLocaleDateString("pt-BR")}</p>
+                            </div>
+                        </div>
+                        <span class="news-div-link">
+                            Ler mais <i class="fa-solid fa-arrow-right"></i>
+                        </span>
                     </div>
-                </div>
-                <span class="news-div-link">
-                    Ler mais <i class="fa-solid fa-arrow-right"></i>
-                </span>
-            </div>
-        </a>
-    `;
-    }).join("");
+                </a>
+                `;
+            }).join("");
+        })
+        .catch(err => {
+            console.error("Erro ao carregar novidades:", err);
+            newsContainer.innerHTML = `<p style="color: red; text-align: center; padding: 20px;">Erro ao carregar novidades.</p>`;
+        });
 });

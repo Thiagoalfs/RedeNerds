@@ -11,8 +11,10 @@
 }
 
 #news-container {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: stretch;
     gap: 25px;
     width: 100%;
     max-width: 1200px;
@@ -34,6 +36,8 @@
     cursor: pointer;
     position: relative;
     box-sizing: border-box;
+    flex: 1 1 280px;
+    max-width: 380px;
 }
 
 /* Banner */
@@ -205,17 +209,10 @@
 }
 
 /* Responsivo */
-@media (max-width: 900px) {
-    #news-container {
-        grid-template-columns: 1fr;
-        max-width: 420px;
-        width: 100%;
-        margin: 0 auto;
-        padding: 10px 0.5rem;
-    }
-
-    .news-div-content {
-        padding: 20px;
+@media (max-width: 700px) {
+    .news-div {
+        flex: 1 1 100%;
+        max-width: 100%;
     }
 }
 
@@ -266,9 +263,3 @@
 .ver-mais-btn:hover i {
     transform: translateX(3px);
 }
-
-@media (min-width: 901px) and (max-width: 1200px) {
-    #news-container {
-        grid-template-columns: repeat(2, 1fr);
-    }
-}   
