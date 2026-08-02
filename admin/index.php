@@ -51,12 +51,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <title>Login - Painel Administrativo</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
+        /* === Mobile-first === */
         body {
             background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
             min-height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
+            padding: 1rem;
         }
         .card-login {
             max-width: 420px;
@@ -65,14 +67,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             border-radius: 12px;
             box-shadow: 0 10px 40px rgba(0,0,0,0.2);
         }
+        .card-login .form-control {
+            max-width: 100%;
+            min-width: 0;
+            word-break: break-word;
+        }
+        .card-login h3 { font-size: 1.25rem; }
+        @media (min-width: 576px) {
+            .card-login h3 { font-size: 1.5rem; }
+        }
     </style>
 </head>
 <body>
-    <div class="container">
+    <div class="container-fluid px-3">
         <div class="card card-login mx-auto">
-            <div class="card-body p-4 p-md-5">
-                <h3 class="text-center mb-4">🔐 Painel Administrativo</h3>
-                <p class="text-center text-muted mb-4">Acesso restrito para administradores</p>
+            <div class="card-body p-3 p-sm-4 p-md-5">
+                <h3 class="text-center mb-3 mb-md-4">🔐 Painel Administrativo</h3>
+                <p class="text-center text-muted mb-3 mb-md-4 small">Acesso restrito para administradores</p>
 
                 <?php if ($mensagem_erro): ?>
                     <div class="alert alert-danger" role="alert">

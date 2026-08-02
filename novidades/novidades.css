@@ -81,6 +81,7 @@
     gap: 10px;
     flex: 1;
     box-sizing: border-box;
+    min-width: 0;
 }
 
 .news-div-title {
@@ -88,6 +89,9 @@
     font-size: 20px;
     font-weight: 700;
     color: white;
+    overflow-wrap: break-word;
+    word-break: break-word;
+    max-width: 100%;
 }
 
 .news-div-desc {

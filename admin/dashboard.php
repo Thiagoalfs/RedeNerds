@@ -2,7 +2,6 @@
 require_once "sessao.php";
 require_once "../../config.php";
 
-// Buscar todas as notícias (mais recentes primeiro)
 try {
     $stmt = $pdo->query("SELECT id, titulo, category, capa, criado_em, autor FROM novidades ORDER BY criado_em DESC");
     $noticias = $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -26,20 +25,107 @@ $nome_usuario = $_SESSION['usuario_nome'] ?? 'Administrador';
     <title>Dashboard - Painel Administrativo</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
-        body { background-color: #f5f7fa; }
-        .navbar-brand { font-weight: 600; }
-        .capa-thumb {
-            width: 60px; height: 40px; object-fit: cover;
-            border-radius: 4px; border: 1px solid #e0e0e0;
+        body { background-color: #f0f2f5; font-size: 15px; }
+
+        .navbar-brand { font-weight: 700; font-size: 1rem; }
+
+        .page-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        /* Cards de notícia no mobile */
+        .noticia-card {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+            padding: 14px;
+            margin-bottom: 12px;
+            display: flex;
+            gap: 12px;
+            align-items: flex-start;
+        }
+
+        .noticia-card .capa-thumb {
+            width: 64px;
+            height: 64px;
+            object-fit: cover;
+            border-radius: 6px;
+            flex-shrink: 0;
+            border: 1px solid #e0e0e0;
+        }
+
+        .noticia-card .capa-placeholder {
+            width: 64px;
+            height: 64px;
+            background: #e9ecef;
+            border-radius: 6px;
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.4rem;
+        }
+
+        .noticia-card .info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .noticia-card .titulo {
+            font-weight: 700;
+            font-size: 0.95rem;
+            color: #1a1a1a;
+            margin-bottom: 4px;
+            overflow: hidden;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+        }
+
+        .noticia-card .meta {
+            font-size: 0.78rem;
+            color: #6c757d;
+            margin-bottom: 8px;
+        }
+
+        .noticia-card .acoes {
+            display: flex;
+            gap: 6px;
+        }
+
+        /* Tabela só aparece no desktop */
+        .tabela-desktop { display: none; }
+
+        @media (min-width: 768px) {
+            .cards-mobile { display: none; }
+            .tabela-desktop { display: block; }
+
+            .table { table-layout: fixed; width: 100%; }
+            .table th, .table td {
+                white-space: normal;
+                word-break: break-word;
+                overflow-wrap: break-word;
+            }
+            .capa-thumb-table {
+                width: 60px;
+                height: 40px;
+                object-fit: cover;
+                border-radius: 4px;
+                border: 1px solid #e0e0e0;
+            }
         }
     </style>
 </head>
 <body>
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow-sm">
+    <nav class="navbar navbar-dark bg-dark shadow-sm">
         <div class="container-fluid">
-            <a class="navbar-brand" href="dashboard.php">⚙️ Painel de Notícias</a>
-            <div class="d-flex">
-                <span class="navbar-text text-white me-3">
+            <a class="navbar-brand" href="dashboard.php">⚙️ Painel</a>
+            <div class="d-flex align-items-center gap-2">
+                <span class="text-white small d-none d-sm-inline">
                     Olá, <strong><?php echo htmlspecialchars($nome_usuario, ENT_QUOTES, 'UTF-8'); ?></strong>
                 </span>
                 <a href="logout.php" class="btn btn-outline-light btn-sm">Sair</a>
@@ -47,78 +133,108 @@ $nome_usuario = $_SESSION['usuario_nome'] ?? 'Administrador';
         </div>
     </nav>
 
-    <div class="container my-4">
-        <div class="d-flex justify-content-between align-items-center mb-4">
+    <div class="container-fluid px-3 px-md-4 mt-3">
+        <div class="page-header">
             <div>
-                <h2 class="mb-0">Notícias</h2>
-                <small class="text-muted">Gerencie as notícias publicadas no site</small>
+                <h5 class="mb-0 fw-bold">Notícias</h5>
+                <small class="text-muted"><?php echo count($noticias); ?> publicada(s)</small>
             </div>
-            <a href="criar.php" class="btn btn-success">
-                ➕ Nova Notícia
-            </a>
+            <a href="criar.php" class="btn btn-success btn-sm">➕ Nova</a>
         </div>
 
-        <div class="card shadow-sm">
-            <div class="card-body p-0">
-                <div class="table-responsive">
-                    <table class="table table-hover mb-0 align-middle">
-                        <thead class="table-light">
-                            <tr>
-                                <th style="width: 80px;">Capa</th>
-                                <th>Título</th>
-                                <th>Categoria</th>
-                                <th>Autor</th>
-                                <th>Data</th>
-                                <th class="text-center" style="width: 180px;">Ações</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <?php if (empty($noticias)): ?>
+        <!-- MOBILE: cards -->
+        <div class="cards-mobile">
+            <?php if (empty($noticias)): ?>
+                <p class="text-center text-muted py-4">Nenhuma notícia cadastrada.</p>
+            <?php else: ?>
+                <?php foreach ($noticias as $n): ?>
+                    <div class="noticia-card">
+                        <?php if (!empty($n['capa'])): ?>
+                            <img src="<?php echo htmlspecialchars($n['capa'], ENT_QUOTES, 'UTF-8'); ?>"
+                                 alt="capa" class="capa-thumb"
+                                 onerror="this.style.display='none'">
+                        <?php else: ?>
+                            <div class="capa-placeholder">🖼️</div>
+                        <?php endif; ?>
+
+                        <div class="info">
+                            <div class="titulo"><?php echo htmlspecialchars($n['titulo'], ENT_QUOTES, 'UTF-8'); ?></div>
+                            <div class="meta">
+                                <span class="badge bg-info text-dark me-1"><?php echo htmlspecialchars($n['category'] ?? '—', ENT_QUOTES, 'UTF-8'); ?></span>
+                                <?php echo htmlspecialchars($n['autor'] ?? '', ENT_QUOTES, 'UTF-8'); ?>
+                                · <?php echo formatarData($n['criado_em']); ?>
+                            </div>
+                            <div class="acoes">
+                                <a href="editar.php?id=<?php echo (int)$n['id']; ?>" class="btn btn-sm btn-primary">✏️ Editar</a>
+                                <a href="deletar.php?id=<?php echo (int)$n['id']; ?>"
+                                   class="btn btn-sm btn-danger"
+                                   onclick="return confirm('Deletar esta notícia?');">🗑️ Deletar</a>
+                            </div>
+                        </div>
+                    </div>
+                <?php endforeach; ?>
+            <?php endif; ?>
+        </div>
+
+        <!-- DESKTOP: tabela -->
+        <div class="tabela-desktop">
+            <div class="card shadow-sm">
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0 align-middle">
+                            <thead class="table-light">
                                 <tr>
-                                    <td colspan="6" class="text-center py-4 text-muted">
-                                        Nenhuma notícia cadastrada. Clique em <strong>"Nova Notícia"</strong> para começar.
-                                    </td>
+                                    <th style="width:80px;">Capa</th>
+                                    <th>Título</th>
+                                    <th style="width:120px;">Categoria</th>
+                                    <th style="width:120px;">Autor</th>
+                                    <th style="width:130px;">Data</th>
+                                    <th class="text-center" style="width:160px;">Ações</th>
                                 </tr>
-                            <?php else: ?>
-                                <?php foreach ($noticias as $n): ?>
+                            </thead>
+                            <tbody>
+                                <?php if (empty($noticias)): ?>
                                     <tr>
-                                        <td>
-                                            <?php if (!empty($n['capa']) && (str_starts_with($n['capa'], 'http://') || str_starts_with($n['capa'], 'https://'))): ?>
-                                                <img src="<?php echo htmlspecialchars($n['capa'], ENT_QUOTES, 'UTF-8'); ?>" alt="capa" class="capa-thumb" onerror="this.style.display='none'">
-                                            <?php else: ?>
-                                                <span class="text-muted small">—</span>
-                                            <?php endif; ?>
-                                        </td>
-                                        <td><?php echo htmlspecialchars($n['titulo'], ENT_QUOTES, 'UTF-8'); ?></td>
-                                        <td>
-                                            <span class="badge bg-info text-dark">
-                                                <?php echo htmlspecialchars($n['category'] ?? '—', ENT_QUOTES, 'UTF-8'); ?>
-                                            </span>
-                                        </td>
-                                        <td><?php echo htmlspecialchars($n['autor'] ?? '—', ENT_QUOTES, 'UTF-8'); ?></td>
-                                        <td><small><?php echo formatarData($n['criado_em']); ?></small></td>
-                                        <td class="text-center">
-                                            <a href="editar.php?id=<?php echo (int)$n['id']; ?>" class="btn btn-sm btn-primary">
-                                                ✏️ Editar
-                                            </a>
-                                            <a href="deletar.php?id=<?php echo (int)$n['id']; ?>"
-                                               class="btn btn-sm btn-danger"
-                                               onclick="return confirm('Tem certeza que deseja deletar esta notícia? Esta ação não pode ser desfeita.');">
-                                                🗑️ Deletar
-                                            </a>
+                                        <td colspan="6" class="text-center py-4 text-muted">
+                                            Nenhuma notícia cadastrada.
                                         </td>
                                     </tr>
-                                <?php endforeach; ?>
-                            <?php endif; ?>
-                        </tbody>
-                    </table>
+                                <?php else: ?>
+                                    <?php foreach ($noticias as $n): ?>
+                                        <tr>
+                                            <td>
+                                                <?php if (!empty($n['capa'])): ?>
+                                                    <img src="<?php echo htmlspecialchars($n['capa'], ENT_QUOTES, 'UTF-8'); ?>"
+                                                         alt="capa" class="capa-thumb-table"
+                                                         onerror="this.style.display='none'">
+                                                <?php else: ?>
+                                                    <span class="text-muted">—</span>
+                                                <?php endif; ?>
+                                            </td>
+                                            <td><?php echo htmlspecialchars($n['titulo'], ENT_QUOTES, 'UTF-8'); ?></td>
+                                            <td>
+                                                <span class="badge bg-info text-dark">
+                                                    <?php echo htmlspecialchars($n['category'] ?? '—', ENT_QUOTES, 'UTF-8'); ?>
+                                                </span>
+                                            </td>
+                                            <td><?php echo htmlspecialchars($n['autor'] ?? '—', ENT_QUOTES, 'UTF-8'); ?></td>
+                                            <td><small><?php echo formatarData($n['criado_em']); ?></small></td>
+                                            <td class="text-center">
+                                                <a href="editar.php?id=<?php echo (int)$n['id']; ?>" class="btn btn-sm btn-primary me-1">✏️ Editar</a>
+                                                <a href="deletar.php?id=<?php echo (int)$n['id']; ?>"
+                                                   class="btn btn-sm btn-danger"
+                                                   onclick="return confirm('Deletar esta notícia?');">🗑️ Deletar</a>
+                                            </td>
+                                        </tr>
+                                    <?php endforeach; ?>
+                                <?php endif; ?>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
         </div>
 
-        <p class="text-muted text-center mt-3 small">
-            Total de notícias: <strong><?php echo count($noticias); ?></strong>
-        </p>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
