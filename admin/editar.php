@@ -1,6 +1,7 @@
 <?php
 require_once "sessao.php";
 require_once "../../config.php";
+require_once "capa_upload.php";
 
 $categorias = ['NerdSky', 'Potato Nerd', 'NerdDead'];
 
@@ -41,8 +42,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $titulo    = trim($_POST['titulo'] ?? '');
     $conteudo  = trim($_POST['conteudo'] ?? '');
     $autor     = trim($_POST['autor'] ?? '');
-    $capa      = trim($_POST['capa'] ?? '');
     $category  = trim($_POST['category'] ?? 'NerdSky');
+
+    [$capa, $erro_upload] = processarCapa($noticia['capa'] ?? null);
 
     if ($titulo === '' || $conteudo === '' || $autor === '') {
         $mensagem_erro = "Preencha os campos obrigatórios (título, conteúdo e autor).";
@@ -54,6 +56,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $noticia['category'] = $category;
     } elseif (!in_array($category, $categorias, true)) {
         $mensagem_erro = "Categoria inválida.";
+    } elseif ($erro_upload) {
+        $mensagem_erro = $erro_upload;
     } else {
         try {
             $stmt = $pdo->prepare("UPDATE novidades SET titulo = :titulo, conteudo = :conteudo, autor = :autor, capa = :capa, category = :category WHERE id = :id");
@@ -78,6 +82,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     }
 }
+// A capa atual só é pré-preenchida no campo de link se for uma URL externa
+// (uploads próprios ficam em ../assets/novidades/ e não fazem sentido como "link" editável)
+$capaAtualEhLink = !empty($noticia['capa']) && preg_match('#^https?://#i', $noticia['capa']);
 ?>
 <!DOCTYPE html>
 <html lang="pt-BR">
@@ -157,7 +164,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     </div>
                 <?php endif; ?>
 
-                <form method="POST" action="editar.php?id=<?php echo (int)$noticia['id']; ?>" autocomplete="off">
+                <form method="POST" action="editar.php?id=<?php echo (int)$noticia['id']; ?>" autocomplete="off" enctype="multipart/form-data">
                     <input type="hidden" name="id" value="<?php echo (int)$noticia['id']; ?>">
 
                     <!-- Linha 1: título + categoria -->
@@ -190,11 +197,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <!-- Linha 3: link da capa + autor -->
                     <div class="row g-3 mb-3">
                         <div class="col-8">
-                            <label for="capa" class="form-label">Capa (URL da imagem)</label>
-                            <input type="text" class="form-control" id="capa" name="capa"
-                                value="<?php echo htmlspecialchars($noticia['capa'] ?? '', ENT_QUOTES, 'UTF-8'); ?>"
-                                maxlength="500" placeholder="https://exemplo.com/imagem.jpg"
-                                oninput="atualizarPreviewCapa(this.value)">
+                            <label for="capa" class="form-label">Capa</label>
+                            <input type="hidden" id="capa_fonte" name="capa_fonte" value="">
+                            <input type="file" class="form-control mb-2" id="capa" name="capa"
+                                accept="image/png,image/jpeg,image/webp,image/gif"
+                                onchange="usarUploadCapa(this)">
+                            <input type="text" class="form-control" id="capa_url" name="capa_url"
+                                maxlength="500" placeholder="ou cole o link de uma imagem (https://...)"
+                                value="<?php echo htmlspecialchars($capaAtualEhLink ? $noticia['capa'] : '', ENT_QUOTES, 'UTF-8'); ?>"
+                                oninput="usarUrlCapa(this)">
+                            <small class="text-muted d-block mt-1">Deixe os dois em branco para manter a capa atual. Envie um arquivo OU cole um link — o que for usado por último substitui o outro.</small>
                         </div>
                         <div class="col-4">
                             <label for="autor" class="form-label">Autor <span class="text-danger">*</span></label>
@@ -233,7 +245,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                     <div class="form-actions mt-2">
                         <a href="dashboard.php" class="btn btn-secondary">Cancelar</a>
-                        <button type="submit" class="btn btn-success">💾 Publicar Notícia</button>
+                        <button type="submit" class="btn btn-success">💾 Editar Notícia</button>
                     </div>
 
                 </form>
@@ -243,7 +255,33 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        function atualizarPreviewCapa(url) {
+        function usarUploadCapa(input) {
+            const arquivo = input.files && input.files[0];
+            if (!arquivo) return;
+
+            // Upload passa a ser a fonte ativa: limpa o campo de link
+            document.getElementById('capa_fonte').value = 'upload';
+            document.getElementById('capa_url').value = '';
+
+            const img = document.getElementById('capa-preview');
+            const placeholder = document.getElementById('capa-placeholder');
+            const leitor = new FileReader();
+            leitor.onload = (e) => {
+                img.src = e.target.result;
+                img.style.display = 'block';
+                placeholder.style.display = 'none';
+            };
+            leitor.readAsDataURL(arquivo);
+        }
+
+        function usarUrlCapa(input) {
+            const url = input.value.trim();
+
+            // Link passa a ser a fonte ativa: limpa o campo de arquivo
+            document.getElementById('capa_fonte').value = 'url';
+            const fileInput = document.getElementById('capa');
+            if (fileInput.value) fileInput.value = '';
+
             const img = document.getElementById('capa-preview');
             const placeholder = document.getElementById('capa-placeholder');
             if (url) {

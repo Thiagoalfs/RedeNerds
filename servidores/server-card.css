@@ -1,13 +1,18 @@
-/* =========================================
-   ATM 11 TTS — Mobile-first
-   Tema: Roxo (#B971DA)
-   ========================================= */
+/* 
+   Server Card — Base compartilhada (Mobile-first)
+   Usado por: nerd-dead.css, nerdsky.css, xomaps-server.css
 
-/* ---------- MOBILE (base) ---------- */
+   Cada tema só precisa definir estas 3 variáveis
 
+   :root {
+       --theme-color: #RRGGBB;
+       --theme-shadow-color: rgba(r, g, b, 0.2);
+       --theme-hover-bg: rgba(r, g, b, 0.12);
+   }
+*/
 /* Previne overflow horizontal na página inteira */
 #container,
-#server-detail.theme-1,
+#server-detail,
 .server-detail-content,
 .server-info {
     min-width: 0;
@@ -25,7 +30,7 @@
     margin: 1.25rem 1rem 2rem 1rem;
 }
 
-#server-detail.theme-1 {
+#server-detail {
     width: 100%;
     display: flex;
     flex-direction: column;
@@ -35,7 +40,7 @@
 }
 
 /* Centraliza o cabeçalho (h2 .subtitle) sem afetar os cards */
-#server-detail.theme-1 > .centered-content {
+#server-detail > .centered-content {
     align-self: center;
 }
 
@@ -46,14 +51,14 @@
     padding: 1.25rem;
     background-color: #0b0f15;
     border-radius: 12px;
-    border: 1.5px solid #B971DA;
-    box-shadow: 0 0 20px rgba(185, 113, 218, 0.2);
+    border: 1.5px solid var(--theme-color);
+    box-shadow: 0 0 20px var(--theme-shadow-color);
     box-sizing: border-box;
 }
 
 .server-info h3 {
     font-size: 1.5rem;
-    color: #B971DA;
+    color: var(--theme-color);
     margin-top: 0;
     margin-bottom: 0.75rem;
     display: flex;
@@ -88,18 +93,9 @@
 }
 
 .server-features li i {
-    color: #B971DA;
+    color: var(--theme-color);
     font-size: 0.85rem;
     flex-shrink: 0;
-}
-
-/* Botões CTA empilhados em mobile */
-.cta-buttons {
-    display: flex;
-    flex-direction: column;
-    gap: 0.75rem;
-    margin-top: 0.75rem;
-    width: 100%;
 }
 
 .cta-button {
@@ -120,6 +116,7 @@
     width: 100%;
     text-align: center;
     box-sizing: border-box;
+    background-color: var(--theme-color);
 }
 
 .cta-button:hover {
@@ -127,19 +124,24 @@
     transform: translateY(-2px);
 }
 
-.theme-1-btn {
-    background-color: #B971DA;
+/* Botões CTA empilhados em mobile */
+.cta-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    margin-top: 0.75rem;
+    width: 100%;
 }
 
 /* Botão secundário "Copiar IP" — variante outline */
 .copy-ip-btn {
     background-color: transparent !important;
-    border: 2px solid #B971DA !important;
-    color: #B971DA;
+    border: 2px solid var(--theme-color) !important;
+    color: var(--theme-color);
 }
 
 .copy-ip-btn:hover {
-    background-color: rgba(185, 113, 218, 0.12) !important;
+    background-color: var(--theme-hover-bg) !important;
     filter: none;
 }
 
@@ -154,7 +156,7 @@
         margin: 1.75rem 1.5rem 2.5rem 1.5rem;
     }
 
-    #server-detail.theme-1 {
+    #server-detail {
         gap: 1.5rem;
         margin-bottom: 1.5rem;
     }
@@ -200,7 +202,7 @@
         max-width: 1100px;
     }
 
-    #server-detail.theme-1 {
+    #server-detail {
         gap: 1.75rem;
         margin-bottom: 1.75rem;
     }
