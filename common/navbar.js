@@ -1,10 +1,40 @@
-(function () {
-    'use strict';
+document.addEventListener("DOMContentLoaded", function () {
+    const container = document.getElementById("navbar-container");
 
+    if (!container) {
+        console.error("ERRO: O elemento <div id='navbar-container'></div> não foi encontrado na página HTML!");
+        return;
+    }
+
+    // Tenta carregar o navbar.html da raiz
+    fetch("/common/navbar.html")
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`Erro ${response.status} ao buscar ${response.url}`);
+            }
+            return response.text();
+        })
+        .then(data => {
+            container.innerHTML = data;
+            if (typeof initNavbar === "function") {
+                initNavbar();
+            }
+        })
+        .catch(error => {
+            console.error(error);
+            // Mostra o erro direto na página para facilitar o diagnóstico
+            container.innerHTML = `<div style="color: red; padding: 10px; background: #fee; border: 1px solid red; text-align: center;">
+                ⚠️ Não foi possível carregar a navbar: <strong>${error.message}</strong>
+            </div>`;
+        });
+});
+
+function initNavbar() {
     const nav = document.querySelector('nav');
     const toggle = document.getElementById('navbar-toggle');
     const navbar = document.getElementById('navbar');
 
+    // Se os elementos não existirem na página carregada, interrompe
     if (!nav || !toggle || !navbar) return;
 
     const openIcon = '<i class="fa-solid fa-bars" aria-hidden="true"></i>';
@@ -17,27 +47,27 @@
         toggle.innerHTML = isOpen ? closeIcon : openIcon;
     }
 
-    // Toggle ao clicar no botão
+    // Alternar menu ao clicar no botão do hambúrguer
     toggle.addEventListener('click', function (e) {
         e.stopPropagation();
         const isOpen = nav.classList.contains('navbar-open');
         setOpen(!isOpen);
     });
 
-    // Fecha ao clicar em qualquer link da navbar
+    // Fechar ao clicar em qualquer link
     navbar.querySelectorAll('a').forEach(function (link) {
         link.addEventListener('click', function () {
             setOpen(false);
         });
     });
 
-    // Fecha ao clicar fora do nav
+    // Fechar ao clicar fora da navbar
     document.addEventListener('click', function (e) {
         if (!nav.classList.contains('navbar-open')) return;
         if (!nav.contains(e.target)) setOpen(false);
     });
 
-    // Fecha com ESC
+    // Fechar ao pressionar a tecla ESC
     document.addEventListener('keydown', function (e) {
         if (e.key === 'Escape' && nav.classList.contains('navbar-open')) {
             setOpen(false);
@@ -45,10 +75,10 @@
         }
     });
 
-    // Garante estado correto ao redimensionar pra desktop
+    // Garante fechamento do menu mobile se redimensionar para desktop
     window.addEventListener('resize', function () {
         if (window.innerWidth > 768 && nav.classList.contains('navbar-open')) {
             setOpen(false);
         }
     });
-})();
+}

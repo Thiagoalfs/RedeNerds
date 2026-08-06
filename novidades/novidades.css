@@ -1,15 +1,25 @@
-/* =========================
-   Página de Novidades
-   Design baseado em servidores.css
-   ========================= */
+/* ==========================================================================
+   Variáveis Globais
+   ========================================================================== */
+:root {
+    --border-color-1: #7DB9DF;  /* Potato Nerd / Destaques */
+    --border-color-2: #B971DA;  /* NerdSky */
+    --border-color-3: #E85D5D;  /* NerdDead */
+    --card-bg: #0b0f15;
+    --border-subtle: rgba(255, 255, 255, 0.08);
+    --text-muted: #c5c5c5;
+}
 
-/* Override do #container do common.css (margin fixo 100px nas laterais) */
+/* ==========================================================================
+   Layout Base & Containers
+   ========================================================================== */
 #container {
     margin: 1.25rem 0.5rem 2rem 0.5rem;
     max-width: 100%;
     box-sizing: border-box;
 }
 
+/* Container de notícias em Grade (View Principal - Top 3) */
 #news-container {
     display: flex;
     flex-wrap: wrap;
@@ -23,12 +33,27 @@
     box-sizing: border-box;
 }
 
+/* Container de notícias em Lista (View Todas as Novidades) */
+#all-news-container {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+    width: 100%;
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 10px 0;
+    box-sizing: border-box;
+}
+
+/* ==========================================================================
+   Card da View Principal (.news-div)
+   ========================================================================== */
 .news-div {
     display: flex;
     flex-direction: column;
     text-decoration: none;
     color: white;
-    background-color: #0b0f15;
+    background-color: var(--card-bg);
     border-radius: 14px;
     overflow: hidden;
     border: 2px solid transparent;
@@ -40,7 +65,6 @@
     max-width: 380px;
 }
 
-/* Banner */
 .news-div-banner {
     width: 100%;
     height: 180px;
@@ -56,7 +80,6 @@
     transition: transform 0.4s ease;
 }
 
-/* Fallback quando não há imagem de banner */
 .news-div-banner-fallback {
     width: 100%;
     height: 100%;
@@ -73,7 +96,6 @@
     transform: scale(1.08);
 }
 
-/* Conteúdo */
 .news-div-content {
     padding: 20px;
     display: flex;
@@ -96,38 +118,12 @@
 
 .news-div-desc {
     margin: 0;
-    color: #c5c5c5;
+    color: var(--text-muted);
     font-size: 14px;
     line-height: 1.4;
     flex: 1;
 }
 
-/* Tag de categoria */
-.news-div-tag {
-    display: inline-block;
-    align-self: flex-start;
-    padding: 3px 10px;
-    border-radius: 6px;
-    background-color: transparent;
-    color: white;
-    font-size: 0.78rem;
-    font-weight: 600;
-    letter-spacing: 0.3px;
-}
-
-.news-div-tag[data-category="NerdSky"] {
-    background-color: #B971DA;
-}
-
-.news-div-tag[data-category="Potato Nerd"] {
-    background-color: #7DB9DF;
-}
-
-.news-div-tag[data-category="NerdDead"] {
-    background-color: #E85D5D;
-}
-
-/* Footer com autor + data */
 .news-div-footer {
     display: flex;
     flex-direction: row;
@@ -137,30 +133,6 @@
     margin-top: 4px;
 }
 
-.author {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    gap: 8px;
-    color: #c5c5c5;
-    font-size: 13px;
-    margin: 0;
-}
-
-.author-head {
-    width: 28px;
-    height: 28px;
-    border-radius: 4px;
-    object-fit: cover;
-}
-
-.date {
-    color: #c5c5c5;
-    font-size: 13px;
-    margin: 0;
-}
-
-/* Link "Ler mais" */
 .news-div-link {
     display: inline-flex;
     align-items: center;
@@ -175,57 +147,213 @@
     gap: 14px;
 }
 
-/* Paleta por categoria */
-.news-div[data-category="NerdSky"] {
-    border-color: #B971DA;
-    box-shadow: 0 0 15px rgba(185, 113, 218, 0.15);
-}
-.news-div[data-category="NerdSky"]:hover {
-    box-shadow: 0 12px 30px rgba(185, 113, 218, 0.45);
-    border-color: #D89BF0;
-}
-.news-div[data-category="NerdSky"] .news-div-link {
-    color: #B971DA;
-}
-
-.news-div[data-category="Potato Nerd"] {
-    border-color: #7DB9DF;
-    box-shadow: 0 0 15px rgba(125, 185, 223, 0.15);
-}
-.news-div[data-category="Potato Nerd"]:hover {
-    box-shadow: 0 12px 30px rgba(125, 185, 223, 0.45);
-    border-color: #A6D4F0;
-}
-.news-div[data-category="Potato Nerd"] .news-div-link {
-    color: #7DB9DF;
+/* ==========================================================================
+   Card da View "Ver Mais" (.all-news-card)
+   ========================================================================== */
+.all-news-card {
+    display: flex;
+    flex-direction: column;
+    text-decoration: none;
+    color: white;
+    background-color: var(--card-bg);
+    border-radius: 12px;
+    overflow: hidden;
+    border: 2px solid transparent;
+    transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+    cursor: pointer;
+    position: relative;
+    box-sizing: border-box;
+    animation: fadeIn 0.25s ease;
 }
 
-.news-div[data-category="NerdDead"] {
-    border-color: #E85D5D;
-    box-shadow: 0 0 15px rgba(232, 93, 93, 0.15);
-}
-.news-div[data-category="NerdDead"]:hover {
-    box-shadow: 0 12px 30px rgba(232, 93, 93, 0.45);
-    border-color: #F08080;
-}
-.news-div[data-category="NerdDead"] .news-div-link {
-    color: #E85D5D;
+.all-news-card:hover {
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
 }
 
-/* Responsivo */
-@media (max-width: 700px) {
-    .news-div {
-        flex: 1 1 100%;
-        max-width: 100%;
-    }
+.all-news-image {
+    width: 100%;
+    height: 180px;
+    overflow: hidden;
+    background-color: #1a1f29;
+    flex-shrink: 0;
 }
 
-@media (min-width: 1024px) {
-    #container {
-        margin: 2.5rem auto 3rem auto;
-        max-width: 1280px;
-    }
+.all-news-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    transition: transform 0.4s ease;
 }
+
+.all-news-content {
+    padding: 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    flex: 1;
+    box-sizing: border-box;
+    min-width: 0;
+}
+
+.all-news-title {
+    margin: 0;
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: white;
+    line-height: 1.3;
+    overflow-wrap: break-word;
+    word-break: break-word;
+    max-width: 100%;
+}
+
+.all-news-desc {
+    margin: 0;
+    color: var(--text-muted);
+    font-size: 0.875rem;
+    line-height: 1.5;
+    display: -webkit-box;
+    line-clamp: 3;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.all-news-footer {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+    margin-top: 4px;
+    font-size: 0.8rem;
+    color: var(--text-muted);
+}
+
+.all-news-author {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0;
+}
+
+.all-news-author-head {
+    width: 24px;
+    height: 24px;
+    border-radius: 4px;
+    object-fit: cover;
+}
+
+.all-news-date {
+    margin: 0;
+    font-size: 0.8rem;
+}
+
+.all-news-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-weight: 600;
+    font-size: 0.85rem;
+    margin-top: 4px;
+    transition: gap 0.3s ease;
+}
+
+.all-news-card:hover .all-news-link {
+    gap: 12px;
+}
+
+/* ==========================================================================
+   Elementos Compartilhados (Autores, Tags, Destaque de Busca)
+   ========================================================================== */
+.author {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 8px;
+    color: var(--text-muted);
+    font-size: 13px;
+    margin: 0;
+}
+
+.author-head {
+    width: 28px;
+    height: 28px;
+    border-radius: 4px;
+    object-fit: cover;
+}
+
+.date {
+    color: var(--text-muted);
+    font-size: 13px;
+    margin: 0;
+}
+
+/* Tags de Categoria */
+.news-div-tag,
+.all-news-tag {
+    display: inline-block;
+    align-self: flex-start;
+    padding: 3px 10px;
+    border-radius: 6px;
+    background-color: transparent;
+    color: white;
+    font-size: 0.78rem;
+    font-weight: 600;
+    letter-spacing: 0.3px;
+}
+
+.all-news-tag {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+}
+
+.news-div-tag[data-category="NerdSky"],
+.all-news-tag[data-category="NerdSky"] { background-color: var(--border-color-2); }
+
+.news-div-tag[data-category="Potato Nerd"],
+.all-news-tag[data-category="Potato Nerd"] { background-color: var(--border-color-1); }
+
+.news-div-tag[data-category="NerdDead"],
+.all-news-tag[data-category="NerdDead"] { background-color: var(--border-color-3); }
+
+/* Paleta de Cores e Bordas por Categoria */
+/* NerdSky */
+.news-div[data-category="NerdSky"],
+.all-news-card[data-category="NerdSky"] { border-color: var(--border-color-2); box-shadow: 0 0 12px rgba(185, 113, 218, 0.15); }
+.news-div[data-category="NerdSky"]:hover,
+.all-news-card[data-category="NerdSky"]:hover { box-shadow: 0 12px 30px rgba(185, 113, 218, 0.45); border-color: #D89BF0; }
+.news-div[data-category="NerdSky"] .news-div-link,
+.all-news-card[data-category="NerdSky"] .all-news-link { color: var(--border-color-2); }
+
+/* Potato Nerd */
+.news-div[data-category="Potato Nerd"],
+.all-news-card[data-category="Potato Nerd"] { border-color: var(--border-color-1); box-shadow: 0 0 12px rgba(125, 185, 223, 0.15); }
+.news-div[data-category="Potato Nerd"]:hover,
+.all-news-card[data-category="Potato Nerd"]:hover { box-shadow: 0 12px 30px rgba(125, 185, 223, 0.45); border-color: #A6D4F0; }
+.news-div[data-category="Potato Nerd"] .news-div-link,
+.all-news-card[data-category="Potato Nerd"] .all-news-link { color: var(--border-color-1); }
+
+/* NerdDead */
+.news-div[data-category="NerdDead"],
+.all-news-card[data-category="NerdDead"] { border-color: var(--border-color-3); box-shadow: 0 0 12px rgba(232, 93, 93, 0.15); }
+.news-div[data-category="NerdDead"]:hover,
+.all-news-card[data-category="NerdDead"]:hover { box-shadow: 0 12px 30px rgba(232, 93, 93, 0.45); border-color: #F08080; }
+.news-div[data-category="NerdDead"] .news-div-link,
+.all-news-card[data-category="NerdDead"] .all-news-link { color: var(--border-color-3); }
+
+/* Marcação de termo de pesquisa */
+.all-news-card mark {
+    background-color: rgba(185, 113, 218, 0.35);
+    color: white;
+    padding: 0 3px;
+    border-radius: 3px;
+}
+
+/* ==========================================================================
+   Botões e Ações de Navegação
+   ========================================================================== */
 .ver-mais-wrapper {
     display: flex;
     justify-content: center;
@@ -266,4 +394,345 @@
 
 .ver-mais-btn:hover i {
     transform: translateX(3px);
+}
+
+#voltar {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.9rem;
+    color: #a1a1aa;
+    text-decoration: none;
+    margin-bottom: 1.5rem;
+    transition: color 0.2s ease, transform 0.2s ease;
+}
+
+#voltar:hover {
+    color: #ffffff;
+    transform: translateX(-3px);
+}
+
+/* ==========================================================================
+   Controles: Pesquisa + Filtros + Resultados
+   ========================================================================== */
+#news-controls {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    width: 100%;
+    max-width: 1000px;
+    margin: 0 auto 1.25rem auto;
+    padding: 0 0.5rem;
+    box-sizing: border-box;
+}
+
+/* Searchbar */
+.news-search-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+    width: 100%;
+}
+
+.news-search-icon {
+    position: absolute;
+    left: 14px;
+    color: var(--text-muted);
+    font-size: 0.95rem;
+    pointer-events: none;
+    transition: color 0.2s ease;
+}
+
+.news-search-input {
+    width: 100%;
+    padding: 0.75rem 2.6rem 0.75rem 2.4rem;
+    background-color: var(--card-bg);
+    border: 1.5px solid var(--border-subtle);
+    border-radius: 10px;
+    color: white;
+    font-size: 0.95rem;
+    font-family: inherit;
+    outline: none;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    box-sizing: border-box;
+    -webkit-appearance: none;
+    appearance: none;
+}
+
+.news-search-input::-webkit-search-cancel-button {
+    -webkit-appearance: none;
+    appearance: none;
+}
+
+.news-search-input::placeholder {
+    color: #6b7280;
+}
+
+.news-search-input:focus {
+    border-color: var(--border-color-1);
+    box-shadow: 0 0 0 3px rgba(125, 185, 223, 0.15);
+}
+
+.news-search-input:focus ~ .news-search-icon,
+.news-search-wrapper:focus-within .news-search-icon {
+    color: var(--border-color-1);
+}
+
+.news-search-clear {
+    position: absolute;
+    right: 8px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    border: none;
+    background-color: rgba(255, 255, 255, 0.08);
+    color: var(--text-muted);
+    cursor: pointer;
+    font-size: 0.85rem;
+    transition: background-color 0.2s ease, color 0.2s ease, transform 0.15s ease;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.news-search-clear.visible {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.news-search-clear:hover {
+    background-color: rgba(255, 255, 255, 0.15);
+    color: white;
+    transform: scale(1.05);
+}
+
+/* Dropdown de Filtros */
+.news-filter-wrapper {
+    position: relative;
+    width: 100%;
+}
+
+.news-filter-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.6rem;
+    width: 100%;
+    padding: 0.75rem 1rem;
+    background-color: var(--card-bg);
+    border: 1.5px solid var(--border-subtle);
+    border-radius: 10px;
+    color: white;
+    font-size: 0.95rem;
+    font-family: inherit;
+    font-weight: 500;
+    cursor: pointer;
+    transition: border-color 0.2s ease, background-color 0.2s ease;
+    box-sizing: border-box;
+}
+
+.news-filter-btn:hover {
+    border-color: var(--border-color-1);
+}
+
+.news-filter-btn[aria-expanded="true"] {
+    border-color: var(--border-color-1);
+    box-shadow: 0 0 0 3px rgba(125, 185, 223, 0.15);
+}
+
+.news-filter-btn > i:first-child {
+    color: var(--border-color-1);
+    font-size: 0.95rem;
+}
+
+.news-filter-chevron {
+    color: var(--text-muted);
+    font-size: 0.8rem;
+    transition: transform 0.2s ease;
+}
+
+.news-filter-btn[aria-expanded="true"] .news-filter-chevron {
+    transform: rotate(180deg);
+}
+
+.news-filter-dropdown {
+    position: absolute;
+    top: calc(100% + 6px);
+    left: 0;
+    right: 0;
+    list-style: none;
+    margin: 0;
+    padding: 6px;
+    background-color: var(--card-bg);
+    border: 1.5px solid var(--border-subtle);
+    border-radius: 10px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+    z-index: 50;
+    max-height: 280px;
+    overflow-y: auto;
+    box-sizing: border-box;
+}
+
+.news-filter-dropdown[hidden] {
+    display: none;
+}
+
+.news-filter-dropdown li {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 0.6rem 0.75rem;
+    border-radius: 6px;
+    color: white;
+    font-size: 0.92rem;
+    cursor: pointer;
+    transition: background-color 0.15s ease;
+    user-select: none;
+}
+
+.news-filter-dropdown li:hover {
+    background-color: rgba(255, 255, 255, 0.08);
+}
+
+.news-filter-dropdown li[aria-selected="true"] {
+    background-color: rgba(125, 185, 223, 0.15);
+    color: var(--border-color-1);
+}
+
+.filter-dot {
+    display: inline-block;
+    width: 100px;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+.filter-dot-all { background-color: #ffffff; }
+.filter-dot-nerdsky { background-color: var(--border-color-2); }
+.filter-dot-potato { background-color: var(--border-color-1); }
+.filter-dot-nerddead { background-color: var(--border-color-3); }
+
+/* Informações de Resultado / Estados Vazios */
+.news-results-info {
+    text-align: center;
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    margin: 0 auto 1rem auto;
+    padding: 0 0.5rem;
+    max-width: 1000px;
+    box-sizing: border-box;
+}
+
+.news-results-info span#news-results-count {
+    color: var(--border-color-1);
+    font-weight: 700;
+}
+
+.all-news-empty {
+    text-align: center;
+    padding: 2rem;
+    color: var(--text-muted);
+}
+
+.all-news-empty.filtered {
+    padding: 2.5rem 1rem;
+    font-size: 1rem;
+    color: var(--text-muted);
+}
+
+/* ==========================================================================
+   Animações
+   ========================================================================== */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(4px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* ==========================================================================
+   Breakpoints Responsivos
+   ========================================================================== */
+
+/* Dispositivos móveis pequenos */
+@media (max-width: 700px) {
+    .news-div {
+        flex: 1 1 100%;
+        max-width: 100%;
+    }
+}
+
+/* Tablets (≥ 600px): Busca lado a lado & Card horizontal na lista */
+@media (min-width: 600px) {
+    #news-controls {
+        flex-direction: row;
+        align-items: stretch;
+        gap: 0.75rem;
+    }
+
+    .news-search-wrapper {
+        flex: 1;
+    }
+
+    .news-filter-wrapper {
+        width: auto;
+        min-width: 200px;
+    }
+
+    .news-filter-btn {
+        width: 100%;
+    }
+
+    .news-filter-dropdown {
+        left: auto;
+        right: 0;
+        width: 220px;
+    }
+
+    .all-news-card {
+        flex-direction: row;
+        align-items: stretch;
+        gap: 0;
+    }
+
+    .all-news-image {
+        width: 200px;
+        height: auto;
+        min-height: 160px;
+    }
+
+    .all-news-content {
+        flex: 1;
+        padding: 20px;
+    }
+
+    .all-news-title {
+        font-size: 1.2rem;
+    }
+}
+
+/* Desktops (≥ 1024px): Mais espaço e fontes maiores */
+@media (min-width: 1024px) {
+    #container {
+        margin: 2.5rem auto 3rem auto;
+        max-width: 1280px;
+    }
+
+    #all-news-container {
+        max-width: 1000px;
+        gap: 1.5rem;
+    }
+
+    .all-news-image {
+        width: 260px;
+    }
+
+    .all-news-content {
+        padding: 24px;
+    }
+
+    .all-news-title {
+        font-size: 1.35rem;
+    }
 }

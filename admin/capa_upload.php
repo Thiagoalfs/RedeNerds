@@ -1,19 +1,7 @@
 <?php
-/**
- * capa_upload.php
- * Helper compartilhado por criar.php e editar.php para processar a capa
- * das notícias, que pode vir por UPLOAD de arquivo ou por LINK (URL).
- *
- * Quando os dois campos são preenchidos, prevalece o que foi usado por
- * último — isso é controlado pelo campo oculto "capa_fonte" ('upload' ou
- * 'url'), que o JS do formulário atualiza a cada interação do usuário.
- *
- * Uso: chame sempre processarCapa($capaAtual) — ela decide internamente
- * qual dos dois caminhos seguir.
- */
 
 // Pasta física onde os arquivos de upload são salvos no servidor
-define('CAPA_UPLOAD_DIR_FISICA', __DIR__ . '/../../assets/novidades/');
+define('CAPA_UPLOAD_DIR_FISICA', __DIR__ . '/../assets/novidades/');
 
 // Prefixo salvo no banco / usado nas tags <img> para uploads próprios
 define('CAPA_UPLOAD_DIR_PUBLICA', '../assets/novidades/');
@@ -77,7 +65,7 @@ function validarUrlCapa(string $url, ?string $capaAtual): array
 }
 
 /**
- * Processa o upload de $_FILES['capa'].
+ * Processa o upload de $_FILES['capa'] e converte para WebP.
  */
 function processarUploadCapa(?string $capaAtual = null): array
 {
@@ -93,36 +81,35 @@ function processarUploadCapa(?string $capaAtual = null): array
         return [$capaAtual, "A imagem deve ter no máximo 5MB."];
     }
 
-    // Valida o tipo real do arquivo (não confia na extensão nem no MIME do navegador)
+    // Valida o tipo real do arquivo
     $tiposPermitidos = [
-        'image/jpeg' => 'jpg',
-        'image/png'  => 'png',
-        'image/webp' => 'webp',
-        'image/gif'  => 'gif',
+        'image/jpeg',
+        'image/png',
+        'image/webp',
+        'image/gif',
     ];
 
     $finfo = finfo_open(FILEINFO_MIME_TYPE);
     $mime = finfo_file($finfo, $arquivo['tmp_name']);
     finfo_close($finfo);
 
-    if (!isset($tiposPermitidos[$mime])) {
+    if (!in_array($mime, $tiposPermitidos)) {
         return [$capaAtual, "Formato de imagem inválido. Use JPG, PNG, WEBP ou GIF."];
     }
-
-    $extensao = $tiposPermitidos[$mime];
 
     if (!is_dir(CAPA_UPLOAD_DIR_FISICA)) {
         mkdir(CAPA_UPLOAD_DIR_FISICA, 0755, true);
     }
 
-    // Gera um nome aleatório (hash) para o arquivo, evitando colisões e expor o nome original
+    // Gera o arquivo com extensão .webp
     do {
-        $nomeArquivo = bin2hex(random_bytes(16)) . '.' . $extensao;
+        $nomeArquivo = bin2hex(random_bytes(16)) . '.webp';
         $caminhoDestino = CAPA_UPLOAD_DIR_FISICA . $nomeArquivo;
     } while (file_exists($caminhoDestino));
 
-    if (!move_uploaded_file($arquivo['tmp_name'], $caminhoDestino)) {
-        return [$capaAtual, "Erro ao salvar a imagem no servidor."];
+    // Converte e salva a imagem para WebP
+    if (!converterParaWebp($arquivo['tmp_name'], $caminhoDestino, $mime)) {
+        return [$capaAtual, "Erro ao processar e converter a imagem para WebP."];
     }
 
     $caminhoPublico = CAPA_UPLOAD_DIR_PUBLICA . $nomeArquivo;
@@ -130,6 +117,44 @@ function processarUploadCapa(?string $capaAtual = null): array
     apagarCapaAntigaSeForUpload($capaAtual, $caminhoPublico);
 
     return [$caminhoPublico, null];
+}
+
+/**
+ * Converte qualquer imagem compatível para o formato WebP preservando transparência se houver.
+ */
+function converterParaWebp(string $caminhoOrigem, string $caminhoDestino, string $mime, int $qualidade = 80): bool
+{
+    switch ($mime) {
+        case 'image/jpeg':
+            $imagem = @imagecreatefromjpeg($caminhoOrigem);
+            break;
+        case 'image/png':
+            $imagem = @imagecreatefrompng($caminhoOrigem);
+            if ($imagem) {
+                imagepalettetotruecolor($imagem);
+                imagealphablending($imagem, true);
+                imagesavealpha($imagem, true);
+            }
+            break;
+        case 'image/webp':
+            $imagem = @imagecreatefromwebp($caminhoOrigem);
+            break;
+        case 'image/gif':
+            $imagem = @imagecreatefromgif($caminhoOrigem);
+            break;
+        default:
+            return false;
+    }
+
+    if (!$imagem) {
+        return false;
+    }
+
+    // Salva no formato WebP com a qualidade definida (0 - 100)
+    $sucesso = imagewebp($imagem, $caminhoDestino, $qualidade);
+    imagedestroy($imagem);
+
+    return $sucesso;
 }
 
 /**

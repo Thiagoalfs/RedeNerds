@@ -29,28 +29,13 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
 </head>
 <body>
-    <nav>
-        <a href="index.html"><img id="navbar-img" src="assets/images/logo.webp" alt="Rede Nerds"></a>
-        <ul id="navbar">
-            <li><a href="#servers-section"><i class="fa-solid fa-server"></i> Servidores</a></li>
-            <li><a href="regras/regras.html"><i class="fa-solid fa-scale-balanced"></i> Regras</a></li>
-            <li><a href="equipe/equipe.html"><i class="fa-solid fa-users"></i> Equipe</a></li>
-            <li><a href="download/download.html"><i class="fa-solid fa-download"></i> Downloads</a></li>
-            <li><a href="novidades/novidades.html"><i class="fa-solid fa-newspaper"></i> Novidades</a></li>
-            <li><a href="informacoes/suporte.html"><i class="fa-solid fa-life-ring"></i> Suporte</a></li>
-        </ul>
-        <button id="navbar-toggle" type="button" aria-label="Abrir menu" aria-expanded="false" aria-controls="navbar">
-            <i class="fa-solid fa-bars" aria-hidden="true"></i>
-        </button>
-    </nav>
-
+    <div id="navbar-container"></div>
     <div id="page-wrapper">
-
         <!-- HERO (reaproveita estilos do common.css) -->
         <header id="big-header-div">
-            <img id="img-fundo" src="assets/images/fundo.png" alt="">
+            <img id="img-fundo" src="/assets/images/fundo.webp" alt="">
             <div id="big-header-img-content">
-                <img id="img-titulo" src="assets/images/tituloprincipal.png" alt="Rede Nerds">
+                <img id="img-titulo" src="/assets/images/logonobg.webp" alt="Rede Nerds">
                 <div id="big-header-text">
                     <h1>Rede Nerds</h1>
                     <p>Uma rede feita por gente que gosta de construir, explorar
@@ -105,7 +90,7 @@
                         </div>
                     </a>
 
-                                        <!-- Card 3 - Nerd Dead -->
+                    <!-- Card 3 - Nerd Dead -->
                     <a href="#servers-section" class="server-card server-card-3" style="filter:brightness(0.50)">
                         <div class="server-card-banner banner-3">
                             <img src="assets/images/nerddead.webp" alt="Nerd Dead">
@@ -187,6 +172,6 @@
     <div id="footer">
         <p class="footer-text">© Copyright 2026 <span class="bold">Rede Nerds</span>. Todos os direitos reservados.</p>
     </div>
-    <script src="common/navbar.js"></script>
+    <script src="/common/navbar.js"></script>
 </body>
 </html>
