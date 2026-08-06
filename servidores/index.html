@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Servidores - Rede Nerds</title>
+    <link rel="icon" type="image/x-icon" href="/assets/images/logo.webp">
+    <link rel="stylesheet" href="/shared/shared.css">
+    <link rel="stylesheet" href="server-card.css">
+    <link rel="stylesheet" href="/shared/footer.css">
+    <link rel="stylesheet" href="/shared/navbar.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+</head>
+<body>
+    <div id="navbar-container"></div>
+    <div id="page-wrapper">
+
+        <main id="container">
+            <section id="server-detail">
+                <!-- Botão Voltar -->
+                <a href="/#servers-section" id="voltar">
+                    <i class="fa-solid fa-arrow-left"></i> Voltar para Servidores
+                </a>
+
+                <!-- Cabeçalho do Servidor -->
+                <div class="server-header">
+                    <h1 id="server-section-title">
+                        <i id="server-icon" class="fa-solid fa-server"></i> 
+                        <span></span>
+                    </h1>
+                </div>
+
+                <!-- Conteúdo -->
+                <div class="server-info">
+                    <p id="server-about"></p>
+                    
+                    <div class="features-title">Destaques do Servidor</div>
+                    <ul id="server-features" class="server-features"></ul>
+                    
+                    <div class="cta-buttons">
+                        <a id="btn-modpack" href="#" class="cta-button">
+                            <i class="fa-solid fa-download"></i> Baixar Modpack
+                        </a>
+                        <button type="button" id="btn-copy-ip" class="cta-button copy-ip-btn" data-copy-ip="">
+                            <i class="fa-solid fa-copy"></i> Copiar IP
+                        </button>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <div id="footer"></div>
+
+    <script src="/shared/navbar.js"></script>
+    <script src="/shared/copy-ip.js"></script>
+    <script src="server-loader.js"></script>
+</body>
+</html>

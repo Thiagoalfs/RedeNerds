@@ -1,0 +1,56 @@
+{
+  "nerddead": {
+    "title": "NerdDead - Rede Nerds",
+    "serverName": "Nerd Dead",
+    "icon": "fa-solid fa-skull",
+    "aboutText": "Sobreviva em um mundo pós-apocalíptico cheio de desafios, hordas de mobs e mecânicas únicas de sobrevivência extrema. O Nerd Dead é o nosso servidor de sobrevivência hardcore em um cenário pós-apocalíptico. Enfrente hordas de zumbis, encontre recursos raros e construa sua base em meio ao caos.",
+    "features": [
+      "Sistema de hordas e sobrevivência extrema",
+      "Mobs customizados e chefes únicos",
+      "Armas e armaduras temáticas",
+      "Sistema de clãs e cooperação",
+      "Eventos especiais de apocalipse"
+    ],
+    "modpackUrl": "/download/#downloads-section",
+    "ip": "nerddead.Rede Nerds.net",
+    "themeColor": "#E85D5D",
+    "themeShadow": "rgba(232, 93, 93, 0.2)",
+    "themeHoverBg": "rgba(232, 93, 93, 0.12)"
+  },
+  "nerdsky": {
+    "title": "NerdSky - Rede Nerds",
+    "serverName": "NerdSky",
+    "icon": "fa-solid fa-hat-wizard",
+    "aboutText": "Um modpack focado em magia, tecnologia, exploração e aventura. Descubra novos mundos, automatize suas máquinas e enfrente desafios épicos. O NerdSky é o nosso servidor principal, um modpack recheado de mods de magia, tecnologia, exploração e aventura. Ideal para quem quer uma experiência completa de Minecraft com mods.",
+    "features": [
+      "Magia avançada com Ars Nouveau e Blood Magic",
+      "Tecnologia e automação com Mekanism e Create",
+      "Exploração de novas dimensões",
+      "Sistema de quests para guiar novos jogadores",
+      "Comunidade ativa e eventos semanais"
+    ],
+    "modpackUrl": "/download/#downloads-section",
+    "ip": "nerdsky.blazebr.com",
+    "themeColor": "#B971DA",
+    "themeShadow": "rgba(185, 113, 218, 0.2)",
+    "themeHoverBg": "rgba(185, 113, 218, 0.12)"
+  },
+  "xomaps": {
+    "title": "Potato Nerds - Rede Nerds",
+    "serverName": "Potato Nerds",
+    "icon": "fa-solid fa-map-location-dot",
+    "aboutText": "Um modpack variado, extremamente leve, menos de 200 mods, com foco em otimização para rodar com PC realmente fraco. Construa, explore, negocie e forme alianças em um mundo persistente cheio de oportunidades. O Potato Nerd é o nosso servidor de sobrevivência com mods, extremamente leve, menos de 200 mods, com foco em otimização para rodar com PC realmente fraco",
+    "features": [
+      "Survival semi-vanilla com plugins de qualidade de vida",
+      "Sistema de claims para proteger suas construções",
+      "Economia e mercado entre jogadores",
+      "Mapa interativo com visualização em tempo real",
+      "Eventos comunitários e construções colaborativas"
+    ],
+    "modpackUrl": "/download/#downloads-section",
+    "ip": "xomaps.redenerds.com.br:10502",
+    "themeColor": "#7DB9DF",
+    "themeShadow": "rgba(125, 185, 223, 0.2)",
+    "themeHoverBg": "rgba(125, 185, 223, 0.12)"
+  }
+}

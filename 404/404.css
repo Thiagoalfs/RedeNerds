@@ -1,0 +1,61 @@
+/* Centraliza o conteúdo no meio da tela verticalmente */
+.error-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 55vh;
+    text-align: center;
+}
+
+.error-content {
+    max-width: 480px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 1rem;
+}
+
+/* Número 404 grande em destaque */
+.error-code {
+    font-size: 5.5rem;
+    font-weight: 900;
+    line-height: 1;
+    color: var(--border-color-1, #7DB9DF);
+    letter-spacing: -2px;
+}
+
+.error-content h1 {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: #ffffff;
+    margin: 0;
+}
+
+.error-content p {
+    color: #b0b4ba;
+    font-size: 0.98rem;
+    line-height: 1.6;
+    margin: 0 0 1.25rem 0;
+}
+
+/* Botão de retorno ao início */
+.cta-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.6rem;
+    padding: 0.8rem 1.6rem;
+    border-radius: 8px;
+    text-decoration: none;
+    color: #ffffff;
+    font-weight: 600;
+    font-size: 0.95rem;
+    background-color: var(--border-color-1, #7DB9DF);
+    transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.cta-button:hover {
+    opacity: 0.9;
+    transform: translateY(-2px);
+}

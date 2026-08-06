@@ -1,12 +1,11 @@
 /* =========================================
    PÁGINA REGRAS — MOBILE FIRST
    Estilos exclusivos desta página.
-   O hero e botões são controlados por common.css.
+   O hero e botões são controlados por shared.css.
    ========================================= */
 
 /* ---------- MOBILE (base) ---------- */
 #container {
-    /* override do margin fixo do common.css para responsividade */
     margin: 1.25rem 0.5rem 2rem 0.5rem;
     display: flex;
     flex-direction: column;

@@ -7,7 +7,7 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     // Tenta carregar o navbar.html da raiz
-    fetch("/common/navbar.html")
+    fetch("/shared/navbar.html")
         .then(response => {
             if (!response.ok) {
                 throw new Error(`Erro ${response.status} ao buscar ${response.url}`);
@@ -25,6 +25,32 @@ document.addEventListener("DOMContentLoaded", function () {
             // Mostra o erro direto na página para facilitar o diagnóstico
             container.innerHTML = `<div style="color: red; padding: 10px; background: #fee; border: 1px solid red; text-align: center;">
                 ⚠️ Não foi possível carregar a navbar: <strong>${error.message}</strong>
+            </div>`;
+        });
+});
+
+document.addEventListener("DOMContentLoaded", function () {
+    const footerContainer = document.getElementById("footer");
+
+    if (!footerContainer) {
+        console.error("ERRO: O elemento <div id='footer'></div> não foi encontrado na página HTML!");
+        return;
+    }
+
+    fetch("/shared/footer.html")
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`Erro ${response.status} ao buscar ${response.url}`);
+            }
+            return response.text();
+        })
+        .then(data => {
+            footerContainer.innerHTML = data;
+        })
+        .catch(error => {
+            console.error(error);
+            footerContainer.innerHTML = `<div style="color: red; padding: 10px; background: #fee; border: 1px solid red; text-align: center;">
+                ⚠️ Não foi possível carregar o footer: <strong>${error.message}</strong>
             </div>`;
         });
 });

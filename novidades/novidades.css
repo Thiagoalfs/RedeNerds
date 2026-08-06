@@ -13,11 +13,6 @@
 /* ==========================================================================
    Layout Base & Containers
    ========================================================================== */
-#container {
-    margin: 1.25rem 0.5rem 2rem 0.5rem;
-    max-width: 100%;
-    box-sizing: border-box;
-}
 
 /* Container de notícias em Grade (View Principal - Top 3) */
 #news-container {

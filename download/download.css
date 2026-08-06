@@ -4,9 +4,9 @@
     --card-bg: #0b0f15;
 }
 
-/* Override do #container do common.css (margin fixo 100px nas laterais) */
+/* Override do #container do shared.css (margin fixo 100px nas laterais) */
 #container {
-    margin: 1.25rem 0.75rem 2rem 0.75rem;
+    margin: 1.25rem 0.5rem 2rem 0.5rem;
     max-width: 100%;
     box-sizing: border-box;
 }

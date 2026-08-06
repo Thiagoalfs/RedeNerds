@@ -3,10 +3,15 @@
     --border-color-1: #7DB9DF;
 }
 
-nav {
+#navbar-container {
     position: sticky;
     top: 0;
-    z-index: 100;
+    z-index: 1000;
+    width: 100%;
+}
+
+nav {
+
     background-color: #030407;
     display: flex;
     align-items: center;
@@ -15,9 +20,10 @@ nav {
     border-bottom: 1px solid rgba(255, 255, 255, 0.3);
     font-weight: 600;
     max-height: 50px;
-    margin: 0;            /* zera qualquer espaçamento externo */
-    align-self: flex-start; /* evita o flex shrink que pode causar gap no topo */
+    margin: 0;
+    align-self: flex-start;
 }
+
 
 #navbar a {
     color: white;

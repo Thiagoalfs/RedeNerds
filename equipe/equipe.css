@@ -10,10 +10,6 @@
     --border-subtle: rgba(255, 255, 255, 0.08);
 }
 
-/* Override do #container do common.css para margens responsivas */
-#container {
-    margin: 1.25rem 1rem 2rem 1rem;
-}
 
 /* ----- Container geral ----- */
 #equipe {
