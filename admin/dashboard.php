@@ -2,11 +2,39 @@
 require_once "sessao.php";
 require_once "../../config.php";
 
+const POR_PAGINA = 10;
+
+$pagina = isset($_GET['page']) ? max(1, intval($_GET['page'])) : 1;
+$offset = ($pagina - 1) * POR_PAGINA;
+
+$totalNoticias = 0;
+$totalPaginas = 1;
+$noticias = [];
+
 try {
-    $stmt = $pdo->query("SELECT id, titulo, category, categoria_envio, capa, criado_em, autor FROM novidades ORDER BY criado_em DESC");
+    $totalNoticias = (int) $pdo->query("SELECT COUNT(*) FROM novidades")->fetchColumn();
+    $totalPaginas = $totalNoticias > 0 ? (int) ceil($totalNoticias / POR_PAGINA) : 1;
+
+    // Evita pedir uma página além do total (ex: item deletado)
+    if ($pagina > $totalPaginas) {
+        $pagina = $totalPaginas;
+        $offset = ($pagina - 1) * POR_PAGINA;
+    }
+
+    $stmt = $pdo->prepare("SELECT id, titulo, category, categoria_envio, capa, criado_em, autor FROM novidades ORDER BY criado_em DESC LIMIT :limit OFFSET :offset");
+    $stmt->bindValue(':limit', POR_PAGINA, PDO::PARAM_INT);
+    $stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
+    $stmt->execute();
     $noticias = $stmt->fetchAll(PDO::FETCH_ASSOC);
 } catch (PDOException $e) {
     $noticias = [];
+}
+
+// Monta a URL de uma página de paginação preservando outros parâmetros da query string
+function urlPagina($pagina) {
+    $params = $_GET;
+    $params['page'] = $pagina;
+    return 'dashboard.php?' . http_build_query($params);
 }
 
 function formatarData($data) {
@@ -138,7 +166,7 @@ $nome_usuario = $_SESSION['usuario_nome'] ?? 'Administrador';
         <div class="page-header">
             <div>
                 <h5 class="mb-0 fw-bold">Notícias</h5>
-                <small class="text-muted"><?php echo count($noticias); ?> publicada(s)</small>
+                <small class="text-muted"><?php echo $totalNoticias; ?> publicada(s)<?php if ($totalPaginas > 1): ?> · página <?php echo $pagina; ?> de <?php echo $totalPaginas; ?><?php endif; ?></small>
             </div>
             <a href="criar.php" class="btn btn-success btn-sm">➕ Nova</a>
         </div>
@@ -178,6 +206,24 @@ $nome_usuario = $_SESSION['usuario_nome'] ?? 'Administrador';
                         </div>
                     </div>
                 <?php endforeach; ?>
+            <?php endif; ?>
+
+            <?php if ($totalPaginas > 1): ?>
+                <nav aria-label="Paginação de notícias" class="d-flex justify-content-center mt-3">
+                    <ul class="pagination pagination-sm mb-0">
+                        <li class="page-item <?php echo $pagina <= 1 ? 'disabled' : ''; ?>">
+                            <a class="page-link" href="<?php echo htmlspecialchars(urlPagina(max(1, $pagina - 1)), ENT_QUOTES, 'UTF-8'); ?>">‹</a>
+                        </li>
+                        <?php for ($p = 1; $p <= $totalPaginas; $p++): ?>
+                            <li class="page-item <?php echo $p === $pagina ? 'active' : ''; ?>">
+                                <a class="page-link" href="<?php echo htmlspecialchars(urlPagina($p), ENT_QUOTES, 'UTF-8'); ?>"><?php echo $p; ?></a>
+                            </li>
+                        <?php endfor; ?>
+                        <li class="page-item <?php echo $pagina >= $totalPaginas ? 'disabled' : ''; ?>">
+                            <a class="page-link" href="<?php echo htmlspecialchars(urlPagina(min($totalPaginas, $pagina + 1)), ENT_QUOTES, 'UTF-8'); ?>">›</a>
+                        </li>
+                    </ul>
+                </nav>
             <?php endif; ?>
         </div>
 
@@ -244,6 +290,24 @@ $nome_usuario = $_SESSION['usuario_nome'] ?? 'Administrador';
                     </div>
                 </div>
             </div>
+
+            <?php if ($totalPaginas > 1): ?>
+                <nav aria-label="Paginação de notícias" class="d-flex justify-content-center mt-3">
+                    <ul class="pagination mb-0">
+                        <li class="page-item <?php echo $pagina <= 1 ? 'disabled' : ''; ?>">
+                            <a class="page-link" href="<?php echo htmlspecialchars(urlPagina(max(1, $pagina - 1)), ENT_QUOTES, 'UTF-8'); ?>">‹ Anterior</a>
+                        </li>
+                        <?php for ($p = 1; $p <= $totalPaginas; $p++): ?>
+                            <li class="page-item <?php echo $p === $pagina ? 'active' : ''; ?>">
+                                <a class="page-link" href="<?php echo htmlspecialchars(urlPagina($p), ENT_QUOTES, 'UTF-8'); ?>"><?php echo $p; ?></a>
+                            </li>
+                        <?php endfor; ?>
+                        <li class="page-item <?php echo $pagina >= $totalPaginas ? 'disabled' : ''; ?>">
+                            <a class="page-link" href="<?php echo htmlspecialchars(urlPagina(min($totalPaginas, $pagina + 1)), ENT_QUOTES, 'UTF-8'); ?>">Próxima ›</a>
+                        </li>
+                    </ul>
+                </nav>
+            <?php endif; ?>
         </div>
 
     </div>
