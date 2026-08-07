@@ -138,7 +138,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         </div>
                         <div class="col-6 col-md-3">
                             <label for="categoria_envio" class="form-label">Categoria de Envio <span class="text-danger">*</span></label>
-                            <select class="form-select" id="categoria_envio" name="categoria_envio" required>
+                            <select class="form-select" id="categoria_envio" name="categoria_envio" required
+                                onchange="atualizarLabelCategoria(this.value)">
                                 <?php foreach ($categorias_envio as $cat): ?>
                                     <option value="<?php echo htmlspecialchars($cat, ENT_QUOTES, 'UTF-8'); ?>"
                                         <?php echo ($categoria_envio === $cat) ? 'selected' : ''; ?>>
@@ -152,9 +153,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <div class="card bg-light p-3 mb-3">
                         <h6 class="mb-2">💬 Integração Discord</h6>
                         <div class="form-check mb-2">
-                            <input class="form-check-input" type="checkbox" id="enviar_webhook" name="enviar_webhook" value="1">
+                            <input class="form-check-input" type="checkbox" id="enviar_webhook" name="enviar_webhook" value="1" checked>
                             <label class="form-check-label" for="enviar_webhook">
-                                Enviar notícia pelo webhook da categoria selecionada
+                                Enviar notícia pelo webhook de <strong id="categoria-envio-label"><?php echo htmlspecialchars($categoria_envio, ENT_QUOTES, 'UTF-8'); ?></strong>
                             </label>
                         </div>
                         <div class="form-check">
@@ -264,6 +265,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 img.style.display = 'none';
                 placeholder.style.display = 'flex';
             }
+        }
+
+        function atualizarLabelCategoria(categoria) {
+            document.getElementById('categoria-envio-label').textContent = categoria;
         }
 
         function atualizarPreviewAutor(nome) {
