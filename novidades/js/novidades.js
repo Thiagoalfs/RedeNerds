@@ -19,6 +19,9 @@ document.addEventListener("DOMContentLoaded", () => {
     const filterDropdown = document.getElementById("news-filter-dropdown");
     const resultsInfo = document.getElementById("news-results-info");
     const resultsCount = document.getElementById("news-results-count");
+    const pagination = document.getElementById("news-pagination");
+
+    const PER_PAGE = 5;
 
     const categoryLabels = {
         "NerdSky": "NerdSky",
@@ -30,18 +33,40 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const state = {
         category: "all",
-        query: ""
+        query: "",
+        page: 1
     };
 
+    const fetchJSON = async (url) => {
+        const res = await fetch(url);
+        const contentType = res.headers.get("content-type") || "";
+        
+        if (!res.ok || !contentType.includes("application/json")) {
+            const errorText = await res.text();
+            console.error("Resposta inválida do servidor:", errorText);
+            throw new Error("A resposta do servidor não é um JSON válido.");
+        }
+        
+        return await res.json();
+    };
+
+    const escapeHTML = str => String(str ?? "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+
     // ========================================================
-    // NAVEGAÇÃO ENTRE AS TELAS (SPA)
+    // NAVEGAÇÃO SPA
     // ========================================================
     if (btnMostrarMais) {
         btnMostrarMais.addEventListener("click", () => {
             viewNovidades.hidden = true;
             viewMais.hidden = false;
             window.scrollTo({ top: 0, behavior: "smooth" });
-            loadAllNews(); // Carrega a lista completa
+            state.page = 1;
+            loadAllNews();
         });
     }
 
@@ -61,10 +86,15 @@ document.addEventListener("DOMContentLoaded", () => {
 
         newsContainer.innerHTML = `<p style="text-align:center; padding: 20px;">Carregando novidades...</p>`;
 
-        fetch("/novidades/js/novidades.php")
-            .then(res => res.json())
+        fetchJSON("/novidades/js/novidades.php?limit=3")
             .then(data => {
-                const entries = data.slice(0, 3);
+                if (data && data.erro) {
+                    console.error("Erro retornado do PHP:", data.erro);
+                    newsContainer.innerHTML = `<p style="color: #E85D5D; text-align: center; padding: 20px;">Erro: ${escapeHTML(data.erro)}</p>`;
+                    return;
+                }
+
+                const entries = Array.isArray(data) ? data : [];
 
                 if (entries.length === 0) {
                     newsContainer.innerHTML = `<p style="text-align:center; padding: 20px;">Nenhuma novidade por enquanto.</p>`;
@@ -77,15 +107,15 @@ document.addEventListener("DOMContentLoaded", () => {
                     return `
                     <a class="news-div" href="novidade.html?id=${news.id}" data-category="${categoryKey}">
                         <div class="news-div-banner">
-                            <img class="news-img" src="${news.capa}" alt="${news.titulo}">
+                            <img class="news-img" src="${escapeHTML(news.capa)}" alt="${escapeHTML(news.titulo)}">
                         </div>
                         <div class="news-div-content">
-                            ${categoryLabel ? `<span class="news-div-tag" data-category="${categoryKey}">${categoryLabel}</span>` : ""}
-                            <h3 class="news-div-title">${news.titulo}</h3>
+                            ${categoryLabel ? `<span class="news-div-tag" data-category="${categoryKey}">${escapeHTML(categoryLabel)}</span>` : ""}
+                            <h3 class="news-div-title">${escapeHTML(news.titulo)}</h3>
                             <div class="news-div-footer">
                                 <div class="author">
-                                    <img class="author-head" src="https://mc-heads.net/avatar/${news.autor}" alt="${news.autor}">
-                                    <p>${news.autor}</p>
+                                    <img class="author-head" src="https://mc-heads.net/avatar/${escapeHTML(news.autor)}" alt="${escapeHTML(news.autor)}">
+                                    <p>${escapeHTML(news.autor)}</p>
                                 </div>
                                 <div class="date">
                                     <p>${new Date(news.criado_em).toLocaleDateString("pt-BR")}</p>
@@ -101,20 +131,13 @@ document.addEventListener("DOMContentLoaded", () => {
             })
             .catch(err => {
                 console.error("Erro ao carregar novidades:", err);
-                newsContainer.innerHTML = `<p style="color: red; text-align: center; padding: 20px;">Erro ao carregar novidades.</p>`;
+                newsContainer.innerHTML = `<p style="color: #E85D5D; text-align: center; padding: 20px;">Erro ao carregar novidades.</p>`;
             });
     };
 
     // ========================================================
-    // 2. CARREGAMENTO DA TELA "VER MAIS" (Filtros e Busca)
+    // 2. CARREGAMENTO DA TELA "VER MAIS"
     // ========================================================
-    const escapeHTML = str => String(str ?? "")
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;")
-        .replace(/"/g, "&quot;")
-        .replace(/'/g, "&#039;");
-
     const escapeRegex = str => String(str).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
     const highlight = (text, terms) => {
@@ -130,7 +153,6 @@ document.addEventListener("DOMContentLoaded", () => {
                 <i class="fa-solid fa-circle-exclamation" style="color:#B971DA; margin-right:6px;"></i>
                 Nenhuma novidade encontrada com esses filtros.
             </p>`;
-            resultsInfo.hidden = true;
             return;
         }
 
@@ -162,9 +184,69 @@ document.addEventListener("DOMContentLoaded", () => {
             </a>
             `;
         }).join("");
+    };
 
-        resultsCount.textContent = entries.length;
-        resultsInfo.hidden = false;
+    const renderPagination = (page, totalPages) => {
+        if (!pagination) return;
+
+        if (!totalPages || totalPages <= 1) {
+            pagination.hidden = true;
+            pagination.innerHTML = "";
+            return;
+        }
+
+        const makeBtn = (label, targetPage, { disabled = false, active = false, ariaLabel = null } = {}) => {
+            const classes = ["news-page-btn"];
+            if (active) classes.push("active");
+            return `<button type="button" class="${classes.join(" ")}"
+                        data-page="${targetPage}"
+                        ${disabled ? "disabled" : ""}
+                        ${active ? 'aria-current="page"' : ""}
+                        aria-label="${ariaLabel || ("Página " + targetPage)}">${label}</button>`;
+        };
+
+        const windowSize = 2;
+        let start = Math.max(1, page - windowSize);
+        let end = Math.min(totalPages, page + windowSize);
+
+        const items = [];
+
+        items.push(makeBtn('<i class="fa-solid fa-chevron-left"></i>', page - 1, {
+            disabled: page <= 1,
+            ariaLabel: "Página anterior"
+        }));
+
+        if (start > 1) {
+            items.push(makeBtn("1", 1));
+            if (start > 2) items.push(`<span class="news-page-ellipsis">…</span>`);
+        }
+
+        for (let p = start; p <= end; p++) {
+            items.push(makeBtn(String(p), p, { active: p === page }));
+        }
+
+        if (end < totalPages) {
+            if (end < totalPages - 1) items.push(`<span class="news-page-ellipsis">…</span>`);
+            items.push(makeBtn(String(totalPages), totalPages));
+        }
+
+        items.push(makeBtn('<i class="fa-solid fa-chevron-right"></i>', page + 1, {
+            disabled: page >= totalPages,
+            ariaLabel: "Próxima página"
+        }));
+
+        pagination.innerHTML = items.join("");
+        pagination.hidden = false;
+
+        pagination.querySelectorAll(".news-page-btn").forEach(btn => {
+            btn.addEventListener("click", () => {
+                const targetPage = parseInt(btn.dataset.page, 10);
+                if (!targetPage || targetPage === state.page) return;
+                state.page = targetPage;
+                loadAllNews();
+                allNewsContainer.scrollIntoView({ behavior: "smooth", block: "start" });
+            });
+        });
     };
 
     let loadingAll = false;
@@ -174,6 +256,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
         allNewsContainer.innerHTML = `<p class="all-news-empty">Carregando novidades...</p>`;
         resultsInfo.hidden = true;
+        if (pagination) pagination.hidden = true;
 
         const params = new URLSearchParams();
         if (state.category && state.category !== "all") {
@@ -182,23 +265,45 @@ document.addEventListener("DOMContentLoaded", () => {
         if (state.query.trim()) {
             params.set("q", state.query.trim());
         }
+        params.set("page", state.page);
+        params.set("per_page", PER_PAGE);
 
-        const url = "/novidades/js/novidades.php" + (params.toString() ? "?" + params.toString() : "");
+        const url = "/novidades/js/novidades.php?" + params.toString();
 
         try {
-            const res = await fetch(url);
-            const data = await res.json();
+            const payload = await fetchJSON(url);
 
-            if (!Array.isArray(data)) {
-                allNewsContainer.innerHTML = `<p class="all-news-empty" style="color:#E85D5D;">Erro: ${escapeHTML(data?.erro || "resposta inválida")}</p>`;
+            if (payload && payload.erro) {
+                allNewsContainer.innerHTML = `<p class="all-news-empty" style="color:#E85D5D;">Erro: ${escapeHTML(payload.erro)}</p>`;
+                renderPagination(1, 0);
+                return;
+            }
+
+            if (!payload || !Array.isArray(payload.data)) {
+                allNewsContainer.innerHTML = `<p class="all-news-empty" style="color:#E85D5D;">Resposta inválida do servidor.</p>`;
+                renderPagination(1, 0);
+                return;
+            }
+
+            if (payload.data.length === 0 && payload.page > 1 && payload.total > 0) {
+                state.page = 1;
+                loadingAll = false;
+                await loadAllNews();
                 return;
             }
 
             const terms = state.query.trim().split(/\s+/).filter(Boolean);
-            renderAllCards(data, terms);
+            renderAllCards(payload.data, terms);
+
+            resultsCount.textContent = payload.total;
+            resultsInfo.hidden = payload.total === 0;
+
+            state.page = payload.page;
+            renderPagination(payload.page, payload.total_pages);
         } catch (err) {
             console.error("Erro ao carregar novidades:", err);
             allNewsContainer.innerHTML = `<p class="all-news-empty" style="color:#E85D5D;">Erro ao carregar novidades.</p>`;
+            renderPagination(1, 0);
         } finally {
             loadingAll = false;
         }
@@ -214,6 +319,7 @@ document.addEventListener("DOMContentLoaded", () => {
             clearTimeout(searchTimer);
             searchTimer = setTimeout(() => {
                 state.query = value;
+                state.page = 1;
                 loadAllNews();
             }, 300);
         });
@@ -224,6 +330,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 searchInput.value = "";
                 if (searchClear) searchClear.classList.remove("visible");
                 state.query = "";
+                state.page = 1;
                 loadAllNews();
             }
         });
@@ -234,6 +341,7 @@ document.addEventListener("DOMContentLoaded", () => {
             if (searchInput) searchInput.value = "";
             searchClear.classList.remove("visible");
             state.query = "";
+            state.page = 1;
             loadAllNews();
             if (searchInput) searchInput.focus();
         });
@@ -274,6 +382,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 const label = li.textContent.trim();
 
                 state.category = category;
+                state.page = 1;
                 if (filterLabel) filterLabel.textContent = label;
 
                 filterDropdown.querySelectorAll("li").forEach(item => item.removeAttribute("aria-selected"));
@@ -285,6 +394,5 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    // Carregamento inicial da página
     loadTopNews();
 });
