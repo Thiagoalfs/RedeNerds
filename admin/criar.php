@@ -13,6 +13,12 @@ $category = "NerdSky";
 
 $categorias = ['NerdSky', 'Potato Nerd', 'NerdDead'];
 
+try {
+    $nicksEquipe = $pdo->query("SELECT DISTINCT nick FROM equipe ORDER BY nick ASC")->fetchAll(PDO::FETCH_COLUMN, 0);
+} catch (PDOException $e) {
+    $nicksEquipe = [];
+}
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $titulo    = trim($_POST['titulo'] ?? '');
     $conteudo  = trim($_POST['conteudo'] ?? '');
@@ -165,10 +171,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         </div>
                         <div class="col-4">
                             <label for="autor" class="form-label">Autor <span class="text-danger">*</span></label>
-                            <input type="text" class="form-control" id="autor" name="autor"
-                                value="<?php echo htmlspecialchars($autor, ENT_QUOTES, 'UTF-8'); ?>"
-                                maxlength="32" required
-                                oninput="atualizarPreviewAutor(this.value)">
+                            <select class="form-select" id="autor" name="autor" required
+                                onchange="atualizarPreviewAutor(this.value)">
+                                <option value="" disabled <?php echo $autor === '' ? 'selected' : ''; ?>>Selecione...</option>
+                                <?php foreach ($nicksEquipe as $nick): ?>
+                                    <option value="<?php echo htmlspecialchars($nick, ENT_QUOTES, 'UTF-8'); ?>"
+                                        <?php echo ($autor === $nick) ? 'selected' : ''; ?>>
+                                        <?php echo htmlspecialchars($nick, ENT_QUOTES, 'UTF-8'); ?>
+                                    </option>
+                                <?php endforeach; ?>
+                            </select>
+                            <?php if (empty($nicksEquipe)): ?>
+                                <small class="text-danger d-block mt-1">Nenhum membro cadastrado em Equipe ainda.</small>
+                            <?php endif; ?>
                         </div>
                     </div>
 

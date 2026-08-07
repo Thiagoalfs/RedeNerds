@@ -128,6 +128,7 @@ $nome_usuario = $_SESSION['usuario_nome'] ?? 'Administrador';
                 <span class="text-white small d-none d-sm-inline">
                     Olá, <strong><?php echo htmlspecialchars($nome_usuario, ENT_QUOTES, 'UTF-8'); ?></strong>
                 </span>
+                <a href="equipe.php" class="btn btn-outline-light btn-sm">🧑‍🤝‍🧑 Equipe</a>
                 <a href="logout.php" class="btn btn-outline-light btn-sm">Sair</a>
             </div>
         </div>

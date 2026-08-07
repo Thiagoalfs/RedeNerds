@@ -54,7 +54,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const toCategoryKey = value => String(value || "").trim();
 
-    fetch(`https://redenerds.com.br/novidades.php?id=${id}`)
+    fetch(`/novidades/js/novidades.php?id=${id}`)
         .then(res => res.json())
         .then(news => {
             if (!news || news.erro) {

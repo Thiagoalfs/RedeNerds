@@ -61,7 +61,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
         newsContainer.innerHTML = `<p style="text-align:center; padding: 20px;">Carregando novidades...</p>`;
 
-        fetch("https://redenerds.com.br/novidades.php")
+        fetch("/novidades/js/novidades.php")
             .then(res => res.json())
             .then(data => {
                 const entries = data.slice(0, 3);
@@ -183,7 +183,7 @@ document.addEventListener("DOMContentLoaded", () => {
             params.set("q", state.query.trim());
         }
 
-        const url = "https://redenerds.com.br/novidades.php" + (params.toString() ? "?" + params.toString() : "");
+        const url = "/novidades/js/novidades.php" + (params.toString() ? "?" + params.toString() : "");
 
         try {
             const res = await fetch(url);
