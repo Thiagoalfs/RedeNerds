@@ -2,6 +2,7 @@
 require_once "sessao.php";
 require_once "../../config.php";
 require_once "capa_upload.php";
+require_once "webhook_helper.php";
 
 $mensagem_sucesso = "";
 $mensagem_erro = "";
@@ -10,8 +11,10 @@ $conteudo = "";
 $autor = "";
 $capa = "";
 $category = "NerdSky";
+$categoria_envio = "Anúncios";
 
-$categorias = ['NerdSky', 'Potato Nerd', 'NerdDead'];
+$servidores = ['NerdSky', 'Potato Nerd', 'NerdDead'];
+$categorias_envio = ['Anúncios', 'Atualizações'];
 
 try {
     $nicksEquipe = $pdo->query("SELECT DISTINCT nick FROM equipe ORDER BY nick ASC")->fetchAll(PDO::FETCH_COLUMN, 0);
@@ -20,32 +23,49 @@ try {
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $titulo    = trim($_POST['titulo'] ?? '');
-    $conteudo  = trim($_POST['conteudo'] ?? '');
-    $autor     = trim($_POST['autor'] ?? '');
-    $category  = trim($_POST['category'] ?? 'NerdSky');
+    $titulo          = trim($_POST['titulo'] ?? '');
+    $conteudo        = trim($_POST['conteudo'] ?? '');
+    $autor           = trim($_POST['autor'] ?? '');
+    $category        = trim($_POST['category'] ?? 'NerdSky');
+    $categoria_envio = trim($_POST['categoria_envio'] ?? 'Anúncios');
+    
+    $enviar_webhook  = isset($_POST['enviar_webhook']);
+    $marcar_everyone = isset($_POST['marcar_everyone']);
 
     [$capa, $erro_upload] = processarCapa();
 
     if ($titulo === '' || $conteudo === '' || $autor === '') {
         $mensagem_erro = "Preencha os campos obrigatórios (título, conteúdo e autor).";
-    } elseif (!in_array($category, $categorias, true)) {
-        $mensagem_erro = "Categoria inválida.";
+    } elseif (!in_array($category, $servidores, true)) {
+        $mensagem_erro = "Servidor inválido.";
+    } elseif (!in_array($categoria_envio, $categorias_envio, true)) {
+        $mensagem_erro = "Categoria de envio inválida.";
     } elseif ($erro_upload) {
         $mensagem_erro = $erro_upload;
     } else {
         try {
-            $stmt = $pdo->prepare("INSERT INTO novidades (titulo, conteudo, autor, capa, category) VALUES (:titulo, :conteudo, :autor, :capa, :category)");
+            $mensagemID = null;
+
+            // Se a opção de Webhook foi marcada
+            if ($enviar_webhook) {
+                $mensagemID = enviarWebhookDiscord($categoria_envio, $titulo, $conteudo, $autor, $capa, $category, $marcar_everyone);
+            }
+
+            $stmt = $pdo->prepare("INSERT INTO novidades (titulo, conteudo, autor, capa, category, categoria_envio, mensagemID) VALUES (:titulo, :conteudo, :autor, :capa, :category, :categoria_envio, :mensagemID)");
             $stmt->execute([
-                ':titulo'    => $titulo,
-                ':conteudo'  => $conteudo,
-                ':autor'     => $autor,
-                ':capa'      => $capa !== '' ? $capa : null,
-                ':category'  => $category,
+                ':titulo'          => $titulo,
+                ':conteudo'        => $conteudo,
+                ':autor'           => $autor,
+                ':capa'            => $capa !== '' ? $capa : null,
+                ':category'        => $category,
+                ':categoria_envio' => $categoria_envio,
+                ':mensagemID'      => $mensagemID,
             ]);
-            $mensagem_sucesso = "Notícia criada com sucesso!";
+
+            $mensagem_sucesso = "Notícia criada com sucesso!" . ($enviar_webhook ? ($mensagemID ? " (Enviada ao Discord com sucesso)" : " (Falha ao enviar ao Discord)") : "");
             $titulo = $conteudo = $autor = $capa = "";
             $category = "NerdSky";
+            $categoria_envio = "Anúncios";
         } catch (PDOException $e) {
             $mensagem_erro = "Erro ao salvar a notícia. Tente novamente.";
         }
@@ -60,43 +80,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <title>Nova Notícia - Painel Administrativo</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
-        .card {
-            max-width: 80%;
-            margin: 0 auto;
-        }
-
-        .preview-capa {
-            width: 100%;
-            max-height: 180px;
-            object-fit: cover;
-            border-radius: 8px;
-            border: 1px solid #e0e0e0;
-        }
-
-        .preview-autor {
-            width: auto;
-            max-height: 180px;
-            object-fit: cover;
-            border-radius: 8px;
-            border: 1px solid #e0e0e0;
-            display: block;
-            margin: 0 auto;
-        }
-
-        .preview-placeholder {
-            width: 100%;
-            height: 180px;
-            background: #f0f2f5;
-            border: 2px dashed #ced4da;
-            border-radius: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: #adb5bd;
-            font-size: 0.9rem;
-        }
+        .card { max-width: 80%; margin: 0 auto; }
+        @media (max-width: 768px) { .card { max-width: 100%; } }
+        .preview-capa { width: 100%; max-height: 180px; object-fit: cover; border-radius: 8px; border: 1px solid #e0e0e0; }
+        .preview-autor { width: auto; max-height: 180px; object-fit: cover; border-radius: 8px; border: 1px solid #e0e0e0; display: block; margin: 0 auto; }
+        .preview-placeholder { width: 100%; height: 180px; background: #f0f2f5; border: 2px dashed #ced4da; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #adb5bd; font-size: 0.9rem; }
     </style>
-
 </head>
 <body>
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow-sm">
@@ -129,20 +118,30 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <?php endif; ?>
 
                 <form method="POST" action="criar.php" autocomplete="off" enctype="multipart/form-data">
-                    <!-- Linha 1: título + categoria -->
                     <div class="row g-3 mb-3">
-                        <div class="col-8">
+                        <div class="col-12 col-md-6">
                             <label for="titulo" class="form-label">Título <span class="text-danger">*</span></label>
                             <input type="text" class="form-control" id="titulo" name="titulo"
                                 value="<?php echo htmlspecialchars($titulo, ENT_QUOTES, 'UTF-8'); ?>"
                                 maxlength="150" required>
                         </div>
-                        <div class="col-4">
-                            <label for="category" class="form-label">Categoria <span class="text-danger">*</span></label>
+                        <div class="col-6 col-md-3">
+                            <label for="category" class="form-label">Servidor <span class="text-danger">*</span></label>
                             <select class="form-select" id="category" name="category" required>
-                                <?php foreach ($categorias as $cat): ?>
+                                <?php foreach ($servidores as $srv): ?>
+                                    <option value="<?php echo htmlspecialchars($srv, ENT_QUOTES, 'UTF-8'); ?>"
+                                        <?php echo ($category === $srv) ? 'selected' : ''; ?>>
+                                        <?php echo htmlspecialchars($srv, ENT_QUOTES, 'UTF-8'); ?>
+                                    </option>
+                                <?php endforeach; ?>
+                            </select>
+                        </div>
+                        <div class="col-6 col-md-3">
+                            <label for="categoria_envio" class="form-label">Categoria de Envio <span class="text-danger">*</span></label>
+                            <select class="form-select" id="categoria_envio" name="categoria_envio" required>
+                                <?php foreach ($categorias_envio as $cat): ?>
                                     <option value="<?php echo htmlspecialchars($cat, ENT_QUOTES, 'UTF-8'); ?>"
-                                        <?php echo ($category === $cat) ? 'selected' : ''; ?>>
+                                        <?php echo ($categoria_envio === $cat) ? 'selected' : ''; ?>>
                                         <?php echo htmlspecialchars($cat, ENT_QUOTES, 'UTF-8'); ?>
                                     </option>
                                 <?php endforeach; ?>
@@ -150,15 +149,29 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         </div>
                     </div>
 
-                    <!-- Linha 2: conteúdo -->
+                    <div class="card bg-light p-3 mb-3">
+                        <h6 class="mb-2">💬 Integração Discord</h6>
+                        <div class="form-check mb-2">
+                            <input class="form-check-input" type="checkbox" id="enviar_webhook" name="enviar_webhook" value="1">
+                            <label class="form-check-label" for="enviar_webhook">
+                                Enviar notícia pelo webhook da categoria selecionada
+                            </label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="marcar_everyone" name="marcar_everyone" value="1">
+                            <label class="form-check-label" for="marcar_everyone">
+                                Marcar <strong>@everyone</strong> na mensagem do Discord
+                            </label>
+                        </div>
+                    </div>
+
                     <div class="mb-3">
                         <label for="conteudo" class="form-label">Conteúdo <span class="text-danger">*</span></label>
                         <textarea class="form-control" id="conteudo" name="conteudo" rows="10" required><?php echo htmlspecialchars($conteudo, ENT_QUOTES, 'UTF-8'); ?></textarea>
                     </div>
 
-                    <!-- Linha 3: link da capa + autor -->
                     <div class="row g-3 mb-3">
-                        <div class="col-8">
+                        <div class="col-12 col-md-8">
                             <label for="capa" class="form-label">Capa</label>
                             <input type="hidden" id="capa_fonte" name="capa_fonte" value="">
                             <input type="file" class="form-control mb-2" id="capa" name="capa"
@@ -167,9 +180,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             <input type="text" class="form-control" id="capa_url" name="capa_url"
                                 maxlength="500" placeholder="ou cole o link de uma imagem (https://...)"
                                 oninput="usarUrlCapa(this)">
-                            <small class="text-muted d-block mt-1">Envie um arquivo OU cole um link — o que for usado por último substitui o outro. Upload: JPG, PNG, WEBP ou GIF, máx. 5MB.</small>
+                            <small class="text-muted d-block mt-1">Envie um arquivo OU cole um link — o que for usado por último substitui o outro.</small>
                         </div>
-                        <div class="col-4">
+                        <div class="col-12 col-md-4">
                             <label for="autor" class="form-label">Autor <span class="text-danger">*</span></label>
                             <select class="form-select" id="autor" name="autor" required
                                 onchange="atualizarPreviewAutor(this.value)">
@@ -187,9 +200,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         </div>
                     </div>
 
-                    <!-- Linha 4: preview da capa + preview do autor -->
                     <div class="row g-3 mb-4">
-                        <div class="col-8">
+                        <div class="col-12 col-md-8">
                             <img id="capa-preview" class="preview-capa"
                                 src="" alt="Preview da capa" style="display: none;"
                                 onerror="this.style.display='none'">
@@ -197,7 +209,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                 🖼️ Preview da capa
                             </div>
                         </div>
-                        <div class="col-4">
+                        <div class="col-12 col-md-4">
                             <img id="autor-preview" class="preview-autor"
                                 src="<?php echo $autor !== '' ? 'https://mc-heads.net/avatar/' . htmlspecialchars($autor, ENT_QUOTES, 'UTF-8') . '/100' : ''; ?>"
                                 alt="Preview do autor"
@@ -224,11 +236,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         function usarUploadCapa(input) {
             const arquivo = input.files && input.files[0];
             if (!arquivo) return;
-
-            // Upload passa a ser a fonte ativa: limpa o campo de link
             document.getElementById('capa_fonte').value = 'upload';
             document.getElementById('capa_url').value = '';
-
             const img = document.getElementById('capa-preview');
             const placeholder = document.getElementById('capa-placeholder');
             const leitor = new FileReader();
@@ -242,12 +251,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         function usarUrlCapa(input) {
             const url = input.value.trim();
-
-            // Link passa a ser a fonte ativa: limpa o campo de arquivo
             document.getElementById('capa_fonte').value = 'url';
             const fileInput = document.getElementById('capa');
             if (fileInput.value) fileInput.value = '';
-
             const img = document.getElementById('capa-preview');
             const placeholder = document.getElementById('capa-placeholder');
             if (url) {

@@ -3,7 +3,7 @@ require_once "sessao.php";
 require_once "../../config.php";
 
 try {
-    $stmt = $pdo->query("SELECT id, titulo, category, capa, criado_em, autor FROM novidades ORDER BY criado_em DESC");
+    $stmt = $pdo->query("SELECT id, titulo, category, categoria_envio, capa, criado_em, autor FROM novidades ORDER BY criado_em DESC");
     $noticias = $stmt->fetchAll(PDO::FETCH_ASSOC);
 } catch (PDOException $e) {
     $noticias = [];
@@ -161,9 +161,13 @@ $nome_usuario = $_SESSION['usuario_nome'] ?? 'Administrador';
                         <div class="info">
                             <div class="titulo"><?php echo htmlspecialchars($n['titulo'], ENT_QUOTES, 'UTF-8'); ?></div>
                             <div class="meta">
-                                <span class="badge bg-info text-dark me-1"><?php echo htmlspecialchars($n['category'] ?? '—', ENT_QUOTES, 'UTF-8'); ?></span>
-                                <?php echo htmlspecialchars($n['autor'] ?? '', ENT_QUOTES, 'UTF-8'); ?>
-                                · <?php echo formatarData($n['criado_em']); ?>
+                                <div>
+                                    <span class="badge bg-info text-dark me-1" title="Servidor">🌐 <?php echo htmlspecialchars($n['category'] ?? '—', ENT_QUOTES, 'UTF-8'); ?></span>
+                                    <span class="badge bg-secondary me-1" title="Categoria de Envio">📢 <?php echo htmlspecialchars($n['categoria_envio'] ?? '—', ENT_QUOTES, 'UTF-8'); ?></span>
+                                </div>
+                                <div class="mt-1">
+                                    👤 <?php echo htmlspecialchars($n['autor'] ?? '', ENT_QUOTES, 'UTF-8'); ?> · 🕒 <?php echo formatarData($n['criado_em']); ?>
+                                </div>
                             </div>
                             <div class="acoes">
                                 <a href="editar.php?id=<?php echo (int)$n['id']; ?>" class="btn btn-sm btn-primary">✏️ Editar</a>
@@ -185,18 +189,19 @@ $nome_usuario = $_SESSION['usuario_nome'] ?? 'Administrador';
                         <table class="table table-hover mb-0 align-middle">
                             <thead class="table-light">
                                 <tr>
-                                    <th style="width:80px;">Capa</th>
+                                    <th style="width:70px;">Capa</th>
                                     <th>Título</th>
-                                    <th style="width:120px;">Categoria</th>
+                                    <th style="width:110px;">Servidor</th>
+                                    <th style="width:130px;">Categoria</th>
                                     <th style="width:120px;">Autor</th>
                                     <th style="width:130px;">Data</th>
-                                    <th class="text-center" style="width:160px;">Ações</th>
+                                    <th class="text-center" style="width:150px;">Ações</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <?php if (empty($noticias)): ?>
                                     <tr>
-                                        <td colspan="6" class="text-center py-4 text-muted">
+                                        <td colspan="7" class="text-center py-4 text-muted">
                                             Nenhuma notícia cadastrada.
                                         </td>
                                     </tr>
@@ -216,6 +221,11 @@ $nome_usuario = $_SESSION['usuario_nome'] ?? 'Administrador';
                                             <td>
                                                 <span class="badge bg-info text-dark">
                                                     <?php echo htmlspecialchars($n['category'] ?? '—', ENT_QUOTES, 'UTF-8'); ?>
+                                                </span>
+                                            </td>
+                                            <td>
+                                                <span class="badge bg-secondary">
+                                                    <?php echo htmlspecialchars($n['categoria_envio'] ?? '—', ENT_QUOTES, 'UTF-8'); ?>
                                                 </span>
                                             </td>
                                             <td><?php echo htmlspecialchars($n['autor'] ?? '—', ENT_QUOTES, 'UTF-8'); ?></td>
