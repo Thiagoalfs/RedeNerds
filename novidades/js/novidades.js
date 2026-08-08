@@ -85,8 +85,8 @@ document.addEventListener("DOMContentLoaded", () => {
         if (!newsContainer) return;
 
         newsContainer.innerHTML = `<p style="text-align:center; padding: 20px;">Carregando novidades...</p>`;
-
-        fetchJSON("/novidades/js/novidades.php?limit=3")
+        fetch("https://redenerds.com.br/novidades/js/novidades.php")
+            .then(res => res.json())
             .then(data => {
                 if (data && data.erro) {
                     console.error("Erro retornado do PHP:", data.erro);
@@ -267,8 +267,8 @@ document.addEventListener("DOMContentLoaded", () => {
         }
         params.set("page", state.page);
         params.set("per_page", PER_PAGE);
-
-        const url = "/novidades/js/novidades.php?" + params.toString();
+        
+        const url = "https://redenerds.com.br/novidades/js/novidades.php" + (params.toString() ? "?" + params.toString() : "");
 
         try {
             const payload = await fetchJSON(url);
