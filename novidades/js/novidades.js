@@ -85,7 +85,7 @@ document.addEventListener("DOMContentLoaded", () => {
         if (!newsContainer) return;
 
         newsContainer.innerHTML = `<p style="text-align:center; padding: 20px;">Carregando novidades...</p>`;
-        fetch("https://redenerds.com.br/novidades/js/novidades.php")
+        fetch("https://redenerds.com.br/novidades/js/novidades.php?limit=3")
             .then(res => res.json())
             .then(data => {
                 if (data && data.erro) {
