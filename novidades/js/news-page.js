@@ -10,10 +10,8 @@ function escapeHTML(str) {
 function parseDescription(rawText) {
     if (!rawText) return "";
 
-    // Garante que sempre teremos \n real para fazer o split (banco pode mandar \\n escapado)
     const text = String(rawText).replace(/\\n/g, "\n");
 
-    // Regex para URLs de imagem (http ou caminhos relativos ../)
     const imageRegex = /https?:\/\/[^\s]+\.(?:png|jpg|jpeg|gif|webp)(?:\?[^\s]*)?|(?<=\s|^)\.\.\/[^\s]+\.(?:png|jpg|jpeg|gif|webp)/gi;
 
     const images = [];
@@ -23,12 +21,13 @@ function parseDescription(rawText) {
         return "";
     });
 
-    const paragraphs = textWithoutImages
+    // Força quebra de linha: adiciona 2 espaços no fim de cada linha (sintaxe markdown para <br>)
+    const textFormatted = textWithoutImages
         .split("\n")
-        .map(line => line.trim())
-        .filter(line => line !== "");
+        .map(line => line.trimEnd() + "  ")
+        .join("\n");
 
-    let html = paragraphs.map(line => `<p>${escapeHTML(line)}</p>`).join("");
+    let html = marked.parse(textFormatted);
 
     html += images.map(url =>
         `<div class="img-container"><img src="${escapeHTML(url)}" alt="Imagem da notícia" loading="lazy"></div>`
@@ -36,6 +35,7 @@ function parseDescription(rawText) {
 
     return html;
 }
+
 document.addEventListener("DOMContentLoaded", () => {
     const container = document.getElementById("novidade-container");
     const params = new URLSearchParams(window.location.search);
@@ -54,7 +54,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const toCategoryKey = value => String(value || "").trim();
 
-    fetch(`/novidades/js/novidades.php?id=${id}`)
+    fetch(`https://redenerds.com.br/novidades/js/novidades.php?id=${id}`)
         .then(res => res.json())
         .then(news => {
             if (!news || news.erro) {

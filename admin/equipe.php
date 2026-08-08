@@ -134,12 +134,6 @@ $nome_usuario = $_SESSION['usuario_nome'] ?? 'Administrador';
                 </div>
             <?php endforeach; ?>
         <?php endif; ?>
-
-        <div class="alert alert-secondary small mt-4">
-            💡 A página pública de Equipe é montada automaticamente: categorias em ordem alfabética,
-            e dentro de cada categoria os membros também em ordem alfabética pelo nick.
-            Uma mesma pessoa pode ter mais de uma linha se aparecer em mais de uma categoria.
-        </div>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>

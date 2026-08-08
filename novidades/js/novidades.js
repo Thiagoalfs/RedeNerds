@@ -86,7 +86,12 @@ document.addEventListener("DOMContentLoaded", () => {
 
         newsContainer.innerHTML = `<p style="text-align:center; padding: 20px;">Carregando novidades...</p>`;
 
+<<<<<<< Updated upstream
         fetchJSON("/novidades/js/novidades.php?limit=3")
+=======
+        fetch("https://redenerds.com.br/novidades/js/novidades.php")
+            .then(res => res.json())
+>>>>>>> Stashed changes
             .then(data => {
                 if (data && data.erro) {
                     console.error("Erro retornado do PHP:", data.erro);
@@ -268,7 +273,11 @@ document.addEventListener("DOMContentLoaded", () => {
         params.set("page", state.page);
         params.set("per_page", PER_PAGE);
 
+<<<<<<< Updated upstream
         const url = "/novidades/js/novidades.php?" + params.toString();
+=======
+        const url = "https://redenerds.com.br/novidades/js/novidades.php" + (params.toString() ? "?" + params.toString() : "");
+>>>>>>> Stashed changes
 
         try {
             const payload = await fetchJSON(url);
