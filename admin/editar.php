@@ -205,13 +205,9 @@ $capaAtualEhLink = !empty($noticia['capa']) && preg_match('#^https?://#i', $noti
                         <div class="col-12 col-md-8">
                             <label for="capa" class="form-label">Capa</label>
                             <input type="hidden" id="capa_fonte" name="capa_fonte" value="">
-                            <input type="file" class="form-control mb-2" id="capa" name="capa"
+                            <input type="file" class="form-control mb-2" required id="capa" name="capa"
                                 accept="image/png,image/jpeg,image/webp,image/gif"
                                 onchange="usarUploadCapa(this)">
-                            <input type="text" class="form-control" id="capa_url" name="capa_url"
-                                maxlength="500" placeholder="ou cole o link de uma imagem (https://...)"
-                                value="<?php echo htmlspecialchars($capaAtualEhLink ? $noticia['capa'] : '', ENT_QUOTES, 'UTF-8'); ?>"
-                                oninput="usarUrlCapa(this)">
                             <small class="text-muted d-block mt-1">Deixe os dois em branco para manter a capa atual.</small>
                         </div>
                         <div class="col-12 col-md-4">
