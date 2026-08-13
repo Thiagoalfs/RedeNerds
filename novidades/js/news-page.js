@@ -82,7 +82,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 : "";
 
             container.innerHTML = `
-                <a href="novidades.html" id="voltar">
+                <a href="/novidades/" id="voltar">
                     <i class="fa-solid fa-arrow-left"></i> Voltar
                 </a>
                 <article class="novidade-article" data-category="${escapeHTML(categoryKey)}">

@@ -105,7 +105,7 @@ document.addEventListener("DOMContentLoaded", () => {
                     const categoryKey = toCategoryKey(news.category);
                     const categoryLabel = categoryLabels[categoryKey] || news.category || "";
                     return `
-                    <a class="news-div" href="novidade.html?id=${news.id}" data-category="${categoryKey}">
+                    <a class="news-div" href="/novidades/novidade-page/?id=${news.id}" data-category="${categoryKey}">
                         <div class="news-div-banner">
                             <img class="news-img" src="${escapeHTML(news.capa)}" alt="${escapeHTML(news.titulo)}">
                         </div>
@@ -162,7 +162,7 @@ document.addEventListener("DOMContentLoaded", () => {
             const firstParagraph = String(news.conteudo || "").replace(/\\n/g, "\n").split("\n")[0].trim();
 
             return `
-            <a class="all-news-card" href="novidade.html?id=${news.id}" data-category="${categoryKey}">
+            <a class="all-news-card" href="/novidades/novidade-page/?id=${news.id}" data-category="${categoryKey}">
                 <div class="all-news-image">
                     <img src="${escapeHTML(news.capa)}" alt="${escapeHTML(news.titulo)}">
                 </div>

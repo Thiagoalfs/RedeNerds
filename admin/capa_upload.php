@@ -1,10 +1,7 @@
 <?php
 
-// Pasta física onde os arquivos de upload são salvos no servidor
-define('CAPA_UPLOAD_DIR_FISICA', __DIR__ . '/../assets/novidades/');
-
-// Prefixo salvo no banco / usado nas tags <img> para uploads próprios
-define('CAPA_UPLOAD_DIR_PUBLICA', '../assets/novidades/');
+define('CAPA_UPLOAD_DIR_FISICA', realpath(__DIR__ . '/../../') . '/public_html/assets/novidades/');
+define('CAPA_UPLOAD_DIR_PUBLICA', '/assets/novidades/');
 
 /**
  * Ponto de entrada único do formulário.
@@ -14,34 +11,12 @@ define('CAPA_UPLOAD_DIR_PUBLICA', '../assets/novidades/');
  */
 function processarCapa(?string $capaAtual = null): array
 {
-    $fonte        = $_POST['capa_fonte'] ?? '';
-    $urlDigitada  = trim($_POST['capa_url'] ?? '');
-    $temArquivo   = isset($_FILES['capa']) && $_FILES['capa']['error'] !== UPLOAD_ERR_NO_FILE;
+    $temArquivo = isset($_FILES['capa']) && $_FILES['capa']['error'] !== UPLOAD_ERR_NO_FILE;
 
-    // Caso normal (JS ativo): o campo oculto diz qual foi usado por último
-    if ($fonte === 'url') {
-        if ($urlDigitada !== '') {
-            return validarUrlCapa($urlDigitada, $capaAtual);
-        }
-        return [$capaAtual, null];
-    }
-
-    if ($fonte === 'upload') {
-        if ($temArquivo) {
-            return processarUploadCapa($capaAtual);
-        }
-        return [$capaAtual, null];
-    }
-
-    // Fallback (sem JS / campo oculto ausente): upload tem prioridade, depois link
     if ($temArquivo) {
         return processarUploadCapa($capaAtual);
     }
-    if ($urlDigitada !== '') {
-        return validarUrlCapa($urlDigitada, $capaAtual);
-    }
 
-    // Nada enviado: mantém a capa atual (ou vazio, na criação)
     return [$capaAtual, null];
 }
 
