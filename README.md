@@ -18,18 +18,14 @@
 
 ## 🌐 Sobre o projeto
 
-Este é o **repositório oficial de produção** do site da Rede Nerds. Tudo que está aqui reflete diretamente o que os jogadores veem em [redenerds.com.br](https://redenerds.com.br) — desde a página inicial até as regras, o suporte e as informações de cada servidor da rede.
+Este é o **repositório oficial** do site da Rede Nerds. Tudo que está aqui reflete diretamente o que os jogadores veem em [redenerds.com.br](https://redenerds.com.br).
 
-O site combina páginas estáticas com conteúdo dinâmico: as seções de **notícias** (`novidades/`) e **equipe** (`equipe/`) são alimentadas por um **banco de dados**, consumido através de **APIs em PHP**. Isso permite atualizar novidades e membros da staff sem precisar mexer direto no HTML.
-
-A Rede Nerds reúne mundos com propostas variadas, do sobrevivencialismo clássico a cenários mais ousados — como o modo hardcore pós-apocalíptico que está a caminho — sempre com o objetivo de entregar experiências únicas para a comunidade.
+A Rede Nerds reúne servidores com modpacks de minecraft de propostas variadas, como mundos tecnológicos e/ou apocalípticos.
 
 Apesar da base do site ser HTML/CSS estático, algumas seções são **dinâmicas e dependem de banco de dados**:
 
 - 📰 **`novidades/`** — as notícias exibidas são carregadas a partir do banco de dados.
 - 👥 **`equipe/`** — a listagem de membros da staff também é populada dinamicamente via banco.
-
-Ou seja, essas páginas não funcionam apenas abrindo o HTML puro no navegador: é necessário um backend/PHP (ou similar) configurado e conectado ao banco para que o conteúdo apareça corretamente.
 
 > ⚠️ **Atenção:** por ser o repositório de produção, alterações aqui vão para o ar. Teste localmente antes de subir qualquer mudança, principalmente nas áreas que dependem do banco de dados.
 
