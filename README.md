@@ -18,7 +18,7 @@
 
 ## 🌐 Sobre o projeto
 
-Este é o **repositório oficial** do site da Rede Nerds. Tudo que está aqui reflete diretamente o que os jogadores veem em [redenerds.com.br](https://redenerds.com.br).
+Este é o **repositório de produção oficial** do site da Rede Nerds. Tudo que está aqui reflete diretamente o que os jogadores veem em [redenerds.com.br](https://redenerds.com.br).
 
 A Rede Nerds reúne servidores com modpacks de minecraft de propostas variadas, como mundos tecnológicos e/ou apocalípticos.
 
@@ -26,8 +26,6 @@ Apesar da base do site ser HTML/CSS estático, algumas seções são **dinâmica
 
 - 📰 **`novidades/`** — as notícias exibidas são carregadas a partir do banco de dados.
 - 👥 **`equipe/`** — a listagem de membros da staff também é populada dinamicamente via banco.
-
-> ⚠️ **Atenção:** por ser o repositório de produção, alterações aqui vão para o ar. Teste localmente antes de subir qualquer mudança, principalmente nas áreas que dependem do banco de dados.
 
 ## 📁 Estrutura do repositório
 
