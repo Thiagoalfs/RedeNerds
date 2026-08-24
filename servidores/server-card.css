@@ -59,6 +59,15 @@
     color: var(--theme-color);
 }
 
+.server-header h1 img#server-icon {
+    width: 1em;
+    height: 1em;
+    object-fit: cover;
+    border-radius: 6px;
+    vertical-align: middle;
+    flex-shrink: 0;
+}
+
 /* Descrição e texto */
 .server-info p {
     color: #b0b4ba;
