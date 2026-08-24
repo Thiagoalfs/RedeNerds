@@ -93,6 +93,7 @@ $nome_usuario = $_SESSION['usuario_nome'] ?? 'Administrador';
                     Olá, <strong><?php echo htmlspecialchars($nome_usuario, ENT_QUOTES, 'UTF-8'); ?></strong>
                 </span>
                 <a href="dashboard.php" class="btn btn-outline-light btn-sm">← Voltar</a>
+                <a href="servidores.php" class="btn btn-outline-light btn-sm">🖥️ Servidores</a>
                 <a href="logout.php" class="btn btn-outline-light btn-sm">Sair</a>
             </div>
         </div>

@@ -149,6 +149,30 @@
     max-width: 380px;
 }
 
+/* ----- Cards dinâmicos (montados pelo index.js a partir da API) -----
+   A cor de cada servidor vem do banco (themecolor) e é aplicada via
+   CSS custom properties setadas em JS, sem precisar de classes fixas
+   como .server-card-1/2/3 (que ficam como fallback estático abaixo). */
+.server-card[style*="--card-color"] {
+    border-color: var(--card-color);
+    box-shadow: 0 0 15px var(--card-shadow);
+}
+.server-card[style*="--card-color"]:hover {
+    box-shadow: 0 12px 30px var(--card-hover-shadow);
+    border-color: var(--card-hover-border);
+}
+.server-card[style*="--card-color"] .server-card-link {
+    color: var(--card-color);
+}
+.server-card[style*="--card-color"] .server-card-banner {
+    background: var(--card-gradient);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 42px;
+    color: rgba(255, 255, 255, 0.9);
+}
+
 .server-card-1 {
     border-color: #B971DA;
     box-shadow: 0 0 15px rgba(185, 113, 218, 0.15);
@@ -181,6 +205,11 @@
 }
 .server-card-3 .server-card-link { color: #E85D5D; }
 .server-card-3 .banner-3 { background: linear-gradient(135deg, #7a1f1f 0%, #E85D5D 100%); }
+
+.server-card-banner {
+    aspect-ratio: 16 / 9;
+    width: 100%;
+}
 
 .server-card-banner img {
     width: 100%;
