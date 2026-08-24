@@ -10,7 +10,7 @@
  * (aqui assumimos que config.php está uma pasta acima de /api/).
  */
 
-require_once "../config.php";
+require_once "../../config.php";
 
 header('Content-Type: application/json; charset=utf-8');
 header('Access-Control-Allow-Origin: *');
