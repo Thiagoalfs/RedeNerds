@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 /**
  * auth_api.php
  *
@@ -6,8 +6,8 @@
  *
  * Regras de Acesso:
  * 1. Se informada uma API Key válida (Header X-API-Key, Bearer Token ou ?api_key=), libera o acesso.
- * 2. Se for requisição legítima de dentro do próprio site (mesmo domínio, Origin/Referer autorizados ou localhost), libera o acesso para o frontend.
- * 3. Se não atender a nenhum dos critérios acima, bloqueia com HTTP 403 Forbidden.
+ * 2. Se for requisição interna do próprio site (AJAX/fetch via Referer legítimo + Same-Origin), libera.
+ * 3. Se for acesso direto pela barra de endereço (navegador) ou cliente externo sem API Key, BLOQUEIA (403).
  */
 
 function verificarAcessoApi(bool $exigirApiKeyApenas = false): void {
@@ -40,10 +40,20 @@ function verificarAcessoApi(bool $exigirApiKeyApenas = false): void {
         exit;
     }
 
-    // 2. Valida se a requisição provém do frontend do site (Same-Origin / Referer / Localhost)
-    $host = $_SERVER['HTTP_HOST'] ?? '';
-    $origin = $_SERVER['HTTP_ORIGIN'] ?? '';
+    // 2. Bloqueia navegação direta na barra de endereço (Sec-Fetch-Mode: navigate)
+    $secFetchMode = $_SERVER['HTTP_SEC_FETCH_MODE'] ?? '';
+    if ($secFetchMode === 'navigate') {
+        http_response_code(403);
+        echo json_encode([
+            "erro" => "Acesso negado: Acesso direto não permitido. Forneça uma API Key válida no header X-API-Key ou no parâmetro ?api_key=."
+        ], JSON_UNESCAPED_UNICODE);
+        exit;
+    }
+
+    // 3. Valida se a requisição é um fetch/AJAX interno legítimo do site (com Referer ou Origin obrigatórios)
     $referer = $_SERVER['HTTP_REFERER'] ?? '';
+    $origin = $_SERVER['HTTP_ORIGIN'] ?? '';
+    $secFetchSite = $_SERVER['HTTP_SEC_FETCH_SITE'] ?? '';
 
     $dominiosAutorizados = [
         'redenerds.com.br',
@@ -52,33 +62,39 @@ function verificarAcessoApi(bool $exigirApiKeyApenas = false): void {
         '127.0.0.1'
     ];
 
-    $ehOrigemAutorizada = false;
+    // Se tiver Sec-Fetch-Site, deve ser same-origin ou same-site
+    if (!empty($secFetchSite) && !in_array($secFetchSite, ['same-origin', 'same-site'], true)) {
+        http_response_code(403);
+        echo json_encode([
+            "erro" => "Acesso negado: Origem não permitida."
+        ], JSON_UNESCAPED_UNICODE);
+        exit;
+    }
+
+    $ehFetchInternoValido = false;
 
     if (!empty($origin)) {
         $originHost = parse_url($origin, PHP_URL_HOST);
         if ($originHost && in_array(strtolower($originHost), $dominiosAutorizados, true)) {
-            $ehOrigemAutorizada = true;
-        }
-    } elseif (!empty($referer)) {
-        $refererHost = parse_url($referer, PHP_URL_HOST);
-        if ($refererHost && in_array(strtolower($refererHost), $dominiosAutorizados, true)) {
-            $ehOrigemAutorizada = true;
-        }
-    } elseif (!empty($host)) {
-        $hostLimpo = explode(':', $host)[0];
-        if (in_array(strtolower($hostLimpo), $dominiosAutorizados, true)) {
-            $ehOrigemAutorizada = true;
+            $ehFetchInternoValido = true;
         }
     }
 
-    if ($ehOrigemAutorizada) {
+    if (!empty($referer)) {
+        $refererHost = parse_url($referer, PHP_URL_HOST);
+        if ($refererHost && in_array(strtolower($refererHost), $dominiosAutorizados, true)) {
+            $ehFetchInternoValido = true;
+        }
+    }
+
+    if ($ehFetchInternoValido) {
         return;
     }
 
-    // Requisição externa não autorizada sem API Key
+    // Se não tem API Key e não é requisição interna de página do site, bloqueia!
     http_response_code(403);
     echo json_encode([
-        "erro" => "Acesso negado: Requisição não autorizada. Forneça uma API Key válida no header X-API-Key."
+        "erro" => "Acesso negado: Requisição não autorizada. Forneça uma API Key válida no header X-API-Key ou no parâmetro ?api_key=."
     ], JSON_UNESCAPED_UNICODE);
     exit;
 }
