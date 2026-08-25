@@ -84,7 +84,50 @@ li.active a::after {
     border-radius: 2px;
 }
 
-/* Botão Downloads destacado na direita */
+/* ==========================================================================
+   BOTÃO DA LOJA (Controle de visibilidade)
+   • Oculto por padrão: display: none !important;
+   • Para ATIVAR o botão da Loja: remova ou comente a linha 'display: none !important;'
+   ========================================================================== */
+.nav-loja-item {
+    display: none !important; /* Oculto temporariamente */
+    margin-left: auto;
+    margin-right: 4px;
+}
+
+.nav-loja-btn {
+    display: inline-flex !important;
+    align-items: center;
+    gap: 8px;
+    padding: 7px 16px !important;
+    background-color: rgba(185, 113, 218, 0.12);
+    border: 1.5px solid var(--border-color-2);
+    border-radius: 8px;
+    color: #ffffff !important;
+    font-weight: 600 !important;
+    font-size: 14px !important;
+    transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease, transform 0.2s ease !important;
+    cursor: pointer;
+}
+
+.nav-loja-btn:hover {
+    background-color: var(--border-color-2);
+    border-color: var(--border-color-2);
+    color: #030407 !important;
+    transform: translateY(-1px);
+}
+
+.nav-loja-btn i {
+    font-size: 13px;
+    color: var(--border-color-2);
+    transition: color 0.2s ease;
+}
+
+.nav-loja-btn:hover i {
+    color: #030407;
+}
+
+/* Quando a loja está oculta, Downloads alinha automaticamente à direita */
 .nav-download-item {
     margin-left: auto;
 }
@@ -202,12 +245,15 @@ li.active .nav-download-btn::after {
         box-sizing: border-box;
     }
 
+    .nav-loja-item,
     .nav-download-item {
         margin-left: 0;
-        padding: 10px 20px;
+        margin-right: 0;
+        padding: 8px 20px;
         box-sizing: border-box;
     }
 
+    .nav-loja-btn,
     .nav-download-btn {
         width: 100%;
         justify-content: center;

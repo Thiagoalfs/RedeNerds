@@ -1,6 +1,22 @@
 <?php
 require_once "sessao.php";
-require_once "../../config.php";
+$configPaths = [
+    __DIR__ . "/../../config.php",
+    __DIR__ . "/../config.php",
+    ($_SERVER['DOCUMENT_ROOT'] ?? '') . "/../config.php",
+    ($_SERVER['DOCUMENT_ROOT'] ?? '') . "/config.php"
+];
+$configPath = null;
+foreach ($configPaths as $cp) {
+    if (!empty($cp) && file_exists($cp)) {
+        $configPath = $cp;
+        break;
+    }
+}
+if (!$configPath) {
+    die("Erro: Arquivo config.php não encontrado.");
+}
+require_once $configPath;
 require_once "icon_upload.php";
 
 $mensagem_sucesso = "";
@@ -106,7 +122,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <link rel="icon" type="image/x-icon" href="/assets/images/logo.webp">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="dbcommon.css" rel="stylesheet">
+    <link href="dbcommon.css?v=2" rel="stylesheet">
     <style>
         .card { max-width: 80%; margin: 0 auto; }
         @media (max-width: 768px) { .card { max-width: 100%; } }
