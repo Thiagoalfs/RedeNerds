@@ -42,7 +42,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const id = params.get("id");
 
     if (!id) {
-        container.innerHTML = `<p style="text-align:center; padding: 20px;">Nenhuma notícia especificada.</p>`;
+        container.innerHTML = `<p style="text-align:center; padding: 20px;">Nenhuma atualização especificada.</p>`;
         return;
     }
 
@@ -58,7 +58,7 @@ document.addEventListener("DOMContentLoaded", () => {
         .then(res => res.json())
         .then(news => {
             if (!news || news.erro) {
-                container.innerHTML = `<p style="text-align:center; padding: 20px;">Notícia não encontrada.</p>`;
+                container.innerHTML = `<p style="text-align:center; padding: 20px;">Atualização não encontrada.</p>`;
                 return;
             }
 
@@ -76,13 +76,13 @@ document.addEventListener("DOMContentLoaded", () => {
             const categoryKey = toCategoryKey(news.category);
             const categoryLabel = categoryLabels[categoryKey] || categoryKey;
 
-                        // Data: backend pode mandar "YYYY-MM-DD HH:MM:SS" → troca espaço por "T" pro Safari
+            // Data: backend pode mandar "YYYY-MM-DD HH:MM:SS" → troca espaço por "T" pro Safari
             const dataFormatada = news.criado_em
                 ? new Date(String(news.criado_em).replace(" ", "T")).toLocaleDateString("pt-BR")
                 : "";
 
             container.innerHTML = `
-                <a href="/novidades/" id="voltar">
+                <a href="/#atualizacoes-section" id="voltar">
                     <i class="fa-solid fa-arrow-left"></i> Voltar
                 </a>
                 <article class="novidade-article" data-category="${escapeHTML(categoryKey)}">
@@ -107,7 +107,7 @@ document.addEventListener("DOMContentLoaded", () => {
             `;
         })
         .catch(err => {
-            console.error("Erro ao carregar notícia:", err);
-            container.innerHTML = `<p style="color: red; text-align: center; padding: 20px;">Erro ao carregar notícia.</p>`;
+            console.error("Erro ao carregar atualização:", err);
+            container.innerHTML = `<p style="color: red; text-align: center; padding: 20px;">Erro ao carregar atualização.</p>`;
         });
 });
