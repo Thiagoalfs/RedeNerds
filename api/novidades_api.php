@@ -24,6 +24,8 @@ if (!$configPath) {
 }
 
 require_once $configPath;
+require_once __DIR__ . "/auth_api.php";
+verificarAcessoApi();
 
 // Detecta automaticamente se o config.php usa $pdo ou $conn
 $usePDO = false;

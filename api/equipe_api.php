@@ -19,6 +19,8 @@ if (!$configPath) {
 }
 
 require_once $configPath;
+require_once __DIR__ . "/auth_api.php";
+verificarAcessoApi();
 
 header('Content-Type: application/json; charset=utf-8');
 header('Access-Control-Allow-Origin: *');
