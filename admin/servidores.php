@@ -34,6 +34,7 @@ $nome_usuario = $_SESSION['usuario_nome'] ?? 'Administrador';
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Servidores - Painel Administrativo</title>
+    <link rel="icon" type="image/x-icon" href="/assets/images/logo.webp">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="dbcommon.css" rel="stylesheet">
@@ -198,14 +199,16 @@ $nome_usuario = $_SESSION['usuario_nome'] ?? 'Administrador';
                                                     <span class="badge bg-secondary">Oculto</span>
                                                 <?php endif; ?>
                                             </td>
-                                            <td class="text-center">
-                                                <a href="servidor_editar.php?id=<?php echo (int)$s['id']; ?>" class="btn btn-sm btn-primary me-1">✏️ Editar</a>
-                                                <a href="servidor_toggle.php?id=<?php echo (int)$s['id']; ?>" class="btn btn-sm btn-outline-secondary me-1">
-                                                    <?php echo $s['enabled'] ? '🙈' : '👁️'; ?>
-                                                </a>
-                                                <a href="servidor_deletar.php?id=<?php echo (int)$s['id']; ?>"
-                                                   class="btn btn-sm btn-danger"
-                                                   onclick="return confirm('Deletar o servidor <?php echo htmlspecialchars(addslashes($s['servername']), ENT_QUOTES, 'UTF-8'); ?>? Essa ação não pode ser desfeita.');">🗑️</a>
+                                            <td class="text-center text-nowrap">
+                                                <div class="d-inline-flex align-items-center justify-content-center gap-1">
+                                                    <a href="servidor_editar.php?id=<?php echo (int)$s['id']; ?>" class="btn btn-sm btn-primary">✏️ Editar</a>
+                                                    <a href="servidor_toggle.php?id=<?php echo (int)$s['id']; ?>" class="btn btn-sm btn-outline-secondary">
+                                                        <?php echo $s['enabled'] ? '🙈' : '👁️'; ?>
+                                                    </a>
+                                                    <a href="servidor_deletar.php?id=<?php echo (int)$s['id']; ?>"
+                                                       class="btn btn-sm btn-danger"
+                                                       onclick="return confirm('Deletar o servidor <?php echo htmlspecialchars(addslashes($s['servername']), ENT_QUOTES, 'UTF-8'); ?>? Essa ação não pode ser desfeita.');">🗑️</a>
+                                                </div>
                                             </td>
                                         </tr>
                                     <?php endforeach; ?>

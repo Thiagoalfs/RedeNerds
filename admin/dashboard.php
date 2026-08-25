@@ -111,6 +111,7 @@ $nome_usuario = $_SESSION['usuario_nome'] ?? 'Administrador';
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard - Painel Administrativo</title>
+    <link rel="icon" type="image/x-icon" href="/assets/images/logo.webp">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="dbcommon.css" rel="stylesheet">
     <style>
@@ -223,7 +224,7 @@ $nome_usuario = $_SESSION['usuario_nome'] ?? 'Administrador';
                                     <th style="width:130px;">Categoria</th>
                                     <th style="width:120px;">Autor</th>
                                     <th style="width:130px;">Data</th>
-                                    <th class="text-center" style="width:150px;">Ações</th>
+                                    <th class="text-center text-nowrap" style="width:140px;">Ações</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -234,7 +235,7 @@ $nome_usuario = $_SESSION['usuario_nome'] ?? 'Administrador';
                                         </td>
                                     </tr>
                                 <?php else: ?>
-                                    <?php foreach ($noticias as $n): ?>
+                                <?php foreach ($noticias as $n): ?>
                                         <tr>
                                             <td>
                                                 <?php if (!empty($n['capa'])): ?>
@@ -262,11 +263,13 @@ $nome_usuario = $_SESSION['usuario_nome'] ?? 'Administrador';
                                             </td>
                                             <td><?php echo htmlspecialchars($n['autor'] ?? '—', ENT_QUOTES, 'UTF-8'); ?></td>
                                             <td><small><?php echo formatarData($n['criado_em']); ?></small></td>
-                                            <td class="text-center">
-                                                <a href="editar.php?id=<?php echo (int)$n['id']; ?>" class="btn btn-sm btn-primary me-1">✏️ Editar</a>
-                                                <a href="deletar.php?id=<?php echo (int)$n['id']; ?>"
-                                                   class="btn btn-sm btn-danger"
-                                                   onclick="return confirm('Deletar esta notícia?');">🗑️ Deletar</a>
+                                            <td class="text-center text-nowrap">
+                                                <div class="d-inline-flex align-items-center justify-content-center gap-1">
+                                                    <a href="editar.php?id=<?php echo (int)$n['id']; ?>" class="btn btn-sm btn-primary">✏️ Editar</a>
+                                                    <a href="deletar.php?id=<?php echo (int)$n['id']; ?>"
+                                                       class="btn btn-sm btn-danger"
+                                                       onclick="return confirm('Deletar esta notícia? Essa ação não pode ser desfeita.');">🗑️</a>
+                                                </div>
                                             </td>
                                         </tr>
                                     <?php endforeach; ?>
