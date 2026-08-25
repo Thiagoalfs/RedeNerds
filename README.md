@@ -36,7 +36,8 @@ O site combina páginas otimizadas com SEO completo e seções **dinâmicas alim
 RedeNerds/
 ├── .github/workflows/   # Automação de deploy (CI/CD)
 ├── admin/               # Painel Administrativo completo (sessão, notícias, servidores, equipe)
-├── api/                 # Endpoints REST públicos em PHP
+├── api/                 # Endpoints REST protegidos em PHP (autenticação por API Key / middleware)
+│   ├── auth_api.php         # Middleware de autenticação e proteção das APIs
 │   ├── equipe_api.php       # Dados da equipe/staff
 │   ├── novidades_api.php    # Notícias (busca, filtros e paginação)
 │   └── servidores_api.php   # Servidores ativos e configurações de tema
@@ -86,15 +87,25 @@ flowchart LR
 
 ---
 
-## 🔌 APIs Centralizadas (`api/`)
+## 🔌 APIs Centralizadas e Protegidas (`api/`)
 
-Todas as requisições assíncronas do frontend consomem endpoints REST centralizados na pasta `/api/`:
+Todas as requisições assíncronas do frontend e integrações do servidor de Minecraft/backend consomem endpoints REST centralizados na pasta `/api/`, protegidos por chave de autenticação:
 
 | Endpoint | Método | Descrição |
 | :--- | :---: | :--- |
 | `/api/novidades_api.php` | `GET` | Busca notícias com suporte a `?id=`, `?category=`, `?q=`, `?page=` e `?limit=` |
 | `/api/equipe_api.php` | `GET` | Retorna membros da equipe agrupados e ordenados por cargo |
 | `/api/servidores_api.php` | `GET` | Retorna servidores habilitados com cores e ícones processados |
+
+### 🔐 Autenticação e Segurança das APIs (`api/auth_api.php`)
+As APIs contam com uma camada de segurança inteligente:
+1. **Requisições do Site (Frontend):** Requisições originadas do próprio domínio (`redenerds.com.br` ou `localhost`) têm acesso liberado de forma transparente.
+2. **Requisições de Servidores / Plugins / Scripts Externos:** Requisições externas exigem autenticação via Header `X-API-Key` ou parâmetro `?api_key=`, validado contra `API_SECRET_KEY` configurado em `config.php`. Requisições não autorizadas recebem `HTTP 403 Forbidden`.
+
+```bash
+# Exemplo de consumo autenticado via terminal / cURL
+curl -H "X-API-Key: SUA_CHAVE_AQUI" https://redenerds.com.br/api/servidores_api.php
+```
 
 ---
 

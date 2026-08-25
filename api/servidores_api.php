@@ -10,7 +10,28 @@
  * (aqui assumimos que config.php está uma pasta acima de /api/).
  */
 
-require_once "../../config.php";
+$configPaths = [
+    __DIR__ . "/../../config.php",
+    __DIR__ . "/../config.php"
+];
+
+$configPath = null;
+foreach ($configPaths as $cp) {
+    if (file_exists($cp)) {
+        $configPath = $cp;
+        break;
+    }
+}
+
+if (!$configPath) {
+    http_response_code(500);
+    echo json_encode(["erro" => "Arquivo config.php não encontrado no servidor."], JSON_UNESCAPED_UNICODE);
+    exit;
+}
+
+require_once $configPath;
+require_once __DIR__ . "/auth_api.php";
+verificarAcessoApi();
 
 header('Content-Type: application/json; charset=utf-8');
 header('Access-Control-Allow-Origin: *');
