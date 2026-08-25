@@ -36,7 +36,6 @@ $icon_url_atual = (tipoDoIcone($servidor['icon']) === 'img' && preg_match('#^htt
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $servername = trim($_POST['servername'] ?? '');
-    $title      = trim($_POST['title'] ?? '');
     $descricao  = trim($_POST['descricao'] ?? '');
     $modpackurl = trim($_POST['modpackurl'] ?? '');
     $ip         = trim($_POST['ip'] ?? '');
@@ -48,7 +47,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     [$icon, $erro_icone] = processarIcone($servidor['icon']);
 
-    if ($servername === '' || $title === '' || $descricao === '' || $modpackurl === '' || $ip === '') {
+    if ($servername === '' || $descricao === '' || $modpackurl === '' || $ip === '') {
         $mensagem_erro = "Preencha todos os campos obrigatórios.";
     } elseif (!preg_match('/^#[0-9A-Fa-f]{6}$/', $themecolor)) {
         $mensagem_erro = "A cor do tema deve estar no formato hexadecimal, ex: #B971DA.";
@@ -60,10 +59,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $mensagem_erro = "Defina um ícone: classe FontAwesome, link de imagem ou upload de arquivo.";
     } else {
         try {
-            $stmt = $pdo->prepare("UPDATE servidores SET servername = :servername, title = :title, icon = :icon, descricao = :descricao, features = :features, modpackurl = :modpackurl, ip = :ip, themecolor = :themecolor, enabled = :enabled WHERE id = :id");
+            $stmt = $pdo->prepare("UPDATE servidores SET servername = :servername, icon = :icon, descricao = :descricao, features = :features, modpackurl = :modpackurl, ip = :ip, themecolor = :themecolor, enabled = :enabled WHERE id = :id");
             $stmt->execute([
                 ':servername' => $servername,
-                ':title'      => $title,
                 ':icon'       => $icon,
                 ':descricao'  => $descricao,
                 ':features'   => json_encode($features, JSON_UNESCAPED_UNICODE),
@@ -77,7 +75,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $mensagem_sucesso = "Servidor atualizado com sucesso!";
 
             $servidor['servername'] = $servername;
-            $servidor['title']      = $title;
             $servidor['icon']       = $icon;
             $servidor['descricao']  = $descricao;
             $servidor['modpackurl'] = $modpackurl;
@@ -93,7 +90,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 } else {
     $servername = $servidor['servername'];
-    $title      = $servidor['title'];
     $descricao  = $servidor['descricao'];
     $modpackurl = $servidor['modpackurl'];
     $ip         = $servidor['ip'];
@@ -158,18 +154,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <input type="hidden" name="id" value="<?php echo (int)$servidor['id']; ?>">
 
                     <div class="row g-3 mb-3">
-                        <div class="col-12 col-md-6">
+                        <div class="col-12">
                             <label for="servername" class="form-label">Nome do servidor <span class="text-danger">*</span></label>
                             <input type="text" class="form-control" id="servername" name="servername"
                                 value="<?php echo htmlspecialchars($servername, ENT_QUOTES, 'UTF-8'); ?>"
                                 maxlength="100" required>
-                            <small class="text-muted">O "slug" atual é <code><?php echo htmlspecialchars($servidor['servername'] !== '' ? strtolower(str_replace(' ', '', $servername)) : '', ENT_QUOTES, 'UTF-8'); ?></code> e é gerado automaticamente a partir deste nome.</small>
-                        </div>
-                        <div class="col-12 col-md-6">
-                            <label for="title" class="form-label">Título da página (aba/SEO) <span class="text-danger">*</span></label>
-                            <input type="text" class="form-control" id="title" name="title"
-                                value="<?php echo htmlspecialchars($title, ENT_QUOTES, 'UTF-8'); ?>"
-                                maxlength="150" required>
+                            <small class="text-muted">O slug da URL e o título da página (<code>&lt;Nome&gt; - Rede Nerds</code>) são gerados automaticamente pelo banco.</small>
                         </div>
                     </div>
 

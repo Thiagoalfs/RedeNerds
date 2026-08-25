@@ -30,6 +30,22 @@ try {
     $noticias = [];
 }
 
+// Mapa servername => themecolor, para usar a mesma cor de identidade
+// do servidor (definida em servidores.php) como destaque nos cards de notícia.
+$coresPorServidor = [];
+try {
+    $stmt = $pdo->query("SELECT servername, themecolor FROM servidores");
+    foreach ($stmt->fetchAll(PDO::FETCH_ASSOC) as $s) {
+        $coresPorServidor[$s['servername']] = $s['themecolor'];
+    }
+} catch (PDOException $e) {
+    $coresPorServidor = [];
+}
+
+function corDoServidor($nome, $mapa) {
+    return $mapa[$nome] ?? '#6c757d';
+}
+
 // Monta a URL de uma página de paginação preservando outros parâmetros da query string
 function urlPagina($pagina) {
     $params = $_GET;
@@ -52,99 +68,15 @@ $nome_usuario = $_SESSION['usuario_nome'] ?? 'Administrador';
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard - Painel Administrativo</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="dbcommon.css" rel="stylesheet">
     <style>
-        body { background-color: #f0f2f5; font-size: 15px; }
-
-        .navbar-brand { font-weight: 700; font-size: 1rem; }
-
-        .page-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 12px;
-            margin-bottom: 16px;
-        }
-
-        /* Cards de notícia no mobile */
-        .noticia-card {
-            background: white;
-            border-radius: 10px;
-            box-shadow: 0 1px 4px rgba(0,0,0,0.08);
-            padding: 14px;
-            margin-bottom: 12px;
-            display: flex;
-            gap: 12px;
-            align-items: flex-start;
-        }
-
-        .noticia-card .capa-thumb {
-            width: 64px;
-            height: 64px;
+        /* Ajustes específicos desta página */
+        .noticia-thumb-table {
+            width: 60px;
+            height: 40px;
             object-fit: cover;
-            border-radius: 6px;
-            flex-shrink: 0;
+            border-radius: 4px;
             border: 1px solid #e0e0e0;
-        }
-
-        .noticia-card .capa-placeholder {
-            width: 64px;
-            height: 64px;
-            background: #e9ecef;
-            border-radius: 6px;
-            flex-shrink: 0;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.4rem;
-        }
-
-        .noticia-card .info {
-            flex: 1;
-            min-width: 0;
-        }
-
-        .noticia-card .titulo {
-            font-weight: 700;
-            font-size: 0.95rem;
-            color: #1a1a1a;
-            margin-bottom: 4px;
-            overflow: hidden;
-            display: -webkit-box;
-            -webkit-line-clamp: 2;
-            -webkit-box-orient: vertical;
-        }
-
-        .noticia-card .meta {
-            font-size: 0.78rem;
-            color: #6c757d;
-            margin-bottom: 8px;
-        }
-
-        .noticia-card .acoes {
-            display: flex;
-            gap: 6px;
-        }
-
-        /* Tabela só aparece no desktop */
-        .tabela-desktop { display: none; }
-
-        @media (min-width: 768px) {
-            .cards-mobile { display: none; }
-            .tabela-desktop { display: block; }
-
-            .table { table-layout: fixed; width: 100%; }
-            .table th, .table td {
-                white-space: normal;
-                word-break: break-word;
-                overflow-wrap: break-word;
-            }
-            .capa-thumb-table {
-                width: 60px;
-                height: 40px;
-                object-fit: cover;
-                border-radius: 4px;
-                border: 1px solid #e0e0e0;
-            }
         }
     </style>
 </head>
@@ -178,17 +110,18 @@ $nome_usuario = $_SESSION['usuario_nome'] ?? 'Administrador';
                 <p class="text-center text-muted py-4">Nenhuma notícia cadastrada.</p>
             <?php else: ?>
                 <?php foreach ($noticias as $n): ?>
-                    <div class="noticia-card">
-                        <?php if (!empty($n['capa'])): ?>
-                            <img src="<?php echo htmlspecialchars($n['capa'], ENT_QUOTES, 'UTF-8'); ?>"
-                                 alt="capa" class="capa-thumb"
-                                 onerror="this.style.display='none'">
-                        <?php else: ?>
-                            <div class="capa-placeholder">🖼️</div>
-                        <?php endif; ?>
+                    <div class="list-card" style="--accent: <?php echo htmlspecialchars(corDoServidor($n['category'], $coresPorServidor), ENT_QUOTES, 'UTF-8'); ?>;">
+                        <div class="thumb-square thumb-lg">
+                            <?php if (!empty($n['capa'])): ?>
+                                <img src="<?php echo htmlspecialchars($n['capa'], ENT_QUOTES, 'UTF-8'); ?>"
+                                     alt="capa" onerror="this.closest('.thumb-square').innerHTML='🖼️'">
+                            <?php else: ?>
+                                🖼️
+                            <?php endif; ?>
+                        </div>
 
                         <div class="info">
-                            <div class="titulo"><?php echo htmlspecialchars($n['titulo'], ENT_QUOTES, 'UTF-8'); ?></div>
+                            <div class="title"><?php echo htmlspecialchars($n['titulo'], ENT_QUOTES, 'UTF-8'); ?></div>
                             <div class="meta">
                                 <div>
                                     <span class="badge bg-info text-dark me-1" title="Servidor">🌐 <?php echo htmlspecialchars($n['category'] ?? '—', ENT_QUOTES, 'UTF-8'); ?></span>
@@ -198,7 +131,7 @@ $nome_usuario = $_SESSION['usuario_nome'] ?? 'Administrador';
                                     👤 <?php echo htmlspecialchars($n['autor'] ?? '', ENT_QUOTES, 'UTF-8'); ?> · 🕒 <?php echo formatarData($n['criado_em']); ?>
                                 </div>
                             </div>
-                            <div class="acoes">
+                            <div class="actions">
                                 <a href="editar.php?id=<?php echo (int)$n['id']; ?>" class="btn btn-sm btn-primary">✏️ Editar</a>
                                 <a href="deletar.php?id=<?php echo (int)$n['id']; ?>"
                                    class="btn btn-sm btn-danger"
@@ -258,7 +191,7 @@ $nome_usuario = $_SESSION['usuario_nome'] ?? 'Administrador';
                                             <td>
                                                 <?php if (!empty($n['capa'])): ?>
                                                     <img src="<?php echo htmlspecialchars($n['capa'], ENT_QUOTES, 'UTF-8'); ?>"
-                                                         alt="capa" class="capa-thumb-table"
+                                                         alt="capa" class="noticia-thumb-table"
                                                          onerror="this.style.display='none'">
                                                 <?php else: ?>
                                                     <span class="text-muted">—</span>
@@ -266,6 +199,7 @@ $nome_usuario = $_SESSION['usuario_nome'] ?? 'Administrador';
                                             </td>
                                             <td><?php echo htmlspecialchars($n['titulo'], ENT_QUOTES, 'UTF-8'); ?></td>
                                             <td>
+                                                <span class="color-swatch" style="background: <?php echo htmlspecialchars(corDoServidor($n['category'], $coresPorServidor), ENT_QUOTES, 'UTF-8'); ?>;"></span>
                                                 <span class="badge bg-info text-dark">
                                                     <?php echo htmlspecialchars($n['category'] ?? '—', ENT_QUOTES, 'UTF-8'); ?>
                                                 </span>

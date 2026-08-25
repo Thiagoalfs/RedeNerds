@@ -7,7 +7,6 @@ $mensagem_sucesso = "";
 $mensagem_erro = "";
 
 $servername  = "";
-$title       = "";
 $descricao   = "";
 $features    = [""];
 $modpackurl  = "";
@@ -19,7 +18,6 @@ $icon_url    = "";
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $servername = trim($_POST['servername'] ?? '');
-    $title      = trim($_POST['title'] ?? '');
     $descricao  = trim($_POST['descricao'] ?? '');
     $modpackurl = trim($_POST['modpackurl'] ?? '');
     $ip         = trim($_POST['ip'] ?? '');
@@ -33,7 +31,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     [$icon, $erro_icone] = processarIcone(null);
 
-    if ($servername === '' || $title === '' || $descricao === '' || $modpackurl === '' || $ip === '') {
+    if ($servername === '' || $descricao === '' || $modpackurl === '' || $ip === '') {
         $mensagem_erro = "Preencha todos os campos obrigatórios.";
     } elseif (!preg_match('/^#[0-9A-Fa-f]{6}$/', $themecolor)) {
         $mensagem_erro = "A cor do tema deve estar no formato hexadecimal, ex: #B971DA.";
@@ -45,10 +43,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $mensagem_erro = "Defina um ícone: classe FontAwesome, link de imagem ou upload de arquivo.";
     } else {
         try {
-            $stmt = $pdo->prepare("INSERT INTO servidores (servername, title, icon, descricao, features, modpackurl, ip, themecolor, enabled) VALUES (:servername, :title, :icon, :descricao, :features, :modpackurl, :ip, :themecolor, :enabled)");
+            $stmt = $pdo->prepare("INSERT INTO servidores (servername, icon, descricao, features, modpackurl, ip, themecolor, enabled) VALUES (:servername, :icon, :descricao, :features, :modpackurl, :ip, :themecolor, :enabled)");
             $stmt->execute([
                 ':servername' => $servername,
-                ':title'      => $title,
                 ':icon'       => $icon,
                 ':descricao'  => $descricao,
                 ':features'   => json_encode($features, JSON_UNESCAPED_UNICODE),
@@ -59,7 +56,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             ]);
 
             $mensagem_sucesso = "Servidor criado com sucesso!";
-            $servername = $title = $descricao = $modpackurl = $ip = $icon_fa = $icon_url = "";
+            $servername = $descricao = $modpackurl = $ip = $icon_fa = $icon_url = "";
             $features = [""];
             $themecolor = "#B971DA";
             $enabled = true;
@@ -124,18 +121,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                 <form method="POST" action="servidor_criar.php" autocomplete="off" enctype="multipart/form-data">
                     <div class="row g-3 mb-3">
-                        <div class="col-12 col-md-6">
+                        <div class="col-12">
                             <label for="servername" class="form-label">Nome do servidor <span class="text-danger">*</span></label>
                             <input type="text" class="form-control" id="servername" name="servername"
                                 value="<?php echo htmlspecialchars($servername, ENT_QUOTES, 'UTF-8'); ?>"
                                 maxlength="100" required>
-                            <small class="text-muted">O "slug" usado na URL do site é gerado automaticamente a partir daqui (minúsculo, sem espaços).</small>
-                        </div>
-                        <div class="col-12 col-md-6">
-                            <label for="title" class="form-label">Título da página (aba/SEO) <span class="text-danger">*</span></label>
-                            <input type="text" class="form-control" id="title" name="title"
-                                value="<?php echo htmlspecialchars($title, ENT_QUOTES, 'UTF-8'); ?>"
-                                maxlength="150" required>
+                            <small class="text-muted">O slug da URL e o título da página (<code>&lt;Nome&gt; - Rede Nerds</code>) são gerados automaticamente pelo banco.</small>
                         </div>
                     </div>
 
