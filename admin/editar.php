@@ -4,7 +4,15 @@ require_once "../../config.php";
 require_once "capa_upload.php";
 require_once "webhook_helper.php";
 
-$servidores = ['NerdSky', 'Potato Nerd', 'NerdDead'];
+try {
+    $servidores = $pdo->query("SELECT servername FROM servidores ORDER BY servername ASC")->fetchAll(PDO::FETCH_COLUMN, 0);
+    if (empty($servidores)) {
+        $servidores = ['NerdSky', 'Potato Nerds', 'Nerd Dead'];
+    }
+} catch (PDOException $e) {
+    $servidores = ['NerdSky', 'Potato Nerds', 'Nerd Dead'];
+}
+
 $categorias_envio = ['Anúncios', 'Atualizações'];
 
 try {

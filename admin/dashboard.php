@@ -30,20 +30,49 @@ try {
     $noticias = [];
 }
 
-// Mapa servername => themecolor, para usar a mesma cor de identidade
-// do servidor (definida em servidores.php) como destaque nos cards de notícia.
+// Mapa com variações (servername, slug, sem espaço, singular/plural) => themecolor
 $coresPorServidor = [];
 try {
-    $stmt = $pdo->query("SELECT servername, themecolor FROM servidores");
+    $stmt = $pdo->query("SELECT servername, nome, themecolor FROM servidores");
     foreach ($stmt->fetchAll(PDO::FETCH_ASSOC) as $s) {
-        $coresPorServidor[$s['servername']] = $s['themecolor'];
+        $cor = $s['themecolor'];
+        $sn = trim($s['servername'] ?? '');
+        $nm = trim($s['nome'] ?? '');
+
+        if ($sn !== '') {
+            $coresPorServidor[$sn] = $cor;
+            $cleanSn = strtolower(str_replace(' ', '', $sn));
+            $coresPorServidor[$cleanSn] = $cor;
+            $coresPorServidor[rtrim($cleanSn, 's')] = $cor;
+            $coresPorServidor[$cleanSn . 's'] = $cor;
+        }
+
+        if ($nm !== '') {
+            $coresPorServidor[$nm] = $cor;
+            $cleanNm = strtolower(str_replace(' ', '', $nm));
+            $coresPorServidor[$cleanNm] = $cor;
+            $coresPorServidor[rtrim($cleanNm, 's')] = $cor;
+            $coresPorServidor[$cleanNm . 's'] = $cor;
+        }
     }
 } catch (PDOException $e) {
     $coresPorServidor = [];
 }
 
 function corDoServidor($nome, $mapa) {
-    return $mapa[$nome] ?? '#6c757d';
+    if (!$nome) return '#6c757d';
+    if (isset($mapa[$nome])) return $mapa[$nome];
+
+    $clean = strtolower(str_replace(' ', '', trim($nome)));
+    if (isset($mapa[$clean])) return $mapa[$clean];
+
+    $cleanNoS = rtrim($clean, 's');
+    if (isset($mapa[$cleanNoS])) return $mapa[$cleanNoS];
+
+    $cleanWithS = $clean . 's';
+    if (isset($mapa[$cleanWithS])) return $mapa[$cleanWithS];
+
+    return '#6c757d';
 }
 
 function corTextoContraste($hex) {
