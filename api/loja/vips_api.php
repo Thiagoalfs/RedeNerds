@@ -144,18 +144,30 @@ $servidoresDefault = [
         "icon" => "fa-solid fa-biohazard",
         "vips" => [
             [
-                "id" => 3,
+                "id" => 99,
                 "servidor" => "nerddead",
-                "nome" => "Sobrevivente VIP",
-                "preco" => 20.00,
-                "duracao_dias" => 30,
+                "nome" => "VIP Teste (1 Centavo)",
+                "preco" => 0.01,
+                "duracao_dias" => 1,
                 "destaque" => true,
                 "vantagens" => [
-                    "Tag [SOBREVIVENTE] vermelha no chat e tab",
-                    "Kit de Primeiros Socorros semanal",
-                    "Acesso a 3 safezones protegidas",
-                    "Comando /back com menor cooldown",
-                    "Prioridade na fila de entrada"
+                    "Pacote exclusivo de teste de pagamento PIX (R$ 0,01)",
+                    "Ativação de teste in-game",
+                    "Validação de integração Mercado Pago"
+                ]
+            ],
+            [
+                "id" => 10,
+                "servidor" => "nerddead",
+                "nome" => "VIP Sobrevivente",
+                "preco" => 30.00,
+                "duracao_dias" => 30,
+                "destaque" => false,
+                "vantagens" => [
+                    "A cada 24h receba uma Glock17 com 36 munições e bastão de baseball",
+                    "A cada 30d receba uma Uzi com 100 munições e bastão de baseball",
+                    "A cada 1 hora receba um kit comida e bebida",
+                    "A cada 4 horas receba um kit medicamentos para curar seus ferimentos"
                 ]
             ]
         ]

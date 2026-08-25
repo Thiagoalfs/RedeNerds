@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Loja Oficial - Rede Nerds</title>
+
+    <meta name="description" content="Adquira pacotes VIP oficiais para os servidores da Rede Nerds via PIX com ativação rápida.">
+    <meta name="author" content="Rede Nerds">
+    <meta name="robots" content="index, follow">
+
+    <meta property="og:title" content="Loja Oficial - Rede Nerds">
+    <meta property="og:description" content="Adquira pacotes VIP oficiais para os servidores da Rede Nerds via PIX.">
+    <meta property="og:image" content="https://redenerds.com.br/assets/images/logo.webp">
+    <meta property="og:url" content="https://redenerds.com.br/loja">
+    <meta property="og:type" content="website">
+
+    <link rel="icon" type="image/x-icon" href="/assets/images/logo.webp">
+    <link rel="stylesheet" href="/shared/shared.css?v=11">
+    <link rel="stylesheet" href="/shared/navbar.css?v=11">
+    <link rel="stylesheet" href="/shared/footer.css?v=11">
+    <link rel="stylesheet" href="loja.css?v=11">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+</head>
+<body>
+    <div id="navbar-container"></div>
+
+    <div id="page-wrapper">
+        <main id="container" class="loja-container">
+
+            <!-- BARRA DE IDENTIFICAÇÃO DO JOGADOR -->
+            <header id="loja-profile-bar" class="loja-profile-bar" hidden>
+                <div class="profile-meta">
+                    <img id="profile-avatar-img" src="https://mc-heads.net/avatar/MHF_Steve/64" alt="Skin" class="profile-avatar">
+                    <div class="profile-details">
+                        <div class="profile-heading">
+                            <span class="profile-tag">Entregar para:</span>
+                            <span id="profile-nick-display" class="profile-nick">Jogador</span>
+                            <span id="profile-account-type-badge" class="account-badge">Original</span>
+                        </div>
+                    </div>
+                </div>
+                <button type="button" id="btn-trocar-nick" class="btn-secondary-action">
+                    <i class="fa-solid fa-arrows-rotate"></i> Alterar Nick
+                </button>
+            </header>
+
+            <!-- AVISO DE IDENTIFICAÇÃO (QUANDO SEM NICK) -->
+            <section id="loja-locked-banner" class="loja-locked-banner" hidden>
+                <div class="locked-card-body">
+                    <div class="locked-icon-wrap">
+                        <i class="fa-solid fa-user-tag"></i>
+                    </div>
+                    <h2>Identifique seu personagem</h2>
+                    <p>Informe seu nickname do Minecraft para visualizar os pacotes e vincular a entrega.</p>
+                    <button type="button" id="btn-open-nick-modal" class="btn-solid-primary">
+                        Informar Nickname
+                    </button>
+                </div>
+            </section>
+
+            <!-- PAINEL PRINCIPAL DA LOJA -->
+            <section id="loja-panel" class="loja-panel" hidden>
+                
+                <!-- SELETOR DE SERVIDORES (SEGMENTED TABS) -->
+                <nav class="server-nav-container" aria-label="Seleção de Servidor">
+                    <div class="server-nav-header">
+                        <span class="nav-caption">Selecione o servidor:</span>
+                    </div>
+                    <div id="loja-server-quicknav" class="server-tabs-list" role="tablist"></div>
+                </nav>
+
+                <!-- ESTADOS DE FEEDBACK -->
+                <div id="loja-loading" class="state-feedback">
+                    <div class="ui-spinner"></div>
+                    <span>Carregando pacotes disponíveis...</span>
+                </div>
+
+                <div id="loja-error" class="state-feedback state-error" hidden>
+                    <i class="fa-solid fa-circle-exclamation"></i>
+                    <p id="loja-error-msg">Não foi possível carregar os pacotes no momento.</p>
+                    <button type="button" id="btn-retry-vips" class="btn-secondary-action">Tentar novamente</button>
+                </div>
+
+                <!-- GRADE DE VIPS DO SERVIDOR ATIVO -->
+                <div id="loja-servers-container" class="loja-servers-container" hidden></div>
+
+                <!-- RODAPÉ INFORMATIVO DIRETO -->
+                <footer class="loja-trust-bar">
+                    <div class="trust-pill">
+                        <i class="fa-brands fa-pix"></i> Pagamento via PIX instantâneo
+                    </div>
+                    <div class="trust-pill">
+                        <i class="fa-solid fa-shield-check"></i> Ativação automatizada in-game
+                    </div>
+                    <div class="trust-pill">
+                        <i class="fa-brands fa-discord"></i> Suporte direto no Discord
+                    </div>
+                </footer>
+
+            </section>
+
+        </main>
+    </div>
+
+    <!-- MODAL 1: IDENTIFICAÇÃO DO NICKNAME -->
+    <dialog id="modal-nick-overlay" class="loja-dialog" hidden>
+        <div class="dialog-card">
+            <div class="dialog-header">
+                <h3>Identificação do Jogador</h3>
+                <button type="button" class="dialog-close-btn" id="btn-close-nick-modal" aria-label="Fechar" hidden>
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            <div class="dialog-body">
+                <div class="player-avatar-preview">
+                    <img id="nick-preview-img" src="https://mc-heads.net/avatar/MHF_Steve/128" alt="Skin Preview">
+                    <span id="nick-preview-label" class="preview-nick-name">Steve</span>
+                </div>
+
+                <form id="form-nick-step" onsubmit="return false;">
+                    <div class="form-field">
+                        <label for="input-player-nick">Nickname no Minecraft</label>
+                        <input type="text" id="input-player-nick" placeholder="Ex: Thiago_BR" maxlength="16" autocomplete="off" spellcheck="false" required>
+                        <span id="nick-error-feedback" class="field-error" hidden></span>
+                    </div>
+
+                    <div class="form-field">
+                        <label>Tipo de Conta</label>
+                        <div class="segmented-toggle">
+                            <button type="button" class="toggle-btn active" data-type="original">
+                                <i class="fa-solid fa-shield-halved"></i> <span>Original</span>
+                            </button>
+                            <button type="button" class="toggle-btn" data-type="pirata">
+                                <i class="fa-solid fa-gamepad"></i> <span>Pirata</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <button type="submit" id="btn-confirm-nick" class="btn-solid-primary btn-block">
+                        Confirmar e Continuar
+                    </button>
+                </form>
+            </div>
+        </div>
+    </dialog>
+
+    <!-- MODAL 2: CHECKOUT PIX & CONFIRMAÇÃO DE PAGAMENTO -->
+    <dialog id="modal-pix-overlay" class="loja-dialog" hidden>
+        <div class="dialog-card pix-dialog-card">
+            <div class="dialog-header">
+                <h3 id="pix-modal-header-title">Pagamento via PIX</h3>
+                <button type="button" class="dialog-close-btn" id="btn-close-pix-modal" aria-label="Fechar">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            <div class="dialog-body">
+                <!-- Sumário do Pedido (Visível durante pagamento) -->
+                <div id="pix-order-summary-box" class="order-summary-box">
+                    <div class="summary-player-col">
+                        <img id="summary-avatar-img" src="https://mc-heads.net/avatar/MHF_Steve/64" alt="Skin">
+                        <div>
+                            <span class="summary-caption">Recebedor</span>
+                            <strong id="summary-nick-display" class="summary-title">Nick</strong>
+                            <div id="summary-server-vip" class="summary-subtext">Servidor • VIP</div>
+                        </div>
+                    </div>
+                    <div class="summary-price-col">
+                        <span class="summary-caption">Total</span>
+                        <strong id="summary-price-display" class="summary-amount">R$ 0,00</strong>
+                    </div>
+                </div>
+
+                <!-- Estado 1: Carregando -->
+                <div id="pix-loading-state" class="pix-view-state">
+                    <div class="ui-spinner"></div>
+                    <p class="pix-status-title">Gerando código PIX...</p>
+                </div>
+
+                <!-- Estado 2: Pronto para Pagamento (QR Code & Copia e Cola) -->
+                <div id="pix-ready-state" class="pix-view-state" hidden>
+                    <div class="pix-expiry-indicator">
+                        <i class="fa-regular fa-clock"></i> Expira em: <strong id="pix-countdown">15:00</strong>
+                    </div>
+
+                    <div class="pix-qr-container">
+                        <img id="pix-qrcode-img" src="" alt="QR Code PIX">
+                    </div>
+
+                    <div class="copia-cola-group">
+                        <label for="input-pix-copiacola">Código PIX (Copia e Cola):</label>
+                        <div class="copia-cola-row">
+                            <input type="text" id="input-pix-copiacola" readonly value="">
+                            <button type="button" id="btn-copy-pix" class="btn-solid-primary btn-copy" title="Copiar código">
+                                <span id="copy-btn-text">Copiar</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="pix-live-listener">
+                        <span class="pulse-indicator"></span>
+                        <span>Aguardando confirmação bancária em tempo real...</span>
+                    </div>
+                </div>
+
+                <!-- Estado 3: CONFIRMAÇÃO DE PAGAMENTO APROVADO -->
+                <div id="pix-success-state" class="pix-view-state success-view" hidden>
+                    <div class="success-icon-wrap">
+                        <i class="fa-solid fa-circle-check"></i>
+                    </div>
+                    
+                    <h2 class="success-title">Pagamento Confirmado!</h2>
+                    <p class="success-subtitle">Sua compra foi aprovada e vinculada com sucesso.</p>
+
+                    <div class="confirmation-receipt-card">
+                        <div class="receipt-row">
+                            <span class="receipt-label">Jogador:</span>
+                            <strong id="receipt-player-nick" class="receipt-val">Jogador</strong>
+                        </div>
+                        <div class="receipt-row">
+                            <span class="receipt-label">Pacote VIP:</span>
+                            <strong id="receipt-vip-name" class="receipt-val">VIP Sobrevivente</strong>
+                        </div>
+                        <div class="receipt-row">
+                            <span class="receipt-label">Servidor:</span>
+                            <span id="receipt-server-name" class="receipt-val">NerdDead</span>
+                        </div>
+                        <div class="receipt-row">
+                            <span class="receipt-label">Transação:</span>
+                            <code id="receipt-txid" class="receipt-code">NERD-XXXXX</code>
+                        </div>
+                        <div class="receipt-row">
+                            <span class="receipt-label">Status:</span>
+                            <span class="receipt-badge-active"><i class="fa-solid fa-bolt"></i> Ativado</span>
+                        </div>
+                    </div>
+
+                    <div class="in-game-instructions">
+                        <i class="fa-solid fa-info-circle"></i>
+                        <span>Entre no servidor agora para desfrutar de suas vantagens e tags!</span>
+                    </div>
+
+                    <button type="button" id="btn-finish-purchase" class="btn-solid-primary btn-block">
+                        <i class="fa-solid fa-check"></i> Concluir e Fechar
+                    </button>
+                </div>
+
+                <!-- Estado 4: Erro / Expirado -->
+                <div id="pix-error-state" class="pix-view-state error-view" hidden>
+                    <i class="fa-solid fa-circle-exclamation error-icon"></i>
+                    <h4 id="pix-error-title">Tempo Esgotado</h4>
+                    <p id="pix-error-desc">A cobrança PIX expirou. Gere uma nova tentativa.</p>
+                    <button type="button" id="btn-retry-pix" class="btn-solid-primary btn-block">Tentar Novamente</button>
+                </div>
+            </div>
+        </div>
+    </dialog>
+
+    <div id="footer"></div>
+    <script src="/shared/navbar.js?v=11"></script>
+    <script src="loja.js?v=11"></script>
+</body>
+</html>

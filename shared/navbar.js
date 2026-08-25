@@ -1,67 +1,49 @@
 document.addEventListener("DOMContentLoaded", function () {
-    const container = document.getElementById("navbar-container");
-
-    if (!container) {
-        console.error("ERRO: O elemento <div id='navbar-container'></div> não foi encontrado na página HTML!");
-        return;
-    }
-
-    // Tenta carregar o navbar.html da raiz
-    fetch("/shared/navbar.html?v=2")
-        .then(response => {
-            if (!response.ok) {
-                throw new Error(`Erro ${response.status} ao buscar ${response.url}`);
-            }
-            return response.text();
-        })
-        .then(data => {
-            container.innerHTML = data;
-            if (typeof initNavbar === "function") {
+    // 1. Carrega o Navbar
+    const navContainer = document.getElementById("navbar-container");
+    if (navContainer) {
+        fetch("/shared/navbar.html?v=2")
+            .then(response => {
+                if (!response.ok) throw new Error(`Erro ${response.status} ao buscar ${response.url}`);
+                return response.text();
+            })
+            .then(data => {
+                navContainer.innerHTML = data;
                 initNavbar();
-            }
-
-            // Injeta o script da loja se ainda não estiver presente
-            if (!document.getElementById("loja-script")) {
-                const s = document.createElement("script");
-                s.id = "loja-script";
-                s.src = "/shared/loja.js?v=2";
-                document.body.appendChild(s);
-            }
-        })
-        .catch(error => {
-            console.error(error);
-            // Mostra o erro direto na página para facilitar o diagnóstico
-            container.innerHTML = `<div style="color: red; padding: 10px; background: #fee; border: 1px solid red; text-align: center;">
-                ⚠️ Não foi possível carregar a navbar: <strong>${error.message}</strong>
-            </div>`;
-        });
-});
-
-document.addEventListener("DOMContentLoaded", function () {
-    const footerContainer = document.getElementById("footer");
-
-    if (!footerContainer) {
-        console.error("ERRO: O elemento <div id='footer'></div> não foi encontrado na página HTML!");
-        return;
+                marcarLinkAtivo();
+            })
+            .catch(error => {
+                console.error("Erro ao carregar navbar:", error);
+            });
     }
 
-    fetch("/shared/footer.html?v=2")
-        .then(response => {
-            if (!response.ok) {
-                throw new Error(`Erro ${response.status} ao buscar ${response.url}`);
-            }
-            return response.text();
-        })
-        .then(data => {
-            footerContainer.innerHTML = data;
-        })
-        .catch(error => {
-            console.error(error);
-            footerContainer.innerHTML = `<div style="color: red; padding: 10px; background: #fee; border: 1px solid red; text-align: center;">
-                ⚠️ Não foi possível carregar o footer: <strong>${error.message}</strong>
-            </div>`;
-        });
+    // 2. Carrega o Footer
+    const footerContainer = document.getElementById("footer");
+    if (footerContainer) {
+        fetch("/shared/footer.html?v=2")
+            .then(response => {
+                if (!response.ok) throw new Error(`Erro ${response.status} ao buscar ${response.url}`);
+                return response.text();
+            })
+            .then(data => {
+                footerContainer.innerHTML = data;
+            })
+            .catch(error => {
+                console.error("Erro ao carregar footer:", error);
+            });
+    }
 });
+
+function marcarLinkAtivo() {
+    const currentPath = window.location.pathname.replace(/\/$/, '') || '/';
+    const navLinks = document.querySelectorAll('#navbar li a');
+    navLinks.forEach(link => {
+        const linkPath = new URL(link.href, window.location.origin).pathname.replace(/\/$/, '') || '/';
+        if (linkPath === currentPath) {
+            link.parentElement.classList.add('active');
+        }
+    });
+}
 
 function initNavbar() {
     const nav = document.querySelector('nav');
