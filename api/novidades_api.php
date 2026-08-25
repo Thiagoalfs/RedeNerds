@@ -5,9 +5,20 @@ error_reporting(E_ALL);
 header("Content-Type: application/json; charset=utf-8");
 header("Access-Control-Allow-Origin: *");
 
-$configPath = __DIR__ . "/../../../config.php";
+$configPaths = [
+    __DIR__ . "/../../config.php",
+    __DIR__ . "/../config.php"
+];
 
-if (!file_exists($configPath)) {
+$configPath = null;
+foreach ($configPaths as $cp) {
+    if (file_exists($cp)) {
+        $configPath = $cp;
+        break;
+    }
+}
+
+if (!$configPath) {
     echo json_encode(["erro" => "Arquivo config.php não encontrado no servidor."], JSON_UNESCAPED_UNICODE);
     exit;
 }

@@ -7,7 +7,7 @@ async function carregarEquipe() {
     if (!containerEquipe) return;
 
     try {
-        const response = await fetch("/equipe/equipe_api.php");
+        const response = await fetch("/api/equipe_api.php");
         if (!response.ok) {
             throw new Error(`Erro ao carregar dados: ${response.status}`);
         }
