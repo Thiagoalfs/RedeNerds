@@ -1,0 +1,696 @@
+/* ==========================================================================
+   LOJA OFICIAL - REDE NERDS (Modal & Checkout PIX)
+   ========================================================================== */
+
+:root {
+    --loja-bg: #0b0f15;
+    --loja-card-bg: #121824;
+    --loja-border: rgba(255, 255, 255, 0.09);
+    --loja-accent-purple: #B971DA;
+    --loja-accent-blue: #7DB9DF;
+    --loja-accent-gold: #F1C40F;
+    --loja-accent-green: #2ECC71;
+    --loja-accent-red: #E85D5D;
+}
+
+/* Overlay do Modal */
+#loja-modal-overlay {
+    position: fixed;
+    inset: 0;
+    background-color: rgba(3, 4, 7, 0.82);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    z-index: 99999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+    box-sizing: border-box;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.25s ease;
+}
+
+#loja-modal-overlay.active {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+/* Janela Principal do Modal */
+#loja-modal {
+    background-color: var(--loja-bg);
+    border: 1px solid var(--loja-border);
+    border-radius: 18px;
+    width: 100%;
+    max-width: 780px;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.7), 0 0 30px rgba(185, 113, 218, 0.15);
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    transform: scale(0.95) translateY(10px);
+    transition: transform 0.25s ease;
+    box-sizing: border-box;
+    color: white;
+}
+
+#loja-modal-overlay.active #loja-modal {
+    transform: scale(1) translateY(0);
+}
+
+/* Header do Modal */
+.loja-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 18px 24px;
+    border-bottom: 1px solid var(--loja-border);
+    background: linear-gradient(180deg, rgba(185, 113, 218, 0.08) 0%, transparent 100%);
+}
+
+.loja-header-title {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 0;
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #ffffff;
+}
+
+.loja-header-title i {
+    color: var(--loja-accent-purple);
+    font-size: 1.3rem;
+}
+
+.loja-close-btn {
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid var(--loja-border);
+    color: #a1a7b4;
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background 0.2s ease, color 0.2s ease, transform 0.2s ease;
+}
+
+.loja-close-btn:hover {
+    background: rgba(232, 93, 93, 0.2);
+    color: #ffffff;
+    border-color: rgba(232, 93, 93, 0.4);
+    transform: rotate(90deg);
+}
+
+/* Indicador de Etapas (Breadcrumbs) */
+.loja-steps-indicator {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    padding: 12px 20px;
+    background-color: rgba(0, 0, 0, 0.2);
+    border-bottom: 1px solid var(--loja-border);
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+.loja-step-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    color: #6b7280;
+    transition: color 0.2s ease;
+}
+
+.loja-step-item.active {
+    color: var(--loja-accent-purple);
+}
+
+.loja-step-item.done {
+    color: var(--loja-accent-green);
+}
+
+.loja-step-sep {
+    color: #374151;
+}
+
+/* Corpo do Modal */
+.loja-body {
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+/* ETAPA 1: Identificação do Jogador */
+.loja-player-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 18px;
+    max-width: 440px;
+    margin: 0 auto;
+    width: 100%;
+    text-align: center;
+}
+
+.loja-avatar-wrap {
+    width: 84px;
+    height: 84px;
+    border-radius: 50%;
+    background-color: var(--loja-card-bg);
+    border: 2px solid var(--loja-accent-purple);
+    box-shadow: 0 0 20px rgba(185, 113, 218, 0.3);
+    padding: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+}
+
+.loja-avatar-img {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    object-fit: cover;
+    background-color: #1a1f2c;
+    transition: transform 0.2s ease;
+}
+
+.loja-input-group {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    text-align: left;
+}
+
+.loja-label {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #e5e7eb;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.loja-input-text {
+    width: 100%;
+    padding: 12px 16px;
+    background-color: var(--loja-card-bg);
+    border: 1.5px solid var(--loja-border);
+    border-radius: 10px;
+    color: white;
+    font-size: 1rem;
+    font-family: inherit;
+    outline: none;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    box-sizing: border-box;
+}
+
+.loja-input-text:focus {
+    border-color: var(--loja-accent-purple);
+    box-shadow: 0 0 0 3px rgba(185, 113, 218, 0.2);
+}
+
+/* Seletor de Tipo de Conta */
+.loja-account-types {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    width: 100%;
+}
+
+.loja-account-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 12px 14px;
+    background-color: var(--loja-card-bg);
+    border: 1.5px solid var(--loja-border);
+    border-radius: 10px;
+    color: #9ca3af;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: border-color 0.2s ease, background-color 0.2s ease, color 0.2s ease;
+    font-family: inherit;
+}
+
+.loja-account-btn.selected {
+    border-color: var(--loja-accent-purple);
+    background-color: rgba(185, 113, 218, 0.15);
+    color: #ffffff;
+}
+
+.loja-account-btn i {
+    font-size: 1rem;
+}
+
+.loja-account-btn.selected i.fa-check-circle {
+    color: var(--loja-accent-purple);
+}
+
+/* Botão de Ação Primário */
+.loja-btn-primary {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    width: 100%;
+    padding: 13px 20px;
+    background: linear-gradient(135deg, #B971DA 0%, #8E44AD 100%);
+    border: none;
+    border-radius: 10px;
+    color: #ffffff;
+    font-weight: 700;
+    font-size: 1rem;
+    font-family: inherit;
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease, filter 0.2s ease;
+    box-shadow: 0 4px 18px rgba(185, 113, 218, 0.35);
+}
+
+.loja-btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(185, 113, 218, 0.5);
+    filter: brightness(1.08);
+}
+
+.loja-btn-primary:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
+/* ETAPA 2: Escolha de Servidor & VIPs */
+.loja-player-badge {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background-color: var(--loja-card-bg);
+    border: 1px solid var(--loja-border);
+    border-radius: 10px;
+    padding: 10px 16px;
+    font-size: 0.9rem;
+}
+
+.loja-player-badge-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.loja-player-badge-head {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.loja-player-badge-trocar {
+    background: none;
+    border: none;
+    color: var(--loja-accent-purple);
+    font-weight: 600;
+    font-size: 0.85rem;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.loja-player-badge-trocar:hover {
+    text-decoration: underline;
+}
+
+/* Abas de Servidores */
+.loja-servers-tabs {
+    display: flex;
+    gap: 8px;
+    overflow-x: auto;
+    padding-bottom: 4px;
+    scrollbar-width: thin;
+}
+
+.loja-server-tab {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 18px;
+    background-color: var(--loja-card-bg);
+    border: 1.5px solid var(--loja-border);
+    border-radius: 10px;
+    color: #9ca3af;
+    font-weight: 600;
+    font-size: 0.92rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+    font-family: inherit;
+}
+
+.loja-server-tab:hover {
+    border-color: rgba(255, 255, 255, 0.2);
+    color: white;
+}
+
+.loja-server-tab.active {
+    background-color: rgba(125, 185, 223, 0.14);
+    border-color: var(--loja-accent-blue);
+    color: #ffffff;
+}
+
+.loja-server-tab[data-server="potato"].active {
+    background-color: rgba(125, 185, 223, 0.14);
+    border-color: var(--loja-accent-blue);
+}
+
+.loja-server-tab[data-server="nerddead"].active {
+    background-color: rgba(232, 93, 93, 0.14);
+    border-color: var(--loja-accent-red);
+}
+
+/* Grid de Cards VIP */
+.loja-vips-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 16px;
+}
+
+.loja-vip-card {
+    background-color: var(--loja-card-bg);
+    border: 1.5px solid var(--loja-border);
+    border-radius: 14px;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 16px;
+    position: relative;
+    transition: transform 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
+    box-sizing: border-box;
+}
+
+.loja-vip-card:hover {
+    transform: translateY(-4px);
+    border-color: var(--card-color, var(--loja-accent-purple));
+    box-shadow: 0 12px 28px -4px rgba(0, 0, 0, 0.5);
+}
+
+.loja-vip-card.destaque {
+    border-color: rgba(185, 113, 218, 0.4);
+    background: linear-gradient(180deg, rgba(185, 113, 218, 0.08) 0%, var(--loja-card-bg) 60%);
+}
+
+.loja-vip-badge-destaque {
+    position: absolute;
+    top: -10px;
+    right: 16px;
+    background: linear-gradient(135deg, #F1C40F 0%, #D4AC0D 100%);
+    color: #030407;
+    font-size: 0.72rem;
+    font-weight: 800;
+    padding: 3px 10px;
+    border-radius: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.loja-vip-header {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.loja-vip-nome {
+    margin: 0;
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: white;
+}
+
+.loja-vip-duracao {
+    font-size: 0.8rem;
+    color: #9ca3af;
+}
+
+.loja-vip-preco {
+    font-size: 1.6rem;
+    font-weight: 800;
+    color: var(--loja-accent-green);
+    margin: 6px 0;
+}
+
+.loja-vip-vantagens {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    font-size: 0.88rem;
+    color: #d1d5db;
+}
+
+.loja-vip-vantagens li {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    line-height: 1.35;
+}
+
+.loja-vip-vantagens li i {
+    color: var(--loja-accent-green);
+    font-size: 0.85rem;
+    margin-top: 3px;
+    flex-shrink: 0;
+}
+
+.loja-vip-buy-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 10px 16px;
+    background: rgba(46, 204, 113, 0.15);
+    border: 1.5px solid var(--loja-accent-green);
+    border-radius: 10px;
+    color: #ffffff;
+    font-weight: 700;
+    font-size: 0.95rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-family: inherit;
+    margin-top: auto;
+}
+
+.loja-vip-buy-btn:hover {
+    background: var(--loja-accent-green);
+    color: #030407;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 18px rgba(46, 204, 113, 0.35);
+}
+
+/* ETAPA 3: Checkout PIX */
+.loja-checkout-wrap {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+    text-align: center;
+    max-width: 480px;
+    margin: 0 auto;
+    width: 100%;
+}
+
+.loja-checkout-summary {
+    width: 100%;
+    background-color: var(--loja-card-bg);
+    border: 1px solid var(--loja-border);
+    border-radius: 12px;
+    padding: 14px 18px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    text-align: left;
+    box-sizing: border-box;
+}
+
+.loja-checkout-qr-frame {
+    background: #ffffff;
+    padding: 16px;
+    border-radius: 16px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5), 0 0 25px rgba(125, 185, 223, 0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 210px;
+    height: 210px;
+    box-sizing: border-box;
+}
+
+.loja-checkout-qr-img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+
+.loja-copia-cola-box {
+    width: 100%;
+    display: flex;
+    gap: 8px;
+}
+
+.loja-copia-cola-input {
+    flex: 1;
+    padding: 10px 14px;
+    background-color: var(--loja-card-bg);
+    border: 1px solid var(--loja-border);
+    border-radius: 8px;
+    color: #9ca3af;
+    font-size: 0.85rem;
+    font-family: monospace;
+    outline: none;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.loja-btn-copiar {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 10px 18px;
+    background-color: var(--loja-accent-blue);
+    border: none;
+    border-radius: 8px;
+    color: #030407;
+    font-weight: 700;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: filter 0.2s ease, transform 0.2s ease;
+    white-space: nowrap;
+    font-family: inherit;
+}
+
+.loja-btn-copiar:hover {
+    filter: brightness(1.1);
+    transform: translateY(-1px);
+}
+
+.loja-btn-copiar.copied {
+    background-color: var(--loja-accent-green);
+    color: white;
+}
+
+/* Animação de Espera / Polling */
+.loja-polling-status {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    font-size: 0.88rem;
+    color: #9ca3af;
+}
+
+.loja-spinner {
+    width: 16px;
+    height: 16px;
+    border: 2px solid rgba(125, 185, 223, 0.3);
+    border-top-color: var(--loja-accent-blue);
+    border-radius: 50%;
+    animation: lojaSpin 0.8s linear infinite;
+}
+
+@keyframes lojaSpin {
+    to { transform: rotate(360deg); }
+}
+
+.loja-timer {
+    font-size: 0.8rem;
+    color: #6b7280;
+}
+
+/* ETAPA 4: Sucesso */
+.loja-success-wrap {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 18px;
+    text-align: center;
+    padding: 20px 0;
+    max-width: 480px;
+    margin: 0 auto;
+}
+
+.loja-success-icon {
+    width: 72px;
+    height: 72px;
+    background-color: rgba(46, 204, 113, 0.15);
+    border: 2px solid var(--loja-accent-green);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--loja-accent-green);
+    font-size: 32px;
+    box-shadow: 0 0 30px rgba(46, 204, 113, 0.3);
+    animation: lojaPop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+@keyframes lojaPop {
+    from { transform: scale(0); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+}
+
+.loja-success-title {
+    margin: 0;
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: white;
+}
+
+.loja-success-info {
+    background-color: var(--loja-card-bg);
+    border: 1px solid var(--loja-border);
+    border-radius: 12px;
+    padding: 16px 20px;
+    width: 100%;
+    text-align: left;
+    font-size: 0.9rem;
+    color: #d1d5db;
+    box-sizing: border-box;
+}
+
+/* Responsividade */
+@media (max-width: 600px) {
+    #loja-modal {
+        border-radius: 14px;
+        max-height: 94vh;
+    }
+
+    .loja-body {
+        padding: 16px;
+    }
+
+    .loja-account-types {
+        grid-template-columns: 1fr;
+    }
+
+    .loja-copia-cola-box {
+        flex-direction: column;
+    }
+
+    .loja-btn-copiar {
+        width: 100%;
+        justify-content: center;
+    }
+}

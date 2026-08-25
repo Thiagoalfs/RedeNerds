@@ -4,20 +4,25 @@
  *
  * Endpoint público (sem sessão/login) que devolve os servidores marcados
  * como "enabled" no banco, para a landing page montar os cards dinamicamente.
- *
- * Local esperado: ~/api/servidores_api.php
- * Ajuste o caminho do require abaixo se a estrutura de pastas for diferente
- * (aqui assumimos que config.php está uma pasta acima de /api/).
  */
+
+ini_set('display_errors', 0);
+error_reporting(E_ALL);
+
+header('Content-Type: application/json; charset=utf-8');
+header('Access-Control-Allow-Origin: *');
+header('Access-Control-Allow-Methods: GET');
 
 $configPaths = [
     __DIR__ . "/../../config.php",
-    __DIR__ . "/../config.php"
+    __DIR__ . "/../config.php",
+    ($_SERVER['DOCUMENT_ROOT'] ?? '') . "/../config.php",
+    ($_SERVER['DOCUMENT_ROOT'] ?? '') . "/config.php"
 ];
 
 $configPath = null;
 foreach ($configPaths as $cp) {
-    if (file_exists($cp)) {
+    if (!empty($cp) && file_exists($cp)) {
         $configPath = $cp;
         break;
     }
@@ -33,16 +38,8 @@ require_once $configPath;
 require_once __DIR__ . "/auth_api.php";
 verificarAcessoApi();
 
-header('Content-Type: application/json; charset=utf-8');
-header('Access-Control-Allow-Origin: *');
-header('Access-Control-Allow-Methods: GET');
-
 const ICON_UPLOAD_DIR_PUBLICA = '/assets/servidores/icons/';
 
-/**
- * Descobre se o ícone salvo é uma classe FontAwesome ("fa") ou uma imagem
- * (upload próprio ou link externo -> "img").
- */
 function tipoDoIcone(?string $icone): string
 {
     if (!$icone) {
@@ -54,15 +51,64 @@ function tipoDoIcone(?string $icone): string
     return 'fa';
 }
 
-try {
-    $stmt = $pdo->query(
-        "SELECT id, nome, servername, title, icon, descricao, features, modpackurl, ip, themecolor
-         FROM servidores
-         WHERE enabled = 1
-         ORDER BY id ASC"
-    );
-    $linhas = $stmt->fetchAll(PDO::FETCH_ASSOC);
+$servidoresFallback = [
+    [
+        'id'         => 1,
+        'nome'       => 'xomaps',
+        'servername' => 'Potato Nerd',
+        'title'      => 'Potato Nerd',
+        'icon'       => '/assets/images/xomaps.png',
+        'icon_type'  => 'img',
+        'descricao'  => 'Modpack clássico focado em tecnologia e automação com mods leves.',
+        'features'   => [],
+        'modpackurl' => '/download',
+        'ip'         => 'jogar.redenerds.com.br',
+        'themecolor' => '#7DB9DF',
+    ],
+    [
+        'id'         => 2,
+        'nome'       => 'nerddead',
+        'servername' => 'NerdDead',
+        'title'      => 'NerdDead',
+        'icon'       => '/assets/images/nerddead.webp',
+        'icon_type'  => 'img',
+        'descricao'  => 'Sobrevivência hardcore em um mundo infestado por zumbis e parasitas.',
+        'features'   => [],
+        'modpackurl' => '/download',
+        'ip'         => 'jogar.redenerds.com.br',
+        'themecolor' => '#E85D5D',
+    ]
+];
 
+$linhas = [];
+
+try {
+    if (isset($pdo) && $pdo instanceof PDO) {
+        $stmt = $pdo->query(
+            "SELECT id, nome, servername, title, icon, descricao, features, modpackurl, ip, themecolor
+             FROM servidores
+             WHERE enabled = 1
+             ORDER BY id ASC"
+        );
+        $linhas = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    } elseif (isset($conn) && $conn instanceof mysqli) {
+        $res = $conn->query(
+            "SELECT id, nome, servername, title, icon, descricao, features, modpackurl, ip, themecolor
+             FROM servidores
+             WHERE enabled = 1
+             ORDER BY id ASC"
+        );
+        if ($res) {
+            while ($row = $res->fetch_assoc()) {
+                $linhas[] = $row;
+            }
+        }
+    }
+} catch (Exception $e) {
+    $linhas = [];
+}
+
+if (!empty($linhas)) {
     $servidores = array_map(function ($s) {
         $features = json_decode($s['features'] ?? '[]', true);
         if (!is_array($features)) {
@@ -88,10 +134,10 @@ try {
         'success'    => true,
         'servidores' => $servidores,
     ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
-} catch (PDOException $e) {
-    http_response_code(500);
-    echo json_encode([
-        'success' => false,
-        'error'   => 'Erro ao consultar os servidores.',
-    ], JSON_UNESCAPED_UNICODE);
+    exit;
 }
+
+echo json_encode([
+    'success'    => true,
+    'servidores' => $servidoresFallback,
+], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);

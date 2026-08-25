@@ -7,7 +7,7 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     // Tenta carregar o navbar.html da raiz
-    fetch("/shared/navbar.html")
+    fetch("/shared/navbar.html?v=2")
         .then(response => {
             if (!response.ok) {
                 throw new Error(`Erro ${response.status} ao buscar ${response.url}`);
@@ -18,6 +18,14 @@ document.addEventListener("DOMContentLoaded", function () {
             container.innerHTML = data;
             if (typeof initNavbar === "function") {
                 initNavbar();
+            }
+
+            // Injeta o script da loja se ainda não estiver presente
+            if (!document.getElementById("loja-script")) {
+                const s = document.createElement("script");
+                s.id = "loja-script";
+                s.src = "/shared/loja.js?v=2";
+                document.body.appendChild(s);
             }
         })
         .catch(error => {
@@ -37,7 +45,7 @@ document.addEventListener("DOMContentLoaded", function () {
         return;
     }
 
-    fetch("/shared/footer.html")
+    fetch("/shared/footer.html?v=2")
         .then(response => {
             if (!response.ok) {
                 throw new Error(`Erro ${response.status} ao buscar ${response.url}`);

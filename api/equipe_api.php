@@ -1,20 +1,33 @@
 <?php
+/**
+ * equipe_api.php
+ * Retorna os membros da equipe agrupados por cargo no formato esperado pelo equipe.js.
+ */
+
+ini_set('display_errors', 0);
+error_reporting(E_ALL);
+
+header('Content-Type: application/json; charset=utf-8');
+header('Access-Control-Allow-Origin: *');
+header('Access-Control-Allow-Methods: GET');
+
 $configPaths = [
     __DIR__ . "/../../config.php",
-    __DIR__ . "/../config.php"
+    __DIR__ . "/../config.php",
+    ($_SERVER['DOCUMENT_ROOT'] ?? '') . "/../config.php",
+    ($_SERVER['DOCUMENT_ROOT'] ?? '') . "/config.php"
 ];
 
 $configPath = null;
 foreach ($configPaths as $cp) {
-    if (file_exists($cp)) {
+    if (!empty($cp) && file_exists($cp)) {
         $configPath = $cp;
         break;
     }
 }
 
 if (!$configPath) {
-    http_response_code(500);
-    echo json_encode(["erro" => "Arquivo config.php não encontrado no servidor."], JSON_UNESCAPED_UNICODE);
+    echo json_encode([]);
     exit;
 }
 
@@ -22,12 +35,7 @@ require_once $configPath;
 require_once __DIR__ . "/auth_api.php";
 verificarAcessoApi();
 
-header('Content-Type: application/json; charset=utf-8');
-header('Access-Control-Allow-Origin: *');
-header('Access-Control-Allow-Methods: GET');
-
-// Ordem fixa dos cargos na página. Cargos que existirem no banco mas não
-// estiverem nesta lista aparecem no final, em ordem alfabética entre eles.
+// Ordem fixa dos cargos na página.
 $ordemCargos = [
     'Fundadores',
     'Diretores',
@@ -38,45 +46,81 @@ $ordemCargos = [
     'Designers',
 ];
 
+$resultado = [];
+
 try {
-    // 1) Descobre os cargos (categorias) que existem no banco
-    $stmtCargos = $pdo->query("SELECT DISTINCT cargo FROM equipe");
-    $cargos = $stmtCargos->fetchAll(PDO::FETCH_COLUMN, 0);
+    if (isset($pdo) && $pdo instanceof PDO) {
+        // 1) Descobre os cargos existentes
+        $stmtCargos = $pdo->query("SELECT DISTINCT cargo FROM equipe");
+        $cargos = $stmtCargos->fetchAll(PDO::FETCH_COLUMN, 0);
 
-    // 2) Ordena pela lista fixa; o que não estiver na lista vai pro final (alfabético)
-    usort($cargos, function ($a, $b) use ($ordemCargos) {
-        $posA = array_search($a, $ordemCargos, true);
-        $posB = array_search($b, $ordemCargos, true);
-        $posA = $posA === false ? PHP_INT_MAX : $posA;
-        $posB = $posB === false ? PHP_INT_MAX : $posB;
+        // 2) Ordena pela lista fixa
+        usort($cargos, function ($a, $b) use ($ordemCargos) {
+            $posA = array_search($a, $ordemCargos, true);
+            $posB = array_search($b, $ordemCargos, true);
+            $posA = $posA === false ? PHP_INT_MAX : $posA;
+            $posB = $posB === false ? PHP_INT_MAX : $posB;
 
-        if ($posA === $posB) {
-            return strcasecmp($a, $b);
+            if ($posA === $posB) {
+                return strcasecmp($a, $b);
+            }
+            return $posA <=> $posB;
+        });
+
+        // 3) Busca os nicks de cada cargo
+        $stmtMembros = $pdo->prepare("SELECT nick FROM equipe WHERE cargo = :cargo ORDER BY id ASC");
+        foreach ($cargos as $cargo) {
+            $stmtMembros->execute([':cargo' => $cargo]);
+            $membros = $stmtMembros->fetchAll(PDO::FETCH_COLUMN, 0);
+
+            if (!empty($membros)) {
+                $resultado[] = [
+                    'categoryTitle' => $cargo,
+                    'members'       => $membros,
+                ];
+            }
         }
-        return $posA <=> $posB;
-    });
+    } elseif (isset($conn) && $conn instanceof mysqli) {
+        $resCargos = $conn->query("SELECT DISTINCT cargo FROM equipe");
+        $cargos = [];
+        if ($resCargos) {
+            while ($row = $resCargos->fetch_row()) {
+                $cargos[] = $row[0];
+            }
+        }
 
-    // 3) Para cada cargo, busca os membros em ordem alfabética pelo nick
-    $stmtMembros = $pdo->prepare("
-        SELECT nick
-        FROM equipe
-        WHERE cargo = :cargo
-        ORDER BY nick ASC
-    ");
+        usort($cargos, function ($a, $b) use ($ordemCargos) {
+            $posA = array_search($a, $ordemCargos, true);
+            $posB = array_search($b, $ordemCargos, true);
+            $posA = $posA === false ? PHP_INT_MAX : $posA;
+            $posB = $posB === false ? PHP_INT_MAX : $posB;
 
-    $resultado = [];
-    foreach ($cargos as $cargo) {
-        $stmtMembros->execute([':cargo' => $cargo]);
-        $membros = $stmtMembros->fetchAll(PDO::FETCH_COLUMN, 0);
+            if ($posA === $posB) {
+                return strcasecmp($a, $b);
+            }
+            return $posA <=> $posB;
+        });
 
-        $resultado[] = [
-            'categoryTitle' => $cargo,
-            'members'       => $membros,
-        ];
+        foreach ($cargos as $cargo) {
+            $cargoEscaped = $conn->real_escape_string($cargo);
+            $resM = $conn->query("SELECT nick FROM equipe WHERE cargo = '{$cargoEscaped}' ORDER BY id ASC");
+            $membros = [];
+            if ($resM) {
+                while ($rowM = $resM->fetch_row()) {
+                    $membros[] = $rowM[0];
+                }
+            }
+
+            if (!empty($membros)) {
+                $resultado[] = [
+                    'categoryTitle' => $cargo,
+                    'members'       => $membros,
+                ];
+            }
+        }
     }
-
-    echo json_encode($resultado, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
-} catch (PDOException $e) {
-    http_response_code(500);
-    echo json_encode(['erro' => 'Erro ao carregar a equipe.']);
+} catch (Exception $e) {
+    $resultado = [];
 }
+
+echo json_encode($resultado, JSON_UNESCAPED_UNICODE);

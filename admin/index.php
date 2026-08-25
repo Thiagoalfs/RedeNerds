@@ -1,7 +1,23 @@
 <?php
 
 session_start();
-require_once "../../config.php";
+$configPaths = [
+    __DIR__ . "/../../config.php",
+    __DIR__ . "/../config.php",
+    ($_SERVER['DOCUMENT_ROOT'] ?? '') . "/../config.php",
+    ($_SERVER['DOCUMENT_ROOT'] ?? '') . "/config.php"
+];
+$configPath = null;
+foreach ($configPaths as $cp) {
+    if (!empty($cp) && file_exists($cp)) {
+        $configPath = $cp;
+        break;
+    }
+}
+if (!$configPath) {
+    die("Erro: Arquivo config.php não encontrado.");
+}
+require_once $configPath;
 
 if (isset($_SESSION['usuario_id']) && isset($_SESSION['admin']) && $_SESSION['admin'] == 1) {
     header("Location: dashboard.php");

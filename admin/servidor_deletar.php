@@ -1,6 +1,22 @@
 <?php
 require_once "sessao.php";
-require_once "../../config.php";
+$configPaths = [
+    __DIR__ . "/../../config.php",
+    __DIR__ . "/../config.php",
+    ($_SERVER['DOCUMENT_ROOT'] ?? '') . "/../config.php",
+    ($_SERVER['DOCUMENT_ROOT'] ?? '') . "/config.php"
+];
+$configPath = null;
+foreach ($configPaths as $cp) {
+    if (!empty($cp) && file_exists($cp)) {
+        $configPath = $cp;
+        break;
+    }
+}
+if (!$configPath) {
+    die("Erro: Arquivo config.php não encontrado.");
+}
+require_once $configPath;
 require_once "icon_upload.php";
 
 $id = isset($_GET['id']) ? (int)$_GET['id'] : 0;

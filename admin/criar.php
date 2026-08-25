@@ -1,6 +1,22 @@
 <?php
 require_once "sessao.php";
-require_once "../../config.php";
+$configPaths = [
+    __DIR__ . "/../../config.php",
+    __DIR__ . "/../config.php",
+    ($_SERVER['DOCUMENT_ROOT'] ?? '') . "/../config.php",
+    ($_SERVER['DOCUMENT_ROOT'] ?? '') . "/config.php"
+];
+$configPath = null;
+foreach ($configPaths as $cp) {
+    if (!empty($cp) && file_exists($cp)) {
+        $configPath = $cp;
+        break;
+    }
+}
+if (!$configPath) {
+    die("Erro: Arquivo config.php não encontrado.");
+}
+require_once $configPath;
 require_once "capa_upload.php";
 require_once "webhook_helper.php";
 
@@ -88,7 +104,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <title>Nova Notícia - Painel Administrativo</title>
     <link rel="icon" type="image/x-icon" href="/assets/images/logo.webp">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="dbcommon.css" rel="stylesheet">
+    <link href="dbcommon.css?v=2" rel="stylesheet">
 </head>
 <body>
     <nav class="navbar navbar-dark bg-dark shadow-sm">

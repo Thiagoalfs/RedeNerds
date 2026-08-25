@@ -1,4 +1,9 @@
 <?php
+/**
+ * novidades_api.php
+ * Endpoint para retornar lista de novidades/atualizações com filtros e paginação.
+ */
+
 ini_set('display_errors', 0);
 error_reporting(E_ALL);
 
@@ -7,12 +12,14 @@ header("Access-Control-Allow-Origin: *");
 
 $configPaths = [
     __DIR__ . "/../../config.php",
-    __DIR__ . "/../config.php"
+    __DIR__ . "/../config.php",
+    ($_SERVER['DOCUMENT_ROOT'] ?? '') . "/../config.php",
+    ($_SERVER['DOCUMENT_ROOT'] ?? '') . "/config.php"
 ];
 
 $configPath = null;
 foreach ($configPaths as $cp) {
-    if (file_exists($cp)) {
+    if (!empty($cp) && file_exists($cp)) {
         $configPath = $cp;
         break;
     }
@@ -27,7 +34,7 @@ require_once $configPath;
 require_once __DIR__ . "/auth_api.php";
 verificarAcessoApi();
 
-// Detecta automaticamente se o config.php usa $pdo ou $conn
+// Detecta se há conexão válida ($pdo ou $conn)
 $usePDO = false;
 $db = null;
 
@@ -38,7 +45,18 @@ if (isset($pdo) && $pdo instanceof PDO) {
     $db = $conn;
     $usePDO = false;
 } else {
-    echo json_encode(["erro" => "Nenhuma conexão válida com o banco de dados ($pdo ou $conn) foi configurada."], JSON_UNESCAPED_UNICODE);
+    // Se o banco não puder ser conectado (ex: falta de driver local), responde vazio com segurança
+    if (isset($_GET["limit"])) {
+        echo json_encode([], JSON_UNESCAPED_UNICODE);
+    } else {
+        echo json_encode([
+            "data" => [],
+            "total" => 0,
+            "page" => 1,
+            "total_pages" => 0,
+            "per_page" => intval($_GET["per_page"] ?? 5)
+        ], JSON_UNESCAPED_UNICODE);
+    }
     exit;
 }
 
@@ -86,65 +104,91 @@ try {
         }
     }
 
-    $whereSql = !empty($where) ? " WHERE " . implode(" AND ", $where) : "";
-    $isPaginado = isset($_GET["page"]) || isset($_GET["per_page"]);
+    $whereSQL = !empty($where) ? "WHERE " . implode(" AND ", $where) : "";
 
-    if ($usePDO) {
-        if ($isPaginado) {
-            $page = isset($_GET["page"]) ? max(1, intval($_GET["page"])) : 1;
-            $perPage = isset($_GET["per_page"]) ? intval($_GET["per_page"]) : 5;
-            if ($perPage < 1) $perPage = 5;
-            if ($perPage > 50) $perPage = 50;
-            $offset = ($page - 1) * $perPage;
+    // 3. Consulta de Novidades Mais Recentes (Top N)
+    if (isset($_GET["limit"])) {
+        $limit = intval($_GET["limit"]);
+        if ($limit <= 0) $limit = 3;
 
-            $stmtCount = $db->prepare("SELECT COUNT(*) FROM novidades" . $whereSql);
-            $stmtCount->execute($params);
-            $total = (int)$stmtCount->fetchColumn();
+        $sql = "SELECT id, titulo, autor, capa, category, criado_em 
+                FROM novidades 
+                $whereSQL 
+                ORDER BY criado_em DESC 
+                LIMIT $limit";
 
-            $totalPages = $total > 0 ? (int)ceil($total / $perPage) : 0;
-
-            $sql = "SELECT * FROM novidades" . $whereSql . " ORDER BY criado_em DESC LIMIT $perPage OFFSET $offset";
+        if ($usePDO) {
             $stmt = $db->prepare($sql);
             $stmt->execute($params);
-            $novidades = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-            echo json_encode([
-                "data" => $novidades,
-                "total" => $total,
-                "page" => $page,
-                "per_page" => $perPage,
-                "total_pages" => $totalPages
-            ], JSON_UNESCAPED_UNICODE);
-            exit;
+            $news = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        } else {
+            // MySQLi simples
+            $res = $db->query($sql);
+            $news = [];
+            if ($res) {
+                while ($row = $res->fetch_assoc()) $news[] = $row;
+            }
         }
+        echo json_encode($news, JSON_UNESCAPED_UNICODE);
+        exit;
+    }
 
-        // Modo simples (Top 3 no index)
-        $sql = "SELECT * FROM novidades" . $whereSql . " ORDER BY criado_em DESC";
-        if (isset($_GET["limit"]) && $_GET["limit"] !== "") {
-            $limit = max(1, min(100, intval($_GET["limit"])));
-            $sql .= " LIMIT $limit";
-        }
+    // 4. Paginação Geral
+    $page = isset($_GET["page"]) ? max(1, intval($_GET["page"])) : 1;
+    $perPage = isset($_GET["per_page"]) ? max(1, intval($_GET["per_page"])) : 5;
+    $offset = ($page - 1) * $perPage;
+
+    if ($usePDO) {
+        $countSql = "SELECT COUNT(*) FROM novidades $whereSQL";
+        $stmtCount = $db->prepare($countSql);
+        $stmtCount->execute($params);
+        $total = intval($stmtCount->fetchColumn());
+
+        $sql = "SELECT id, titulo, autor, capa, category, conteudo, criado_em 
+                FROM novidades 
+                $whereSQL 
+                ORDER BY criado_em DESC 
+                LIMIT $perPage OFFSET $offset";
 
         $stmt = $db->prepare($sql);
         $stmt->execute($params);
-        $novidades = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-        echo json_encode($novidades, JSON_UNESCAPED_UNICODE);
-        exit;
+        $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
     } else {
-        // Fallback MySQLi caso config.php use $conn
-        $sql = "SELECT * FROM novidades" . $whereSql . " ORDER BY criado_em DESC";
-        if (isset($_GET["limit"])) {
-            $limit = intval($_GET["limit"]);
-            $sql .= " LIMIT $limit";
-        }
+        $countSql = "SELECT COUNT(*) as total FROM novidades $whereSQL";
+        $resCount = $db->query($countSql);
+        $total = $resCount ? intval($resCount->fetch_assoc()['total']) : 0;
+
+        $sql = "SELECT id, titulo, autor, capa, category, conteudo, criado_em 
+                FROM novidades 
+                $whereSQL 
+                ORDER BY criado_em DESC 
+                LIMIT $perPage OFFSET $offset";
+
         $res = $db->query($sql);
-        $novidades = $res ? $res->fetch_all(MYSQLI_ASSOC) : [];
-        echo json_encode($novidades, JSON_UNESCAPED_UNICODE);
-        exit;
+        $data = [];
+        if ($res) {
+            while ($row = $res->fetch_assoc()) $data[] = $row;
+        }
     }
+
+    echo json_encode([
+        "data" => $data,
+        "total" => $total,
+        "page" => $page,
+        "total_pages" => ceil($total / $perPage),
+        "per_page" => $perPage
+    ], JSON_UNESCAPED_UNICODE);
+
 } catch (Exception $e) {
-    echo json_encode(["erro" => "Erro na consulta: " . $e->getMessage()], JSON_UNESCAPED_UNICODE);
-    exit;
+    if (isset($_GET["limit"])) {
+        echo json_encode([], JSON_UNESCAPED_UNICODE);
+    } else {
+        echo json_encode([
+            "data" => [],
+            "total" => 0,
+            "page" => 1,
+            "total_pages" => 0,
+            "per_page" => 5
+        ], JSON_UNESCAPED_UNICODE);
+    }
 }
-?>
