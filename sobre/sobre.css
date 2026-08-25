@@ -1,0 +1,289 @@
+:root {
+    --border-color-2: #B971DA;
+    --border-color-1: #7DB9DF;
+    --bg: #030407;
+    --surface: #0b0f15;
+    --text: #ffffff;
+    --text-muted: #a0a0a0;
+    --text-body: #c5c5c5;
+    --border-subtle: rgba(255, 255, 255, 0.08);
+}
+
+/* =========================
+   Base — Mobile-first
+   ========================= */
+
+.page,
+.section {
+    box-sizing: border-box;
+}
+
+.page {
+    width: 100%;
+    max-width: 1240px;
+    margin: 0 auto;
+    padding: 30px 20px 60px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 55px;
+}
+
+.section {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 20px;
+}
+
+.section-title {
+    margin: 0;
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--border-color-1);
+    position: relative;
+    padding: 0 0 10px 0;
+}
+
+.section-title::after {
+    content: "";
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 40px;
+    height: 2px;
+    background-color: var(--border-color-2);
+    border-radius: 2px;
+}
+
+.section-lead {
+    margin: 0;
+    color: var(--text-muted);
+    font-size: 15px;
+    line-height: 1.6;
+    max-width: 560px;
+}
+
+/* Texto corrido (Quem somos / Por que criamos) */
+.sobre-text {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    max-width: 680px;
+}
+
+.sobre-text p {
+    margin: 0;
+    color: var(--text-body);
+    font-size: 15px;
+    line-height: 1.75;
+}
+
+/* =========================
+   O que você encontra — lista
+   ========================= */
+.features-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    width: 100%;
+    max-width: 640px;
+    text-align: left;
+}
+
+.features-list li {
+    display: flex;
+    gap: 16px;
+    align-items: flex-start;
+}
+
+.features-list i {
+    color: var(--border-color-1);
+    font-size: 16px;
+    margin-top: 4px;
+    width: 18px;
+    text-align: center;
+    flex-shrink: 0;
+}
+
+.features-list h3 {
+    margin: 0 0 4px 0;
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--text);
+}
+
+.features-list p {
+    margin: 0;
+    font-size: 14px;
+    line-height: 1.6;
+    color: var(--text-body);
+}
+
+/* =========================
+   Missão / Visão
+   ========================= */
+.missao-visao-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    width: 100%;
+    max-width: 900px;
+}
+
+.mv-card {
+    background-color: var(--surface);
+    border: 1px solid var(--border-subtle);
+    border-radius: 10px;
+    padding: 24px;
+    text-align: left;
+}
+
+.mv-card h3 {
+    margin: 0 0 10px 0;
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--text);
+}
+
+.mv-card p {
+    margin: 0;
+    color: var(--text-body);
+    font-size: 14px;
+    line-height: 1.7;
+}
+
+/* =========================
+   Valores
+   ========================= */
+.valores-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    width: 100%;
+    max-width: 640px;
+    text-align: left;
+}
+
+.valor-item {
+    padding: 16px 0;
+    border-bottom: 1px solid var(--border-subtle);
+}
+
+.valor-item:last-child {
+    border-bottom: none;
+}
+
+.valor-item h3 {
+    margin: 0 0 6px 0;
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--text);
+}
+
+.valor-item p {
+    margin: 0;
+    font-size: 14px;
+    line-height: 1.65;
+    color: var(--text-body);
+}
+
+/* =========================
+   CTA final
+   ========================= */
+.cta-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    width: 100%;
+    max-width: 300px;
+    margin-top: 4px;
+}
+
+.cta-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.5rem;
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 0.9rem;
+    font-family: inherit;
+    transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+    box-sizing: border-box;
+}
+
+.cta-button-primary {
+    background-color: #5865F2;
+    color: white;
+}
+
+.cta-button-primary:hover {
+    background-color: #4752c4;
+}
+
+.cta-button-secondary {
+    background-color: transparent;
+    color: var(--text);
+    border: 1px solid var(--border-subtle);
+}
+
+.cta-button-secondary:hover {
+    border-color: var(--border-color-1);
+    color: var(--border-color-1);
+}
+
+/* ============================================
+   Tablet (≥ 600px)
+   ============================================ */
+@media (min-width: 600px) {
+    .page {
+        max-width: 1264px;
+        padding: 40px 32px 80px 32px;
+        gap: 70px;
+    }
+
+    .section-title {
+        font-size: 28px;
+    }
+
+    .cta-buttons {
+        flex-direction: row;
+        max-width: none;
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+
+    .cta-button {
+        width: auto;
+    }
+}
+
+/* ============================================
+   Desktop (≥ 1024px)
+   ============================================ */
+@media (min-width: 1024px) {
+    .page {
+        max-width: 1280px;
+        padding: 60px 40px 100px 40px;
+        gap: 85px;
+    }
+
+    .section-title {
+        font-size: 32px;
+    }
+
+    .missao-visao-grid {
+        flex-direction: row;
+    }
+
+    .mv-card {
+        flex: 1;
+    }
+}
