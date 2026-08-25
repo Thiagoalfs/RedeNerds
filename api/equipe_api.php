@@ -1,8 +1,28 @@
 <?php
-// Ajuste este caminho conforme a profundidade real deste arquivo em relação ao config.php
-require_once "../../config.php";
+$configPaths = [
+    __DIR__ . "/../../config.php",
+    __DIR__ . "/../config.php"
+];
+
+$configPath = null;
+foreach ($configPaths as $cp) {
+    if (file_exists($cp)) {
+        $configPath = $cp;
+        break;
+    }
+}
+
+if (!$configPath) {
+    http_response_code(500);
+    echo json_encode(["erro" => "Arquivo config.php não encontrado no servidor."], JSON_UNESCAPED_UNICODE);
+    exit;
+}
+
+require_once $configPath;
 
 header('Content-Type: application/json; charset=utf-8');
+header('Access-Control-Allow-Origin: *');
+header('Access-Control-Allow-Methods: GET');
 
 // Ordem fixa dos cargos na página. Cargos que existirem no banco mas não
 // estiverem nesta lista aparecem no final, em ordem alfabética entre eles.

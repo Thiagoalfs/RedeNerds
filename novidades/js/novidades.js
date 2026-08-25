@@ -85,7 +85,7 @@ document.addEventListener("DOMContentLoaded", () => {
         if (!newsContainer) return;
 
         newsContainer.innerHTML = `<p style="text-align:center; padding: 20px;">Carregando novidades...</p>`;
-        fetch("https://redenerds.com.br/novidades/js/novidades.php?limit=3")
+        fetch("/api/novidades_api.php?limit=3")
             .then(res => res.json())
             .then(data => {
                 if (data && data.erro) {
@@ -268,7 +268,7 @@ document.addEventListener("DOMContentLoaded", () => {
         params.set("page", state.page);
         params.set("per_page", PER_PAGE);
         
-        const url = "https://redenerds.com.br/novidades/js/novidades.php" + (params.toString() ? "?" + params.toString() : "");
+        const url = "/api/novidades_api.php" + (params.toString() ? "?" + params.toString() : "");
 
         try {
             const payload = await fetchJSON(url);
