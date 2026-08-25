@@ -25,37 +25,56 @@
     <link rel="stylesheet" href="shared/shared.css?v=1">
     <link rel="stylesheet" href="shared/navbar.css?v=1">
     <link rel="stylesheet" href="shared/footer.css?v=1">
+    <link rel="stylesheet" href="novidades/novidades.css?v=1">
     <link rel="stylesheet" href="index.css?v=1">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
 </head>
 <body>
     <div id="navbar-container"></div>
     <div id="page-wrapper">
-        <!-- HERO (reaproveita estilos do shared.css) -->
-        <header id="big-header-div">
-            <img id="img-fundo" src="/assets/images/fundo.webp" alt="">
-            <div id="big-header-img-content">
-                <img id="img-titulo" src="/assets/images/logonobg.webp" alt="Rede Nerds">
-                <div id="big-header-text">
-                    <h1>Rede Nerds</h1>
-                    <p>Uma rede feita por gente que gosta de construir, explorar
-                    e testar coisas novas.</p>
-                    <div id="big-header-buttons">
-                        <a href="https://discord.gg/tMSTHK4AkA" target="_blank" rel="noopener"><button class="discord">
-                            <i class="fa-brands fa-discord"></i>
-                            Servidor Oficial
-                        </button></a>
-                        <a href="#servers-section"><button class="btn-servidores">
-                            <i class="fa-solid fa-gamepad"></i>
-                            Conheça nossos servidores
-                        </button></a>
+        <!-- ================= VIEW 1: LANDING PAGE ================= -->
+        <div id="view-landing">
+            <!-- HERO (reaproveita estilos do shared.css) -->
+            <header id="big-header-div">
+                <img id="img-fundo" src="/assets/images/fundo.webp" alt="">
+                <div id="big-header-img-content">
+                    <img id="img-titulo" src="/assets/images/logonobg.webp" alt="Rede Nerds">
+                    <div id="big-header-text">
+                        <h1>Rede Nerds</h1>
+                        <p>Uma rede feita por gente que gosta de construir, explorar
+                        e testar coisas novas.</p>
+                        <div id="big-header-buttons">
+                            <a href="https://discord.gg/tMSTHK4AkA" target="_blank" rel="noopener"><button class="discord">
+                                <i class="fa-brands fa-discord"></i>
+                                Servidor Oficial
+                            </button></a>
+                            <a href="#servers-section"><button class="btn-servidores">
+                                <i class="fa-solid fa-gamepad"></i>
+                                Conheça nossos servidores
+                            </button></a>
+                        </div>
                     </div>
                 </div>
-            </div>
-        </header>
-        <main class="page">
-            <!-- Grid: Servidores -->
-            <section id="servers-section">
+            </header>
+            <main class="page">
+                <!-- Seção: Atualizações (Top 3) -->
+                <section id="atualizacoes-section">
+                    <div class="centered-content">
+                        <h2 class="subtitle">Atualizações</h2>
+                    </div>
+
+                    <!-- Container das 3 últimas notícias -->
+                    <div id="news-container"></div>
+
+                    <div class="ver-mais-wrapper">
+                        <button type="button" id="btn-mostrar-mais" class="ver-mais-btn">
+                            Ver todas as atualizações <i class="fa-solid fa-arrow-right"></i>
+                        </button>
+                    </div>
+                </section>
+
+                <!-- Grid: Servidores -->
+                <section id="servers-section">
                 <div class="centered-content">
                     <h2 class="subtitle">Nossos Servidores</h2>
                 </div>
@@ -185,12 +204,75 @@
                     </div>
                 </div>
             </section>
-
         </main>
     </div>
 
-    <div id="footer"></div>
-    <script src="/shared/navbar.js"></script>
-    <script src="/index.js"></script>
+    <!-- ================= VIEW 2: TODAS AS NOVIDADES (OCULTA INICIALMENTE) ================= -->
+    <div id="view-mais" hidden>
+        <main class="page" style="padding-top: 30px;">
+            <button type="button" id="voltar" style="background:none; border:none; cursor:pointer; align-self: flex-start; color: #a1a1aa; font-size: 15px; font-weight: 600; display: inline-flex; align-items: center; gap: 8px; margin-bottom: 10px;">
+                <i class="fa-solid fa-arrow-left"></i> Voltar para o Início
+            </button>
+
+            <div class="centered-content" style="margin-bottom: 20px;">
+                <h2 class="subtitle">Todas as Atualizações</h2>
+            </div>
+
+            <!-- Controls: Busca + Filtro por Categoria -->
+            <div id="news-controls">
+                <div class="news-search-wrapper">
+                    <i class="fa-solid fa-magnifying-glass news-search-icon"></i>
+                    <input
+                        type="search"
+                        id="news-search"
+                        class="news-search-input"
+                        placeholder="Buscar por título, autor ou conteúdo..."
+                        autocomplete="off"
+                    >
+                    <button type="button" id="news-search-clear" class="news-search-clear" aria-label="Limpar busca">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                </div>
+
+                <div class="news-filter-wrapper">
+                    <button type="button" id="news-filter-btn" class="news-filter-btn" aria-haspopup="true" aria-expanded="false">
+                        <i class="fa-solid fa-filter"></i>
+                        <span id="news-filter-label">Todas</span>
+                        <i class="fa-solid fa-chevron-down news-filter-chevron"></i>
+                    </button>
+                    <ul id="news-filter-dropdown" class="news-filter-dropdown" role="menu" hidden>
+                        <li role="menuitem" data-category="all" aria-selected="true">
+                            <span class="filter-dot filter-dot-all"></span> Todas
+                        </li>
+                        <li role="menuitem" data-category="NerdSky">
+                            <span class="filter-dot filter-dot-nerdsky"></span> NerdSky
+                        </li>
+                        <li role="menuitem" data-category="Potato Nerd">
+                            <span class="filter-dot filter-dot-potato"></span> Potato Nerd
+                        </li>
+                        <li role="menuitem" data-category="NerdDead">
+                            <span class="filter-dot filter-dot-nerddead"></span> Nerd Dead
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <div id="news-results-info" class="news-results-info" hidden>
+                <span id="news-results-count">0</span> resultado(s) encontrado(s)
+            </div>
+
+            <!-- Container da lista completa / buscada -->
+            <section id="all-news-container"></section>
+
+            <!-- Paginação estilo Google -->
+            <nav id="news-pagination" class="news-pagination" hidden aria-label="Paginação de atualizações"></nav>
+        </main>
+    </div>
+</div>
+
+<div id="footer"></div>
+<script src="/shared/navbar.js"></script>
+<script src="/index.js"></script>
+<script src="/novidades/js/novidades.js"></script>
 </body>
 </html>

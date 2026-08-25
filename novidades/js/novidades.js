@@ -1,6 +1,6 @@
 document.addEventListener("DOMContentLoaded", () => {
     // Views
-    const viewNovidades = document.getElementById("view-novidades");
+    const viewLanding = document.getElementById("view-landing") || document.getElementById("view-novidades");
     const viewMais = document.getElementById("view-mais");
     
     // Botões de navegação
@@ -62,8 +62,8 @@ document.addEventListener("DOMContentLoaded", () => {
     // ========================================================
     if (btnMostrarMais) {
         btnMostrarMais.addEventListener("click", () => {
-            viewNovidades.hidden = true;
-            viewMais.hidden = false;
+            if (viewLanding) viewLanding.hidden = true;
+            if (viewMais) viewMais.hidden = false;
             window.scrollTo({ top: 0, behavior: "smooth" });
             state.page = 1;
             loadAllNews();
@@ -72,11 +72,27 @@ document.addEventListener("DOMContentLoaded", () => {
 
     if (btnVoltar) {
         btnVoltar.addEventListener("click", () => {
-            viewMais.hidden = true;
-            viewNovidades.hidden = false;
-            window.scrollTo({ top: 0, behavior: "smooth" });
+            if (viewMais) viewMais.hidden = true;
+            if (viewLanding) viewLanding.hidden = false;
+            const atualizacoesSec = document.getElementById("atualizacoes-section") || document.getElementById("novidades-section");
+            if (atualizacoesSec) {
+                atualizacoesSec.scrollIntoView({ behavior: "smooth" });
+            } else {
+                window.scrollTo({ top: 0, behavior: "smooth" });
+            }
         });
     }
+
+    // Ao clicar em links da navbar enquanto estiver no view-mais, restaura o view-landing
+    document.addEventListener("click", e => {
+        const a = e.target.closest("a");
+        if (a && a.getAttribute("href") && (a.getAttribute("href").includes("#") || a.getAttribute("href") === "/")) {
+            if (viewMais && !viewMais.hidden && viewLanding) {
+                viewMais.hidden = true;
+                viewLanding.hidden = false;
+            }
+        }
+    });
 
     // ========================================================
     // 1. CARREGAMENTO DA TELA PRINCIPAL (Top 3)
@@ -84,7 +100,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const loadTopNews = () => {
         if (!newsContainer) return;
 
-        newsContainer.innerHTML = `<p style="text-align:center; padding: 20px;">Carregando novidades...</p>`;
+        newsContainer.innerHTML = `<p style="text-align:center; padding: 20px;">Carregando atualizações...</p>`;
         fetch("/api/novidades_api.php?limit=3")
             .then(res => res.json())
             .then(data => {
@@ -97,7 +113,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 const entries = Array.isArray(data) ? data : [];
 
                 if (entries.length === 0) {
-                    newsContainer.innerHTML = `<p style="text-align:center; padding: 20px;">Nenhuma novidade por enquanto.</p>`;
+                    newsContainer.innerHTML = `<p style="text-align:center; padding: 20px;">Nenhuma atualização por enquanto.</p>`;
                     return;
                 }
 
@@ -130,8 +146,8 @@ document.addEventListener("DOMContentLoaded", () => {
                 }).join("");
             })
             .catch(err => {
-                console.error("Erro ao carregar novidades:", err);
-                newsContainer.innerHTML = `<p style="color: #E85D5D; text-align: center; padding: 20px;">Erro ao carregar novidades.</p>`;
+                console.error("Erro ao carregar atualizações:", err);
+                newsContainer.innerHTML = `<p style="color: #E85D5D; text-align: center; padding: 20px;">Erro ao carregar atualizações.</p>`;
             });
     };
 
@@ -151,7 +167,7 @@ document.addEventListener("DOMContentLoaded", () => {
         if (entries.length === 0) {
             allNewsContainer.innerHTML = `<p class="all-news-empty filtered">
                 <i class="fa-solid fa-circle-exclamation" style="color:#B971DA; margin-right:6px;"></i>
-                Nenhuma novidade encontrada com esses filtros.
+                Nenhuma atualização encontrada com esses filtros.
             </p>`;
             return;
         }
@@ -254,7 +270,7 @@ document.addEventListener("DOMContentLoaded", () => {
         if (loadingAll || !allNewsContainer) return;
         loadingAll = true;
 
-        allNewsContainer.innerHTML = `<p class="all-news-empty">Carregando novidades...</p>`;
+        allNewsContainer.innerHTML = `<p class="all-news-empty">Carregando atualizações...</p>`;
         resultsInfo.hidden = true;
         if (pagination) pagination.hidden = true;
 
@@ -301,8 +317,8 @@ document.addEventListener("DOMContentLoaded", () => {
             state.page = payload.page;
             renderPagination(payload.page, payload.total_pages);
         } catch (err) {
-            console.error("Erro ao carregar novidades:", err);
-            allNewsContainer.innerHTML = `<p class="all-news-empty" style="color:#E85D5D;">Erro ao carregar novidades.</p>`;
+            console.error("Erro ao carregar atualizações:", err);
+            allNewsContainer.innerHTML = `<p class="all-news-empty" style="color:#E85D5D;">Erro ao carregar atualizações.</p>`;
             renderPagination(1, 0);
         } finally {
             loadingAll = false;
