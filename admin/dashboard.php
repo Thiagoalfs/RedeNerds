@@ -46,6 +46,21 @@ function corDoServidor($nome, $mapa) {
     return $mapa[$nome] ?? '#6c757d';
 }
 
+function corTextoContraste($hex) {
+    $hex = ltrim($hex, '#');
+    if (strlen($hex) === 3) {
+        $hex = $hex[0].$hex[0].$hex[1].$hex[1].$hex[2].$hex[2];
+    }
+    if (strlen($hex) !== 6) {
+        return '#ffffff';
+    }
+    $r = hexdec(substr($hex, 0, 2));
+    $g = hexdec(substr($hex, 2, 2));
+    $b = hexdec(substr($hex, 4, 2));
+    $yiq = (($r * 299) + ($g * 587) + ($b * 114)) / 1000;
+    return ($yiq >= 150) ? '#1a1a1a' : '#ffffff';
+}
+
 // Monta a URL de uma página de paginação preservando outros parâmetros da query string
 function urlPagina($pagina) {
     $params = $_GET;
@@ -124,7 +139,11 @@ $nome_usuario = $_SESSION['usuario_nome'] ?? 'Administrador';
                             <div class="title"><?php echo htmlspecialchars($n['titulo'], ENT_QUOTES, 'UTF-8'); ?></div>
                             <div class="meta">
                                 <div>
-                                    <span class="badge bg-info text-dark me-1" title="Servidor">🌐 <?php echo htmlspecialchars($n['category'] ?? '—', ENT_QUOTES, 'UTF-8'); ?></span>
+                                    <?php 
+                                        $corBg = corDoServidor($n['category'], $coresPorServidor);
+                                        $corTxt = corTextoContraste($corBg);
+                                    ?>
+                                    <span class="badge me-1" style="background-color: <?php echo htmlspecialchars($corBg, ENT_QUOTES, 'UTF-8'); ?>; color: <?php echo $corTxt; ?>;" title="Servidor">🌐 <?php echo htmlspecialchars($n['category'] ?? '—', ENT_QUOTES, 'UTF-8'); ?></span>
                                     <span class="badge bg-secondary me-1" title="Categoria de Envio">📢 <?php echo htmlspecialchars($n['categoria_envio'] ?? '—', ENT_QUOTES, 'UTF-8'); ?></span>
                                 </div>
                                 <div class="mt-1">
@@ -199,8 +218,11 @@ $nome_usuario = $_SESSION['usuario_nome'] ?? 'Administrador';
                                             </td>
                                             <td><?php echo htmlspecialchars($n['titulo'], ENT_QUOTES, 'UTF-8'); ?></td>
                                             <td>
-                                                <span class="color-swatch" style="background: <?php echo htmlspecialchars(corDoServidor($n['category'], $coresPorServidor), ENT_QUOTES, 'UTF-8'); ?>;"></span>
-                                                <span class="badge bg-info text-dark">
+                                                <?php 
+                                                    $corBg = corDoServidor($n['category'], $coresPorServidor);
+                                                    $corTxt = corTextoContraste($corBg);
+                                                ?>
+                                                <span class="badge" style="background-color: <?php echo htmlspecialchars($corBg, ENT_QUOTES, 'UTF-8'); ?>; color: <?php echo $corTxt; ?>;">
                                                     <?php echo htmlspecialchars($n['category'] ?? '—', ENT_QUOTES, 'UTF-8'); ?>
                                                 </span>
                                             </td>
