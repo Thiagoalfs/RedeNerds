@@ -11,43 +11,54 @@
 }
 
 nav {
-
     background-color: #030407;
     display: flex;
     align-items: center;
     flex-direction: row;
-    padding: 5px;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+    padding: 6px 20px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
     font-weight: 600;
-    max-height: 50px;
     margin: 0;
-    align-self: flex-start;
+    width: 100%;
+    box-sizing: border-box;
 }
 
+#navbar-img {
+    height: 44px;
+    width: 44px;
+    cursor: pointer;
+    margin-left: 5px;
+    transition: transform 0.2s ease;
+}
 
-#navbar a {
-    color: white;
-    text-decoration: none;
-    transition: color ease 0.2s;
+#navbar-img:hover {
+    transform: scale(1.05);
 }
 
 #navbar {
     display: flex;
     flex-direction: row;
-    gap: 30px;
-}
-
-ul {
+    align-items: center;
+    gap: 28px;
     list-style-type: none;
-    text-decoration: none;
+    margin: 0;
+    padding: 0 0 0 24px;
+    width: 100%;
 }
 
-li{
-    gap:5px;
+#navbar li {
+    gap: 5px;
     font-weight: 400;
 }
 
-nav li:hover, nav li:hover a{
+#navbar a {
+    color: white;
+    text-decoration: none;
+    transition: color ease 0.2s;
+    font-size: 15px;
+}
+
+nav li:hover, nav li:hover a {
     color: var(--border-color-2) !important;
     cursor: pointer;
 }
@@ -73,18 +84,54 @@ li.active a::after {
     border-radius: 2px;
 }
 
-#navbar-img {
-    height: 48px;
-    width: 48px;
-    cursor:pointer;
-    margin-left: 10px;
-    transition: 0.2s ease;
+/* Botão Downloads destacado na direita */
+.nav-download-item {
+    margin-left: auto;
 }
 
-#navbar-img:hover {
-    transform: scale(1.05);
+.nav-download-btn {
+    display: inline-flex !important;
+    align-items: center;
+    gap: 8px;
+    padding: 7px 16px !important;
+    background-color: rgba(125, 185, 223, 0.12);
+    border: 1.5px solid var(--border-color-1);
+    border-radius: 8px;
+    color: #ffffff !important;
+    font-weight: 600 !important;
+    font-size: 14px !important;
+    transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease, transform 0.2s ease !important;
 }
 
+.nav-download-btn:hover {
+    background-color: var(--border-color-1);
+    border-color: var(--border-color-1);
+    color: #030407 !important;
+    transform: translateY(-1px);
+}
+
+.nav-download-btn i {
+    font-size: 13px;
+    color: var(--border-color-1);
+    transition: color 0.2s ease;
+}
+
+.nav-download-btn:hover i {
+    color: #030407;
+}
+
+li.active .nav-download-btn {
+    background-color: var(--border-color-1);
+    color: #030407 !important;
+}
+
+li.active .nav-download-btn i {
+    color: #030407 !important;
+}
+
+li.active .nav-download-btn::after {
+    display: none !important;
+}
 
 /* Desktop: botão hambúrguer escondido */
 #navbar-toggle {
@@ -94,10 +141,10 @@ li.active a::after {
     color: white;
     font-size: 22px;
     padding: 4px 8px;
-    margin-left: auto; 
+    margin-left: auto;
     cursor: pointer;
     border-radius: 6px;
-    transition: color 0.2s ease, background-color 0.2s ease;
+    transition: color 0.2s ease;
 }
 
 #navbar-toggle:hover {
@@ -109,17 +156,15 @@ li.active a::after {
     outline-offset: 2px;
 }
 
-@media (max-width: 768px) {
-
-    /* Mostra o botão e esconde a ul por padrão */
+/* =========================================
+   Mobile Drawer
+   ========================================= */
+@media (max-width: 860px) {
     #navbar-toggle {
         display: inline-flex;
-        align-items: center;
-        justify-content: center;
     }
 
-        #navbar {
-        /* Dropdown: posicionado relativo ao <nav> sticky */
+    #navbar {
         position: absolute;
         top: 100%;
         margin-top: 0;
@@ -129,7 +174,6 @@ li.active a::after {
         align-items: stretch;
         gap: 0;
         background-color: #030407;
-        border-top: none; /* evita dupla borda — a borda inferior do nav já serve */
         border-bottom: 1px solid rgba(255, 255, 255, 0.15);
         padding: 8px 0;
         max-height: 0;
@@ -139,9 +183,8 @@ li.active a::after {
         transition: max-height 0.25s ease, opacity 0.2s ease;
     }
 
-    /* Quando o nav está com a classe .navbar-open */
     nav.navbar-open #navbar {
-        max-height: calc(100vh - 50px); /* desconta a altura do nav */
+        max-height: calc(100vh - 50px);
         opacity: 1;
         pointer-events: auto;
         overflow-y: auto;
@@ -156,12 +199,23 @@ li.active a::after {
         align-items: center;
         gap: 10px;
         padding: 14px 20px;
-        border-radius: 0;
+        box-sizing: border-box;
     }
 
-    /* Mantém o destaque do link ativo igual ao desktop */
+    .nav-download-item {
+        margin-left: 0;
+        padding: 10px 20px;
+        box-sizing: border-box;
+    }
+
+    .nav-download-btn {
+        width: 100%;
+        justify-content: center;
+        box-sizing: border-box;
+    }
+
     nav.navbar-open li.active a::after {
-        display: none; /* em mobile não precisamos do underline pequeno */
+        display: none;
     }
 
     nav.navbar-open li.active a {

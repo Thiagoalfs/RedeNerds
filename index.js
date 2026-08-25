@@ -77,7 +77,7 @@ function criarCardServidor(servidor) {
     titulo.textContent = servidor.servername;
 
     const descricao = document.createElement('p');
-    descricao.textContent = servidor.descricao;
+    descricao.textContent = limitarNoSegundoPonto(servidor.descricao);
 
     const link = document.createElement('span');
     link.className = 'server-card-link';
@@ -91,6 +91,15 @@ function criarCardServidor(servidor) {
     card.appendChild(content);
 
     return card;
+}
+
+function limitarNoSegundoPonto(texto) {
+    if (!texto) return '';
+    const primeiro = texto.indexOf('.');
+    if (primeiro === -1) return texto;
+    const segundo = texto.indexOf('.', primeiro + 1);
+    if (segundo === -1) return texto;
+    return texto.substring(0, segundo + 1).trim();
 }
 
 /* ===== Helpers de cor (recebem hex "#RRGGBB") ===== */
