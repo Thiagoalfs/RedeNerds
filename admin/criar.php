@@ -79,13 +79,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Nova Notícia - Painel Administrativo</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-    <style>
-        .card { max-width: 80%; margin: 0 auto; }
-        @media (max-width: 768px) { .card { max-width: 100%; } }
-        .preview-capa { width: 100%; max-height: 180px; object-fit: cover; border-radius: 8px; border: 1px solid #e0e0e0; }
-        .preview-autor { width: auto; max-height: 180px; object-fit: cover; border-radius: 8px; border: 1px solid #e0e0e0; display: block; margin: 0 auto; }
-        .preview-placeholder { width: 100%; height: 180px; background: #f0f2f5; border: 2px dashed #ced4da; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #adb5bd; font-size: 0.9rem; }
-    </style>
+    <link href="dbcommon.css" rel="stylesheet">
 </head>
 <body>
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow-sm">
