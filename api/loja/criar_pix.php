@@ -211,6 +211,8 @@ echo json_encode([
     "valor" => $valor,
     "pix_copia_cola" => $pixCopiaCola,
     "pix_qr_base64" => $pixQrBase64,
+    "qr_code" => $pixCopiaCola,
+    "qr_code_base64" => $pixQrBase64,
     "expira_em" => $expiraEm,
     "modo_demo" => !$isLiveMpToken
 ], JSON_UNESCAPED_UNICODE);

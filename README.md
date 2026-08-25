@@ -40,11 +40,18 @@ RedeNerds/
 │   ├── auth_api.php         # Middleware de autenticação e proteção das APIs
 │   ├── equipe_api.php       # Dados da equipe/staff
 │   ├── novidades_api.php    # Notícias (busca, filtros e paginação)
-│   └── servidores_api.php   # Servidores ativos e configurações de tema
+│   ├── servidores_api.php   # Servidores ativos e configurações de tema
+│   └── loja/                # Sistema de Loja Oficial (PIX Mercado Pago & Webhooks)
+│       ├── vips_api.php         # Catálogo de pacotes VIP por servidor
+│       ├── criar_pix.php        # Criação de cobrança PIX via Mercado Pago
+│       ├── checar_status.php    # Polling de status do pagamento em tempo real
+│       ├── webhook_mercadopago.php # Notificações IPN/Webhook do Mercado Pago
+│       └── discord_loja_helper.php  # Notificações de compra no Discord
 ├── assets/images/       # Imagens e recursos visuais do site
 ├── download/            # Página de download (launchers, modpacks, etc.)
 ├── equipe/              # Página pública da equipe/staff
 ├── errors/404/          # Página 404 personalizada
+├── loja/                # Página Oficial da Loja (painel VIPs & checkout PIX)
 ├── novidades/           # Página pública de notícias e artigos individuais
 ├── regras/              # Regras da comunidade e dos servidores
 ├── servidores/          # Página de detalhes dos servidores
@@ -96,6 +103,10 @@ Todas as requisições assíncronas do frontend e integrações do servidor de M
 | `/api/novidades_api.php` | `GET` | Busca notícias com suporte a `?id=`, `?category=`, `?q=`, `?page=` e `?limit=` |
 | `/api/equipe_api.php` | `GET` | Retorna membros da equipe agrupados e ordenados por cargo |
 | `/api/servidores_api.php` | `GET` | Retorna servidores habilitados com cores e ícones processados |
+| `/api/loja/vips_api.php` | `GET` | Catálogo de pacotes VIP disponíveis por servidor |
+| `/api/loja/criar_pix.php` | `POST` | Cria cobrança PIX via Mercado Pago e registra pedido |
+| `/api/loja/checar_status.php` | `GET` | Consulta status do pagamento PIX em tempo real |
+| `/api/loja/webhook_mercadopago.php` | `POST` | Recebimento de webhooks do Mercado Pago |
 
 ### 🔐 Autenticação e Segurança das APIs (`api/auth_api.php`)
 As APIs contam com uma camada de segurança inteligente:

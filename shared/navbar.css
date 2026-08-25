@@ -85,14 +85,11 @@ li.active a::after {
 }
 
 /* ==========================================================================
-   BOTÃO DA LOJA (Controle de visibilidade)
-   • Oculto por padrão: display: none !important;
-   • Para ATIVAR o botão da Loja: remova ou comente a linha 'display: none !important;'
+   BOTÕES DE AÇÃO: LOJA & DOWNLOADS (Alinhados lado a lado à direita)
    ========================================================================== */
 .nav-loja-item {
-    display: none !important; /* Oculto temporariamente */
     margin-left: auto;
-    margin-right: 4px;
+    margin-right: 0;
 }
 
 .nav-loja-btn {
@@ -108,6 +105,7 @@ li.active a::after {
     font-size: 14px !important;
     transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease, transform 0.2s ease !important;
     cursor: pointer;
+    text-decoration: none;
 }
 
 .nav-loja-btn:hover {
@@ -127,9 +125,22 @@ li.active a::after {
     color: #030407;
 }
 
-/* Quando a loja está oculta, Downloads alinha automaticamente à direita */
+li.active .nav-loja-btn {
+    background-color: var(--border-color-2);
+    color: #030407 !important;
+}
+
+li.active .nav-loja-btn i {
+    color: #030407 !important;
+}
+
+li.active .nav-loja-btn::after {
+    display: none !important;
+}
+
+/* Downloads fica colado ao lado da Loja com espaçamento perfeito */
 .nav-download-item {
-    margin-left: auto;
+    margin-left: 0;
 }
 
 .nav-download-btn {
@@ -144,6 +155,7 @@ li.active a::after {
     font-weight: 600 !important;
     font-size: 14px !important;
     transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease, transform 0.2s ease !important;
+    text-decoration: none;
 }
 
 .nav-download-btn:hover {
