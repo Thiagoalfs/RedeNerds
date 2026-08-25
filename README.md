@@ -3,7 +3,7 @@
 <p align="center">
   <img src="https://img.shields.io/badge/status-em%20produção-brightgreen?style=for-the-badge" alt="status">
   <img src="https://img.shields.io/badge/site-redenerds.com.br-blueviolet?style=for-the-badge" alt="site">
-  <img src="https://img.shields.io/badge/feito%20com-HTML%20%7C%20CSS%20%7C%20PHP-orange?style=for-the-badge" alt="stack">
+  <img src="https://img.shields.io/badge/feito%20com-HTML%20%7C%20CSS%20%7C%20JS%20%7C%20PHP-orange?style=for-the-badge" alt="stack">
 </p>
 
 <p align="center">
@@ -20,99 +20,117 @@
 
 Este é o **repositório de produção oficial** do site da Rede Nerds. Tudo que está aqui reflete diretamente o que os jogadores veem em [redenerds.com.br](https://redenerds.com.br).
 
-A Rede Nerds reúne servidores com modpacks de minecraft de propostas variadas, como mundos tecnológicos e/ou apocalípticos.
+A Rede Nerds reúne servidores com modpacks de Minecraft de propostas variadas, como mundos tecnológicos, mágicos e/ou apocalípticos.
 
-Apesar da base do site ser HTML/CSS estático, algumas seções são **dinâmicas e dependem de banco de dados**:
+O site combina páginas otimizadas com SEO completo e seções **dinâmicas alimentadas por APIs em PHP e banco de dados MySQL**:
 
-- 📰 **`novidades/`** — as notícias exibidas são carregadas a partir do banco de dados.
-- 👥 **`equipe/`** — a listagem de membros da staff também é populada dinamicamente via banco.
+- 📰 **`novidades/`** — notícias com paginação, busca e filtros carregados via `/api/novidades_api.php`.
+- 👥 **`equipe/`** — listagem de membros da staff agrupados por hierarquia via `/api/equipe_api.php`.
+- 🖥️ **`servidores/`** e **Página Inicial** — cards de servidores com temas dinâmicos e status via `/api/servidores_api.php`.
+
+---
 
 ## 📁 Estrutura do repositório
 
 ```
 RedeNerds/
 ├── .github/workflows/   # Automação de deploy (CI/CD)
-├── admin/               # Área administrativa
+├── admin/               # Painel Administrativo completo (sessão, notícias, servidores, equipe)
+├── api/                 # Endpoints REST públicos em PHP
+│   ├── equipe_api.php       # Dados da equipe/staff
+│   ├── novidades_api.php    # Notícias (busca, filtros e paginação)
+│   └── servidores_api.php   # Servidores ativos e configurações de tema
 ├── assets/images/       # Imagens e recursos visuais do site
-├── download/            # Página(s) de download (launcher, mods, etc.)
-├── equipe/              # Página da equipe/staff (dinâmico — PHP + banco de dados)
-├── errors/404/          # Página de erro personalizada
-├── novidades/           # Notícias da rede (dinâmico — PHP + banco de dados)
+├── download/            # Página de download (launchers, modpacks, etc.)
+├── equipe/              # Página pública da equipe/staff
+├── errors/404/          # Página 404 personalizada
+├── novidades/           # Página pública de notícias e artigos individuais
 ├── regras/              # Regras da comunidade e dos servidores
-├── servidores/          # Informações sobre cada servidor da rede
-├── shared/              # Componentes e recursos compartilhados
-├── suporte/             # Central de ajuda / suporte aos jogadores
+├── servidores/          # Página de detalhes dos servidores
+├── shared/              # Componentes globais (navbar, footer, estilos compartilhados)
+├── suporte/             # Central de ajuda / FAQ / suporte aos jogadores
 ├── index.html           # Página inicial
-├── index.css            # Estilos globais
-└── .htaccess            # Configurações do servidor Apache
+├── index.css            # Estilos globais da home
+└── .htaccess            # Configurações do servidor Apache e roteamento
 ```
 
-## 📰 Sistema de notícias
+---
 
-A área de **notícias** (`novidades/`) não é só HTML estático — ela é gerenciada por um painel de admin (`admin/`) e integrada com o Discord via webhook. Veja como funciona cada etapa.
+## ⚙️ Painel Administrativo (`admin/`)
 
-### Criando uma notícia
+O painel administrativo centraliza toda a gestão do site com autenticação protegida por **Rate Limiting** contra força bruta e design system unificado (`dbcommon.css`):
 
-1. O admin preenche o formulário no dashboard: **título**, **conteúdo** (com suporte a Markdown) e o **servidor** ao qual a notícia se refere.
-2. Faz o upload da **capa**. A imagem é enviada para `assets/novidades`, convertida automaticamente para **WebP** e salva com um **nome em hash** (evitando colisões e nomes previsíveis).
-3. Seleciona o **autor** entre os membros da staff. A lista é puxada diretamente do banco de dados da equipe, garantindo que só quem realmente faz parte do time possa ser creditado.
-4. A notícia é **salva no banco de dados**.
-5. Por padrão, um **webhook é enviado ao Discord** (pode ser desativado na hora da criação), com todas as informações da notícia. A categoria (**atualização** ou **anúncio**) define o formato/canal do webhook, e o admin pode optar por marcar **@everyone** ou não.
-6. O **ID da mensagem** retornado pelo Discord é salvo no banco, junto ao registro da notícia — é essa referência que permite editar ou apagar a mensagem certa depois.
+### 1. 📰 Gerenciador de Notícias
+* **Criação e Edição:** Suporte completo a Markdown, seleção dinâmica do autor (validado contra o banco da staff) e servidor de referência.
+* **Upload Otimizado:** Capas convertidas automaticamente para **WebP** com nomes em hash (anti-colisão).
+* **Integração Discord Webhook:** Publicação automática no canal correspondente com embeds formatados, menção `@everyone` opcional e sincronização bidirecional (edição e exclusão sincronizadas via Message ID).
 
 ```mermaid
 %%{init: {'themeVariables': {'fontSize': '20px'}}}%%
 flowchart LR
-    A["Admin preenche o formulário<br/>título, conteúdo (markdown), servidor"] --> B["Capa é enviada<br/>convertida para WebP com nome em hash"]
-    B --> C["Autor selecionado<br/>validado contra o banco de dados da staff"]
-    C --> D["Notícia salva no banco de dados"]
-    D --> E["Webhook enviado ao Discord (opcional)<br/>categoria + opção de marcar @everyone"]
-    E --> F["ID da mensagem é salvo no banco<br/>vinculado à notícia"]
+    A["Admin cria/edita notícia<br/>título, conteúdo (markdown), servidor"] --> B["Upload de capa<br/>conversão para WebP + hash"]
+    B --> C["Autor selecionado<br/>puxado do banco da equipe"]
+    C --> D["Salvo no banco de dados"]
+    D --> E["Webhook enviado ao Discord<br/>sincronização de Message ID"]
 ```
 
-### Editando ou apagando uma notícia
+### 2. 🖥️ Gerenciador de Servidores
+* **Cadastro Completo:** Nome do servidor, slug automático, IP, link do modpack, descrição e lista dinâmica de features.
+* **Ícones Flexíveis:** Suporte a classes FontAwesome, URLs externas ou upload direto de arquivos de imagem.
+* **Identidade Visual:** Definição da cor do tema (`themecolor`), que alimenta dinamicamente a cor dos cards no site e badges no dashboard.
+* **Coluna Gerada no Banco:** Título da página de cada servidor (`<servername> - Rede Nerds`) gerado automaticamente pelo MySQL.
+* **Controle de Exibição:** Ativação/desativação instantânea com botão de visibilidade (`toggle`).
 
-O sistema mantém a notícia e a mensagem do Discord **sincronizadas**: o ID da mensagem do webhook é guardado junto ao registro da notícia no banco, permitindo editar ou apagar a mensagem certa depois.
+### 3. 👥 Gerenciador de Equipe
+* Cadastro e edição de membros da staff organizados por cargos e hierarquias oficiais.
 
-- **Editar** — atualiza o registro no banco e **edita a mesma mensagem** do Discord com os novos dados.
-- **Apagar** — remove o registro do banco e **apaga automaticamente** a mensagem correspondente no Discord.
+---
 
-```mermaid
-%%{init: {'themeVariables': {'fontSize': '20px'}}}%%
-flowchart LR
-    N["Notícia publicada<br/>já existe no banco e no Discord"] --> E1["Admin edita a notícia"]
-    N --> D1["Admin apaga a notícia"]
+## 🔌 APIs Centralizadas (`api/`)
 
-    E1 --> E2["Registro atualizado no banco"]
-    E2 --> E3["Mensagem do Discord é editada<br/>mesmo webhook é atualizado"]
+Todas as requisições assíncronas do frontend consomem endpoints REST centralizados na pasta `/api/`:
 
-    D1 --> D2["Registro removido do banco"]
-    D2 --> D3["Mensagem do Discord é apagada<br/>webhook original é removido"]
-```
+| Endpoint | Método | Descrição |
+| :--- | :---: | :--- |
+| `/api/novidades_api.php` | `GET` | Busca notícias com suporte a `?id=`, `?category=`, `?q=`, `?page=` e `?limit=` |
+| `/api/equipe_api.php` | `GET` | Retorna membros da equipe agrupados e ordenados por cargo |
+| `/api/servidores_api.php` | `GET` | Retorna servidores habilitados com cores e ícones processados |
+
+---
+
+## 🔍 SEO e Redes Sociais
+
+Todas as páginas públicas possuem meta tags completas configuradas para motores de busca e pré-visualização rica em plataformas como Discord, WhatsApp, Twitter/X e Facebook:
+* **Open Graph:** `og:title`, `og:description`, `og:image`, `og:url`, `og:type` e `og:locale`.
+* **Twitter Cards:** `twitter:card: summary_large_image`, `twitter:title`, `twitter:description` e `twitter:image`.
+* **Favicons:** Ícone oficial padronizado em todas as páginas públicas e no painel administrativo.
+
+---
 
 ## 🛠️ Stack
 
-- **HTML5 & CSS3** — base e estilo das páginas
-- **PHP** — APIs que alimentam as páginas dinâmicas (notícias e equipe)
-- **Banco de dados** — armazena notícias, membros da equipe e demais conteúdos dinâmicos
-- **GitHub Actions** — automação de deploy para produção
-- **Apache (.htaccess)** — regras de servidor/redirecionamento
+- **HTML5 & CSS3** — Interface responsiva, design mobile-first e temas customizados
+- **JavaScript (ES6+)** — Consumo assíncrono de APIs e navegação dinâmica
+- **PHP 8+** — APIs REST, controladores administrativos e integração de Webhooks
+- **MySQL / MariaDB** — Banco de dados relacional com colunas geradas (`STORED`)
+- **GitHub Actions** — CI/CD com automação de deploy contínuo para produção
+- **Apache (.htaccess)** — Cabeçalhos de segurança, cache e regras de roteamento
+
+---
 
 ## 🤝 Contribuindo
 
 Encontrou um bug ou tem uma sugestão de melhoria para o site?
 
-1. Abra uma [issue](https://github.com/Thiagoalfs/RedeNerds/issues) descrevendo o problema ou a ideia.
+1. Abra uma [issue](https://github.com/Thiagoalfs/RedeNerds/issues) descrevendo o problema ou a sugestão.
 2. Se for enviar código, crie uma branch a partir da `main` e abra um Pull Request.
-3. Evite alterações diretas na `main` sem revisão, já que ela vai direto para produção.
+3. Evite alterações diretas na `main` sem revisão, já que ela reflete diretamente o ambiente de produção.
+
+---
 
 ## 💬 Comunidade
 
-Quer tirar dúvidas, receber suporte da staff ou ficar por dentro das novidades? Entre no nosso [Discord](https://discord.gg/zAwqXqTjG).
-
-## 📄 Licença
-
-Este projeto não possui uma licença open-source definida. Todo o conteúdo, marca e assets pertencem à Rede Nerds.
+Quer tirar dúvidas, receber suporte da staff ou jogar com a gente? Entre no nosso [Discord](https://discord.gg/zAwqXqTjG).
 
 ---
 
