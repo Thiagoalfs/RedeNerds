@@ -45,34 +45,33 @@
     display: flex;
     flex-direction: column;
     align-items: stretch;
-    gap: 14px;
+    gap: 16px;
     background-color: var(--card-bg);
     border-radius: 14px;
-    padding: 16px;
-    border: 2px solid transparent;
+    padding: 18px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
     transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
     box-sizing: border-box;
 }
 
-/* ----- Cards dinâmicos (montados pelo download.js a partir da API) -----
-   A cor de cada servidor vem do banco (themecolor) e é aplicada via
-   CSS custom properties setadas em JS, sem precisar de classes fixas
-   como .download-card-1/2/3 (que ficam como fallback estático abaixo). */
+/* ----- Cards dinâmicos (montados pelo download.js a partir da API) ----- */
 .download-card[style*="--card-color"] {
-    border-color: var(--card-color);
-    box-shadow: 0 0 15px var(--card-shadow);
+    --card-hover-shadow: var(--card-shadow);
 }
 .download-card[style*="--card-color"]:hover {
-    box-shadow: 0 8px 24px var(--card-hover-shadow);
-    border-color: var(--card-hover-border);
+    box-shadow: 0 12px 30px -4px var(--card-hover-shadow);
+    border-color: var(--card-color);
+    transform: translateY(-4px);
 }
-.download-card[style*="--card-color"] .download-card-btn {
+.download-card[style*="--card-color"] .download-card-btn:not(.copy-ip-btn) {
     border-color: var(--card-color);
     color: var(--card-color);
 }
-.download-card[style*="--card-color"] .download-card-btn:not(.download-card-btn-disabled):hover {
+.download-card[style*="--card-color"] .download-card-btn:not(.copy-ip-btn):not(.download-card-btn-disabled):hover {
     background-color: var(--card-color);
-    color: white;
+    color: #0b0f15;
+    box-shadow: 0 4px 12px var(--card-shadow);
 }
 .download-card[style*="--card-color"] .download-card-image {
     background: var(--card-gradient);
@@ -84,11 +83,12 @@
 }
 
 .download-card-image {
+    position: relative;
     width: 100%;
     height: 160px;
     border-radius: 10px;
     overflow: hidden;
-    background-color: #1a1f29;
+    background-color: #0b0f15;
     flex-shrink: 0;
 }
 
@@ -97,7 +97,6 @@
     height: 100%;
     object-fit: cover;
     display: block;
-    transition: transform 0.4s ease;
 }
 
 .download-card-text {
@@ -121,7 +120,11 @@
     margin: 0;
     color: #c5c5c5;
     font-size: 14px;
-    line-height: 1.5;
+    line-height: 1.6;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
 }
 
 .download-card-btn {
@@ -131,20 +134,30 @@
     gap: 8px;
     flex-shrink: 0;
     align-self: stretch;
-    padding: 12px 22px;
-    border: 1.5px solid;
+    padding: 10px 20px;
+    border: 1px solid var(--card-color, #7DB9DF);
     border-radius: 8px;
     font-weight: 600;
-    font-size: 15px;
+    font-size: 14px;
     line-height: 1;
     text-decoration: none;
-    background: transparent;
-    transition: background-color 0.2s ease, color 0.2s ease, gap 0.2s ease;
+    background: rgba(255, 255, 255, 0.03);
+    color: var(--card-color, #7DB9DF);
+    transition: all 0.25s ease;
     white-space: nowrap;
     margin-left: 0;
     font-family: inherit;
     cursor: pointer;
     box-sizing: border-box;
+}
+
+.download-card-btn i {
+    font-size: 12px;
+    transition: transform 0.25s ease;
+}
+
+.download-card-btn:not(.copy-ip-btn):hover i {
+    transform: translate(2px, -2px);
 }
 
 /* Container dos botões (Baixar modpack + Copiar IP) */
@@ -162,27 +175,30 @@
     width: 100%;
 }
 
-/* Botão secundário "Copiar IP" — variante outline */
+/* Botão secundário "Copiar IP" — variante outline sutil */
 .copy-ip-btn {
     background-color: transparent !important;
-    padding: 12px 22px !important;
-    border: 1.5px solid !important;
+    padding: 10px 20px !important;
+    border: 1px solid rgba(255, 255, 255, 0.14) !important;
     border-radius: 8px !important;
-    font-size: 15px !important;
+    font-size: 14px !important;
     font-family: inherit !important;
     font-weight: 600 !important;
     line-height: 1 !important;
+    color: #e2e8f0 !important;
     width: 100% !important;
 }
 
 .copy-ip-btn:hover {
-    filter: none;
-    opacity: 0.85;
+    border-color: rgba(255, 255, 255, 0.35) !important;
+    background-color: rgba(255, 255, 255, 0.05) !important;
+    color: #ffffff !important;
 }
 
 .copy-ip-btn.copied {
     color: #47dd86 !important;
     border-color: #47dd86 !important;
+    background-color: rgba(71, 221, 134, 0.1) !important;
 }
 
 .download-card-btn-disabled {
@@ -195,21 +211,60 @@
     color: #E85D5D !important;
 }
 
-/* Cores dos cards (mesmas do desktop) */
-.download-card-1 { border-color: #B971DA; box-shadow: 0 0 15px rgba(185, 113, 218, 0.15); }
-.download-card-1:hover { box-shadow: 0 8px 24px rgba(185, 113, 218, 0.45); border-color: #D89BF0; }
-.download-card-1 .download-card-btn { border-color: #B971DA; color: #B971DA; }
-.download-card-1 .download-card-btn:not(.download-card-btn-disabled):hover { background-color: #B971DA; color: white; }
+/* Fallback estático */
+.download-card-1 {
+    --card-color: #B971DA;
+    --card-hover-shadow: rgba(185, 113, 218, 0.35);
+}
+.download-card-1:hover {
+    box-shadow: 0 12px 30px -4px var(--card-hover-shadow);
+    border-color: var(--card-color);
+    transform: translateY(-4px);
+}
+.download-card-1 .download-card-btn:not(.copy-ip-btn) {
+    border-color: #B971DA;
+    color: #B971DA;
+}
+.download-card-1 .download-card-btn:not(.copy-ip-btn):not(.download-card-btn-disabled):hover {
+    background-color: #B971DA;
+    color: #0b0f15;
+}
 
-.download-card-2 { border-color: #7DB9DF; box-shadow: 0 0 15px rgba(125, 185, 223, 0.15); }
-.download-card-2:hover { box-shadow: 0 8px 24px rgba(125, 185, 223, 0.45); border-color: #A6D4F0; }
-.download-card-2 .download-card-btn { border-color: #7DB9DF; color: #7DB9DF; }
-.download-card-2 .download-card-btn:not(.download-card-btn-disabled):hover { background-color: #7DB9DF; color: white; }
+.download-card-2 {
+    --card-color: #7DB9DF;
+    --card-hover-shadow: rgba(125, 185, 223, 0.35);
+}
+.download-card-2:hover {
+    box-shadow: 0 12px 30px -4px var(--card-hover-shadow);
+    border-color: var(--card-color);
+    transform: translateY(-4px);
+}
+.download-card-2 .download-card-btn:not(.copy-ip-btn) {
+    border-color: #7DB9DF;
+    color: #7DB9DF;
+}
+.download-card-2 .download-card-btn:not(.copy-ip-btn):not(.download-card-btn-disabled):hover {
+    background-color: #7DB9DF;
+    color: #0b0f15;
+}
 
-.download-card-3 { border-color: #E85D5D; box-shadow: 0 0 15px rgba(232, 93, 93, 0.15); }
-.download-card-3:hover { box-shadow: 0 8px 24px rgba(232, 93, 93, 0.45); border-color: #F08080; }
-.download-card-3 .download-card-btn { border-color: #E85D5D; color: #E85D5D; }
-.download-card-3 .download-card-btn:not(.download-card-btn-disabled):hover { background-color: #E85D5D; color: white; }
+.download-card-3 {
+    --card-color: #E85D5D;
+    --card-hover-shadow: rgba(232, 93, 93, 0.35);
+}
+.download-card-3:hover {
+    box-shadow: 0 12px 30px -4px var(--card-hover-shadow);
+    border-color: var(--card-color);
+    transform: translateY(-4px);
+}
+.download-card-3 .download-card-btn:not(.copy-ip-btn) {
+    border-color: #E85D5D;
+    color: #E85D5D;
+}
+.download-card-3 .download-card-btn:not(.copy-ip-btn):not(.download-card-btn-disabled):hover {
+    background-color: #E85D5D;
+    color: #0b0f15;
+}
 
 /* ----- Tablet: ≥600px ----- */
 @media (min-width: 600px) {
