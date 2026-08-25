@@ -82,9 +82,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <link href="dbcommon.css" rel="stylesheet">
 </head>
 <body>
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow-sm">
+    <nav class="navbar navbar-dark bg-dark shadow-sm">
         <div class="container-fluid">
-            <a class="navbar-brand" href="dashboard.php">⚙️ Painel de Notícias</a>
+            <a class="navbar-brand" href="dashboard.php">⚙️ Painel</a>
             <div class="d-flex">
                 <a href="dashboard.php" class="btn btn-outline-light btn-sm">← Voltar</a>
             </div>
