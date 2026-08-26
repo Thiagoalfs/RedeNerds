@@ -155,34 +155,48 @@
 }
 
 .footer-social-btn {
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  color: #FFFFFF;
-  text-decoration: none;
-  font-size: 1rem;
-  transition: transform 0.15s ease, filter 0.15s ease;
+  width: 36px !important;
+  height: 36px !important;
+  min-width: 36px !important;
+  min-height: 36px !important;
+  max-width: 36px !important;
+  max-height: 36px !important;
+  padding: 0 !important;
+  border-radius: 50% !important;
+  box-sizing: border-box !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  color: #FFFFFF !important;
+  text-decoration: none !important;
+  font-size: 1rem !important;
+  line-height: 1 !important;
+  box-shadow: none !important;
+  transition: transform 0.15s ease, filter 0.15s ease !important;
 }
 
 .footer-social-btn:hover {
-  transform: translateY(-2px);
-  filter: brightness(1.15);
+  transform: translateY(-2px) !important;
+  filter: brightness(1.15) !important;
 }
 
 .footer-social-btn.discord {
-  background: #5865F2;
+  background: #5865F2 !important;
+  border-radius: 50% !important;
+  padding: 0 !important;
 }
 
 .footer-social-btn.tiktok {
-  background: #000000;
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: #000000 !important;
+  border: 1px solid rgba(255, 255, 255, 0.2) !important;
+  border-radius: 50% !important;
+  padding: 0 !important;
 }
 
 .footer-social-btn.youtube {
-  background: #FF0000;
+  background: #FF0000 !important;
+  border-radius: 50% !important;
+  padding: 0 !important;
 }
 
 /* COLUNAS DE LINKS */
