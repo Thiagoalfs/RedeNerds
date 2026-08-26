@@ -45,12 +45,13 @@ body {
 
 #big-header-div {
     max-width: 100dvw;
-    height: 700px;
+    height: clamp(540px, 70vh, 660px);
     display: grid;
     grid-template-areas: "stack";
     overflow: hidden;
     justify-content: center;
     position: relative;
+    background: #030407;
 }
 
 #img-fundo {
@@ -60,7 +61,7 @@ body {
     height: 100%;
     object-fit: cover;
     object-position: center center;
-    filter: brightness(0.9);
+    filter: brightness(0.72);
     align-self: stretch;
 }
 
@@ -69,11 +70,13 @@ body {
     grid-area: stack;
     z-index: 2;
     background: linear-gradient(
-        to bottom,
-        rgba(0, 0, 0, 0.2) 0%,
-        rgba(0, 0, 0, 0.6) 20%
+        180deg,
+        rgba(3, 4, 7, 0.25) 0%,
+        rgba(3, 4, 7, 0.55) 50%,
+        #030407 100%
     );
     align-self: stretch;
+    pointer-events: none;
 }
 
 #big-header-img-content {
@@ -86,81 +89,87 @@ body {
     flex-direction: row;
     align-items: center;
     justify-content: center;
-    width: calc(100% - 60px);
-    gap: 120px;
-    max-width: 1200px;
+    width: calc(100% - 40px);
+    gap: clamp(32px, 5vw, 64px);
+    max-width: 1140px;
 }
 
 #img-titulo {
-    width: 400px;
+    width: clamp(240px, 28vw, 360px);
+    max-width: 100%;
+    height: auto;
+    filter: drop-shadow(0 14px 28px rgba(0, 0, 0, 0.65));
+    user-select: none;
 }
 
 #big-header-text h1 {
-    margin: 0px;
-    font-weight:900;
-    font-size: 64px;
+    margin: 0 0 12px 0;
+    font-weight: 800;
+    font-size: clamp(38px, 5vw, 56px);
+    line-height: 1.1;
+    color: #FFFFFF;
+    letter-spacing: -0.5px;
 }
 
 #big-header-text p {
-    font-size: 22px;
+    font-size: clamp(16px, 1.8vw, 18px);
+    color: #CBD5E1;
+    line-height: 1.6;
+    margin: 0 0 24px 0;
+    max-width: 520px;
 }
 
 button {
     font-size: 15px;
     font-weight: 600;
     color: white;
-    font-family: poppins;
-    padding: 12px 26px;
+    font-family: inherit;
+    padding: 12px 24px;
     border: none;
-    border-radius: 10px;
+    border-radius: 8px;
     cursor: pointer;
-    transition: transform 0.2s ease, box-shadow 0.2s ease, filter 0.2s ease, background-color 0.2s ease;
+    transition: transform 0.15s ease, background-color 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
     width: fit-content;
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    gap: 10px;
+    gap: 9px;
     line-height: 1;
-    letter-spacing: 0.01em;
 }
 
-
-/* Botão Discord — gradiente + sombra colorida + ícone animado */
+/* Botão Discord */
 .discord {
-    background: linear-gradient(135deg, #7B95E6 0%, #5865F2 100%);
-    box-shadow:
-        0 4px 14px rgba(88, 101, 242, 0.35),
-        inset 0 1px 0 rgba(255, 255, 255, 0.15);
+    background: #5865F2;
+    color: #FFFFFF;
+    box-shadow: 0 4px 14px rgba(88, 101, 242, 0.35);
 }
 
 .discord:hover {
-    box-shadow:
-        0 8px 22px rgba(88, 101, 242, 0.55),
-        inset 0 1px 0 rgba(255, 255, 255, 0.2);
+    background: #4752C4;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(88, 101, 242, 0.5);
 }
 
 .discord i {
-    font-size: 18px;
-    transition: transform 0.3s ease;
+    font-size: 17px;
 }
 
 /* Botão Conheça nossos servidores */
 .btn-servidores {
     background: rgba(255, 255, 255, 0.08);
-    border: 1px solid var(--border-color-1);
-    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25);
-    color: white;
-    backdrop-filter: blur(8px);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    color: #FFFFFF;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.3);
 }
 
 .btn-servidores:hover {
-    background: rgba(255, 255, 255, 0.15);
-    border-color: var(--border-color-1);
-    box-shadow: 0 8px 22px rgba(125, 185, 223, 0.35);
+    background: rgba(255, 255, 255, 0.14);
+    border-color: rgba(255, 255, 255, 0.3);
+    transform: translateY(-2px);
 }
 
 .btn-servidores i {
-    font-size: 16px;
+    font-size: 15px;
     color: var(--border-color-1);
 }
 
@@ -168,7 +177,7 @@ button {
     display: flex;
     flex-wrap: wrap;
     align-items: center;
-    gap: 14px;
+    gap: 12px;
 }
 
 .ip {

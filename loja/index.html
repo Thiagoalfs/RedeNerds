@@ -3,26 +3,32 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Loja Oficial - Rede Nerds</title>
+    <title>Loja Oficial - Rede Nerds | VIPs & Benefícios</title>
 
-    <meta name="description" content="Adquira pacotes VIP oficiais para os servidores da Rede Nerds via PIX com ativação rápida.">
+    <meta name="description" content="Adquira pacotes VIP oficiais para os servidores da Rede Nerds com ativação instantânea via PIX.">
     <meta name="author" content="Rede Nerds">
     <meta name="robots" content="index, follow">
 
     <meta property="og:title" content="Loja Oficial - Rede Nerds">
-    <meta property="og:description" content="Adquira pacotes VIP oficiais para os servidores da Rede Nerds via PIX.">
+    <meta property="og:description" content="Adquira pacotes VIP oficiais para os servidores da Rede Nerds via PIX com ativação instantânea.">
     <meta property="og:image" content="https://redenerds.com.br/assets/images/logo.webp">
     <meta property="og:url" content="https://redenerds.com.br/loja">
     <meta property="og:type" content="website">
 
     <link rel="icon" type="image/x-icon" href="/assets/images/logo.webp">
+    
+    <!-- GOOGLE FONTS (Space Grotesk, Plus Jakarta Sans, JetBrains Mono) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet">
+
     <link rel="stylesheet" href="/shared/shared.css?v=1">
     <link rel="stylesheet" href="/shared/navbar.css?v=1">
     <link rel="stylesheet" href="/shared/footer.css?v=1">
     <link rel="stylesheet" href="loja.css?v=1">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
 </head>
-<body>
+<body class="loja-page-body">
     <div id="navbar-container"></div>
 
     <div id="page-wrapper">
@@ -30,31 +36,33 @@
 
             <!-- BARRA DE IDENTIFICAÇÃO DO JOGADOR -->
             <header id="loja-profile-bar" class="loja-profile-bar" hidden>
-                <div class="profile-meta">
+                <div class="profile-info-group">
                     <img id="profile-avatar-img" src="https://mc-heads.net/avatar/MHF_Steve/64" alt="Skin" class="profile-avatar">
-                    <div class="profile-details">
-                        <div class="profile-heading">
-                            <span class="profile-tag">Entregar para:</span>
-                            <span id="profile-nick-display" class="profile-nick">Jogador</span>
+                    <div class="profile-meta-text">
+                        <div class="profile-row-top">
+                            <span class="profile-caption">Entregar para:</span>
                             <span id="profile-account-type-badge" class="account-badge">Original</span>
                         </div>
+                        <span id="profile-nick-display" class="profile-nick">Jogador</span>
                     </div>
                 </div>
-                <button type="button" id="btn-trocar-nick" class="btn-secondary-action">
-                    <i class="fa-solid fa-arrows-rotate"></i> Alterar Nick
+                <button type="button" id="btn-trocar-nick" class="btn-outline-action">
+                    <i class="fa-solid fa-arrows-rotate"></i> <span>Trocar Nick</span>
                 </button>
             </header>
 
-            <!-- AVISO DE IDENTIFICAÇÃO (QUANDO SEM NICK) -->
+            <!-- AVISO DE IDENTIFICAÇÃO (QUANDO NÃO IDENTIFICADO) -->
             <section id="loja-locked-banner" class="loja-locked-banner" hidden>
                 <div class="locked-card-body">
-                    <div class="locked-icon-wrap">
+                    <div class="locked-icon-box">
                         <i class="fa-solid fa-user-tag"></i>
                     </div>
-                    <h2>Identifique seu personagem</h2>
-                    <p>Informe seu nickname do Minecraft para visualizar os pacotes e vincular a entrega.</p>
+                    <div class="locked-text-content">
+                        <h2>Identifique seu Personagem</h2>
+                        <p>Informe seu nickname do Minecraft para visualizar os pacotes disponíveis e vincular sua compra.</p>
+                    </div>
                     <button type="button" id="btn-open-nick-modal" class="btn-solid-primary">
-                        Informar Nickname
+                        <span>Informar Nickname</span>
                     </button>
                 </div>
             </section>
@@ -63,12 +71,10 @@
             <section id="loja-panel" class="loja-panel" hidden>
                 
                 <!-- SELETOR DE SERVIDORES (SEGMENTED TABS) -->
-                <nav class="server-nav-container" aria-label="Seleção de Servidor">
-                    <div class="server-nav-header">
-                        <span class="nav-caption">Selecione o servidor:</span>
-                    </div>
-                    <div id="loja-server-quicknav" class="server-tabs-list" role="tablist"></div>
-                </nav>
+                <div class="server-selector-container">
+                    <span class="section-label">Selecione o servidor:</span>
+                    <nav id="loja-server-quicknav" class="server-tabs-bar" role="tablist" aria-label="Seletor de Servidor"></nav>
+                </div>
 
                 <!-- ESTADOS DE FEEDBACK -->
                 <div id="loja-loading" class="state-feedback">
@@ -79,22 +85,27 @@
                 <div id="loja-error" class="state-feedback state-error" hidden>
                     <i class="fa-solid fa-circle-exclamation"></i>
                     <p id="loja-error-msg">Não foi possível carregar os pacotes no momento.</p>
-                    <button type="button" id="btn-retry-vips" class="btn-secondary-action">Tentar novamente</button>
+                    <button type="button" id="btn-retry-vips" class="btn-outline-action">
+                        Tentar Novamente
+                    </button>
                 </div>
 
                 <!-- GRADE DE VIPS DO SERVIDOR ATIVO -->
                 <div id="loja-servers-container" class="loja-servers-container" hidden></div>
 
-                <!-- RODAPÉ INFORMATIVO DIRETO -->
-                <footer class="loja-trust-bar">
-                    <div class="trust-pill">
-                        <i class="fa-brands fa-pix"></i> Pagamento via PIX instantâneo
+                <!-- RODAPÉ DE INFORMAÇÕES E GARANTIAS -->
+                <footer class="loja-info-footer">
+                    <div class="info-pill">
+                        <i class="fa-brands fa-pix"></i>
+                        <span>Pagamento via PIX com aprovação instantânea</span>
                     </div>
-                    <div class="trust-pill">
-                        <i class="fa-solid fa-shield-check"></i> Ativação automatizada in-game
+                    <div class="info-pill">
+                        <i class="fa-solid fa-shield-check"></i>
+                        <span>Ativação automatizada in-game</span>
                     </div>
-                    <div class="trust-pill">
-                        <i class="fa-brands fa-discord"></i> Suporte direto no Discord
+                    <div class="info-pill">
+                        <i class="fa-brands fa-discord"></i>
+                        <span>Suporte direto em nosso Discord</span>
                     </div>
                 </footer>
 
@@ -113,7 +124,7 @@
                 </button>
             </div>
             <div class="dialog-body">
-                <div class="player-avatar-preview">
+                <div class="avatar-preview-box">
                     <img id="nick-preview-img" src="https://mc-heads.net/avatar/MHF_Steve/128" alt="Skin Preview">
                     <span id="nick-preview-label" class="preview-nick-name">Steve</span>
                 </div>
@@ -155,7 +166,7 @@
                 </button>
             </div>
             <div class="dialog-body">
-                <!-- Sumário do Pedido (Visível durante pagamento) -->
+                <!-- Sumário do Pedido -->
                 <div id="pix-order-summary-box" class="order-summary-box">
                     <div class="summary-player-col">
                         <img id="summary-avatar-img" src="https://mc-heads.net/avatar/MHF_Steve/64" alt="Skin">
@@ -190,8 +201,8 @@
                     <div class="copia-cola-group">
                         <label for="input-pix-copiacola">Código PIX (Copia e Cola):</label>
                         <div class="copia-cola-row">
-                            <input type="text" id="input-pix-copiacola" readonly value="">
-                            <button type="button" id="btn-copy-pix" class="btn-solid-primary btn-copy" title="Copiar código">
+                            <input type="text" id="input-pix-copiacola" readonly value="" spellcheck="false">
+                            <button type="button" id="btn-copy-pix" class="btn-solid-primary btn-copy" title="Copiar código PIX">
                                 <span id="copy-btn-text">Copiar</span>
                             </button>
                         </div>
@@ -205,12 +216,12 @@
 
                 <!-- Estado 3: CONFIRMAÇÃO DE PAGAMENTO APROVADO -->
                 <div id="pix-success-state" class="pix-view-state success-view" hidden>
-                    <div class="success-icon-wrap">
+                    <div class="success-icon-box">
                         <i class="fa-solid fa-circle-check"></i>
                     </div>
                     
                     <h2 class="success-title">Pagamento Confirmado!</h2>
-                    <p class="success-subtitle">Sua compra foi aprovada e vinculada com sucesso.</p>
+                    <p class="success-subtitle">Sua compra foi aprovada e vinculada com sucesso à sua conta.</p>
 
                     <div class="confirmation-receipt-card">
                         <div class="receipt-row">
@@ -231,17 +242,17 @@
                         </div>
                         <div class="receipt-row">
                             <span class="receipt-label">Status:</span>
-                            <span class="receipt-badge-active"><i class="fa-solid fa-bolt"></i> Ativado</span>
+                            <span class="receipt-badge-active"><i class="fa-solid fa-check"></i> Ativado</span>
                         </div>
                     </div>
 
                     <div class="in-game-instructions">
-                        <i class="fa-solid fa-info-circle"></i>
-                        <span>Entre no servidor agora para desfrutar de suas vantagens e tags!</span>
+                        <i class="fa-solid fa-circle-info"></i>
+                        <span>Entre no servidor para desfrutar de suas vantagens e tags!</span>
                     </div>
 
                     <button type="button" id="btn-finish-purchase" class="btn-solid-primary btn-block">
-                        <i class="fa-solid fa-check"></i> Concluir e Fechar
+                        Concluir e Fechar
                     </button>
                 </div>
 
