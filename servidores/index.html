@@ -23,55 +23,149 @@
     <meta name="twitter:image" content="https://redenerds.com.br/assets/images/logo.webp">
 
     <link rel="icon" type="image/x-icon" href="/assets/images/logo.webp">
-    <link rel="stylesheet" href="/shared/shared.css?v=1">
-    <link rel="stylesheet" href="/shared/navbar.css?v=1">
-    <link rel="stylesheet" href="/shared/footer.css?v=1">
-    <link rel="stylesheet" href="server-card.css?v=1">
+    <link rel="stylesheet" href="/shared/shared.css?v=2">
+    <link rel="stylesheet" href="/shared/navbar.css?v=2">
+    <link rel="stylesheet" href="/shared/footer.css?v=2">
+    <link rel="stylesheet" href="server-card.css?v=2">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
 </head>
 <body>
     <div id="navbar-container"></div>
+
     <div id="page-wrapper">
+        <main id="container" class="server-page-container">
 
-        <main id="container">
-            <section id="server-detail">
-                <!-- Botão Voltar -->
-                <a href="/#servers-section" id="voltar">
-                    <i class="fa-solid fa-arrow-left"></i> Voltar para Servidores
+            <!-- Link de retorno rápido -->
+            <nav class="server-nav-back">
+                <a href="/#servers-section" id="voltar" class="btn-back">
+                    <i class="fa-solid fa-arrow-left"></i> <span>Voltar para Servidores</span>
                 </a>
+            </nav>
 
-                <!-- Cabeçalho do Servidor -->
-                <div class="server-header">
-                    <h1 id="server-section-title">
-                        <i id="server-icon" class="fa-solid fa-server"></i> 
-                        <span></span>
-                    </h1>
-                </div>
-
-                <!-- Conteúdo -->
-                <div class="server-info">
-                    <p id="server-about"></p>
-                    
-                    <div class="features-title">Destaques do Servidor</div>
-                    <ul id="server-features" class="server-features"></ul>
-                    
-                    <div class="cta-buttons">
-                        <a id="btn-modpack" href="#" class="cta-button">
-                            <i class="fa-solid fa-download"></i> Baixar Modpack
-                        </a>
-                        <button type="button" id="btn-copy-ip" class="cta-button copy-ip-btn" data-copy-ip="">
-                            <i class="fa-solid fa-copy"></i> Copiar IP
-                        </button>
+            <!-- Banner / Hero Principal do Servidor -->
+            <header class="server-hero-card">
+                <div class="server-hero-left">
+                    <div class="server-hero-icon-frame">
+                        <img id="server-icon-img" src="/assets/images/xomaps.png" alt="Ícone do Servidor" class="server-hero-icon">
+                        <i id="server-icon-fa" class="fa-solid fa-server server-hero-icon-fa" style="display: none;"></i>
+                    </div>
+                    <div class="server-hero-info">
+                        <div class="server-badges-row">
+                            <span class="badge-status-online"><span class="pulse-dot"></span> Online</span>
+                            <span id="server-category-badge" class="badge-server-type">Servidor Oficial</span>
+                        </div>
+                        <h1 id="server-section-title" class="server-hero-title">Carregando servidor...</h1>
                     </div>
                 </div>
-            </section>
+
+                <div class="server-hero-right">
+                    <div class="server-quick-ip-box">
+                        <span class="quick-ip-label">Endereço de Conexão:</span>
+                        <div class="quick-ip-field">
+                            <code id="server-ip-display" class="server-ip-code">jogar.redenerds.com.br</code>
+                            <button type="button" id="btn-hero-copy-ip" class="btn-copy-icon" aria-label="Copiar endereço IP" title="Copiar IP">
+                                <i class="fa-regular fa-copy"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Grade de Conteúdo Principal -->
+            <div class="server-grid-layout">
+
+                <!-- Coluna Principal (Esquerda: Descrição & Destaques) -->
+                <section class="server-content-main">
+                    
+                    <!-- Bloco: Sobre o Servidor -->
+                    <article class="server-card-block">
+                        <div class="block-header">
+                            <div class="block-header-title">
+                                <i class="fa-solid fa-book-open"></i>
+                                <h2>Sobre o Servidor</h2>
+                            </div>
+                            <div class="block-header-line"></div>
+                        </div>
+                        <div class="block-body">
+                            <p id="server-about" class="server-description-text"></p>
+                        </div>
+                    </article>
+
+                    <!-- Bloco: Recursos e Vantagens -->
+                    <article class="server-card-block">
+                        <div class="block-header">
+                            <div class="block-header-title">
+                                <i class="fa-solid fa-list-check"></i>
+                                <h2>Recursos & Destaques</h2>
+                            </div>
+                            <div class="block-header-line"></div>
+                        </div>
+                        <div class="block-body">
+                            <ul id="server-features" class="server-features-grid"></ul>
+                        </div>
+                    </article>
+
+                </section>
+
+                <!-- Coluna Lateral (Direita: Conexão, Modpack & VIPs) -->
+                <aside class="server-sidebar">
+
+                    <!-- Card de Ações Rápidas -->
+                    <div class="server-action-card">
+                        <h3 class="sidebar-card-title">
+                            <i class="fa-solid fa-gamepad"></i> Como Jogar
+                        </h3>
+                        <p class="sidebar-card-subtitle">Baixe o modpack oficial e conecte-se com sua comunidade.</p>
+
+                        <div class="sidebar-buttons-group">
+                            <a id="btn-modpack" href="#" target="_blank" rel="noopener noreferrer" class="btn-cta-primary">
+                                <i class="fa-solid fa-download"></i> Baixar Modpack
+                            </a>
+                            <button type="button" id="btn-copy-ip" class="btn-cta-secondary">
+                                <i class="fa-regular fa-copy"></i> <span>Copiar IP do Servidor</span>
+                            </button>
+                        </div>
+
+                        <div class="sidebar-specs-list">
+                            <div class="spec-item">
+                                <span class="spec-name"><i class="fa-solid fa-cube"></i> Plataforma</span>
+                                <span class="spec-value">Java Edition (PC)</span>
+                            </div>
+                            <div class="spec-item">
+                                <span class="spec-name"><i class="fa-solid fa-network-wired"></i> Modloader</span>
+                                <span class="spec-value">Forge / CurseForge</span>
+                            </div>
+                            <div class="spec-item">
+                                <span class="spec-name"><i class="fa-solid fa-shield-halved"></i> Proteção</span>
+                                <span class="spec-value">Sistema Anti-Grief</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Card de Chamada para Loja VIP -->
+                    <div class="server-vip-card">
+                        <div class="vip-card-glow-bar"></div>
+                        <div class="vip-card-content">
+                            <div class="vip-card-badge"><i class="fa-solid fa-gem"></i> Loja Oficial</div>
+                            <h4>Deseja vantagens exclusivas?</h4>
+                            <p>Adquira tags, kits, mais claims e comandos utilitários com ativação via PIX.</p>
+                            <a id="btn-server-vip-store" href="/loja" class="btn-cta-vip">
+                                Ver Pacotes VIP <i class="fa-solid fa-arrow-right"></i>
+                            </a>
+                        </div>
+                    </div>
+
+                </aside>
+
+            </div>
+
         </main>
     </div>
 
     <div id="footer"></div>
 
-    <script src="/shared/navbar.js?v=1"></script>
-    <script src="/shared/copy-ip.js?v=1"></script>
-    <script src="server-loader.js?v=1"></script>
+    <script src="/shared/navbar.js?v=2"></script>
+    <script src="/shared/copy-ip.js?v=2"></script>
+    <script src="server-loader.js?v=2"></script>
 </body>
 </html>

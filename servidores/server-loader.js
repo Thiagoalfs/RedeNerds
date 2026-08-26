@@ -1,14 +1,17 @@
+/**
+ * server-loader.js - Controlador da Página de Detalhes do Servidor (Rede Nerds)
+ * Carrega dinamicamente as informações do servidor a partir da API oficial.
+ */
+
 document.addEventListener("DOMContentLoaded", function () {
     carregarServidor();
 });
 
-// Caminho absoluto: esta página roda em ~/servidores, mas a API fica na raiz do site.
 const SERVIDORES_API_URL = "/api/servidores_api.php";
 
 async function carregarServidor() {
-    // 1. Captura o parâmetro 'servidor' da URL (ex: ?servidor=nerdsky)
     const urlParams = new URLSearchParams(window.location.search);
-    const key = urlParams.get("servidor");
+    const key = (urlParams.get("servidor") || "").toLowerCase().trim();
 
     try {
         const response = await fetch(SERVIDORES_API_URL);
@@ -21,40 +24,88 @@ async function carregarServidor() {
 
         const servidores = dados.servidores;
         if (servidores.length === 0) {
-            throw new Error("Nenhum servidor disponível.");
+            throw new Error("Nenhum servidor disponível no momento.");
         }
 
-        // Busca pelo slug (nome) vindo da URL; se não existir/não for encontrado, cai no primeiro servidor habilitado
-        const server = servidores.find(s => s.nome === key) || servidores[0];
+        // Busca pelo slug (nome) vindo da URL; se não encontrar, usa o primeiro servidor ativo
+        const server = servidores.find(s => {
+            const sSlug = String(s.nome || "").toLowerCase().trim();
+            const sName = String(s.servername || "").toLowerCase().replace(/[^a-z0-9]/g, "");
+            const cleanKey = key.replace(/[^a-z0-9]/g, "");
+            return sSlug === key || sName === cleanKey;
+        }) || servidores[0];
 
-        // 2. Atualiza o título da página
-        document.title = server.title;
+        // 1. Atualiza o título da página
+        document.title = `${server.servername} - Rede Nerds`;
 
-        // 3. Injeta as cores dinamicamente no :root CSS, calculadas a partir do themecolor (hex)
-        document.documentElement.style.setProperty("--theme-color", server.themecolor);
-        document.documentElement.style.setProperty("--theme-shadow-color", hexParaRgba(server.themecolor, 0.2));
-        document.documentElement.style.setProperty("--theme-hover-bg", hexParaRgba(server.themecolor, 0.12));
+        // 2. Injeta as cores dinâmicas no :root CSS
+        const themeColor = server.themecolor || "#7DB9DF";
+        document.documentElement.style.setProperty("--theme-color", themeColor);
+        document.documentElement.style.setProperty("--theme-shadow-color", hexParaRgba(themeColor, 0.2));
+        document.documentElement.style.setProperty("--theme-hover-bg", hexParaRgba(themeColor, 0.12));
 
-        // 5. Preenche a Seção 'Sobre o Servidor'
-        const titleContainer = document.getElementById("server-section-title");
-        titleContainer.querySelector("span").textContent = server.servername;
+        // 3. Cabeçalho & Título
+        const titleEl = document.getElementById("server-section-title");
+        if (titleEl) titleEl.textContent = server.servername;
 
-        atualizarIcone(server);
+        // Badge descritiva
+        const catBadge = document.getElementById("server-category-badge");
+        if (catBadge) {
+            if (server.servername.toLowerCase().includes("potato")) {
+                catBadge.textContent = "Modpack Tech & Automação";
+            } else if (server.servername.toLowerCase().includes("dead")) {
+                catBadge.textContent = "Hardcore Survival & Apocalipse";
+            } else {
+                catBadge.textContent = "Servidor Oficial";
+            }
+        }
 
-        document.getElementById("server-about").textContent = server.descricao;
+        // Ícone do Servidor
+        atualizarIconeServidor(server);
 
-        // 6. Preenche a lista de features
-        const featuresList = document.getElementById("server-features");
-        featuresList.innerHTML = server.features
-            .map(feature => `<li><i class="fa-solid fa-check"></i> ${escapeHtml(feature)}</li>`)
-            .join("");
+        // IP de Conexão no Hero
+        const ipDisplay = document.getElementById("server-ip-display");
+        if (ipDisplay) ipDisplay.textContent = server.ip;
 
-        // 7. Configura os botões de ação
-        document.getElementById("btn-modpack").href = server.modpackurl;
+        // 4. Descrição / Sobre o Servidor
+        const aboutEl = document.getElementById("server-about");
+        if (aboutEl) aboutEl.textContent = server.descricao;
 
-        const copyIpBtn = document.getElementById("btn-copy-ip");
-        copyIpBtn.setAttribute("data-copy-ip", server.ip);
-        copyIpBtn.addEventListener("click", () => copiarIp(server.ip, copyIpBtn));
+        // 5. Recursos & Destaques (Features)
+        const featuresContainer = document.getElementById("server-features");
+        if (featuresContainer) {
+            const features = Array.isArray(server.features) ? server.features : [];
+            if (features.length > 0) {
+                featuresContainer.innerHTML = features
+                    .map(f => `<li><i class="fa-solid fa-check"></i> <span>${escapeHtml(f)}</span></li>`)
+                    .join("");
+            } else {
+                featuresContainer.innerHTML = `<li><i class="fa-solid fa-check"></i> <span>Experiência multiplayer estável e otimizada</span></li>`;
+            }
+        }
+
+        // 6. Botões de Ação
+        const btnModpack = document.getElementById("btn-modpack");
+        if (btnModpack) {
+            btnModpack.href = server.modpackurl || "/download";
+        }
+
+        const btnHeroCopy = document.getElementById("btn-hero-copy-ip");
+        if (btnHeroCopy) {
+            btnHeroCopy.addEventListener("click", () => copiarIp(server.ip, btnHeroCopy, true));
+        }
+
+        const btnSidebarCopy = document.getElementById("btn-copy-ip");
+        if (btnSidebarCopy) {
+            btnSidebarCopy.setAttribute("data-copy-ip", server.ip);
+            btnSidebarCopy.addEventListener("click", () => copiarIp(server.ip, btnSidebarCopy, false));
+        }
+
+        // Link para a Loja VIP
+        const btnVipStore = document.getElementById("btn-server-vip-store");
+        if (btnVipStore) {
+            btnVipStore.href = `/loja?servidor=${encodeURIComponent(server.nome || 'potatonerds')}`;
+        }
 
     } catch (error) {
         console.error("Erro ao carregar servidor:", error);
@@ -62,42 +113,48 @@ async function carregarServidor() {
 }
 
 /**
- * Troca o ícone entre <i class="..."> (FontAwesome) e <img src="..."> (upload/link)
- * mantendo o mesmo id "server-icon" para o restante do código/CSS continuar funcionando.
+ * Atualiza o ícone do servidor (suporta imagem ou classe FontAwesome)
  */
-function atualizarIcone(server) {
-    const atual = document.getElementById("server-icon");
+function atualizarIconeServidor(server) {
+    const imgEl = document.getElementById("server-icon-img");
+    const faEl = document.getElementById("server-icon-fa");
 
-    if (server.icon_type === "img" && server.icon) {
-        const img = document.createElement("img");
-        img.id = "server-icon";
-        img.src = server.icon;
-        img.alt = server.servername;
-        img.onerror = () => { img.style.display = "none"; };
-        atual.replaceWith(img);
+    if (!imgEl || !faEl) return;
+
+    if (server.icon_type === "img" || (server.icon && server.icon.startsWith("/"))) {
+        imgEl.src = server.icon;
+        imgEl.alt = server.servername;
+        imgEl.style.display = "block";
+        faEl.style.display = "none";
+        imgEl.onerror = () => {
+            imgEl.style.display = "none";
+            faEl.style.display = "block";
+            faEl.className = "fa-solid fa-server server-hero-icon-fa";
+        };
     } else {
-        const icone = document.createElement("i");
-        icone.id = "server-icon";
-        icone.className = server.icon || "fa-solid fa-server";
-        atual.replaceWith(icone);
+        imgEl.style.display = "none";
+        faEl.style.display = "block";
+        faEl.className = `${server.icon || "fa-solid fa-server"} server-hero-icon-fa`;
     }
 }
 
 /**
- * Copia o IP para a área de transferência e dá um feedback visual no botão.
- * Feito aqui diretamente (em vez de depender só do shared/copy-ip.js) porque
- * o valor do data-copy-ip só é conhecido depois que a API responde.
+ * Copia o IP para a área de transferência com feedback visual
  */
-function copiarIp(ip, botao) {
-    const textoOriginal = botao.innerHTML;
+function copiarIp(ip, botao, isIconOnly = false) {
+    const conteudoOriginal = botao.innerHTML;
 
     const aoCopiar = () => {
         botao.classList.add("copied");
-        botao.innerHTML = '<i class="fa-solid fa-check"></i> IP copiado!';
+        if (isIconOnly) {
+            botao.innerHTML = '<i class="fa-solid fa-check"></i>';
+        } else {
+            botao.innerHTML = '<i class="fa-solid fa-check"></i> <span>IP Copiado com Sucesso!</span>';
+        }
         setTimeout(() => {
             botao.classList.remove("copied");
-            botao.innerHTML = textoOriginal;
-        }, 2000);
+            botao.innerHTML = conteudoOriginal;
+        }, 2200);
     };
 
     if (navigator.clipboard && navigator.clipboard.writeText) {

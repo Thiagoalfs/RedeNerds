@@ -2,6 +2,7 @@
 /**
  * vips_api.php
  * Retorna os servidores e seus respectivos pacotes VIP disponíveis para compra.
+ * Os dados do servidor (nome exibido, cores, ícones) são obtidos dinamicamente da tabela `servidores`.
  */
 
 ini_set('display_errors', 0);
@@ -35,18 +36,18 @@ require_once $configPath;
 require_once __DIR__ . "/../auth_api.php";
 verificarAcessoApi();
 
-// Servidores padrão da Rede Nerds
+// Servidores padrão de fallback caso o banco esteja indisponível
 $servidoresDefault = [
     [
-        "id" => "potato",
-        "nome" => "Potato Nerd",
+        "id" => "potatonerds",
+        "nome" => "Potato Nerds",
         "badge" => "Modpack Tech",
         "cor" => "#7DB9DF",
-        "icon" => "fa-solid fa-bolt",
+        "icon" => "/assets/images/xomaps.png",
         "vips" => [
             [
                 "id" => 1,
-                "servidor" => "potato",
+                "servidor" => "Potato Nerds",
                 "nome" => "VIP Carvão",
                 "preco" => 20.00,
                 "duracao_dias" => 30,
@@ -64,7 +65,7 @@ $servidoresDefault = [
             ],
             [
                 "id" => 2,
-                "servidor" => "potato",
+                "servidor" => "Potato Nerds",
                 "nome" => "VIP Ferro",
                 "preco" => 40.00,
                 "duracao_dias" => 30,
@@ -82,7 +83,7 @@ $servidoresDefault = [
             ],
             [
                 "id" => 3,
-                "servidor" => "potato",
+                "servidor" => "Potato Nerds",
                 "nome" => "VIP Ouro",
                 "preco" => 60.00,
                 "duracao_dias" => 30,
@@ -100,7 +101,7 @@ $servidoresDefault = [
             ],
             [
                 "id" => 4,
-                "servidor" => "potato",
+                "servidor" => "Potato Nerds",
                 "nome" => "VIP Diamante",
                 "preco" => 80.00,
                 "duracao_dias" => 30,
@@ -118,7 +119,7 @@ $servidoresDefault = [
             ],
             [
                 "id" => 5,
-                "servidor" => "potato",
+                "servidor" => "Potato Nerds",
                 "nome" => "VIP Netherite",
                 "preco" => 100.00,
                 "duracao_dias" => 30,
@@ -138,27 +139,14 @@ $servidoresDefault = [
     ],
     [
         "id" => "nerddead",
-        "nome" => "NerdDead",
+        "nome" => "Nerd Dead",
         "badge" => "Hardcore Survival",
         "cor" => "#E85D5D",
-        "icon" => "fa-solid fa-biohazard",
+        "icon" => "/assets/images/nerddead.webp",
         "vips" => [
             [
-                "id" => 99,
-                "servidor" => "nerddead",
-                "nome" => "VIP Teste (1 Centavo)",
-                "preco" => 0.01,
-                "duracao_dias" => 1,
-                "destaque" => true,
-                "vantagens" => [
-                    "Pacote exclusivo de teste de pagamento PIX (R$ 0,01)",
-                    "Ativação de teste in-game",
-                    "Validação de integração Mercado Pago"
-                ]
-            ],
-            [
-                "id" => 10,
-                "servidor" => "nerddead",
+                "id" => 6,
+                "servidor" => "Nerd Dead",
                 "nome" => "VIP Sobrevivente",
                 "preco" => 30.00,
                 "duracao_dias" => 30,
@@ -174,83 +162,102 @@ $servidoresDefault = [
     ]
 ];
 
-// Tenta buscar no banco de dados se a tabela `vips` possuir registros
+$servidoresDoBanco = [];
 $vipsDoBanco = [];
+
+// 1. Consulta os servidores ativos e os VIPs cadastrados no banco
 try {
     if (isset($pdo) && $pdo instanceof PDO) {
-        $stmt = $pdo->query("SELECT * FROM vips WHERE ativo = 1 ORDER BY preco ASC");
-        $vipsDoBanco = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        $stmtSrv = $pdo->query("SELECT id, servername, nome, themecolor, icon, descricao FROM servidores WHERE enabled = 1 ORDER BY id ASC");
+        $servidoresDoBanco = $stmtSrv->fetchAll(PDO::FETCH_ASSOC);
+
+        $stmtVips = $pdo->query("SELECT * FROM vips WHERE ativo = 1 ORDER BY preco ASC");
+        $vipsDoBanco = $stmtVips->fetchAll(PDO::FETCH_ASSOC);
     } elseif (isset($conn) && $conn instanceof mysqli) {
-        $res = $conn->query("SELECT * FROM vips WHERE ativo = 1 ORDER BY preco ASC");
-        if ($res) {
-            while ($row = $res->fetch_assoc()) {
-                $vipsDoBanco[] = $row;
-            }
+        $resSrv = $conn->query("SELECT id, servername, nome, themecolor, icon, descricao FROM servidores WHERE enabled = 1 ORDER BY id ASC");
+        if ($resSrv) {
+            while ($row = $resSrv->fetch_assoc()) $servidoresDoBanco[] = $row;
+        }
+
+        $resVips = $conn->query("SELECT * FROM vips WHERE ativo = 1 ORDER BY preco ASC");
+        if ($resVips) {
+            while ($row = $resVips->fetch_assoc()) $vipsDoBanco[] = $row;
         }
     }
 } catch (Exception $e) {
-    // Se a tabela não existir ou erro de SQL, usa os padrões silenciosamente
-    $vipsDoBanco = [];
+    error_log("Erro ao buscar VIPs e Servidores: " . $e->getMessage());
 }
 
-// Se o banco tiver VIPs cadastrados, organiza por servidor
-if (!empty($vipsDoBanco)) {
-    $servidoresAgrupados = [];
+// 2. Se temos servidores e VIPs no banco, monta a resposta dinâmica usando o `servername`
+if (!empty($servidoresDoBanco) && !empty($vipsDoBanco)) {
+    $servidoresFormatados = [];
 
-    foreach ($vipsDoBanco as $v) {
-        $srvKey = strtolower(trim($v['servidor']));
-        if (!isset($servidoresAgrupados[$srvKey])) {
-            // Tenta obter info do servidor padrão correspondente
-            $srvInfo = [
-                "id" => $srvKey,
-                "nome" => ucfirst($v['servidor']),
-                "badge" => "Servidor",
-                "cor" => "#7DB9DF",
-                "icon" => "fa-solid fa-server",
-                "vips" => []
-            ];
+    foreach ($servidoresDoBanco as $srv) {
+        $srvNomeLimpo = strtolower(preg_replace('/[^a-zA-Z0-9]/', '', $srv['servername']));
+        $srvSlug = strtolower(trim($srv['nome']));
 
-            foreach ($servidoresDefault as $sd) {
-                if (strtolower($sd['id']) === $srvKey || strtolower($sd['nome']) === $srvKey) {
-                    $srvInfo = $sd;
-                    $srvInfo['vips'] = [];
-                    break;
+        $vipsDoServidor = [];
+
+        foreach ($vipsDoBanco as $v) {
+            $vipSrvRaw = trim($v['servidor']);
+            $vipSrvLimpo = strtolower(preg_replace('/[^a-zA-Z0-9]/', '', $vipSrvRaw));
+
+            // Correspondência flexível: confere servername, slug ou correspondência parcial
+            $pertenceAoServidor = (
+                strcasecmp($vipSrvRaw, $srv['servername']) === 0 ||
+                strcasecmp($vipSrvRaw, $srvSlug) === 0 ||
+                $vipSrvLimpo === $srvNomeLimpo ||
+                (strlen($vipSrvLimpo) >= 4 && strpos($srvNomeLimpo, $vipSrvLimpo) !== false) ||
+                (strlen($srvNomeLimpo) >= 4 && strpos($vipSrvLimpo, $srvNomeLimpo) !== false)
+            );
+
+            if ($pertenceAoServidor) {
+                // Processa as vantagens (JSON ou quebras de linha)
+                $vantagens = [];
+                if (!empty($v['vantagens'])) {
+                    $jsonDecoded = json_decode($v['vantagens'], true);
+                    if (is_array($jsonDecoded)) {
+                        $vantagens = $jsonDecoded;
+                    } else {
+                        $vantagens = array_values(array_filter(array_map('trim', explode("\n", $v['vantagens']))));
+                    }
                 }
-            }
 
-            $servidoresAgrupados[$srvKey] = $srvInfo;
-        }
-
-        // Processa vantagens (JSON ou quebra de linha)
-        $vantagens = [];
-        if (!empty($v['vantagens'])) {
-            $jsonDecoded = json_decode($v['vantagens'], true);
-            if (is_array($jsonDecoded)) {
-                $vantagens = $jsonDecoded;
-            } else {
-                $vantagens = array_filter(array_map('trim', explode("\n", $v['vantagens'])));
+                $vipsDoServidor[] = [
+                    "id" => (int)$v['id'],
+                    "servidor" => $srv['servername'], // Puxa exatamente o servername da tabela servidores!
+                    "nome" => $v['nome'],
+                    "preco" => (float)$v['preco'],
+                    "duracao_dias" => isset($v['duracao_dias']) ? (int)$v['duracao_dias'] : 30,
+                    "destaque" => !empty($v['destaque']),
+                    "vantagens" => $vantagens
+                ];
             }
         }
 
-        $servidoresAgrupados[$srvKey]['vips'][] = [
-            "id" => (int)$v['id'],
-            "servidor" => $v['servidor'],
-            "nome" => $v['nome'],
-            "preco" => (float)$v['preco'],
-            "duracao_dias" => isset($v['duracao_dias']) ? (int)$v['duracao_dias'] : 30,
-            "destaque" => !empty($v['destaque']),
-            "vantagens" => $vantagens
-        ];
+        // Se o servidor possui pacotes cadastrados, inclui na loja
+        if (!empty($vipsDoServidor)) {
+            $servidoresFormatados[] = [
+                "id" => $srvSlug ?: $srvNomeLimpo,
+                "nome" => $srv['servername'], // Nome oficial do servidor
+                "badge" => !empty($srv['descricao']) ? mb_strimwidth(strip_tags($srv['descricao']), 0, 45, '...') : 'Servidor Oficial',
+                "cor" => $srv['themecolor'] ?: '#7DB9DF',
+                "icon" => $srv['icon'] ?: 'fa-solid fa-server',
+                "vips" => $vipsDoServidor
+            ];
+        }
     }
 
-    echo json_encode([
-        "success" => true,
-        "servidores" => array_values($servidoresAgrupados)
-    ], JSON_UNESCAPED_UNICODE);
-    exit;
+    if (!empty($servidoresFormatados)) {
+        echo json_encode([
+            "success" => true,
+            "servidores" => $servidoresFormatados
+        ], JSON_UNESCAPED_UNICODE);
+        exit;
+    }
 }
 
-// Retorna dados padrão se o banco ainda estiver vazio
+// Fallback caso o banco esteja vazio ou inacessível
 echo json_encode([
     "success" => true,
     "servidores" => $servidoresDefault

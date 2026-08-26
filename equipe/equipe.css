@@ -1,5 +1,5 @@
 /* =========================================
-   Equipe — Mobile-first
+   Equipe — Mobile-first & Compact Grid
    ========================================= */
 
 :root {
@@ -10,7 +10,6 @@
     --border-subtle: rgba(255, 255, 255, 0.08);
 }
 
-
 /* ----- Container geral ----- */
 #equipe {
     width: 100%;
@@ -18,7 +17,7 @@
     margin: 0 auto;
     display: flex;
     flex-direction: column;
-    gap: 1.75rem;
+    gap: 1.5rem;
     padding: 0 0.25rem;
     box-sizing: border-box;
 }
@@ -28,13 +27,13 @@
     display: flex;
     flex-direction: row;
     align-items: center;
-    gap: 1rem;
-    margin-bottom: 0.75rem;
+    gap: 0.75rem;
+    margin-bottom: 0.6rem;
 }
 
 .equipe-header h3 {
     margin: 0;
-    font-size: 1.1rem;
+    font-size: 1.05rem;
     font-weight: 700;
     color: white;
     white-space: nowrap;
@@ -47,24 +46,25 @@
     border-radius: 1px;
 }
 
-/* ----- Wrapper de skins: empilhado em mobile ----- */
+/* ----- Grid de skins: No mobile no mínimo 3 por linha ----- */
 .skins-wrapper {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 1rem;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 6px;
     width: 100%;
-    justify-content: flex-start;
+    box-sizing: border-box;
 }
 
-/* ----- Skin card ----- */
+/* ----- Skin card compacto ----- */
 .skin {
     position: relative;
     display: flex;
     flex-direction: column;
     align-items: center;
+    justify-content: center;
     background-color: var(--surface);
-    border-radius: 12px;
-    padding: 1rem;
+    border-radius: 8px;
+    padding: 6px 4px 10px 4px;
     border: 1px solid var(--border-subtle);
     transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
     overflow: hidden;
@@ -74,7 +74,7 @@
 
 .skin img {
     width: 100%;
-    max-width: 180px;
+    max-width: 100px;
     height: auto;
     aspect-ratio: 1 / 1;
     object-fit: contain;
@@ -84,104 +84,177 @@
     transition: transform 0.2s ease;
 }
 
+.skin:hover {
+    border-color: var(--hover-color, rgba(185, 113, 218, 0.4));
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.5), 0 0 10px rgba(255, 255, 255, 0.05);
+    transform: translateY(-2px);
+}
+
 .skin:hover img {
     transform: scale(1.05);
 }
 
-/* ----- Nametag (sobreposta à skin) ----- */
+/* ----- Nametag proporcional ----- */
 .nametag-box {
     display: flex;
     align-items: center;
     justify-content: flex-start;
     background: linear-gradient(to right, rgb(75, 179, 245), rgb(39, 172, 255));
-    clip-path: polygon(0 0, calc(100% - 16px) 0, 100% 50%, calc(100% - 16px) 100%, 0 100%);
-    height: 30px;
-    padding: 0 36px 0 14px;
+    clip-path: polygon(0 0, calc(100% - 8px) 0, 100% 50%, calc(100% - 8px) 100%, 0 100%);
+    height: 20px;
+    padding: 0 12px 0 6px;
     margin: 0;
     position: absolute;
-    bottom: 14px;
+    bottom: 4px;
     left: 0;
-    filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.7));
+    filter: drop-shadow(0 3px 8px rgba(0, 0, 0, 0.7));
     width: fit-content;
-    min-width: 75%;
-    max-width: 90%;
+    min-width: 65%;
+    max-width: 95%;
     box-sizing: border-box;
 }
 
 .nametag {
     margin: 0;
-    font-weight: 500;
+    font-weight: 600;
     color: white;
-    font-size: 0.95rem;
-    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.8));
+    font-size: 0.68rem;
+    filter: drop-shadow(0 1px 3px rgba(0, 0, 0, 0.8));
     white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
 }
 
 /* ============================================
-   Tablet (≥ 600px) — 2 colunas
+   Mobile Médio / Grande (≥ 480px) — 4 colunas
    ============================================ */
-@media (min-width: 600px) {
+@media (min-width: 480px) {
+    .skins-wrapper {
+        grid-template-columns: repeat(4, 1fr);
+        gap: 8px;
+    }
+
+    .skin {
+        padding: 8px 6px 12px 6px;
+        border-radius: 10px;
+    }
+
+    .nametag-box {
+        height: 22px;
+        padding: 0 14px 0 8px;
+    }
+
+    .nametag {
+        font-size: 0.74rem;
+    }
+}
+
+/* ============================================
+   Tablet (≥ 640px) — 5 colunas
+   ============================================ */
+@media (min-width: 640px) {
     #container {
-        margin: 1.75rem 1.5rem 2.5rem 1.5rem;
+        margin: 1.5rem 1rem 2rem 1rem;
     }
 
     #equipe {
-        gap: 2rem;
-        padding: 0 0.5rem;
+        gap: 1.75rem;
     }
 
     .equipe-header h3 {
-        font-size: 1.25rem;
+        font-size: 1.2rem;
     }
 
     .skins-wrapper {
-        gap: 1.25rem;
+        grid-template-columns: repeat(5, 1fr);
+        gap: 10px;
     }
 
     .skin {
-        width: calc(50% - 0.625rem); /* 2 colunas com gap de 1.25rem */
+        padding: 8px 6px 14px 6px;
     }
 
     .skin img {
-        max-width: 200px;
+        max-width: 120px;
+    }
+
+    .nametag-box {
+        height: 24px;
+        padding: 0 16px 0 9px;
+        clip-path: polygon(0 0, calc(100% - 10px) 0, 100% 50%, calc(100% - 10px) 100%, 0 100%);
+        bottom: 6px;
+    }
+
+    .nametag {
+        font-size: 0.8rem;
     }
 }
 
 /* ============================================
-   Tablet horizontal (≥ 768px) — 3 colunas
+   Tablet horizontal (≥ 768px) — 6 colunas
    ============================================ */
 @media (min-width: 768px) {
-    .skin {
-        width: calc(33.333% - 0.833rem); /* 3 colunas com gap de 1.25rem */
+    .skins-wrapper {
+        grid-template-columns: repeat(6, 1fr);
+        gap: 12px;
+    }
+
+    .skin img {
+        max-width: 130px;
+    }
+
+    .nametag-box {
+        height: 25px;
+        padding: 0 18px 0 10px;
+        bottom: 6px;
+    }
+
+    .nametag {
+        font-size: 0.84rem;
     }
 }
 
 /* ============================================
-   Desktop (≥ 1024px) — 4 colunas, alinhadas à esquerda
+   Desktop (≥ 1024px) — 7 a 8 colunas compactas
    ============================================ */
 @media (min-width: 1024px) {
     #container {
-        margin: 2.5rem auto 3rem auto;
+        margin: 2rem auto 3rem auto;
         max-width: 1300px;
     }
 
     #equipe {
-        gap: 2.5rem;
+        gap: 2.25rem;
         padding: 0;
     }
 
     .equipe-header h3 {
-        font-size: 1.4rem;
+        font-size: 1.3rem;
     }
 
     .skins-wrapper {
-        gap: 1.5rem;
-        justify-content: flex-start; /* alinha à esquerda */
+        grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+        gap: 14px;
     }
 
     .skin {
-        width: 200px;          /* largura fixa */
-        flex-shrink: 0;        /* não encolhe */
-        padding: 1.25rem;
+        padding: 10px 8px 16px 8px;
+        border-radius: 12px;
+    }
+
+    .skin img {
+        max-width: 140px;
+    }
+
+    .nametag-box {
+        height: 26px;
+        padding: 0 20px 0 12px;
+        clip-path: polygon(0 0, calc(100% - 12px) 0, 100% 50%, calc(100% - 12px) 100%, 0 100%);
+        bottom: 8px;
+    }
+
+    .nametag {
+        font-size: 0.88rem;
     }
 }
