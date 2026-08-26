@@ -27,12 +27,48 @@ document.addEventListener("DOMContentLoaded", function () {
             })
             .then(data => {
                 footerContainer.innerHTML = data;
+                initFooterCopyIP();
             })
             .catch(error => {
                 console.error("Erro ao carregar footer:", error);
             });
     }
 });
+
+function initFooterCopyIP() {
+    const ipBox = document.getElementById('footer-ip-box');
+    const feedback = document.getElementById('footer-copy-feedback');
+    const ipValue = document.getElementById('footer-ip-value');
+    const btn = document.getElementById('footer-btn-copy-ip');
+
+    if (!ipBox || !ipValue) return;
+
+    const copyText = ipValue.textContent.trim();
+
+    function triggerCopy(e) {
+        if (e) e.preventDefault();
+        navigator.clipboard.writeText(copyText).then(() => {
+            if (feedback) feedback.textContent = 'Copiado!';
+            if (btn) btn.classList.add('copied');
+            setTimeout(() => {
+                if (feedback) feedback.textContent = 'Copiar';
+                if (btn) btn.classList.remove('copied');
+            }, 2000);
+        }).catch(() => {
+            if (feedback) feedback.textContent = 'Copiado!';
+            setTimeout(() => {
+                if (feedback) feedback.textContent = 'Copiar';
+            }, 2000);
+        });
+    }
+
+    ipBox.addEventListener('click', triggerCopy);
+    ipBox.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+            triggerCopy(e);
+        }
+    });
+}
 
 function marcarLinkAtivo() {
     const currentPath = window.location.pathname.replace(/\/$/, '') || '/';

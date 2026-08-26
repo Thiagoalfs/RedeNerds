@@ -276,13 +276,13 @@
 
     let html = '';
     STATE.servidores.forEach(srv => {
-      const count = Array.isArray(srv.vips) ? srv.vips.length : 0;
       const isSelected = srv.id === STATE.selectedServer;
+      const srvColor = srv.cor || '#38BDF8';
 
       html += `
-        <button type="button" class="server-tab ${isSelected ? 'active' : ''}" data-server-id="${escapeHTML(srv.id)}" role="tab" aria-selected="${isSelected ? 'true' : 'false'}">
+        <button type="button" class="server-tab ${isSelected ? 'active' : ''}" data-server-id="${escapeHTML(srv.id)}" style="--server-color: ${escapeHTML(srvColor)};" role="tab" aria-selected="${isSelected ? 'true' : 'false'}">
+          <span class="server-color-dot" style="background-color: ${escapeHTML(srvColor)};"></span>
           <span>${escapeHTML(srv.nome)}</span>
-          <span class="tab-badge">${count}</span>
         </button>
       `;
     });
@@ -350,7 +350,7 @@
         const isFeatured = !!vip.destaque;
         const duracao = vip.duracao_dias ? `${vip.duracao_dias} dias` : '30 dias';
         const precoFormatado = Number(vip.preco).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-        const delay = (index * 0.06).toFixed(2);
+        const delay = (index * 0.05).toFixed(2);
 
         const vantagensHtml = (vip.vantagens || []).map(v => `
           <li><i class="fa-solid fa-check"></i> <span>${escapeHTML(v)}</span></li>
@@ -504,7 +504,6 @@
       if (stateLoading) stateLoading.hidden = true;
       if (stateReady) stateReady.hidden = false;
 
-      // Inicia a contagem regressiva de 15 minutos e o polling em tempo real
       iniciarCountdownPix(15 * 60);
       iniciarPollingPix(data.txid);
 
@@ -579,7 +578,6 @@
         if (!res.ok) return;
 
         const data = await res.json();
-        // Verifica se o status é pago ou approved ou aprovado true
         const isPago = (data.status === 'pago' || data.status === 'approved' || data.aprovado === true);
 
         if (isPago) {
@@ -587,7 +585,7 @@
           exibirSucessoPix(data);
         }
       } catch (e) {
-        // Silencioso em caso de oscilação momentânea
+        // Silencioso
       }
     }, 3500);
   }
@@ -603,7 +601,7 @@
     }
   }
 
-  // 10. TELA / POPUP DE CONFIRMAÇÃO DE PAGAMENTO
+  // 10. TELA DE CONFIRMAÇÃO DE PAGAMENTO
   function exibirSucessoPix(data) {
     const headerTitle = document.getElementById('pix-modal-header-title');
     const orderSummaryBox = document.getElementById('pix-order-summary-box');
@@ -612,16 +610,13 @@
     const stateError = document.getElementById('pix-error-state');
     const stateSuccess = document.getElementById('pix-success-state');
 
-    // Oculta os outros estados
     if (stateLoading) stateLoading.hidden = true;
     if (stateReady) stateReady.hidden = true;
     if (stateError) stateError.hidden = true;
     if (orderSummaryBox) orderSummaryBox.hidden = true;
 
-    // Atualiza cabeçalho do modal
     if (headerTitle) headerTitle.textContent = 'Confirmação de Pagamento';
 
-    // Preenche os dados do comprovante na tela de confirmação
     const rNick = document.getElementById('receipt-player-nick');
     const rVip = document.getElementById('receipt-vip-name');
     const rServer = document.getElementById('receipt-server-name');
@@ -637,7 +632,6 @@
     if (rServer) rServer.textContent = serverNome;
     if (rTxid) rTxid.textContent = txid;
 
-    // Exibe o popup de confirmação de pagamento
     if (stateSuccess) stateSuccess.hidden = false;
   }
 

@@ -1,7 +1,260 @@
+/**
+ * footer.css - Rodapé Oficial da Rede Nerds
+ * Estilo dark de alto contraste, 4 colunas com IP Copiável e Redes Sociais.
+ */
+
 #footer {
-    border-top: 1px solid rgba(255, 255, 255, 0.3);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    font-size:12px;
+  width: 100%;
+  background-color: #06080D;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  box-sizing: border-box;
+  display: block;
+}
+
+.site-footer-wrapper {
+  width: 100%;
+  padding: 3.5rem 1.5rem 2rem 1.5rem;
+  box-sizing: border-box;
+}
+
+.site-footer-container {
+  max-width: 1180px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 3rem;
+}
+
+/* ======================================================== */
+/* 1. GRADE PRINCIPAL DO RODAPÉ (3 COLUNAS)                 */
+/* ======================================================== */
+.site-footer-grid {
+  display: grid;
+  grid-template-columns: 2.2fr 1fr 1fr;
+  gap: 3.5rem;
+  align-items: flex-start;
+}
+
+@media (max-width: 860px) {
+  .site-footer-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 2.5rem 2rem;
+  }
+  .footer-brand-col {
+    grid-column: 1 / -1;
+    max-width: 500px;
+  }
+}
+
+@media (max-width: 540px) {
+  .site-footer-grid {
+    grid-template-columns: 1fr;
+    gap: 2rem;
+  }
+}
+
+/* COLUNA DA MARCA */
+.footer-brand-col {
+  display: flex;
+  flex-direction: column;
+  gap: 1.1rem;
+}
+
+.footer-logo-link {
+  display: inline-block;
+  width: fit-content;
+  text-decoration: none;
+}
+
+.footer-logo-img {
+  width: 160px;
+  height: auto;
+  display: block;
+  filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.5));
+}
+
+.footer-description {
+  margin: 0;
+  font-size: 0.88rem;
+  color: #94A3B8;
+  line-height: 1.55;
+  max-width: 380px;
+}
+
+/* BOX DO IP COM BOTÃO COPIAR */
+.footer-ip-box {
+  background: #0E131E;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 8px;
+  padding: 0.6rem 0.9rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  max-width: 360px;
+  cursor: pointer;
+  transition: border-color 0.15s ease, background-color 0.15s ease;
+  user-select: none;
+}
+
+.footer-ip-box:hover {
+  background: #141B2B;
+  border-color: rgba(255, 255, 255, 0.22);
+}
+
+.footer-ip-text-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.footer-ip-label {
+  font-size: 0.65rem;
+  font-weight: 700;
+  color: #64748B;
+  letter-spacing: 0.5px;
+}
+
+.footer-ip-value {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #FFFFFF;
+  letter-spacing: 0.3px;
+  text-transform: uppercase;
+}
+
+.footer-ip-copy-btn {
+  background: transparent;
+  border: none;
+  color: #38BDF8;
+  font-size: 0.82rem;
+  font-weight: 700;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 4px;
+  transition: color 0.15s ease, background-color 0.15s ease;
+}
+
+.footer-ip-copy-btn:hover {
+  color: #FFFFFF;
+  background: rgba(56, 189, 248, 0.15);
+}
+
+.footer-ip-copy-btn.copied {
+  color: #10B981;
+}
+
+/* BOTÕES DE REDES SOCIAIS */
+.footer-social-links {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  margin-top: 0.2rem;
+}
+
+.footer-social-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #FFFFFF;
+  text-decoration: none;
+  font-size: 1rem;
+  transition: transform 0.15s ease, filter 0.15s ease;
+}
+
+.footer-social-btn:hover {
+  transform: translateY(-2px);
+  filter: brightness(1.15);
+}
+
+.footer-social-btn.discord {
+  background: #5865F2;
+}
+
+.footer-social-btn.tiktok {
+  background: #000000;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.footer-social-btn.youtube {
+  background: #FF0000;
+}
+
+/* COLUNAS DE LINKS */
+.footer-links-col {
+  display: flex;
+  flex-direction: column;
+  gap: 1.1rem;
+}
+
+.footer-col-title {
+  margin: 0;
+  font-size: 0.92rem;
+  font-weight: 800;
+  color: #FFFFFF;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+.footer-links-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.footer-links-list li a {
+  color: #94A3B8;
+  text-decoration: none;
+  font-size: 0.88rem;
+  font-weight: 500;
+  transition: color 0.15s ease;
+}
+
+.footer-links-list li a:hover {
+  color: #FFFFFF;
+}
+
+/* ======================================================== */
+/* 2. LINHA INFERIOR (COPYRIGHT & LEGAL)                    */
+/* ======================================================== */
+.site-footer-bottom {
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  padding-top: 1.75rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.footer-copyright {
+  margin: 0;
+  font-size: 0.8rem;
+  color: #64748B;
+}
+
+.footer-disclaimer {
+  margin: 0;
+  font-size: 0.75rem;
+  color: #64748B;
+  max-width: 600px;
+  line-height: 1.45;
+  text-align: right;
+}
+
+@media (max-width: 768px) {
+  .site-footer-bottom {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.75rem;
+  }
+  .footer-disclaimer {
+    text-align: left;
+  }
 }
