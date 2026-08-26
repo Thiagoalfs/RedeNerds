@@ -81,9 +81,11 @@ async function carregarEquipe() {
             const section = document.createElement("section");
             const theme = getCargoTheme(cargo.categoryTitle);
             const FALLBACK_SKIN = "https://vzge.me/bust/FreehandCargo95.png";
+            const members = Array.isArray(cargo.members) ? cargo.members : [];
+            const isCarousel = members.length > 3;
 
             // Para cada nick no array de membros, gera a tag de imagem e a nametag personalizada
-            const membrosHtml = cargo.members.map(nick => {
+            const membrosHtml = members.map(nick => {
                 const skinUrl = `https://vzge.me/bust/${encodeURIComponent(nick)}.png`;
 
                 return `
@@ -96,15 +98,41 @@ async function carregarEquipe() {
                 `;
             }).join("");
 
+            const navButtonsHtml = isCarousel ? `
+                <div class="carousel-nav-buttons" aria-label="Navegação do carrossel">
+                    <button type="button" class="btn-carousel-scroll prev" aria-label="Membro anterior"><i class="fa-solid fa-chevron-left"></i></button>
+                    <button type="button" class="btn-carousel-scroll next" aria-label="Próximo membro"><i class="fa-solid fa-chevron-right"></i></button>
+                </div>
+            ` : '';
+
             section.innerHTML = `
                 <div class="equipe-header">
                     <h3>${cargo.categoryTitle}</h3>
                     <div class="equipe-header-color" style="background: linear-gradient(90deg, ${theme.color}, rgba(0, 0, 0, 0));"></div>
+                    ${navButtonsHtml}
                 </div>
-                <div class="skins-wrapper">
+                <div class="skins-wrapper ${isCarousel ? 'is-carousel' : ''}">
                     ${membrosHtml}
                 </div>
             `;
+
+            // Ativa o scroll suave pelos botões do carrossel
+            if (isCarousel) {
+                const prevBtn = section.querySelector(".btn-carousel-scroll.prev");
+                const nextBtn = section.querySelector(".btn-carousel-scroll.next");
+                const wrapper = section.querySelector(".skins-wrapper");
+
+                if (prevBtn && wrapper) {
+                    prevBtn.addEventListener("click", () => {
+                        wrapper.scrollBy({ left: -wrapper.clientWidth * 0.7, behavior: "smooth" });
+                    });
+                }
+                if (nextBtn && wrapper) {
+                    nextBtn.addEventListener("click", () => {
+                        wrapper.scrollBy({ left: wrapper.clientWidth * 0.7, behavior: "smooth" });
+                    });
+                }
+            }
 
             containerEquipe.appendChild(section);
         });
