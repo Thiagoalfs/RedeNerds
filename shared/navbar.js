@@ -2,7 +2,7 @@ document.addEventListener("DOMContentLoaded", function () {
     // 1. Carrega o Navbar
     const navContainer = document.getElementById("navbar-container");
     if (navContainer) {
-        fetch("/shared/navbar.html?v=2")
+        fetch("/shared/navbar.html?v=1")
             .then(response => {
                 if (!response.ok) throw new Error(`Erro ${response.status} ao buscar ${response.url}`);
                 return response.text();
@@ -20,7 +20,7 @@ document.addEventListener("DOMContentLoaded", function () {
     // 2. Carrega o Footer
     const footerContainer = document.getElementById("footer");
     if (footerContainer) {
-        fetch("/shared/footer.html?v=2")
+        fetch("/shared/footer.html?v=1")
             .then(response => {
                 if (!response.ok) throw new Error(`Erro ${response.status} ao buscar ${response.url}`);
                 return response.text();
