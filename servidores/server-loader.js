@@ -60,6 +60,24 @@ async function carregarServidor() {
             }
         }
 
+        // 3.1 Fundo Temático Dinâmico do Servidor (via Banco de Dados ou Fallback)
+        const bgBackdrop = document.getElementById("server-bg-backdrop");
+        if (bgBackdrop) {
+            const bgUrl = server.bg_image || (
+                (String(server.nome || "").toLowerCase().includes("dead") || String(server.servername || "").toLowerCase().includes("dead"))
+                    ? "/assets/servidores/nerddead.webp"
+                    : ""
+            );
+
+            if (bgUrl) {
+                bgBackdrop.style.backgroundImage = `url('${bgUrl}')`;
+                bgBackdrop.classList.add("has-bg");
+            } else {
+                bgBackdrop.style.backgroundImage = "";
+                bgBackdrop.classList.remove("has-bg");
+            }
+        }
+
         // Ícone do Servidor
         atualizarIconeServidor(server);
 

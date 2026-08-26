@@ -85,7 +85,7 @@ $linhas = [];
 try {
     if (isset($pdo) && $pdo instanceof PDO) {
         $stmt = $pdo->query(
-            "SELECT id, nome, servername, title, icon, descricao, features, modpackurl, ip, themecolor
+            "SELECT id, nome, servername, title, icon, bg_image, descricao, features, modpackurl, ip, themecolor
              FROM servidores
              WHERE enabled = 1
              ORDER BY id ASC"
@@ -93,7 +93,7 @@ try {
         $linhas = $stmt->fetchAll(PDO::FETCH_ASSOC);
     } elseif (isset($conn) && $conn instanceof mysqli) {
         $res = $conn->query(
-            "SELECT id, nome, servername, title, icon, descricao, features, modpackurl, ip, themecolor
+            "SELECT id, nome, servername, title, icon, bg_image, descricao, features, modpackurl, ip, themecolor
              FROM servidores
              WHERE enabled = 1
              ORDER BY id ASC"
@@ -122,6 +122,7 @@ if (!empty($linhas)) {
             'title'      => $s['title'],
             'icon'       => $s['icon'],
             'icon_type'  => tipoDoIcone($s['icon']),
+            'bg_image'   => $s['bg_image'] ?? null,
             'descricao'  => $s['descricao'],
             'features'   => $features,
             'modpackurl' => $s['modpackurl'],

@@ -100,6 +100,11 @@
       btnFinish.addEventListener('click', () => fecharModalPix());
     }
 
+    const btnCloseError = document.getElementById('btn-close-error');
+    if (btnCloseError) {
+      btnCloseError.addEventListener('click', () => fecharModalPix());
+    }
+
     const btnRetryPix = document.getElementById('btn-retry-pix');
     if (btnRetryPix) {
       btnRetryPix.addEventListener('click', () => {
@@ -548,17 +553,7 @@
       countdownEl.textContent = `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
 
       if (diffSegundos <= 0) {
-        pararPollingPix();
-        const stateReady = document.getElementById('pix-ready-state');
-        const stateError = document.getElementById('pix-error-state');
-        if (stateReady) stateReady.hidden = true;
-        if (stateError) {
-          const title = document.getElementById('pix-error-title');
-          const desc = document.getElementById('pix-error-desc');
-          if (title) title.textContent = 'PIX Expirado';
-          if (desc) desc.textContent = 'O tempo limite de 15 minutos para pagamento se esgotou.';
-          stateError.hidden = false;
-        }
+        exibirExpiradoPix(STATE.currentOrder.txid, 'Tempo de 15 minutos esgotado.');
       }
     }
 
@@ -579,10 +574,14 @@
 
         const data = await res.json();
         const isPago = (data.status === 'pago' || data.status === 'approved' || data.aprovado === true);
+        const isExpirado = (data.status === 'expirado' || data.status === 'cancelado' || data.expirado === true);
 
         if (isPago) {
           pararPollingPix();
           exibirSucessoPix(data);
+        } else if (isExpirado) {
+          pararPollingPix();
+          exibirExpiradoPix(txid, data.mensagem || 'A cobrança PIX expirou no sistema.');
         }
       } catch (e) {
         // Silencioso
@@ -598,6 +597,46 @@
     if (STATE.currentOrder.countdownTimer) {
       clearInterval(STATE.currentOrder.countdownTimer);
       STATE.currentOrder.countdownTimer = null;
+    }
+  }
+
+  // 9.1 INVALIDAÇÃO E TELA DE PAGAMENTO NÃO EFETIVADO
+  async function exibirExpiradoPix(txid, motivo = 'O tempo limite de 15 minutos para pagamento se esgotou.') {
+    pararPollingPix();
+
+    // 1. Invalida o código PIX na tela imediatamente
+    const inputCopiaCola = document.getElementById('input-pix-copiacola');
+    const qrImg = document.getElementById('pix-qrcode-img');
+    if (inputCopiaCola) inputCopiaCola.value = '';
+    if (qrImg) qrImg.src = '';
+
+    // 2. Avisa o backend para atualizar o banco para 'expirado'
+    if (txid) {
+      try {
+        fetch(`/api/loja/cancelar_pedido.php?txid=${encodeURIComponent(txid)}&status=expirado`, {
+          method: 'POST'
+        }).catch(() => {});
+      } catch (e) {}
+    }
+
+    // 3. Exibe o estado visual de Pagamento Não Efetivado
+    const stateLoading = document.getElementById('pix-loading-state');
+    const stateReady = document.getElementById('pix-ready-state');
+    const stateSuccess = document.getElementById('pix-success-state');
+    const stateError = document.getElementById('pix-error-state');
+    const headerTitle = document.getElementById('pix-modal-header-title');
+
+    if (stateLoading) stateLoading.hidden = true;
+    if (stateReady) stateReady.hidden = true;
+    if (stateSuccess) stateSuccess.hidden = true;
+    if (headerTitle) headerTitle.textContent = 'Pagamento Não Efetivado';
+
+    if (stateError) {
+      const title = document.getElementById('pix-error-title');
+      const desc = document.getElementById('pix-error-desc');
+      if (title) title.textContent = 'Pagamento Não Efetivado';
+      if (desc) desc.textContent = motivo;
+      stateError.hidden = false;
     }
   }
 

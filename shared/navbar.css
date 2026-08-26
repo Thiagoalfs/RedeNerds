@@ -10,7 +10,8 @@
     width: 100%;
 }
 
-nav {
+#navbar-container nav,
+nav.navbar-main {
     background-color: #030407;
     display: flex;
     align-items: center;

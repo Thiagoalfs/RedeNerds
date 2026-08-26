@@ -17,8 +17,45 @@
     --text-muted: #6b7280;
 }
 
+/* Fundo Temático Dinâmico do Servidor (ex: nerddeadbg.webp) */
+.server-bg-backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: -1;
+    pointer-events: none;
+    background-position: center center;
+    background-size: cover;
+    background-repeat: no-repeat;
+    opacity: 0;
+    transition: opacity 0.5s ease-in-out;
+}
+
+.server-bg-backdrop.has-bg {
+    opacity: 1;
+}
+
+.server-bg-backdrop::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(
+        180deg,
+        rgba(3, 4, 7, 0.25) 0%,
+        rgba(3, 4, 7, 0.35) 45%,
+        rgba(3, 4, 7, 0.65) 100%
+    );
+}
+
 /* Container da Página */
 .server-page-container {
+    position: relative;
+    z-index: 1;
     width: 100%;
     max-width: 1140px;
     margin: 1.5rem auto 3.5rem auto;
@@ -29,28 +66,52 @@
 
 /* 1. Navegação de Retorno (Voltar) */
 .server-nav-back {
-    margin-bottom: 1.25rem;
+    margin: 0 0 1.5rem 0;
+    padding: 0 !important;
+    background: transparent !important;
+    background-color: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    display: flex;
+    align-items: center;
+    width: fit-content;
 }
 
 .btn-back {
     display: inline-flex;
     align-items: center;
-    gap: 8px;
-    color: var(--text-secondary);
+    gap: 9px;
+    background: transparent !important;
+    background-color: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+    color: #9ca3af;
     text-decoration: none;
-    font-size: 0.9rem;
+    font-size: 0.92rem;
     font-weight: 600;
-    transition: color 0.2s ease, transform 0.2s ease;
+    letter-spacing: 0.2px;
+    transition: color 0.2s ease;
+}
+
+.btn-back i {
+    font-size: 0.85rem;
+    color: var(--theme-color);
+    transition: transform 0.2s ease, color 0.2s ease;
 }
 
 .btn-back:hover {
-    color: var(--theme-color);
-    transform: translateX(-3px);
+    color: #ffffff;
+}
+
+.btn-back:hover i {
+    transform: translateX(-4px);
+    color: #ffffff;
 }
 
 /* 2. Banner / Hero Principal do Servidor */
 .server-hero-card {
-    background-color: var(--bg-surface);
+    background-color: rgba(11, 15, 21, 0.92);
     border: 1px solid var(--border-subtle);
     border-radius: 14px;
     padding: 1.5rem;
@@ -60,6 +121,7 @@
     gap: 1.5rem;
     margin-bottom: 2rem;
     box-sizing: border-box;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
 }
 
 .server-hero-left {
@@ -238,11 +300,12 @@
 
 /* Blocos de Conteúdo */
 .server-card-block {
-    background-color: var(--bg-surface);
+    background-color: rgba(11, 15, 21, 0.92);
     border: 1px solid var(--border-subtle);
     border-radius: 12px;
     padding: 1.75rem;
     box-sizing: border-box;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
 }
 
 .block-header {
@@ -328,11 +391,12 @@
 }
 
 .server-action-card {
-    background-color: var(--bg-surface);
+    background-color: rgba(11, 15, 21, 0.92);
     border: 1px solid var(--border-subtle);
     border-radius: 12px;
     padding: 1.5rem;
     box-sizing: border-box;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
 }
 
 .sidebar-card-title {
