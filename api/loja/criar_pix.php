@@ -83,6 +83,41 @@ if (empty($vipNome)) {
     $vipNome = "VIP " . ucfirst($servidor);
 }
 
+// Valida se o servidor está habilitado (enabled = 1) no banco de dados
+try {
+    $srvSlug = strtolower(preg_replace('/[^a-zA-Z0-9]/', '', $servidor));
+    if (isset($pdo) && $pdo instanceof PDO) {
+        $stmtCheck = $pdo->prepare("SELECT id, servername, enabled FROM servidores WHERE (servername = :srv OR nome = :srvSlug) LIMIT 1");
+        $stmtCheck->execute([':srv' => $servidor, ':srvSlug' => $srvSlug]);
+        $srvRow = $stmtCheck->fetch(PDO::FETCH_ASSOC);
+        if ($srvRow) {
+            if (isset($srvRow['enabled']) && (int)$srvRow['enabled'] === 0) {
+                http_response_code(400);
+                echo json_encode(["erro" => "As compras para este servidor estão temporariamente desabilitadas."], JSON_UNESCAPED_UNICODE);
+                exit;
+            }
+            $servidor = $srvRow['servername'];
+        }
+    } elseif (isset($conn) && $conn instanceof mysqli) {
+        $stmtCheck = $conn->prepare("SELECT id, servername, enabled FROM servidores WHERE (servername = ? OR nome = ?) LIMIT 1");
+        if ($stmtCheck) {
+            $stmtCheck->bind_param("ss", $servidor, $srvSlug);
+            $stmtCheck->execute();
+            $res = $stmtCheck->get_result();
+            if ($res && $srvRow = $res->fetch_assoc()) {
+                if (isset($srvRow['enabled']) && (int)$srvRow['enabled'] === 0) {
+                    http_response_code(400);
+                    echo json_encode(["erro" => "As compras para este servidor estão temporariamente desabilitadas."], JSON_UNESCAPED_UNICODE);
+                    exit;
+                }
+                $servidor = $srvRow['servername'];
+            }
+        }
+    }
+} catch (Exception $e) {
+    // Prossegue normalmente se a tabela não estiver disponível
+}
+
 // Gera identificador único para o pedido
 $txid = "NERD-" . strtoupper(substr(md5(uniqid($nick . time(), true)), 0, 16));
 
