@@ -8,6 +8,293 @@
     --border-subtle: rgba(255, 255, 255, 0.08);
 }
 
+/* ======================================================== */
+/* HERO SECTION DA LANDING PAGE                             */
+/* ======================================================== */
+#big-header-img-content {
+    width: fit-content;
+    max-width: calc(100% - 40px);
+    gap: clamp(24px, 3.8vw, 52px);
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
+}
+
+#img-titulo {
+    width: clamp(160px, 17vw, 230px);
+    max-width: 100%;
+    height: auto;
+    filter: drop-shadow(0 14px 28px rgba(0, 0, 0, 0.75));
+    user-select: none;
+    flex-shrink: 0;
+    animation: floatLogo 6s ease-in-out infinite;
+}
+
+@keyframes floatLogo {
+    0%, 100% {
+        transform: translateY(0px);
+    }
+    50% {
+        transform: translateY(-6px);
+    }
+}
+
+#big-header-text {
+    flex: 0 1 auto;
+    width: fit-content;
+    max-width: 540px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    text-align: left;
+    min-width: 0;
+}
+
+.hero-title {
+    margin: 0 0 0.45rem 0;
+    font-family: 'Poppins', sans-serif;
+    font-weight: 900;
+    font-size: clamp(1.85rem, 2.9vw, 2.75rem);
+    line-height: 1.1;
+    letter-spacing: -0.8px;
+    display: flex;
+    flex-direction: column;
+}
+
+.hero-title-white {
+    color: #FFFFFF;
+    text-shadow: 0 4px 16px rgba(0, 0, 0, 0.6);
+}
+
+.hero-title-gold {
+    color: #F6C85F;
+    text-shadow: 0 3px 0 #9C6207, 0 5px 16px rgba(0, 0, 0, 0.6);
+}
+
+.hero-description {
+    font-size: clamp(0.85rem, 0.95vw, 0.96rem);
+    color: #CBD5E1;
+    line-height: 1.48;
+    margin: 0 0 1rem 0;
+    max-width: 490px;
+    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.7);
+}
+
+.hero-description strong {
+    color: #FFFFFF;
+    font-weight: 700;
+}
+
+.hero-buttons {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+    margin-bottom: 1rem;
+}
+
+.btn-hero-discord {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 9px 18px;
+    background-color: #5865F2;
+    color: #FFFFFF !important;
+    font-size: 0.88rem;
+    font-weight: 700;
+    text-decoration: none;
+    border-radius: 8px;
+    box-shadow: 0 4px 14px rgba(88, 101, 242, 0.4);
+    transition: background-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.btn-hero-discord:hover {
+    background-color: #4752C4;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 18px rgba(88, 101, 242, 0.55);
+}
+
+.btn-hero-servers {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 9px 18px;
+    background-color: #FFFFFF;
+    color: #030407 !important;
+    font-size: 0.88rem;
+    font-weight: 700;
+    text-decoration: none;
+    border-radius: 8px;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35);
+    transition: background-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.btn-hero-servers:hover {
+    background-color: #F1F5F9;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 18px rgba(255, 255, 255, 0.2);
+}
+
+.hero-badges-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.hero-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 9px;
+    border-radius: 6px;
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: #E2E8F0;
+    transition: transform 0.2s ease;
+}
+
+.badge-anticheat {
+    background: rgba(46, 204, 113, 0.12);
+    border: 1px solid rgba(46, 204, 113, 0.35);
+}
+.badge-anticheat i {
+    color: #2ECC71;
+    font-size: 0.88rem;
+}
+
+.badge-modpacks {
+    background: rgba(241, 196, 15, 0.12);
+    border: 1px solid rgba(241, 196, 15, 0.35);
+}
+.badge-modpacks i {
+    color: #F1C40F;
+    font-size: 0.88rem;
+}
+
+.badge-discord {
+    background: rgba(88, 101, 242, 0.12);
+    border: 1px solid rgba(88, 101, 242, 0.35);
+}
+.badge-discord i {
+    color: #818CF8;
+    font-size: 0.88rem;
+}
+
+.badge-separator {
+    color: rgba(255, 255, 255, 0.25);
+    font-size: 0.8rem;
+    user-select: none;
+}
+
+
+@media (max-width: 900px) {
+    #big-header-div {
+        height: auto !important;
+        min-height: clamp(680px, 92svh, 860px) !important;
+        padding: 0 !important;
+    }
+
+    #big-header-img-content {
+        flex-direction: column !important;
+        align-items: center !important;
+        text-align: center !important;
+        gap: 16px;
+        width: 100% !important;
+        max-width: 100% !important;
+        padding: 2.5rem 1.25rem 3rem 1.25rem !important;
+        box-sizing: border-box;
+    }
+
+    #img-titulo {
+        width: clamp(140px, 32vw, 185px);
+        margin: 0;
+    }
+
+    #big-header-text {
+        align-items: center;
+        text-align: center;
+        width: 100%;
+    }
+
+    .hero-title {
+        align-items: center;
+        font-size: clamp(2rem, 6.5vw, 2.6rem);
+        margin-bottom: 0.85rem;
+    }
+
+    .hero-description {
+        margin: 0 auto 1.5rem auto;
+        font-size: 0.95rem;
+        max-width: 520px;
+    }
+
+    .hero-buttons {
+        justify-content: center;
+        width: 100%;
+        margin-bottom: 1.5rem;
+    }
+
+    .hero-badges-row {
+        justify-content: center;
+    }
+}
+
+@media (max-width: 540px) {
+    #big-header-div {
+        min-height: auto !important;
+    }
+
+    #big-header-img-content {
+        padding: 2rem 1rem 2.5rem 1rem !important;
+    }
+
+    #img-titulo {
+        width: 130px;
+    }
+
+    .hero-title {
+        font-size: 1.85rem;
+    }
+
+    .hero-description {
+        font-size: 0.88rem;
+        line-height: 1.5;
+    }
+
+    .hero-buttons {
+        flex-direction: column;
+        width: 100%;
+        gap: 10px;
+    }
+
+    .btn-hero-discord,
+    .btn-hero-servers {
+        width: 100%;
+        box-sizing: border-box;
+        padding: 12px 18px;
+        font-size: 0.92rem;
+    }
+
+    .hero-badges-row {
+        gap: 6px;
+        justify-content: center;
+    }
+
+    .badge-separator {
+        display: none;
+    }
+
+    .hero-badge {
+        font-size: 0.76rem;
+        padding: 4px 8px;
+    }
+}
+
 /* =========================
    Landing — Mobile-first
    Minimalista
