@@ -104,7 +104,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <title>Nova Notícia - Painel Administrativo</title>
     <link rel="icon" type="image/x-icon" href="/assets/images/logo.webp">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="dbcommon.css?v=2" rel="stylesheet">
+    <link href="dbcommon.css?v=1" rel="stylesheet">
 </head>
 <body>
     <nav class="navbar navbar-dark bg-dark shadow-sm">
