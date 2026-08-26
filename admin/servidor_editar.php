@@ -18,6 +18,7 @@ if (!$configPath) {
 }
 require_once $configPath;
 require_once "icon_upload.php";
+require_once "bg_upload.php";
 
 $mensagem_sucesso = "";
 $mensagem_erro = "";
@@ -30,7 +31,7 @@ if ($id <= 0) {
 }
 
 try {
-    $stmt = $pdo->prepare("SELECT id, servername, title, icon, descricao, features, modpackurl, ip, themecolor, enabled FROM servidores WHERE id = :id LIMIT 1");
+    $stmt = $pdo->prepare("SELECT id, servername, title, icon, bg_image, descricao, features, modpackurl, ip, themecolor, enabled FROM servidores WHERE id = :id LIMIT 1");
     $stmt->execute([':id' => $id]);
     $servidor = $stmt->fetch(PDO::FETCH_ASSOC);
 
@@ -49,6 +50,7 @@ if (!is_array($features) || empty($features)) {
 }
 $icon_fa = (tipoDoIcone($servidor['icon']) === 'fa') ? $servidor['icon'] : '';
 $icon_url_atual = (tipoDoIcone($servidor['icon']) === 'img' && preg_match('#^https?://#i', $servidor['icon'])) ? $servidor['icon'] : '';
+$bg_image_atual = $servidor['bg_image'] ?? '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $servername = trim($_POST['servername'] ?? '');
@@ -58,10 +60,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $themecolor = trim($_POST['themecolor'] ?? '#B971DA');
     $enabled    = isset($_POST['enabled']);
 
+    $slugCalculado = preg_replace('/[^a-z0-9]/', '', strtolower($servername));
+
     $featuresPost = $_POST['features'] ?? [];
     $features = array_values(array_filter(array_map('trim', $featuresPost), fn($f) => $f !== ''));
 
     [$icon, $erro_icone] = processarIcone($servidor['icon']);
+    [$bg_image, $erro_bg] = processarBgServidor($slugCalculado, $servidor['bg_image'] ?? null);
 
     if ($servername === '' || $descricao === '' || $modpackurl === '' || $ip === '') {
         $mensagem_erro = "Preencha todos os campos obrigatórios.";
@@ -71,14 +76,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $mensagem_erro = "Adicione ao menos uma feature.";
     } elseif ($erro_icone) {
         $mensagem_erro = $erro_icone;
+    } elseif ($erro_bg) {
+        $mensagem_erro = $erro_bg;
     } elseif (empty($icon)) {
         $mensagem_erro = "Defina um ícone: classe FontAwesome, link de imagem ou upload de arquivo.";
     } else {
         try {
-            $stmt = $pdo->prepare("UPDATE servidores SET servername = :servername, icon = :icon, descricao = :descricao, features = :features, modpackurl = :modpackurl, ip = :ip, themecolor = :themecolor, enabled = :enabled WHERE id = :id");
+            $stmt = $pdo->prepare("UPDATE servidores SET servername = :servername, icon = :icon, bg_image = :bg_image, descricao = :descricao, features = :features, modpackurl = :modpackurl, ip = :ip, themecolor = :themecolor, enabled = :enabled WHERE id = :id");
             $stmt->execute([
                 ':servername' => $servername,
                 ':icon'       => $icon,
+                ':bg_image'   => $bg_image,
                 ':descricao'  => $descricao,
                 ':features'   => json_encode($features, JSON_UNESCAPED_UNICODE),
                 ':modpackurl' => $modpackurl,
@@ -92,6 +100,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             $servidor['servername'] = $servername;
             $servidor['icon']       = $icon;
+            $servidor['bg_image']   = $bg_image;
             $servidor['descricao']  = $descricao;
             $servidor['modpackurl'] = $modpackurl;
             $servidor['ip']         = $ip;
@@ -100,6 +109,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             $icon_fa = (tipoDoIcone($icon) === 'fa') ? $icon : '';
             $icon_url_atual = (tipoDoIcone($icon) === 'img' && preg_match('#^https?://#i', $icon)) ? $icon : '';
+            $bg_image_atual = $bg_image;
         } catch (PDOException $e) {
             $mensagem_erro = "Erro ao atualizar o servidor. Verifique se já não existe outro servidor com esse nome.";
         }
@@ -250,6 +260,41 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         </div>
                     </div>
 
+                    <div class="card bg-light p-3 mb-3">
+                        <h6 class="mb-2">🖼️ Imagem de Fundo (Background)</h6>
+                        <small class="text-muted d-block mb-2">Envie uma imagem para servir como wallpaper temático da página deste servidor (salva automaticamente em <code>assets/servidores/&lt;slug&gt;.webp</code>).</small>
+                        <div class="row g-3">
+                            <div class="col-12 col-md-6">
+                                <label for="bg_upload" class="form-label">Upload de Novo Wallpaper (JPG, PNG, WEBP)</label>
+                                <input type="file" class="form-control" id="bg_upload" name="bg_upload"
+                                    accept="image/png,image/jpeg,image/webp,image/gif"
+                                    onchange="previewBgImage(this)">
+                            </div>
+                            <div class="col-12 col-md-6">
+                                <label for="bg_url" class="form-label">Ou link direto de imagem</label>
+                                <input type="text" class="form-control" id="bg_url" name="bg_url"
+                                    value="<?php echo htmlspecialchars($bg_image_atual, ENT_QUOTES, 'UTF-8'); ?>"
+                                    placeholder="https://... ou /assets/servidores/..." oninput="previewBgUrl(this.value)">
+                            </div>
+                        </div>
+
+                        <?php if (!empty($bg_image_atual)): ?>
+                            <div class="form-check mt-3">
+                                <input class="form-check-input" type="checkbox" id="remover_bg" name="remover_bg" value="1">
+                                <label class="form-check-label text-danger" for="remover_bg">
+                                    🗑️ Remover imagem de fundo atual
+                                </label>
+                            </div>
+                        <?php endif; ?>
+
+                        <div id="bg-preview-container" class="mt-3" style="<?php echo empty($bg_image_atual) ? 'display: none;' : ''; ?>">
+                            <label class="form-label text-muted small">Pré-visualização do Fundo Atual/Novo:</label>
+                            <div style="width: 100%; height: 160px; border-radius: 8px; overflow: hidden; border: 1px solid #ccc; background: #222;">
+                                <img id="bg-preview-img" src="<?php echo htmlspecialchars($bg_image_atual, ENT_QUOTES, 'UTF-8'); ?>" alt="Preview Fundo" style="width: 100%; height: 100%; object-fit: cover;">
+                            </div>
+                        </div>
+                    </div>
+
                     <div class="row g-3 mb-4">
                         <div class="col-12 col-md-6">
                             <label for="themecolor" class="form-label">Cor do tema <span class="text-danger">*</span></label>
@@ -329,9 +374,30 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             // se ambos vazios, mantém o preview do ícone atual (não sobrescreve)
         }
 
-        function atualizarPreviewCor() {
-            const cor = document.getElementById('themecolor').value;
-            document.getElementById('cor-swatch').style.background = cor;
+        function previewBgImage(input) {
+            const arquivo = input.files && input.files[0];
+            const container = document.getElementById('bg-preview-container');
+            const img = document.getElementById('bg-preview-img');
+            if (!arquivo) return;
+            const leitor = new FileReader();
+            leitor.onload = (e) => {
+                img.src = e.target.result;
+                container.style.display = 'block';
+            };
+            leitor.readAsDataURL(arquivo);
+        }
+
+        function previewBgUrl(url) {
+            const container = document.getElementById('bg-preview-container');
+            const img = document.getElementById('bg-preview-img');
+            if (url && url.trim()) {
+                img.src = url.trim();
+                container.style.display = 'block';
+            } else {
+                <?php if (empty($bg_image_atual)): ?>
+                    container.style.display = 'none';
+                <?php endif; ?>
+            }
         }
 
         atualizarPreviewCor();

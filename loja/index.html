@@ -256,12 +256,21 @@
                     </button>
                 </div>
 
-                <!-- Estado 4: Erro / Expirado -->
+                <!-- Estado 4: Pagamento Não Efetivado / Tempo Esgotado -->
                 <div id="pix-error-state" class="pix-view-state error-view" hidden>
-                    <i class="fa-solid fa-circle-exclamation error-icon"></i>
-                    <h4 id="pix-error-title">Tempo Esgotado</h4>
-                    <p id="pix-error-desc">A cobrança PIX expirou. Gere uma nova tentativa.</p>
-                    <button type="button" id="btn-retry-pix" class="btn-solid-primary btn-block">Tentar Novamente</button>
+                    <div class="error-icon-box">
+                        <i class="fa-solid fa-clock-rotate-left error-icon"></i>
+                    </div>
+                    <h4 id="pix-error-title">Pagamento Não Efetivado</h4>
+                    <p id="pix-error-desc">O tempo limite de 15 minutos se esgotou e o código PIX foi cancelado automaticamente.</p>
+                    <div class="error-actions-group">
+                        <button type="button" id="btn-retry-pix" class="btn-solid-primary btn-block">
+                            <i class="fa-solid fa-arrows-rotate"></i> Gerar Novo PIX
+                        </button>
+                        <button type="button" id="btn-close-error" class="btn-outline-action btn-block" style="margin-top: 8px;">
+                            Fechar Janela
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>

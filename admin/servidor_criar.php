@@ -18,6 +18,7 @@ if (!$configPath) {
 }
 require_once $configPath;
 require_once "icon_upload.php";
+require_once "bg_upload.php";
 
 $mensagem_sucesso = "";
 $mensagem_erro = "";
@@ -31,6 +32,7 @@ $themecolor  = "#B971DA";
 $enabled     = true;
 $icon_fa     = "";
 $icon_url    = "";
+$bg_image    = "";
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $servername = trim($_POST['servername'] ?? '');
@@ -42,10 +44,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $icon_fa    = trim($_POST['icon_fa'] ?? '');
     $icon_url   = trim($_POST['icon_url'] ?? '');
 
+    $slugCalculado = preg_replace('/[^a-z0-9]/', '', strtolower($servername));
+
     $featuresPost = $_POST['features'] ?? [];
     $features = array_values(array_filter(array_map('trim', $featuresPost), fn($f) => $f !== ''));
 
     [$icon, $erro_icone] = processarIcone(null);
+    [$bg_image, $erro_bg] = processarBgServidor($slugCalculado, null);
 
     if ($servername === '' || $descricao === '' || $modpackurl === '' || $ip === '') {
         $mensagem_erro = "Preencha todos os campos obrigatórios.";
@@ -55,14 +60,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $mensagem_erro = "Adicione ao menos uma feature.";
     } elseif ($erro_icone) {
         $mensagem_erro = $erro_icone;
+    } elseif ($erro_bg) {
+        $mensagem_erro = $erro_bg;
     } elseif (empty($icon)) {
         $mensagem_erro = "Defina um ícone: classe FontAwesome, link de imagem ou upload de arquivo.";
     } else {
         try {
-            $stmt = $pdo->prepare("INSERT INTO servidores (servername, icon, descricao, features, modpackurl, ip, themecolor, enabled) VALUES (:servername, :icon, :descricao, :features, :modpackurl, :ip, :themecolor, :enabled)");
+            $stmt = $pdo->prepare("INSERT INTO servidores (servername, icon, bg_image, descricao, features, modpackurl, ip, themecolor, enabled) VALUES (:servername, :icon, :bg_image, :descricao, :features, :modpackurl, :ip, :themecolor, :enabled)");
             $stmt->execute([
                 ':servername' => $servername,
                 ':icon'       => $icon,
+                ':bg_image'   => $bg_image,
                 ':descricao'  => $descricao,
                 ':features'   => json_encode($features, JSON_UNESCAPED_UNICODE),
                 ':modpackurl' => $modpackurl,
@@ -72,7 +80,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             ]);
 
             $mensagem_sucesso = "Servidor criado com sucesso!";
-            $servername = $descricao = $modpackurl = $ip = $icon_fa = $icon_url = "";
+            $servername = $descricao = $modpackurl = $ip = $icon_fa = $icon_url = $bg_image = "";
             $features = [""];
             $themecolor = "#B971DA";
             $enabled = true;
@@ -213,6 +221,31 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         </div>
                     </div>
 
+                    <div class="card bg-light p-3 mb-3">
+                        <h6 class="mb-2">🖼️ Imagem de Fundo (Background)</h6>
+                        <small class="text-muted d-block mb-2">Envie uma imagem para servir como wallpaper temático da página deste servidor (salva automaticamente em <code>assets/servidores/&lt;slug&gt;.webp</code>).</small>
+                        <div class="row g-3">
+                            <div class="col-12 col-md-6">
+                                <label for="bg_upload" class="form-label">Upload de Wallpaper (JPG, PNG, WEBP)</label>
+                                <input type="file" class="form-control" id="bg_upload" name="bg_upload"
+                                    accept="image/png,image/jpeg,image/webp,image/gif"
+                                    onchange="previewBgImage(this)">
+                            </div>
+                            <div class="col-12 col-md-6">
+                                <label for="bg_url" class="form-label">Ou link direto de imagem</label>
+                                <input type="text" class="form-control" id="bg_url" name="bg_url"
+                                    value="<?php echo htmlspecialchars($bg_image, ENT_QUOTES, 'UTF-8'); ?>"
+                                    placeholder="https://... ou /assets/servidores/..." oninput="previewBgUrl(this.value)">
+                            </div>
+                        </div>
+                        <div id="bg-preview-container" class="mt-3" style="display: none;">
+                            <label class="form-label text-muted small">Pré-visualização do Fundo:</label>
+                            <div style="width: 100%; height: 160px; border-radius: 8px; overflow: hidden; border: 1px solid #ccc; background: #222;">
+                                <img id="bg-preview-img" src="" alt="Preview Fundo" style="width: 100%; height: 100%; object-fit: cover;">
+                            </div>
+                        </div>
+                    </div>
+
                     <div class="row g-3 mb-4">
                         <div class="col-12 col-md-6">
                             <label for="themecolor" class="form-label">Cor do tema <span class="text-danger">*</span></label>
@@ -293,9 +326,28 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
         }
 
-        function atualizarPreviewCor() {
-            const cor = document.getElementById('themecolor').value;
-            document.getElementById('cor-swatch').style.background = cor;
+        function previewBgImage(input) {
+            const arquivo = input.files && input.files[0];
+            const container = document.getElementById('bg-preview-container');
+            const img = document.getElementById('bg-preview-img');
+            if (!arquivo) return;
+            const leitor = new FileReader();
+            leitor.onload = (e) => {
+                img.src = e.target.result;
+                container.style.display = 'block';
+            };
+            leitor.readAsDataURL(arquivo);
+        }
+
+        function previewBgUrl(url) {
+            const container = document.getElementById('bg-preview-container');
+            const img = document.getElementById('bg-preview-img');
+            if (url && url.trim()) {
+                img.src = url.trim();
+                container.style.display = 'block';
+            } else {
+                container.style.display = 'none';
+            }
         }
 
         atualizarPreviewCor();
