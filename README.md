@@ -37,16 +37,6 @@ RedeNerds/
 ├── .github/workflows/   # Automação de deploy contínuo (CI/CD)
 ├── admin/               # Painel Administrativo completo (sessão, notícias, servidores, equipe)
 ├── api/                 # Endpoints REST protegidos em PHP (autenticação por API Key / middleware)
-│   ├── auth_api.php         # Middleware de segurança e autenticação das APIs
-│   ├── equipe_api.php       # Dados da equipe/staff organizados por hierarquia
-│   ├── novidades_api.php    # Notícias (busca, filtros e paginação)
-│   ├── servidores_api.php   # Servidores habilitados e configurações de tema
-│   └── loja/                # Sistema de Loja Oficial (PIX Mercado Pago & Webhooks)
-│       ├── vips_api.php         # Catálogo dinâmico de pacotes VIP vinculados aos servidores
-│       ├── criar_pix.php        # Geração de cobrança PIX via Mercado Pago e registro de pedidos
-│       ├── checar_status.php    # Polling de status do pagamento em tempo real
-│       ├── webhook_mercadopago.php # Notificações assíncronas do gateway Mercado Pago
-│       └── discord_loja_helper.php # Disparo de recibos e avisos de compra no Discord
 ├── assets/images/       # Imagens e recursos visuais do site
 ├── download/            # Página de download (launchers, modpacks, etc.)
 ├── equipe/              # Página pública da equipe (grid desktop e carrossel mobile)
