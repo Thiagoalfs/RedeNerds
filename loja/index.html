@@ -27,6 +27,9 @@
     <link rel="stylesheet" href="/shared/footer.css?v=2">
     <link rel="stylesheet" href="loja.css?v=2">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+    <!-- MERCADO PAGO SDK & SECURITY DEVICE ID -->
+    <script src="https://www.mercadopago.com/v2/security.js" view="checkout"></script>
+    <script src="https://sdk.mercadopago.com/js/v2"></script>
 </head>
 <body class="loja-page-body">
     <div id="navbar-container"></div>
@@ -97,15 +100,19 @@
                 <footer class="loja-info-footer">
                     <div class="info-pill">
                         <i class="fa-brands fa-pix"></i>
-                        <span>Pagamento via PIX com aprovação instantânea</span>
+                        <span>PIX Instantâneo</span>
+                    </div>
+                    <div class="info-pill">
+                        <i class="fa-solid fa-credit-card"></i>
+                        <span>Cartão em até 12x</span>
                     </div>
                     <div class="info-pill">
                         <i class="fa-solid fa-shield-check"></i>
-                        <span>Ativação automatizada in-game</span>
+                        <span>Ativação automatizada</span>
                     </div>
                     <div class="info-pill">
                         <i class="fa-brands fa-discord"></i>
-                        <span>Suporte direto em nosso Discord</span>
+                        <span>Suporte no Discord</span>
                     </div>
                 </footer>
 
@@ -156,11 +163,11 @@
         </div>
     </dialog>
 
-    <!-- MODAL 2: CHECKOUT PIX & CONFIRMAÇÃO DE PAGAMENTO -->
+    <!-- MODAL 2: CHECKOUT MULTI-MÉTODO (PIX & CARTÃO DE CRÉDITO) -->
     <dialog id="modal-pix-overlay" class="loja-dialog" hidden>
-        <div class="dialog-card pix-dialog-card">
+        <div class="dialog-card pix-dialog-card checkout-dialog-card">
             <div class="dialog-header">
-                <h3 id="pix-modal-header-title">Pagamento via PIX</h3>
+                <h3 id="pix-modal-header-title">Finalizar Compra</h3>
                 <button type="button" class="dialog-close-btn" id="btn-close-pix-modal" aria-label="Fechar">
                     <i class="fa-solid fa-xmark"></i>
                 </button>
@@ -177,41 +184,137 @@
                         </div>
                     </div>
                     <div class="summary-price-col">
-                        <span class="summary-caption">Total</span>
+                        <span class="summary-caption">Total à vista</span>
                         <strong id="summary-price-display" class="summary-amount">R$ 0,00</strong>
                     </div>
                 </div>
 
-                <!-- Estado 1: Carregando -->
-                <div id="pix-loading-state" class="pix-view-state">
-                    <div class="ui-spinner"></div>
-                    <p class="pix-status-title">Gerando código PIX...</p>
+                <!-- SELETOR MODULAR DE FORMAS DE PAGAMENTO -->
+                <div class="checkout-methods-nav" id="checkout-methods-nav">
+                    <button type="button" class="method-nav-btn active" data-method="pix" id="nav-btn-pix">
+                        <i class="fa-brands fa-pix"></i>
+                        <span>PIX</span>
+                        <span class="method-badge-instant">Instantâneo</span>
+                    </button>
+                    <button type="button" class="method-nav-btn" data-method="card" id="nav-btn-card">
+                        <i class="fa-solid fa-credit-card"></i>
+                        <span>Cartão de Crédito</span>
+                    </button>
                 </div>
 
-                <!-- Estado 2: Pronto para Pagamento (QR Code & Copia e Cola) -->
-                <div id="pix-ready-state" class="pix-view-state" hidden>
-                    <div class="pix-expiry-indicator">
-                        <i class="fa-regular fa-clock"></i> Expira em: <strong id="pix-countdown">15:00</strong>
+                <!-- PAINEL MÉTODO 1: PIX -->
+                <div id="panel-method-pix" class="method-tab-panel active">
+                    <!-- Estado PIX: Carregando -->
+                    <div id="pix-loading-state" class="pix-view-state">
+                        <div class="ui-spinner"></div>
+                        <p class="pix-status-title">Gerando código PIX...</p>
                     </div>
 
-                    <div class="pix-qr-container">
-                        <img id="pix-qrcode-img" src="" alt="QR Code PIX">
-                    </div>
+                    <!-- Estado PIX: Pronto (QR Code & Copia e Cola) -->
+                    <div id="pix-ready-state" class="pix-view-state" hidden>
+                        <div class="pix-expiry-indicator">
+                            <i class="fa-regular fa-clock"></i> Expira em: <strong id="pix-countdown">15:00</strong>
+                        </div>
 
-                    <div class="copia-cola-group">
-                        <label for="input-pix-copiacola">Código PIX (Copia e Cola):</label>
-                        <div class="copia-cola-row">
-                            <input type="text" id="input-pix-copiacola" readonly value="" spellcheck="false">
-                            <button type="button" id="btn-copy-pix" class="btn-solid-primary btn-copy" title="Copiar código PIX">
-                                <span id="copy-btn-text">Copiar</span>
-                            </button>
+                        <div class="pix-qr-container">
+                            <img id="pix-qrcode-img" src="" alt="QR Code PIX">
+                        </div>
+
+                        <div class="copia-cola-group">
+                            <label for="input-pix-copiacola">Código PIX (Copia e Cola):</label>
+                            <div class="copia-cola-row">
+                                <input type="text" id="input-pix-copiacola" readonly value="" spellcheck="false">
+                                <button type="button" id="btn-copy-pix" class="btn-solid-primary btn-copy" title="Copiar código PIX">
+                                    <span id="copy-btn-text">Copiar</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="pix-live-listener">
+                            <span class="pulse-indicator"></span>
+                            <span>Aguardando confirmação bancária em tempo real...</span>
                         </div>
                     </div>
+                </div>
 
-                    <div class="pix-live-listener">
-                        <span class="pulse-indicator"></span>
-                        <span>Aguardando confirmação bancária em tempo real...</span>
-                    </div>
+                <!-- PAINEL MÉTODO 2: CARTÃO DE CRÉDITO -->
+                <div id="panel-method-card" class="method-tab-panel" hidden>
+                    <form id="form-card-checkout" onsubmit="return false;" autocomplete="on">
+                        <div class="card-form-grid">
+                            
+                            <!-- Número do Cartão -->
+                            <div class="form-field full-width">
+                                <label for="card-number">Número do Cartão</label>
+                                <div class="input-with-icon">
+                                    <input type="text" id="card-number" placeholder="0000 0000 0000 0000" maxlength="19" inputmode="numeric" autocomplete="cc-number" required>
+                                    <span class="card-brand-icon" id="card-brand-icon">
+                                        <i class="fa-solid fa-credit-card"></i>
+                                    </span>
+                                </div>
+                            </div>
+
+                            <!-- Nome Impresso -->
+                            <div class="form-field full-width">
+                                <label for="card-holder-name">Nome Impresso no Cartão</label>
+                                <input type="text" id="card-holder-name" placeholder="Como impresso no cartão" autocomplete="cc-name" spellcheck="false" required>
+                            </div>
+
+                            <!-- Validade e CVV -->
+                            <div class="form-field half-width">
+                                <label for="card-expiry">Validade</label>
+                                <input type="text" id="card-expiry" placeholder="MM/AA" maxlength="5" inputmode="numeric" autocomplete="cc-exp" required>
+                            </div>
+
+                            <div class="form-field half-width">
+                                <label for="card-cvv">CVV</label>
+                                <div class="input-with-icon">
+                                    <input type="password" id="card-cvv" placeholder="123" maxlength="4" inputmode="numeric" autocomplete="cc-csc" required>
+                                    <span class="cvv-helper" title="Código de 3 ou 4 dígitos no verso do cartão">
+                                        <i class="fa-regular fa-circle-question"></i>
+                                    </span>
+                                </div>
+                            </div>
+
+                            <!-- CPF do Titular -->
+                            <div class="form-field half-width">
+                                <label for="card-cpf">CPF do Titular</label>
+                                <input type="text" id="card-cpf" placeholder="000.000.000-00" maxlength="14" inputmode="numeric" required>
+                            </div>
+
+                            <!-- E-mail para Comprovante -->
+                            <div class="form-field half-width">
+                                <label for="card-email">E-mail para Recibo</label>
+                                <input type="email" id="card-email" placeholder="seuemail@exemplo.com" autocomplete="email" required>
+                            </div>
+
+                            <!-- Parcelamento com Juros -->
+                            <div class="form-field full-width">
+                                <label for="card-installments">Parcelas</label>
+                                <select id="card-installments" class="styled-select" required>
+                                    <option value="1">1x à vista (Sem juros)</option>
+                                </select>
+                            </div>
+
+                        </div>
+
+                        <!-- Feedback de Erro do Cartão -->
+                        <div id="card-error-box" class="card-error-alert" hidden>
+                            <i class="fa-solid fa-triangle-exclamation"></i>
+                            <span id="card-error-msg">Dados do cartão inválidos.</span>
+                        </div>
+
+                        <!-- Botão de Pagamento com Cartão -->
+                        <button type="submit" id="btn-submit-card" class="btn-solid-primary btn-block btn-pay-card">
+                            <span id="btn-card-spinner" class="btn-spinner" hidden></span>
+                            <i class="fa-solid fa-lock" id="btn-card-lock-icon"></i>
+                            <span id="btn-card-label">Pagar com Cartão</span>
+                        </button>
+
+                        <div class="card-security-badges">
+                            <span><i class="fa-solid fa-shield-halved"></i> Criptografia 256-bit</span>
+                            <span><i class="fa-solid fa-check"></i> Antifraude Mercado Pago</span>
+                        </div>
+                    </form>
                 </div>
 
                 <!-- Estado 3: CONFIRMAÇÃO DE PAGAMENTO APROVADO -->
@@ -235,6 +338,10 @@
                         <div class="receipt-row">
                             <span class="receipt-label">Servidor:</span>
                             <span id="receipt-server-name" class="receipt-val">NerdDead</span>
+                        </div>
+                        <div class="receipt-row">
+                            <span class="receipt-label">Método:</span>
+                            <span id="receipt-method-name" class="receipt-val">PIX</span>
                         </div>
                         <div class="receipt-row">
                             <span class="receipt-label">Transação:</span>
@@ -262,10 +369,10 @@
                         <i class="fa-solid fa-clock-rotate-left error-icon"></i>
                     </div>
                     <h4 id="pix-error-title">Pagamento Não Efetivado</h4>
-                    <p id="pix-error-desc">O tempo limite de 15 minutos se esgotou e o código PIX foi cancelado automaticamente.</p>
+                    <p id="pix-error-desc">O tempo limite se esgotou ou a transação não pôde ser concluída.</p>
                     <div class="error-actions-group">
                         <button type="button" id="btn-retry-pix" class="btn-solid-primary btn-block">
-                            <i class="fa-solid fa-arrows-rotate"></i> Gerar Novo PIX
+                            <i class="fa-solid fa-arrows-rotate"></i> Tentar Novamente
                         </button>
                         <button type="button" id="btn-close-error" class="btn-outline-action btn-block" style="margin-top: 8px;">
                             Fechar Janela
@@ -278,6 +385,6 @@
 
     <div id="footer"></div>
     <script src="/shared/navbar.js?v=2"></script>
-    <script src="loja.js?v=2"></script>
+    <script src="loja.js?v=3"></script>
 </body>
 </html>
