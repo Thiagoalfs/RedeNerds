@@ -98,56 +98,67 @@ document.addEventListener("DOMContentLoaded", () => {
     // 1. CARREGAMENTO DA TELA PRINCIPAL (Top 3)
     // ========================================================
     const loadTopNews = () => {
+        const atualizacoesSec = document.getElementById("atualizacoes-section") || document.getElementById("novidades-section");
         if (!newsContainer) return;
 
-        newsContainer.innerHTML = `<p style="text-align:center; padding: 20px;">Carregando atualizações...</p>`;
+        // Mantém a seção inteira oculta inicialmente (sem piscar nem mostrar 'carregando...')
+        if (atualizacoesSec) {
+            atualizacoesSec.hidden = true;
+        }
+
         fetch("/api/novidades_api.php?limit=3")
             .then(res => res.json())
             .then(data => {
                 if (data && data.erro) {
                     console.error("Erro retornado do PHP:", data.erro);
-                    newsContainer.innerHTML = `<p style="color: #E85D5D; text-align: center; padding: 20px;">Erro: ${escapeHTML(data.erro)}</p>`;
+                    if (atualizacoesSec) atualizacoesSec.hidden = true;
                     return;
                 }
 
                 const entries = Array.isArray(data) ? data : [];
 
                 if (entries.length === 0) {
-                    newsContainer.innerHTML = `<p style="text-align:center; padding: 20px;">Nenhuma atualização por enquanto.</p>`;
+                    if (atualizacoesSec) atualizacoesSec.hidden = true;
                     return;
                 }
 
                 newsContainer.innerHTML = entries.map(news => {
                     const categoryKey = toCategoryKey(news.category);
                     const categoryLabel = categoryLabels[categoryKey] || news.category || "";
+                    const rawDesc = String(news.conteudo || "").replace(/<[^>]+>/g, "").replace(/\\n/g, " ").trim();
+                    const descSnippet = rawDesc || "Clique para ver todos os detalhes e informações desta atualização.";
+
                     return `
                     <a class="news-div" href="/novidades/novidade-page/?id=${news.id}" data-category="${categoryKey}">
                         <div class="news-div-banner">
                             <img class="news-img" src="${escapeHTML(news.capa)}" alt="${escapeHTML(news.titulo)}">
                         </div>
                         <div class="news-div-content">
-                            ${categoryLabel ? `<span class="news-div-tag" data-category="${categoryKey}">${escapeHTML(categoryLabel)}</span>` : ""}
+                            <div class="news-div-meta">
+                                <span class="news-div-date">${new Date(news.criado_em).toLocaleDateString("pt-BR")}</span>
+                                ${categoryLabel ? `<span class="news-div-tag" data-category="${categoryKey}">${escapeHTML(categoryLabel)}</span>` : ""}
+                            </div>
                             <h3 class="news-div-title">${escapeHTML(news.titulo)}</h3>
+                            <p class="news-div-desc">${escapeHTML(descSnippet)}</p>
                             <div class="news-div-footer">
                                 <div class="author">
                                     <img class="author-head" src="https://mc-heads.net/avatar/${escapeHTML(news.autor)}" alt="${escapeHTML(news.autor)}">
-                                    <p>${escapeHTML(news.autor)}</p>
-                                </div>
-                                <div class="date">
-                                    <p>${new Date(news.criado_em).toLocaleDateString("pt-BR")}</p>
+                                    <span>${escapeHTML(news.autor)}</span>
                                 </div>
                             </div>
-                            <span class="news-div-link">
-                                Ler mais <i class="fa-solid fa-arrow-right"></i>
-                            </span>
                         </div>
                     </a>
                     `;
                 }).join("");
+
+                // Revela a seção completa somente agora após carregar as notícias com sucesso
+                if (atualizacoesSec) {
+                    atualizacoesSec.hidden = false;
+                }
             })
             .catch(err => {
                 console.error("Erro ao carregar atualizações:", err);
-                newsContainer.innerHTML = `<p style="color: #E85D5D; text-align: center; padding: 20px;">Erro ao carregar atualizações.</p>`;
+                if (atualizacoesSec) atualizacoesSec.hidden = true;
             });
     };
 

@@ -111,7 +111,7 @@ try {
         $limit = intval($_GET["limit"]);
         if ($limit <= 0) $limit = 3;
 
-        $sql = "SELECT id, titulo, autor, capa, category, criado_em 
+        $sql = "SELECT id, titulo, autor, capa, category, conteudo, criado_em 
                 FROM novidades 
                 $whereSQL 
                 ORDER BY criado_em DESC 

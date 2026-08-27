@@ -23,20 +23,20 @@
     <meta name="twitter:image" content="https://redenerds.com.br/assets/images/logo.webp">
 
     <link rel="icon" type="image/x-icon" href="/assets/images/logo.webp">
-    <link rel="stylesheet" href="/shared/shared.css?v=5">
-    <link rel="stylesheet" href="/shared/navbar.css?v=5">
-    <link rel="stylesheet" href="/shared/footer.css?v=5">
-    <link rel="stylesheet" href="regras.css?v=5">
+    <link rel="stylesheet" href="/shared/shared.css?v=1">
+    <link rel="stylesheet" href="/shared/navbar.css?v=1">
+    <link rel="stylesheet" href="/shared/footer.css?v=1">
+    <link rel="stylesheet" href="regras.css?v=1">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
 </head>
 <body>
     <div id="navbar-container"></div>
     <div id="page-wrapper">
         <div id="big-header-div">
-            <img id="img-fundo" src="/assets/images/fundo.webp">
+            <img id="img-fundo" src="/assets/images/fundo.webp" alt="">
 
             <div id="big-header-img-content">
-                <img id="img-titulo" src="/assets/images/logonobg.webp">
+                <img id="img-titulo" src="/assets/images/logonobg.webp" alt="Rede Nerds">
                 <div id="big-header-text">
                     <h1>Regras</h1>
                     <p>Ao jogar na Rede Nerds, você concorda com as regras abaixo, tendo ciência de que o descumprimento das mesmas resultarão em punições adequadas.</p>
@@ -50,28 +50,82 @@
             </div>
         </div>
         <main id="container">
-            <h3>1. Respeite todos os jogadores.</h3>
-            <p>Trate todos os jogadores e membros da equipe com respeito. É proibido qualquer tipo de ofensa, discriminação, assédio, preconceito ou comportamento tóxico.</p>
-            <h3>2. Proibido spam, flood e divulgações.</h3>
-            <p>Spam, flood e mensagens repetitivas são proibidos. Não divulgue outros servidores, redes ou comunidades sem autorização da administração.</p>
-            <h3>3. Não use hacks, cheats ou exploits.</h3>
-            <p>É proibido utilizar Hack, Cheat, X-Ray, clientes modificados ou qualquer programa que forneça vantagens indevidas. Também é proibido abusar de bugs, glitches ou exploits. Caso encontre algum, informe imediatamente à equipe.</p>
-            <h3>4. Não destrua construções de outros jogadores, grife ou roube.</h3>
-            <p>Não destrua, roube ou modifique construções de outros jogadores sem autorização. Respeite o espaço entre bases e evite construções muito próximas sem consentimento.</p>
-            <h3>5. PvP apenas em eventos.</h3>
-            <p>Nosso servidor foca na experiência PvE (Jogador contra Ambiente) e cooperação. O combate entre jogadores (PvP) está desativado no mundo aberto e só é permitido em arenas específicas ou durante eventos organizados pela staff.</p>
-            <h3>6. Não crie máquinas, farms ou sistemas que causem lag.</h3>
-            <p>Máquinas, farms ou sistemas automáticos que causem lag poderão ser removidos sem aviso prévio. O jogador poderá ser punido caso insista em prejudicar o desempenho do servidor.</p>
-            <h3>7. Proibido qualquer uso de chunk loader.</h3>
-            <p>O uso de Chunk Loaders é totalmente proibido. Tentativas de burlar essa regra resultarão em punição. Reincidência poderá levar ao banimento permanente.</p>
-            <h3>8. Proibido criar Claims no Nether ou no The End.</h3>
-            <p>Claims irregulares serão removidos pela equipe, podendo gerar punições ao responsável.</p>
-            <h3>9. Todo comércio deve ser justo.</h3>
-            <p>Golpes, fraudes ou tentativas de enganar outros jogadores são proibidos.</p>
-            <h3>10. Em relação a itens perdidos.</h3>
-            <p>Itens perdidos devido a crash, rollback, restart ou qualquer problema técnico só serão devolvidos mediante provas (prints, vídeos ou registros suficientes). Sem comprovação, não haverá reembolso.</p>
-            <h3>11. As decisões da equipe são finais.</h3>
-            <p>Caso uma situação não esteja prevista nas regras, a administração poderá agir conforme julgar necessário para manter a ordem do servidor.</p>
+            <details class="regra-item">
+                <summary>1. Respeite todos os jogadores.</summary>
+                <div class="regra-answer">
+                    Trate todos os jogadores e membros da equipe com respeito. É proibido qualquer tipo de ofensa, discriminação, assédio, preconceito ou comportamento tóxico.
+                </div>
+            </details>
+
+            <details class="regra-item">
+                <summary>2. Proibido spam, flood e divulgações.</summary>
+                <div class="regra-answer">
+                    Spam, flood e mensagens repetitivas são proibidos. Não divulgue outros servidores, redes ou comunidades sem autorização da administração.
+                </div>
+            </details>
+
+            <details class="regra-item">
+                <summary>3. Não use hacks, cheats ou exploits.</summary>
+                <div class="regra-answer">
+                    É proibido utilizar Hack, Cheat, X-Ray, clientes modificados ou qualquer programa que forneça vantagens indevidas. Também é proibido abusar de bugs, glitches ou exploits. Caso encontre algum, informe imediatamente à equipe.
+                </div>
+            </details>
+
+            <details class="regra-item">
+                <summary>4. Não destrua construções de outros jogadores, grife ou roube.</summary>
+                <div class="regra-answer">
+                    Não destrua, roube ou modifique construções de outros jogadores sem autorização. Respeite o espaço entre bases e evite construções muito próximas sem consentimento.
+                </div>
+            </details>
+
+            <details class="regra-item">
+                <summary>5. PvP apenas em eventos.</summary>
+                <div class="regra-answer">
+                    Nosso servidor foca na experiência PvE (Jogador contra Ambiente) e cooperação. O combate entre jogadores (PvP) está desativado no mundo aberto e só é permitido em arenas específicas ou durante eventos organizados pela staff.
+                </div>
+            </details>
+
+            <details class="regra-item">
+                <summary>6. Não crie máquinas, farms ou sistemas que causem lag.</summary>
+                <div class="regra-answer">
+                    Máquinas, farms ou sistemas automáticos que causem lag poderão ser removidos sem aviso prévio. O jogador poderá ser punido caso insista em prejudicar o desempenho do servidor.
+                </div>
+            </details>
+
+            <details class="regra-item">
+                <summary>7. Proibido qualquer uso de chunk loader.</summary>
+                <div class="regra-answer">
+                    O uso de Chunk Loaders é totalmente proibido. Tentativas de burlar essa regra resultarão em punição. Reincidência poderá levar ao banimento permanente.
+                </div>
+            </details>
+
+            <details class="regra-item">
+                <summary>8. Proibido criar Claims no Nether ou no The End.</summary>
+                <div class="regra-answer">
+                    Claims irregulares serão removidos pela equipe, podendo gerar punições ao responsável.
+                </div>
+            </details>
+
+            <details class="regra-item">
+                <summary>9. Todo comércio deve ser justo.</summary>
+                <div class="regra-answer">
+                    Golpes, fraudes ou tentativas de enganar outros jogadores são proibidos.
+                </div>
+            </details>
+
+            <details class="regra-item">
+                <summary>10. Em relação a itens perdidos.</summary>
+                <div class="regra-answer">
+                    Itens perdidos devido a crash, rollback, restart ou qualquer problema técnico só serão devolvidos mediante provas (prints, vídeos ou registros suficientes). Sem comprovação, não haverá reembolso.
+                </div>
+            </details>
+
+            <details class="regra-item">
+                <summary>11. As decisões da equipe são finais.</summary>
+                <div class="regra-answer">
+                    Caso uma situação não esteja prevista nas regras, a administração poderá agir conforme julgar necessário para manter a ordem do servidor.
+                </div>
+            </details>
         </main>
     </div>
     <div id="footer"></div>

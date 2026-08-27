@@ -53,7 +53,7 @@ body {
 #big-header-div {
     width: 100%;
     max-width: 100dvw;
-    height: clamp(540px, 70vh, 660px);
+    height: clamp(620px, 75vh, 760px);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -99,17 +99,18 @@ body {
     flex-direction: row;
     align-items: center;
     justify-content: center;
-    width: fit-content;
-    max-width: calc(100% - 40px);
-    gap: clamp(24px, 3.8vw, 52px);
+    width: 100%;
+    max-width: 1200px;
+    gap: clamp(36px, 5.5vw, 76px);
+    padding: 0 clamp(16px, 3vw, 40px);
     box-sizing: border-box;
 }
 
 #img-titulo {
-    width: clamp(160px, 17vw, 230px);
+    width: clamp(260px, 25vw, 380px);
     max-width: 100%;
     height: auto;
-    filter: drop-shadow(0 14px 28px rgba(0, 0, 0, 0.75));
+    filter: drop-shadow(0 16px 32px rgba(0, 0, 0, 0.8));
     user-select: none;
     flex-shrink: 0;
     animation: floatLogo 6s ease-in-out infinite;
@@ -125,9 +126,9 @@ body {
 }
 
 #big-header-text {
-    flex: 0 1 auto;
+    flex: 1 1 auto;
     width: fit-content;
-    max-width: 540px;
+    max-width: 620px;
     display: flex;
     flex-direction: column;
     align-items: flex-start;
@@ -136,40 +137,40 @@ body {
 }
 
 #big-header-text h1 {
-    margin: 0 0 0.45rem 0;
+    margin: 0 0 0.65rem 0;
     font-family: 'Poppins', sans-serif;
     font-weight: 900;
-    font-size: clamp(1.85rem, 2.9vw, 2.75rem);
-    line-height: 1.1;
+    font-size: clamp(2.4rem, 3.8vw, 3.6rem);
+    line-height: 1.12;
     color: #FFFFFF;
     letter-spacing: -0.8px;
     text-shadow: 0 4px 16px rgba(0, 0, 0, 0.6);
 }
 
 #big-header-text p {
-    font-size: clamp(0.85rem, 0.95vw, 0.96rem);
+    font-size: clamp(1rem, 1.2vw, 1.15rem);
     color: #CBD5E1;
-    line-height: 1.48;
-    margin: 0 0 1rem 0;
-    max-width: 490px;
+    line-height: 1.6;
+    margin: 0 0 1.35rem 0;
+    max-width: 560px;
     text-shadow: 0 2px 8px rgba(0, 0, 0, 0.7);
 }
 
 button {
-    font-size: 0.88rem;
+    font-size: 0.95rem;
     font-weight: 700;
     color: white;
     font-family: inherit;
-    padding: 9px 18px;
+    padding: 12px 24px;
     border: none;
-    border-radius: 8px;
+    border-radius: 9px;
     cursor: pointer;
     transition: transform 0.15s ease, background-color 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
     width: fit-content;
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    gap: 8px;
+    gap: 9px;
     line-height: 1;
 }
 
@@ -283,20 +284,35 @@ a {
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 10px;
+    gap: 0.5rem;
+    margin: 0 auto;
+    position: relative;
 }
 
 .subtitle {
     margin: 0;
-    font-size: 32px;
-    font-weight: 600;
-    color: var(--border-color-1);
-    border-bottom: 1px solid var(--border-color-2);
-    padding: 0px 20px 5px 20px;
+    font-family: 'Poppins', sans-serif;
+    font-size: clamp(1.75rem, 3vw, 2.35rem);
+    font-weight: 800;
+    color: #FFFFFF;
+    letter-spacing: -0.5px;
+    line-height: 1.2;
+    padding: 0;
+    border: none;
+    text-shadow: 0 2px 12px rgba(0, 0, 0, 0.6);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
 }
 
 .subtitle::after {
-    width: 150px;
+    content: "";
+    display: block;
+    width: 42px;
+    height: 3px;
+    background: #38BDF8;
+    border-radius: 2px;
 }
 
 
@@ -337,7 +353,7 @@ a {
         flex-direction: column !important;
         align-items: center !important;
         text-align: center !important;
-        gap: 14px;
+        gap: 16px;
         width: 100% !important;
         max-width: 100% !important;
         padding: 2.25rem 1.25rem 2.75rem 1.25rem !important;
@@ -347,8 +363,8 @@ a {
 
     #img-titulo {
         display: block !important;
-        width: clamp(130px, 30vw, 165px) !important;
-        max-width: 165px;
+        width: clamp(140px, 32vw, 185px) !important;
+        max-width: 185px;
         margin: 0;
     }
 
@@ -356,17 +372,18 @@ a {
         align-items: center !important;
         text-align: center !important;
         width: 100%;
+        max-width: 520px;
     }
 
     #big-header-text h1 {
         align-items: center;
-        font-size: clamp(1.85rem, 6vw, 2.4rem);
+        font-size: clamp(1.95rem, 6.2vw, 2.5rem);
         margin-bottom: 0.5rem;
     }
 
     #big-header-text p {
         margin: 0 auto 1.15rem auto;
-        font-size: 0.88rem;
+        font-size: 0.92rem;
         max-width: 480px;
     }
 
@@ -383,15 +400,15 @@ a {
     }
 
     #img-titulo {
-        width: 125px !important;
+        width: 135px !important;
     }
 
     #big-header-text h1 {
-        font-size: 1.75rem;
+        font-size: 1.85rem;
     }
 
     #big-header-text p {
-        font-size: 0.85rem;
+        font-size: 0.88rem;
         line-height: 1.5;
     }
 
@@ -405,6 +422,53 @@ a {
     #big-header-buttons button {
         width: 100%;
         box-sizing: border-box;
+    }
+}
+
+/* ======================================================== */
+/* SCROLL REVEAL ANIMATIONS (Global em todas as páginas)     */
+/* ======================================================== */
+.reveal-on-scroll {
+    opacity: 0;
+    transform: translateY(22px);
+    transition: opacity 0.5s cubic-bezier(0.16, 1, 0.3, 1), transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+    will-change: opacity, transform;
+}
+
+.reveal-on-scroll.is-revealed {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* Delays escalonados para itens em grade/lista */
+.servers-grid > .reveal-on-scroll:nth-child(1),
+.parceiros-grid > .reveal-on-scroll:nth-child(1),
+.missao-visao-grid > .reveal-on-scroll:nth-child(1),
+.valores-grid > .reveal-on-scroll:nth-child(1),
+.features-list > .reveal-on-scroll:nth-child(1) {
+    transition-delay: 0.04s;
+}
+
+.servers-grid > .reveal-on-scroll:nth-child(2),
+.parceiros-grid > .reveal-on-scroll:nth-child(2),
+.missao-visao-grid > .reveal-on-scroll:nth-child(2),
+.valores-grid > .reveal-on-scroll:nth-child(2),
+.features-list > .reveal-on-scroll:nth-child(2) {
+    transition-delay: 0.12s;
+}
+
+.servers-grid > .reveal-on-scroll:nth-child(3),
+.parceiros-grid > .reveal-on-scroll:nth-child(3),
+.valores-grid > .reveal-on-scroll:nth-child(3),
+.features-list > .reveal-on-scroll:nth-child(3) {
+    transition-delay: 0.20s;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .reveal-on-scroll {
+        opacity: 1 !important;
+        transform: none !important;
+        transition: none !important;
     }
 }
 
