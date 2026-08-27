@@ -579,22 +579,31 @@
 }
 
 /* ======================================================== */
-/* 8. MODAIS DIALOG (OPACO, SÓLIDO, SEM BLUR)              */
+/* 8. MODAIS DIALOG (OPACO, SÓLIDO, RESPONSIVO & SCROLL)   */
 /* ======================================================== */
 .loja-dialog {
   position: fixed;
   top: 0;
   left: 0;
+  right: 0;
+  bottom: 0;
   width: 100vw;
   height: 100vh;
-  background: rgba(0, 0, 0, 0.75);
-  z-index: 9999;
+  background: rgba(0, 0, 0, 0.82);
+  z-index: 99999;
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 1rem;
   border: none;
   box-sizing: border-box;
+  overflow-y: auto;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+}
+
+.loja-dialog[hidden] {
+  display: none !important;
 }
 
 .dialog-card {
@@ -602,22 +611,34 @@
   border: 1px solid var(--border-active);
   border-radius: var(--radius-md);
   width: 100%;
-  max-width: 430px;
-  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.7);
+  max-width: 440px;
+  max-height: min(92vh, 760px);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.85);
   display: flex;
   flex-direction: column;
+  box-sizing: border-box;
+  margin: auto;
+  position: relative;
+  overflow: hidden;
 }
 
 .pix-dialog-card {
-  max-width: 460px;
+  max-width: 470px;
+}
+
+.checkout-dialog-card {
+  max-width: 490px;
 }
 
 .dialog-header {
-  padding: 1.1rem 1.25rem;
+  padding: 1rem 1.25rem;
   border-bottom: 1px solid var(--border-color);
   display: flex;
   align-items: center;
   justify-content: space-between;
+  flex-shrink: 0;
+  background: #111622;
+  z-index: 2;
 }
 
 .dialog-header h3 {
@@ -632,20 +653,50 @@
   background: transparent;
   border: none;
   color: var(--text-muted);
-  font-size: 1.1rem;
+  font-size: 1.2rem;
   cursor: pointer;
-  padding: 2px 4px;
+  padding: 4px 6px;
+  border-radius: 4px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s ease;
 }
 
 .dialog-close-btn:hover {
   color: #FFFFFF;
+  background: rgba(255, 255, 255, 0.08);
 }
 
 .dialog-body {
-  padding: 1.25rem 1.5rem 1.5rem 1.5rem;
+  padding: 1.15rem 1.35rem 1.35rem 1.35rem;
   display: flex;
   flex-direction: column;
-  gap: 1.2rem;
+  gap: 1.1rem;
+  flex: 1 1 auto;
+  overflow-y: auto;
+  overflow-x: hidden;
+  overscroll-behavior: contain;
+  box-sizing: border-box;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
+}
+
+.dialog-body::-webkit-scrollbar {
+  width: 6px;
+}
+
+.dialog-body::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.15);
+}
+
+.dialog-body::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 4px;
+}
+
+.dialog-body::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.35);
 }
 
 .avatar-preview-box {
@@ -1273,4 +1324,105 @@
   border-radius: 50%;
   animation: spin 0.6s linear infinite;
   display: inline-block;
+}
+
+/* ======================================================== */
+/* 12. RESPONSIVIDADE AVANÇADA PARA TELAS PEQUENAS / MOBILE */
+/* ======================================================== */
+@media (max-width: 580px) {
+  .loja-dialog {
+    padding: 0.5rem;
+    align-items: center;
+  }
+
+  .dialog-card {
+    max-height: 94vh;
+    border-radius: var(--radius-sm);
+  }
+
+  .dialog-header {
+    padding: 0.85rem 1rem;
+  }
+
+  .dialog-header h3 {
+    font-size: 0.98rem;
+  }
+
+  .dialog-body {
+    padding: 0.85rem 0.95rem 1.15rem 0.95rem;
+    gap: 0.85rem;
+  }
+
+  .order-summary-box {
+    padding: 0.6rem 0.75rem;
+  }
+
+  .summary-title {
+    font-size: 0.82rem;
+  }
+
+  .summary-amount {
+    font-size: 1rem;
+  }
+
+  .checkout-methods-nav {
+    gap: 6px;
+    padding: 4px;
+  }
+
+  .method-nav-btn {
+    min-height: 38px;
+    font-size: 0.78rem;
+    padding: 0.4rem 0.5rem;
+    gap: 6px;
+  }
+
+  .method-badge-instant {
+    font-size: 0.6rem;
+    padding: 1px 4px;
+  }
+
+  .card-form-grid {
+    gap: 0.65rem;
+  }
+
+  .form-field.half-width {
+    flex: 1 1 calc(50% - 0.35rem);
+    min-width: 110px;
+  }
+
+  .form-field label {
+    font-size: 0.76rem;
+  }
+
+  .form-field input[type="text"],
+  .form-field input[type="password"],
+  .form-field input[type="email"],
+  .styled-select {
+    padding: 0.65rem 0.75rem;
+    font-size: 0.84rem;
+  }
+
+  .card-security-badges {
+    flex-direction: column;
+    gap: 0.35rem;
+    margin-top: 0.5rem;
+    font-size: 0.7rem;
+  }
+}
+
+@media (max-height: 680px) {
+  .dialog-card {
+    max-height: 96vh;
+  }
+
+  .dialog-body {
+    padding-top: 0.75rem;
+    padding-bottom: 0.9rem;
+    gap: 0.75rem;
+  }
+
+  .order-summary-box {
+    padding: 0.5rem 0.75rem;
+  }
 }
