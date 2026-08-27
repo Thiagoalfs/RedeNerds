@@ -1,83 +1,109 @@
 /* =========================================
-   PÁGINA REGRAS — MOBILE FIRST
-   Estilos exclusivos desta página.
-   O hero e botões são controlados por shared.css.
+   PÁGINA REGRAS — ESTILO FAQ ACCORDION
    ========================================= */
 
-/* ---------- MOBILE (base) ---------- */
+/* ---------- CONTAINER GERAL ---------- */
 #container {
-    margin: 1.25rem 0.5rem 2rem 0.5rem;
+    margin: 2rem auto 3.5rem auto;
     display: flex;
     flex-direction: column;
-    gap: 0.5rem;
+    gap: 0.85rem;
+    width: 100%;
+    max-width: 900px;
+    padding: 0 1rem;
+    box-sizing: border-box;
 }
 
-/* card de cada regra */
-#container h3 {
+/* Item de cada regra (Accordion) */
+.regra-item {
+    background-color: #0E131F;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 12px;
+    overflow: hidden;
+    transition: border-color 0.25s ease, background-color 0.25s ease, box-shadow 0.25s ease;
+    box-sizing: border-box;
+}
+
+.regra-item:hover {
+    border-color: rgba(56, 189, 248, 0.35);
+    background-color: #121827;
+}
+
+.regra-item[open] {
+    border-color: rgba(56, 189, 248, 0.45);
+    background-color: #121827;
+    box-shadow: 0 8px 24px -6px rgba(0, 0, 0, 0.4);
+}
+
+.regra-item summary {
+    list-style: none;
+    cursor: pointer;
+    padding: 16px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    font-family: 'Poppins', sans-serif;
+    font-weight: 700;
+    font-size: 1.02rem;
+    color: #FFFFFF;
+    user-select: none;
+    transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.regra-item summary::-webkit-details-marker {
+    display: none;
+}
+
+.regra-item summary:hover {
+    background-color: rgba(56, 189, 248, 0.04);
+}
+
+.regra-item summary::after {
+    content: "\f078";
+    font-family: "Font Awesome 6 Free";
+    font-weight: 900;
+    color: #38BDF8;
+    font-size: 0.85rem;
+    transition: transform 0.25s ease;
+    flex-shrink: 0;
+}
+
+.regra-item[open] summary::after {
+    transform: rotate(180deg);
+}
+
+.regra-answer {
+    padding: 14px 20px 18px 20px;
+    color: #94A3B8;
+    line-height: 1.65;
+    font-size: 0.95rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.06);
     margin: 0;
-    padding: 1rem 1.25rem;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.17);
-    background: rgba(255, 255, 255, 0.04);
-    border-radius: 8px;
-    font-size: clamp(1rem, 2.6vw, 1.2rem);
-    line-height: 1.4;
-    color: #fff;
-    transition: background 0.2s ease;
 }
 
-#container h3:hover {
-    background: rgba(255, 255, 255, 0.08);
-}
-
-#container p {
-    margin: 0;
-    padding: 0 0 0.25rem 1.25rem;
-    padding-right: 1.25rem;
-    font-size: clamp(0.9rem, 2.3vw, 1.05rem);
-    line-height: 1.6;
-    color: #d8d8d8;
-}
-
-/* ---------- TABLET (≥ 700px) ---------- */
+/* ---------- RESPONSIVO ---------- */
 @media (min-width: 700px) {
     #container {
-        margin: 30px 1.5rem 40px 1.5rem;
-        gap: 0.75rem;
+        margin: 2.5rem auto 4.5rem auto;
+        gap: 1rem;
+        padding: 0 1.5rem;
     }
 
-    #container h3 {
-        padding: 1rem 1.25rem;
+    .regra-item summary {
+        padding: 18px 22px;
+        font-size: 1.08rem;
     }
 
-    #container p {
-        padding-left: 1.25rem;
+    .regra-answer {
+        padding: 16px 22px 20px 22px;
+        font-size: 0.98rem;
     }
 }
 
-/* ---------- DESKTOP (≥ 1024px) ---------- */
 @media (min-width: 1024px) {
     #container {
-        margin: 40px auto 50px auto;
-        max-width: 1100px;
-        padding: 0 1rem;
-        gap: 1rem;
-    }
-
-    #container h3 {
-        padding: 1rem 1.5rem;
-        font-size: 1.2rem;
-    }
-
-    #container p {
-        padding: 0 0 0.5rem 1.5rem;
-        font-size: 1.05rem;
-    }
-}
-
-/* ---------- DESKTOP GRANDE (≥ 1450px) ---------- */
-@media (min-width: 1450px) {
-    #container {
-        margin: 50px auto 60px auto;
-        max-width: 1200px;
+        margin: 3rem auto 5.5rem auto;
+        max-width: 960px;
     }
 }

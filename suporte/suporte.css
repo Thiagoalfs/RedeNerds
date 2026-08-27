@@ -53,12 +53,15 @@
 #faq-section .subtitle,
 #dicas-section .subtitle,
 .suporte-intro .subtitle {
-    display: inline-block;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
     width: auto;
-    padding: 0 20px 8px 20px;
+    padding: 0;
     border-bottom: none;
     position: relative;
-    margin: 0 0 25px 0;
+    margin: 0 0 20px 0;
+    gap: 8px;
 }
 
 #canais-section .subtitle::after,
@@ -67,14 +70,13 @@
 #dicas-section .subtitle::after,
 .suporte-intro .subtitle::after {
     content: "";
-    position: absolute;
-    left: 50%;
-    bottom: 0;
-    transform: translateX(-50%);
-    width: 150px;
-    height: 2px;
-    background-color: var(--border-color-2);
+    display: block;
+    width: 42px;
+    height: 3px;
+    background: #38BDF8;
     border-radius: 2px;
+    position: static;
+    transform: none;
 }
 
 /* ============================================
