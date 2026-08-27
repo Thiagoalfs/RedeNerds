@@ -1,6 +1,6 @@
 /**
  * loja.js - Controlador Oficial da Loja (Rede Nerds)
- * Gerencia identificação do jogador, abas de servidor, checkout PIX e modal de confirmação.
+ * Gerencia identificação do jogador, abas de servidor, checkout multi-método modular (PIX e Cartão de Crédito).
  */
 
 (function () {
@@ -15,17 +15,24 @@
     tipoConta: localStorage.getItem(STORAGE_KEY_TIPO) || 'original',
     servidores: [],
     selectedServer: null,
+    mpPublicKey: '',
+    mpInstance: null,
+    activePaymentMethod: 'pix', // 'pix' | 'card' (arquitetura modular extensível)
     currentOrder: {
       txid: null,
       vipData: null,
       pollingInterval: null,
-      countdownTimer: null
+      countdownTimer: null,
+      cardPaymentMethodId: '',
+      cardIssuerId: '',
+      cardInstallmentsData: []
     }
   };
 
   // 1. INICIALIZAÇÃO
   document.addEventListener('DOMContentLoaded', () => {
     setupEventListeners();
+    setupCardFormHandlers();
     carregarCatalogoVips();
 
     if (STATE.nick) {
@@ -36,7 +43,7 @@
     }
   });
 
-  // 2. CONFIGURAÇÃO DE EVENTOS
+  // 2. CONFIGURAÇÃO DE EVENTOS GERAIS
   function setupEventListeners() {
     const btnOpenNick = document.getElementById('btn-open-nick-modal');
     if (btnOpenNick) {
@@ -87,7 +94,7 @@
 
     const btnClosePix = document.getElementById('btn-close-pix-modal');
     if (btnClosePix) {
-      btnClosePix.addEventListener('click', () => fecharModalPix());
+      btnClosePix.addEventListener('click', () => fecharModalCheckout());
     }
 
     const btnCopyPix = document.getElementById('btn-copy-pix');
@@ -97,22 +104,33 @@
 
     const btnFinish = document.getElementById('btn-finish-purchase');
     if (btnFinish) {
-      btnFinish.addEventListener('click', () => fecharModalPix());
+      btnFinish.addEventListener('click', () => fecharModalCheckout());
     }
 
     const btnCloseError = document.getElementById('btn-close-error');
     if (btnCloseError) {
-      btnCloseError.addEventListener('click', () => fecharModalPix());
+      btnCloseError.addEventListener('click', () => fecharModalCheckout());
     }
 
     const btnRetryPix = document.getElementById('btn-retry-pix');
     if (btnRetryPix) {
       btnRetryPix.addEventListener('click', () => {
         if (STATE.currentOrder.vipData) {
-          iniciarCheckoutPix(STATE.currentOrder.vipData);
+          abrirCheckoutModal(STATE.currentOrder.vipData);
         }
       });
     }
+
+    // Seletor modular de métodos de pagamento
+    const methodBtns = document.querySelectorAll('.method-nav-btn');
+    methodBtns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        const method = btn.dataset.method;
+        if (method) {
+          switchPaymentMethod(method);
+        }
+      });
+    });
   }
 
   // 3. POPUP DE IDENTIFICAÇÃO (NICK)
@@ -120,30 +138,26 @@
     const dialog = document.getElementById('modal-nick-overlay');
     const btnClose = document.getElementById('btn-close-nick-modal');
     const inputNick = document.getElementById('input-player-nick');
-    const feedback = document.getElementById('nick-error-feedback');
+    const errorMsg = document.getElementById('nick-error-feedback');
 
     if (!dialog) return;
 
-    if (feedback) feedback.hidden = true;
+    if (errorMsg) errorMsg.hidden = true;
+    if (btnClose) btnClose.hidden = !podeFechar;
+
     if (inputNick) {
-      inputNick.value = STATE.nick || '';
+      inputNick.value = STATE.nick;
       atualizarPreviewAvatar(STATE.nick);
     }
 
-    document.querySelectorAll('.toggle-btn').forEach(btn => {
-      btn.classList.toggle('active', btn.dataset.type === STATE.tipoConta);
+    const accountBtns = document.querySelectorAll('.toggle-btn');
+    accountBtns.forEach(btn => {
+      btn.classList.toggle('active', (btn.dataset.type === STATE.tipoConta));
     });
-
-    if (btnClose) {
-      btnClose.hidden = !podeFechar || !STATE.nick;
-    }
 
     dialog.hidden = false;
     document.body.style.overflow = 'hidden';
-
-    if (inputNick) {
-      setTimeout(() => inputNick.focus(), 100);
-    }
+    if (inputNick) inputNick.focus();
   }
 
   function fecharModalNick() {
@@ -155,36 +169,40 @@
   function atualizarPreviewAvatar(nick) {
     const img = document.getElementById('nick-preview-img');
     const label = document.getElementById('nick-preview-label');
+    const trimmed = (nick || '').trim();
 
-    if (!img || !label) return;
-
-    const clean = String(nick || '').trim();
-    if (clean.length >= 3 && /^[a-zA-Z0-9_]+$/.test(clean)) {
-      img.src = `https://mc-heads.net/avatar/${encodeURIComponent(clean)}/128`;
-      label.textContent = clean;
-    } else {
-      img.src = DEFAULT_AVATAR;
-      label.textContent = clean || 'Steve';
+    if (img) {
+      img.src = trimmed
+        ? `https://mc-heads.net/avatar/${encodeURIComponent(trimmed)}/128`
+        : DEFAULT_AVATAR;
+    }
+    if (label) {
+      label.textContent = trimmed || 'Steve';
     }
   }
 
   function confirmarNick() {
     const inputNick = document.getElementById('input-player-nick');
-    const feedback = document.getElementById('nick-error-feedback');
-    const nick = (inputNick ? inputNick.value : '').trim();
+    const errorMsg = document.getElementById('nick-error-feedback');
+    const rawNick = (inputNick ? inputNick.value : '').trim();
 
-    if (!nick || nick.length < 3 || nick.length > 16 || !/^[a-zA-Z0-9_]+$/.test(nick)) {
-      if (feedback) {
-        feedback.textContent = 'Digite um nickname válido (3 a 16 caracteres, sem espaços ou símbolos).';
-        feedback.hidden = false;
+    if (!rawNick || rawNick.length < 3 || rawNick.length > 16) {
+      if (errorMsg) {
+        errorMsg.textContent = 'O nickname deve ter entre 3 e 16 caracteres.';
+        errorMsg.hidden = false;
       }
-      if (inputNick) inputNick.focus();
       return;
     }
 
-    if (feedback) feedback.hidden = true;
+    if (!/^[a-zA-Z0-9_]+$/.test(rawNick)) {
+      if (errorMsg) {
+        errorMsg.textContent = 'O nickname deve conter apenas letras, números ou underline (_).';
+        errorMsg.hidden = false;
+      }
+      return;
+    }
 
-    STATE.nick = nick;
+    STATE.nick = rawNick;
     localStorage.setItem(STORAGE_KEY_NICK, STATE.nick);
     localStorage.setItem(STORAGE_KEY_TIPO, STATE.tipoConta);
 
@@ -192,44 +210,39 @@
     liberarPainelLoja();
   }
 
-  // 4. LIBERAÇÃO & BLOQUEIO DO PAINEL
+  // 4. CONTROLE DE ESTADO DA PÁGINA (BLOQUEADO / LIBERADO)
   function liberarPainelLoja() {
-    const profileBar = document.getElementById('loja-profile-bar');
-    const lockedBanner = document.getElementById('loja-locked-banner');
+    const bar = document.getElementById('loja-profile-bar');
+    const banner = document.getElementById('loja-locked-banner');
     const panel = document.getElementById('loja-panel');
 
-    const avatarImg = document.getElementById('profile-avatar-img');
+    const avatar = document.getElementById('profile-avatar-img');
     const nickDisplay = document.getElementById('profile-nick-display');
-    const badgeType = document.getElementById('profile-account-type-badge');
+    const badge = document.getElementById('profile-account-type-badge');
 
-    if (avatarImg) {
-      avatarImg.src = `https://mc-heads.net/avatar/${encodeURIComponent(STATE.nick)}/64`;
-    }
-    if (nickDisplay) {
-      nickDisplay.textContent = STATE.nick;
-    }
-    if (badgeType) {
-      const isOriginal = (STATE.tipoConta === 'original');
-      badgeType.className = isOriginal ? 'account-badge' : 'account-badge pirata';
-      badgeType.textContent = isOriginal ? 'Original' : 'Pirata';
+    if (avatar) avatar.src = `https://mc-heads.net/avatar/${encodeURIComponent(STATE.nick)}/64`;
+    if (nickDisplay) nickDisplay.textContent = STATE.nick;
+    if (badge) {
+      badge.textContent = STATE.tipoConta === 'original' ? 'Original' : 'Pirata';
+      badge.className = `account-badge badge-${STATE.tipoConta}`;
     }
 
-    if (lockedBanner) lockedBanner.hidden = true;
-    if (profileBar) profileBar.hidden = false;
+    if (bar) bar.hidden = false;
+    if (banner) banner.hidden = true;
     if (panel) panel.hidden = false;
   }
 
   function bloquearPainelLoja() {
-    const profileBar = document.getElementById('loja-profile-bar');
-    const lockedBanner = document.getElementById('loja-locked-banner');
+    const bar = document.getElementById('loja-profile-bar');
+    const banner = document.getElementById('loja-locked-banner');
     const panel = document.getElementById('loja-panel');
 
-    if (lockedBanner) lockedBanner.hidden = false;
-    if (profileBar) profileBar.hidden = true;
+    if (bar) bar.hidden = true;
+    if (banner) banner.hidden = false;
     if (panel) panel.hidden = true;
   }
 
-  // 5. CARREGAMENTO DOS VIPS VIA API
+  // 5. CARREGAMENTO DO CATÁLOGO DE VIPS
   async function carregarCatalogoVips() {
     const loadingBox = document.getElementById('loja-loading');
     const errorBox = document.getElementById('loja-error');
@@ -249,6 +262,16 @@
       }
 
       STATE.servidores = data.servidores;
+      STATE.mpPublicKey = data.mercadopago_public_key || '';
+
+      // Inicializa Mercado Pago SDK se disponível
+      if (STATE.mpPublicKey && window.MercadoPago && !STATE.mpInstance) {
+        try {
+          STATE.mpInstance = new window.MercadoPago(STATE.mpPublicKey, { locale: 'pt-BR' });
+        } catch (e) {
+          console.warn('Aviso: Falha ao inicializar SDK Mercado Pago:', e);
+        }
+      }
 
       renderQuickNav();
       renderServerSectionsWithDividers();
@@ -381,7 +404,7 @@
             </ul>
 
             <button type="button" class="btn-purchase-card" data-vip-id="${vip.id}" data-server-id="${srv.id}">
-              Adquirir com PIX
+              Adquirir
             </button>
           </div>
         `;
@@ -416,16 +439,17 @@
           if (!STATE.nick) {
             abrirModalNick(true);
           } else {
-            iniciarCheckoutPix(vipCompleto);
+            abrirCheckoutModal(vipCompleto);
           }
         }
       });
     });
   }
 
-  // 8. FLUXO DE CHECKOUT PIX
-  async function iniciarCheckoutPix(vipData) {
+  // 8. CONTROLE DO MODAL DE CHECKOUT MULTI-MÉTODO
+  function abrirCheckoutModal(vipData) {
     STATE.currentOrder.vipData = vipData;
+    STATE.currentOrder.txid = null;
 
     const dialog = document.getElementById('modal-pix-overlay');
     const headerTitle = document.getElementById('pix-modal-header-title');
@@ -434,9 +458,8 @@
     const summaryNick = document.getElementById('summary-nick-display');
     const summaryServerVip = document.getElementById('summary-server-vip');
     const summaryPrice = document.getElementById('summary-price-display');
+    const methodsNav = document.getElementById('checkout-methods-nav');
 
-    const stateLoading = document.getElementById('pix-loading-state');
-    const stateReady = document.getElementById('pix-ready-state');
     const stateSuccess = document.getElementById('pix-success-state');
     const stateError = document.getElementById('pix-error-state');
 
@@ -444,20 +467,75 @@
 
     pararPollingPix();
 
-    if (headerTitle) headerTitle.textContent = 'Pagamento via PIX';
+    if (headerTitle) headerTitle.textContent = 'Finalizar Compra';
     if (orderSummaryBox) orderSummaryBox.hidden = false;
+    if (methodsNav) methodsNav.hidden = false;
     if (summaryAvatar) summaryAvatar.src = `https://mc-heads.net/avatar/${encodeURIComponent(STATE.nick)}/64`;
     if (summaryNick) summaryNick.textContent = STATE.nick;
     if (summaryServerVip) summaryServerVip.textContent = `${vipData.serverInfo.nome} • ${vipData.nome}`;
     if (summaryPrice) summaryPrice.textContent = `R$ ${Number(vipData.preco).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`;
 
-    if (stateLoading) stateLoading.hidden = false;
-    if (stateReady) stateReady.hidden = true;
     if (stateSuccess) stateSuccess.hidden = true;
     if (stateError) stateError.hidden = true;
 
+    // Atualiza label do botão de cartão
+    const btnCardLabel = document.getElementById('btn-card-label');
+    if (btnCardLabel) {
+      btnCardLabel.textContent = `Pagar R$ ${Number(vipData.preco).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`;
+    }
+
+    // Reset do form de cartão
+    resetCardForm(vipData.preco);
+
+    // Abre o modal
     dialog.hidden = false;
     document.body.style.overflow = 'hidden';
+
+    // Inicia no método ativo (PIX por padrão)
+    switchPaymentMethod(STATE.activePaymentMethod || 'pix');
+  }
+
+  // 8.1 TROCA MODULAR DE MÉTODO DE PAGAMENTO
+  function switchPaymentMethod(methodName) {
+    STATE.activePaymentMethod = methodName;
+
+    // Atualiza botões da barra de navegação de métodos
+    const methodBtns = document.querySelectorAll('.method-nav-btn');
+    methodBtns.forEach(btn => {
+      const isTarget = (btn.dataset.method === methodName);
+      btn.classList.toggle('active', isTarget);
+    });
+
+    // Exibe o painel correspondente
+    const panelPix = document.getElementById('panel-method-pix');
+    const panelCard = document.getElementById('panel-method-card');
+
+    if (panelPix) panelPix.hidden = (methodName !== 'pix');
+    if (panelCard) panelCard.hidden = (methodName !== 'card');
+
+    if (methodName === 'pix') {
+      if (!STATE.currentOrder.txid && STATE.currentOrder.vipData) {
+        gerarCobrancaPix(STATE.currentOrder.vipData);
+      }
+    }
+  }
+
+  function fecharModalCheckout() {
+    pararPollingPix();
+    const dialog = document.getElementById('modal-pix-overlay');
+    if (dialog) dialog.hidden = true;
+    document.body.style.overflow = '';
+  }
+
+  // 9. FLUXO DE PAGAMENTO: PIX
+  async function gerarCobrancaPix(vipData) {
+    const stateLoading = document.getElementById('pix-loading-state');
+    const stateReady = document.getElementById('pix-ready-state');
+    const stateError = document.getElementById('pix-error-state');
+
+    if (stateLoading) stateLoading.hidden = false;
+    if (stateReady) stateReady.hidden = true;
+    if (stateError) stateError.hidden = true;
 
     try {
       const payload = {
@@ -525,14 +603,367 @@
     }
   }
 
-  function fecharModalPix() {
-    pararPollingPix();
-    const dialog = document.getElementById('modal-pix-overlay');
-    if (dialog) dialog.hidden = true;
-    document.body.style.overflow = '';
+  // 10. FLUXO DE PAGAMENTO: CARTÃO DE CRÉDITO
+  function setupCardFormHandlers() {
+    const inputCardNum = document.getElementById('card-number');
+    const inputExpiry = document.getElementById('card-expiry');
+    const inputCvv = document.getElementById('card-cvv');
+    const inputCpf = document.getElementById('card-cpf');
+    const selectInstallments = document.getElementById('card-installments');
+    const formCard = document.getElementById('form-card-checkout');
+
+    // Máscara do Cartão e listener de BIN para parcelamento dinâmico
+    if (inputCardNum) {
+      let binDebounce = null;
+      inputCardNum.addEventListener('input', (e) => {
+        let val = e.target.value.replace(/\D/g, '').substring(0, 16);
+        val = val.replace(/(\d{4})(?=\d)/g, '$1 ');
+        e.target.value = val;
+
+        clearTimeout(binDebounce);
+        binDebounce = setTimeout(() => onCardNumberInput(val), 250);
+      });
+    }
+
+    // Máscara de Validade (MM/AA)
+    if (inputExpiry) {
+      inputExpiry.addEventListener('input', (e) => {
+        let val = e.target.value.replace(/\D/g, '').substring(0, 4);
+        if (val.length >= 3) {
+          val = val.substring(0, 2) + '/' + val.substring(2);
+        }
+        e.target.value = val;
+      });
+    }
+
+    // Máscara de CVV
+    if (inputCvv) {
+      inputCvv.addEventListener('input', (e) => {
+        e.target.value = e.target.value.replace(/\D/g, '').substring(0, 4);
+      });
+    }
+
+    // Máscara de CPF (000.000.000-00)
+    if (inputCpf) {
+      inputCpf.addEventListener('input', (e) => {
+        let val = e.target.value.replace(/\D/g, '').substring(0, 11);
+        if (val.length > 9) {
+          val = val.replace(/(\d{3})(\d{3})(\d{3})(\d{1,2})/, '$1.$2.$3-$4');
+        } else if (val.length > 6) {
+          val = val.replace(/(\d{3})(\d{3})(\d{1,3})/, '$1.$2.$3');
+        } else if (val.length > 3) {
+          val = val.replace(/(\d{3})(\d{1,3})/, '$1.$2');
+        }
+        e.target.value = val;
+      });
+    }
+
+    // Atualiza texto do botão de pagamento ao trocar de parcela
+    if (selectInstallments) {
+      selectInstallments.addEventListener('change', () => {
+        atualizarTextoBotaoCartao();
+      });
+    }
+
+    // Submissão do Formulário de Cartão
+    if (formCard) {
+      formCard.addEventListener('submit', (e) => {
+        e.preventDefault();
+        processarPagamentoCartao();
+      });
+    }
   }
 
-  // 9. POLLING E CONTAGEM REGRESSIVA PRECISA (TIMESTAMP)
+  // 10.1 IDENTIFICAÇÃO DE BANDEIRA E PARCELAMENTO POR BIN
+  async function onCardNumberInput(cardNumberFormatted) {
+    const cleanNumber = cardNumberFormatted.replace(/\D/g, '');
+    const iconContainer = document.getElementById('card-brand-icon');
+
+    if (cleanNumber.length < 6) {
+      if (iconContainer) iconContainer.innerHTML = '<i class="fa-solid fa-credit-card"></i>';
+      STATE.currentOrder.cardPaymentMethodId = '';
+      STATE.currentOrder.cardIssuerId = '';
+      resetInstallmentsSelect(STATE.currentOrder.vipData?.preco || 0);
+      return;
+    }
+
+    const bin = cleanNumber.substring(0, 6);
+
+    if (!STATE.mpInstance && STATE.mpPublicKey && window.MercadoPago) {
+      try {
+        STATE.mpInstance = new window.MercadoPago(STATE.mpPublicKey, { locale: 'pt-BR' });
+      } catch (e) {}
+    }
+
+    if (!STATE.mpInstance) return;
+
+    try {
+      // 1. Detecta bandeira
+      const pmRes = await STATE.mpInstance.getPaymentMethods({ bin });
+      if (pmRes && pmRes.results && pmRes.results.length > 0) {
+        const pm = pmRes.results[0];
+        STATE.currentOrder.cardPaymentMethodId = pm.id;
+        if (iconContainer && pm.secure_thumbnail) {
+          iconContainer.innerHTML = `<img src="${pm.secure_thumbnail}" alt="${pm.name}" class="brand-badge-img">`;
+        }
+      }
+
+      // 2. Consulta parcelas com juros calculados pelo Mercado Pago
+      const vipPreco = STATE.currentOrder.vipData ? Number(STATE.currentOrder.vipData.preco) : 0;
+      if (vipPreco > 0) {
+        const instRes = await STATE.mpInstance.getInstallments({ amount: String(vipPreco), bin });
+        if (instRes && instRes.length > 0) {
+          const payerCosts = instRes[0].payer_costs || [];
+          STATE.currentOrder.cardIssuerId = instRes[0].issuer?.id || '';
+          STATE.currentOrder.cardInstallmentsData = payerCosts;
+          renderInstallmentsSelect(payerCosts, vipPreco);
+        }
+      }
+    } catch (e) {
+      console.warn('Aviso: Falha na consulta de BIN do cartão:', e);
+    }
+  }
+
+  function resetInstallmentsSelect(basePrice = 0) {
+    const select = document.getElementById('card-installments');
+    if (!select) return;
+    const formatted = Number(basePrice).toLocaleString('pt-BR', { minimumFractionDigits: 2 });
+    select.innerHTML = `<option value="1">1x de R$ ${formatted} (À vista sem juros)</option>`;
+    atualizarTextoBotaoCartao();
+  }
+
+  function renderInstallmentsSelect(payerCosts, basePrice) {
+    const select = document.getElementById('card-installments');
+    if (!select) return;
+
+    if (!payerCosts || payerCosts.length === 0) {
+      resetInstallmentsSelect(basePrice);
+      return;
+    }
+
+    const MAX_PARCELAS = 3;
+    let optionsHtml = '';
+    payerCosts.filter(cost => cost.installments <= MAX_PARCELAS).forEach(cost => {
+      const n = cost.installments;
+      const installmentVal = Number(cost.installment_amount).toLocaleString('pt-BR', { minimumFractionDigits: 2 });
+      const totalVal = Number(cost.total_amount).toLocaleString('pt-BR', { minimumFractionDigits: 2 });
+      const isSemJuros = (cost.installment_rate === 0);
+
+      let label = `${n}x de R$ ${installmentVal}`;
+      if (isSemJuros) {
+        label += (n === 1) ? ' (À vista sem juros)' : ' (Sem juros)';
+      } else {
+        label += ` (Total: R$ ${totalVal})`;
+      }
+
+      optionsHtml += `<option value="${n}" data-total="${cost.total_amount}" data-installment-val="${cost.installment_amount}">${label}</option>`;
+    });
+
+    select.innerHTML = optionsHtml;
+    atualizarTextoBotaoCartao();
+  }
+
+  function atualizarTextoBotaoCartao() {
+    const select = document.getElementById('card-installments');
+    const btnLabel = document.getElementById('btn-card-label');
+    if (!select || !btnLabel) return;
+
+    const selectedOption = select.options[select.selectedIndex];
+    if (selectedOption) {
+      const total = selectedOption.dataset.total;
+      if (total) {
+        btnLabel.textContent = `Pagar R$ ${Number(total).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`;
+        return;
+      }
+    }
+
+    const basePrice = STATE.currentOrder.vipData ? Number(STATE.currentOrder.vipData.preco) : 0;
+    btnLabel.textContent = `Pagar R$ ${basePrice.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`;
+  }
+
+  function resetCardForm(basePrice = 0) {
+    const form = document.getElementById('form-card-checkout');
+    if (form) form.reset();
+
+    const iconContainer = document.getElementById('card-brand-icon');
+    if (iconContainer) iconContainer.innerHTML = '<i class="fa-solid fa-credit-card"></i>';
+
+    const errorBox = document.getElementById('card-error-box');
+    if (errorBox) errorBox.hidden = true;
+
+    setCardButtonLoading(false);
+    resetInstallmentsSelect(basePrice);
+  }
+
+  function setCardButtonLoading(isLoading) {
+    const btn = document.getElementById('btn-submit-card');
+    const spinner = document.getElementById('btn-card-spinner');
+    const icon = document.getElementById('btn-card-lock-icon');
+
+    if (btn) btn.disabled = isLoading;
+    if (spinner) spinner.hidden = !isLoading;
+    if (icon) icon.hidden = isLoading;
+  }
+
+  // 10.2 PROCESSAMENTO SEGURO DO CARTÃO (TOKENIZAÇÃO + BACKEND)
+  async function processarPagamentoCartao() {
+    const errorBox = document.getElementById('card-error-box');
+    const errorMsg = document.getElementById('card-error-msg');
+    if (errorBox) errorBox.hidden = true;
+
+    const inputCardNum = document.getElementById('card-number');
+    const inputName = document.getElementById('card-holder-name');
+    const inputExpiry = document.getElementById('card-expiry');
+    const inputCvv = document.getElementById('card-cvv');
+    const inputCpf = document.getElementById('card-cpf');
+    const inputEmail = document.getElementById('card-email');
+    const selectInstallments = document.getElementById('card-installments');
+
+    const cardNum = (inputCardNum ? inputCardNum.value : '').replace(/\D/g, '');
+    const cardholderName = (inputName ? inputName.value : '').trim();
+    const expiry = (inputExpiry ? inputExpiry.value : '').trim();
+    const cvv = (inputCvv ? inputCvv.value : '').trim();
+    const cpf = (inputCpf ? inputCpf.value : '').replace(/\D/g, '');
+    const email = (inputEmail ? inputEmail.value : '').trim();
+    const installments = parseInt(selectInstallments ? selectInstallments.value : '1', 10) || 1;
+
+    // Validações básicas no cliente
+    if (cardNum.length < 13 || cardNum.length > 19) {
+      exibirErroCartao('Informe um número de cartão de crédito válido.');
+      return;
+    }
+
+    if (!cardholderName || cardholderName.length < 3) {
+      exibirErroCartao('Informe o nome impresso no cartão.');
+      return;
+    }
+
+    const expiryParts = expiry.split('/');
+    if (expiryParts.length !== 2 || expiryParts[0].length !== 2 || expiryParts[1].length !== 2) {
+      exibirErroCartao('Informe a validade no formato MM/AA.');
+      return;
+    }
+
+    const expMonth = expiryParts[0];
+    const expYear = '20' + expiryParts[1];
+
+    if (cvv.length < 3 || cvv.length > 4) {
+      exibirErroCartao('Informe o código de segurança (CVV) de 3 ou 4 dígitos.');
+      return;
+    }
+
+    if (cpf.length !== 11) {
+      exibirErroCartao('Informe um CPF válido com 11 dígitos.');
+      return;
+    }
+
+    if (!email || !email.includes('@') || !email.includes('.')) {
+      exibirErroCartao('Informe um e-mail válido para receber o comprovante.');
+      return;
+    }
+
+    if (!STATE.currentOrder.vipData) {
+      exibirErroCartao('Sessão de compra expirada. Selecione o pacote novamente.');
+      return;
+    }
+
+    setCardButtonLoading(true);
+
+    try {
+      // 1. Gera Device ID Antifraude
+      let deviceId = '';
+      if (window.MP_DEVICE_SESSION_ID) {
+        deviceId = window.MP_DEVICE_SESSION_ID;
+      } else {
+        const securityInput = document.querySelector('input[name="MP_DEVICE_SESSION_ID"]');
+        if (securityInput) deviceId = securityInput.value;
+      }
+
+      // 2. Tokenização no SDK do Mercado Pago
+      if (!STATE.mpInstance && STATE.mpPublicKey && window.MercadoPago) {
+        STATE.mpInstance = new window.MercadoPago(STATE.mpPublicKey, { locale: 'pt-BR' });
+      }
+
+      let cardToken = '';
+
+      if (STATE.mpInstance) {
+        try {
+          const tokenRes = await STATE.mpInstance.createCardToken({
+            cardNumber: cardNum,
+            cardholderName: cardholderName,
+            cardExpirationMonth: expMonth,
+            cardExpirationYear: expYear,
+            securityCode: cvv,
+            identificationType: 'CPF',
+            identificationNumber: cpf
+          });
+
+          if (tokenRes && tokenRes.id) {
+            cardToken = tokenRes.id;
+          } else {
+            throw new Error('Não foi possível validar o cartão com a operadora.');
+          }
+        } catch (tokenErr) {
+          console.error('Erro na tokenização MP:', tokenErr);
+          throw new Error('Dados do cartão inválidos ou recusados pela operadora.');
+        }
+      } else {
+        // Fallback de demonstração
+        cardToken = 'DEMO_TOKEN_' + Math.random().toString(36).substring(2);
+      }
+
+      // 3. Envio seguro ao Backend PHP
+      const payload = {
+        token: cardToken,
+        card_number: cardNum,
+        cardholder_name: cardholderName,
+        email: email,
+        cpf: cpf,
+        installments: installments,
+        payment_method_id: STATE.currentOrder.cardPaymentMethodId || 'credit_card',
+        issuer_id: STATE.currentOrder.cardIssuerId || '',
+        device_id: deviceId,
+        nick: STATE.nick,
+        tipo_conta: STATE.tipoConta,
+        servidor: STATE.currentOrder.vipData.serverInfo.nome,
+        vip_id: STATE.currentOrder.vipData.id,
+        vip_nome: STATE.currentOrder.vipData.nome
+      };
+
+      const res = await fetch('/api/loja/criar_cartao.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+
+      const data = await res.json();
+
+      if (!res.ok || data.erro || !data.success) {
+        throw new Error(data.erro || 'Pagamento recusado pela operadora.');
+      }
+
+      // Pagamento aprovado com sucesso!
+      setCardButtonLoading(false);
+      exibirSucessoCheckout({
+        ...data,
+        metodo: 'Cartão de Crédito'
+      });
+
+    } catch (err) {
+      console.error('Erro no pagamento com cartão:', err);
+      setCardButtonLoading(false);
+      exibirErroCartao(err.message || 'Não foi possível processar o pagamento com cartão.');
+    }
+  }
+
+  function exibirErroCartao(msg) {
+    const errorBox = document.getElementById('card-error-box');
+    const errorMsg = document.getElementById('card-error-msg');
+    if (errorMsg) errorMsg.textContent = msg;
+    if (errorBox) errorBox.hidden = false;
+  }
+
+  // 11. POLLING E CONTAGEM REGRESSIVA PRECISA (TIMESTAMP PIX)
   function iniciarCountdownPix(segundosTotais = 900) {
     const countdownEl = document.getElementById('pix-countdown');
     if (!countdownEl) return;
@@ -578,7 +1009,10 @@
 
         if (isPago) {
           pararPollingPix();
-          exibirSucessoPix(data);
+          exibirSucessoCheckout({
+            ...data,
+            metodo: 'PIX'
+          });
         } else if (isExpirado) {
           pararPollingPix();
           exibirExpiradoPix(txid, data.mensagem || 'A cobrança PIX expirou no sistema.');
@@ -600,17 +1034,15 @@
     }
   }
 
-  // 9.1 INVALIDAÇÃO E TELA DE PAGAMENTO NÃO EFETIVADO
-  async function exibirExpiradoPix(txid, motivo = 'O tempo limite de 15 minutos para pagamento se esgotou.') {
+  // 12. TELAS DE RESULTADO: EXPIRADO / ERRO
+  async function exibirExpiradoPix(txid, motivo = 'O tempo limite para pagamento se esgotou.') {
     pararPollingPix();
 
-    // 1. Invalida o código PIX na tela imediatamente
     const inputCopiaCola = document.getElementById('input-pix-copiacola');
     const qrImg = document.getElementById('pix-qrcode-img');
     if (inputCopiaCola) inputCopiaCola.value = '';
     if (qrImg) qrImg.src = '';
 
-    // 2. Avisa o backend para atualizar o banco para 'expirado'
     if (txid) {
       try {
         fetch(`/api/loja/cancelar_pedido.php?txid=${encodeURIComponent(txid)}&status=expirado`, {
@@ -619,15 +1051,18 @@
       } catch (e) {}
     }
 
-    // 3. Exibe o estado visual de Pagamento Não Efetivado
-    const stateLoading = document.getElementById('pix-loading-state');
-    const stateReady = document.getElementById('pix-ready-state');
+    const orderSummaryBox = document.getElementById('pix-order-summary-box');
+    const methodsNav = document.getElementById('checkout-methods-nav');
+    const panelPix = document.getElementById('panel-method-pix');
+    const panelCard = document.getElementById('panel-method-card');
     const stateSuccess = document.getElementById('pix-success-state');
     const stateError = document.getElementById('pix-error-state');
     const headerTitle = document.getElementById('pix-modal-header-title');
 
-    if (stateLoading) stateLoading.hidden = true;
-    if (stateReady) stateReady.hidden = true;
+    if (orderSummaryBox) orderSummaryBox.hidden = true;
+    if (methodsNav) methodsNav.hidden = true;
+    if (panelPix) panelPix.hidden = true;
+    if (panelCard) panelCard.hidden = true;
     if (stateSuccess) stateSuccess.hidden = true;
     if (headerTitle) headerTitle.textContent = 'Pagamento Não Efetivado';
 
@@ -640,35 +1075,40 @@
     }
   }
 
-  // 10. TELA DE CONFIRMAÇÃO DE PAGAMENTO
-  function exibirSucessoPix(data) {
+  // 13. TELA DE CONFIRMAÇÃO DE PAGAMENTO APROVADO
+  function exibirSucessoCheckout(data) {
     const headerTitle = document.getElementById('pix-modal-header-title');
     const orderSummaryBox = document.getElementById('pix-order-summary-box');
-    const stateLoading = document.getElementById('pix-loading-state');
-    const stateReady = document.getElementById('pix-ready-state');
+    const methodsNav = document.getElementById('checkout-methods-nav');
+    const panelPix = document.getElementById('panel-method-pix');
+    const panelCard = document.getElementById('panel-method-card');
     const stateError = document.getElementById('pix-error-state');
     const stateSuccess = document.getElementById('pix-success-state');
 
-    if (stateLoading) stateLoading.hidden = true;
-    if (stateReady) stateReady.hidden = true;
-    if (stateError) stateError.hidden = true;
     if (orderSummaryBox) orderSummaryBox.hidden = true;
+    if (methodsNav) methodsNav.hidden = true;
+    if (panelPix) panelPix.hidden = true;
+    if (panelCard) panelCard.hidden = true;
+    if (stateError) stateError.hidden = true;
 
     if (headerTitle) headerTitle.textContent = 'Confirmação de Pagamento';
 
     const rNick = document.getElementById('receipt-player-nick');
     const rVip = document.getElementById('receipt-vip-name');
     const rServer = document.getElementById('receipt-server-name');
+    const rMethod = document.getElementById('receipt-method-name');
     const rTxid = document.getElementById('receipt-txid');
 
     const vipNome = data.vip_nome || STATE.currentOrder.vipData?.nome || 'VIP';
     const serverNome = data.servidor || STATE.currentOrder.vipData?.serverInfo?.nome || 'Servidor';
     const nick = data.nick || STATE.nick || 'Jogador';
     const txid = data.txid || STATE.currentOrder.txid || 'N/A';
+    const metodo = data.metodo || (STATE.activePaymentMethod === 'card' ? 'Cartão de Crédito' : 'PIX');
 
     if (rNick) rNick.textContent = nick;
     if (rVip) rVip.textContent = vipNome;
     if (rServer) rServer.textContent = serverNome;
+    if (rMethod) rMethod.textContent = metodo;
     if (rTxid) rTxid.textContent = txid;
 
     if (stateSuccess) stateSuccess.hidden = false;
@@ -696,7 +1136,7 @@
     });
   }
 
-  // 11. UTILITÁRIOS
+  // 14. UTILITÁRIOS
   function escapeHTML(str) {
     return String(str ?? '')
       .replace(/&/g, '&amp;')

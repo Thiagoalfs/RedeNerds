@@ -248,17 +248,23 @@ if (!empty($servidoresDoBanco) && !empty($vipsDoBanco)) {
         }
     }
 
+    $mpPublicKey = defined('MERCADO_PAGO_PUBLIC_KEY') ? trim(MERCADO_PAGO_PUBLIC_KEY) : '';
+
     if (!empty($servidoresFormatados)) {
         echo json_encode([
             "success" => true,
-            "servidores" => $servidoresFormatados
+            "servidores" => $servidoresFormatados,
+            "mercadopago_public_key" => $mpPublicKey
         ], JSON_UNESCAPED_UNICODE);
         exit;
     }
 }
 
+$mpPublicKey = defined('MERCADO_PAGO_PUBLIC_KEY') ? trim(MERCADO_PAGO_PUBLIC_KEY) : '';
+
 // Fallback caso o banco esteja vazio ou inacessível
 echo json_encode([
     "success" => true,
-    "servidores" => $servidoresDefault
+    "servidores" => $servidoresDefault,
+    "mercadopago_public_key" => $mpPublicKey
 ], JSON_UNESCAPED_UNICODE);

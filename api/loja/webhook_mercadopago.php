@@ -53,6 +53,36 @@ if (!$paymentId || (strpos($type, 'payment') === false)) {
     exit;
 }
 
+// Validação de Assinatura Criptográfica (x-signature / x-request-id)
+$webhookSecret = defined('MERCADO_PAGO_WEBHOOK_SECRET') ? trim(MERCADO_PAGO_WEBHOOK_SECRET) : '';
+$headers = function_exists('getallheaders') ? getallheaders() : [];
+
+$xSignature = $_SERVER['HTTP_X_SIGNATURE'] ?? ($headers['x-signature'] ?? ($headers['X-Signature'] ?? ''));
+$xRequestId = $_SERVER['HTTP_X_REQUEST_ID'] ?? ($headers['x-request-id'] ?? ($headers['X-Request-Id'] ?? ''));
+
+if (!empty($webhookSecret) && !empty($xSignature)) {
+    $parts = explode(',', $xSignature);
+    $ts = null;
+    $v1 = null;
+    foreach ($parts as $part) {
+        $kv = explode('=', trim($part), 2);
+        if (count($kv) === 2) {
+            if ($kv[0] === 'ts') $ts = $kv[1];
+            if ($kv[0] === 'v1') $v1 = $kv[1];
+        }
+    }
+
+    if ($ts && $v1) {
+        $manifest = "id:{$paymentId};request-id:{$xRequestId};ts:{$ts};";
+        $computedHash = hash_hmac('sha256', $manifest, $webhookSecret);
+        if (!hash_equals($computedHash, $v1)) {
+            http_response_code(401);
+            echo json_encode(["erro" => "Assinatura do webhook inválida."]);
+            exit;
+        }
+    }
+}
+
 $mpAccessToken = defined('MERCADO_PAGO_ACCESS_TOKEN') ? trim(MERCADO_PAGO_ACCESS_TOKEN) : '';
 
 if (empty($mpAccessToken) || strpos($mpAccessToken, 'APP_USR-SEU-ACCESS-TOKEN') !== false) {
@@ -133,7 +163,11 @@ if ($status === 'approved' && !empty($externalRef)) {
             $pedido['servidor'],
             $pedido['vip_nome'],
             $pedido['valor'],
-            $externalRef
+            $externalRef,
+            '#7DB9DF',
+            $pedido['metodo_pagamento'] ?? 'pix',
+            (int)($pedido['parcelas'] ?? 1),
+            $pedido['valor_total'] ?? null
         );
     }
 }

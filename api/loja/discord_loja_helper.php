@@ -20,7 +20,7 @@ if (!defined('DISCORD_WEBHOOKS')) {
  * @param string|null $corHex Cor do embed em hexadecimal (ex: '#7DB9DF')
  * @return bool Sucesso no envio
  */
-function enviarNotificacaoCompraDiscord($nick, $tipoConta, $servidor, $vipNome, $valor, $txid, $corHex = '#7DB9DF') {
+function enviarNotificacaoCompraDiscord($nick, $tipoConta, $servidor, $vipNome, $valor, $txid, $corHex = '#7DB9DF', $metodo = 'pix', $parcelas = 1, $valorTotal = null) {
     $urlWebhook = DISCORD_WEBHOOKS['Loja'] ?? (DISCORD_WEBHOOKS['Atualizações'] ?? null);
 
     if (empty($urlWebhook)) {
@@ -39,9 +39,27 @@ function enviarNotificacaoCompraDiscord($nick, $tipoConta, $servidor, $vipNome, 
     $valorFormatado = number_format((float)$valor, 2, ',', '.');
     $avatarUrl = "https://mc-heads.net/avatar/" . urlencode($nick) . "/128";
 
+    // Método de pagamento formatado
+    $metodoLower = strtolower($metodo);
+    if ($metodoLower === 'cartao' || $metodoLower === 'cartão' || $metodoLower === 'credit_card') {
+        $metodoLabel = '💳 Cartão de Crédito';
+        if ($parcelas > 1) {
+            $metodoLabel .= " ({$parcelas}x)";
+        }
+    } else {
+        $metodoLabel = '⚡ PIX (Instantâneo)';
+    }
+
+    // Valor exibido (com total parcelado se houver juros)
+    $valorDisplay = "R$ {$valorFormatado}";
+    if ($valorTotal && (float)$valorTotal > (float)$valor && $parcelas > 1) {
+        $totalFormatado = number_format((float)$valorTotal, 2, ',', '.');
+        $valorDisplay .= " (Total: R$ {$totalFormatado})";
+    }
+
     $embed = [
         "title" => "💎 Nova Compra Aprovada!",
-        "description" => "Um jogador acabou de adquirir um pacote VIP via **PIX**!",
+        "description" => "Um jogador acabou de adquirir um pacote VIP via **{$metodoLabel}**!",
         "color" => $corDecimal,
         "thumbnail" => [
             "url" => $avatarUrl
@@ -64,7 +82,7 @@ function enviarNotificacaoCompraDiscord($nick, $tipoConta, $servidor, $vipNome, 
             ],
             [
                 "name" => "💰 Valor Pago",
-                "value" => "R$ {$valorFormatado}",
+                "value" => $valorDisplay,
                 "inline" => true
             ],
             [
@@ -73,8 +91,8 @@ function enviarNotificacaoCompraDiscord($nick, $tipoConta, $servidor, $vipNome, 
                 "inline" => true
             ],
             [
-                "name" => "⚡ Status",
-                "value" => "✅ **Aprovado Instantâneo**",
+                "name" => "📋 Pagamento",
+                "value" => $metodoLabel,
                 "inline" => true
             ]
         ],
