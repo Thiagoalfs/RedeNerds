@@ -61,9 +61,13 @@ foreach ($membros as $m) {
                                     <td class="text-end text-nowrap">
                                         <div class="d-inline-flex align-items-center justify-content-end gap-1">
                                             <a href="equipe_editar.php?id=<?php echo (int)$m['id']; ?>" class="btn btn-sm btn-primary">Editar</a>
-                                            <a href="api/equipe/deletar.php?id=<?php echo (int)$m['id']; ?>"
-                                               class="btn btn-sm btn-danger"
-                                               onclick="return confirm('Remover <?php echo htmlspecialchars(addslashes($m['nick']), ENT_QUOTES, 'UTF-8'); ?> da equipe?');" title="Deletar"><i class="fa-solid fa-trash"></i></a>
+                                            <form method="POST" action="api/equipe/deletar.php" class="d-inline" onsubmit="return confirm('Remover <?php echo htmlspecialchars(addslashes($m['nick']), ENT_QUOTES, 'UTF-8'); ?> da equipe?');">
+                                                <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($csrfToken, ENT_QUOTES, 'UTF-8'); ?>">
+                                                <input type="hidden" name="id" value="<?php echo (int)$m['id']; ?>">
+                                                <button type="submit" class="btn btn-sm btn-danger" title="Deletar">
+                                                    <i class="fa-solid fa-trash"></i>
+                                                </button>
+                                            </form>
                                         </div>
                                     </td>
                                 </tr>

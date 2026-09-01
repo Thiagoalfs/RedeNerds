@@ -1,3 +1,4 @@
+@import url('/shared/tokens.css');
 :root {
     --border-color-2: #B971DA;
     --border-color-1: #7DB9DF;
@@ -44,12 +45,13 @@
 }
 
 .hero-title {
-    margin: 0 0 0.65rem 0;
-    font-family: 'Poppins', sans-serif;
+    margin: 0 0 0.75rem 0;
+    font-family: var(--font-main);
     font-weight: 900;
-    font-size: clamp(2.4rem, 3.8vw, 3.6rem);
-    line-height: 1.12;
-    letter-spacing: -0.8px;
+    font-size: clamp(2.5rem, 4.4vw, 4.2rem);
+    line-height: 1.08;
+    letter-spacing: -1.2px;
+    text-transform: uppercase;
     display: flex;
     flex-direction: column;
 }
@@ -95,17 +97,20 @@
     background-color: #5865F2;
     color: #FFFFFF !important;
     font-size: 0.95rem;
-    font-weight: 700;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
     text-decoration: none;
-    border-radius: 9px;
-    box-shadow: 0 4px 14px rgba(88, 101, 242, 0.4);
-    transition: background-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+    border: 2px solid #000;
+    border-radius: var(--radius-sm);
+    box-shadow: var(--shadow-hard);
+    transition: transform 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease;
 }
 
 .btn-hero-discord:hover {
     background-color: #4752C4;
-    transform: translateY(-2px);
-    box-shadow: 0 6px 18px rgba(88, 101, 242, 0.55);
+    transform: translate(-2px, -2px);
+    box-shadow: var(--shadow-hard-lg);
 }
 
 .btn-hero-servers {
@@ -114,20 +119,23 @@
     justify-content: center;
     gap: 9px;
     padding: 12px 24px;
-    background-color: #FFFFFF;
-    color: #030407 !important;
+    background-color: var(--color-primary);
+    color: #000000 !important;
     font-size: 0.95rem;
-    font-weight: 700;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
     text-decoration: none;
-    border-radius: 9px;
-    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35);
-    transition: background-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+    border: 2px solid #000;
+    border-radius: var(--radius-sm);
+    box-shadow: var(--shadow-hard);
+    transition: transform 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease;
 }
 
 .btn-hero-servers:hover {
-    background-color: #F1F5F9;
-    transform: translateY(-2px);
-    box-shadow: 0 6px 18px rgba(255, 255, 255, 0.2);
+    background-color: var(--color-primary-hover);
+    transform: translate(-2px, -2px);
+    box-shadow: var(--shadow-hard-lg);
 }
 
 .hero-badges-row {
@@ -213,10 +221,16 @@
     }
 
     .hero-title {
-        align-items: center;
-        font-size: clamp(2rem, 6.5vw, 2.6rem);
-        margin-bottom: 0.85rem;
-    }
+    margin: 0 0 0.75rem 0;
+    font-family: var(--font-main);
+    font-weight: 900;
+    font-size: clamp(2.5rem, 4.4vw, 4.2rem);
+    line-height: 1.08;
+    letter-spacing: -1.2px;
+    text-transform: uppercase;
+    display: flex;
+    flex-direction: column;
+}
 
     .hero-description {
         margin: 0 auto 1.5rem auto;
@@ -249,8 +263,16 @@
     }
 
     .hero-title {
-        font-size: 1.85rem;
-    }
+    margin: 0 0 0.75rem 0;
+    font-family: var(--font-main);
+    font-weight: 900;
+    font-size: clamp(2.5rem, 4.4vw, 4.2rem);
+    line-height: 1.08;
+    letter-spacing: -1.2px;
+    text-transform: uppercase;
+    display: flex;
+    flex-direction: column;
+}
 
     .hero-description {
         font-size: 0.88rem;
@@ -265,11 +287,23 @@
 
     .btn-hero-discord,
     .btn-hero-servers {
-        width: 100%;
-        box-sizing: border-box;
-        padding: 12px 18px;
-        font-size: 0.92rem;
-    }
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 9px;
+    padding: 12px 24px;
+    background-color: var(--color-primary);
+    color: #000000 !important;
+    font-size: 0.95rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    text-decoration: none;
+    border: 2px solid #000;
+    border-radius: var(--radius-sm);
+    box-shadow: var(--shadow-hard);
+    transition: transform 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease;
+}
 
     .hero-badges-row {
         gap: 6px;
@@ -997,4 +1031,102 @@
     .discord-text h3 {
         font-size: 1.75rem;
     }
+}
+
+
+/* ======================================================== */
+/* GRID ASSIMÉTRICO DE SERVIDORES (Gamer / Editorial)       */
+/* ======================================================== */
+.servers-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+    width: 100%;
+    margin-top: 1.5rem;
+}
+
+@media (min-width: 900px) {
+    .servers-grid {
+        grid-template-columns: 1.35fr 1fr;
+        align-items: stretch;
+    }
+
+    .server-card:first-child,
+    .server-card.server-card-featured {
+        grid-row: span 2;
+        min-height: 440px;
+    }
+}
+
+.server-card {
+    background-color: var(--color-surface-card);
+    border: var(--border-width-sm) solid var(--color-border);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-hard);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    text-decoration: none;
+    color: inherit;
+    transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
+}
+
+.server-card:hover {
+    transform: translate(-3px, -3px);
+    box-shadow: var(--shadow-hard-lg);
+    border-color: var(--card-color, var(--color-primary));
+}
+
+.server-card-banner {
+    height: 160px;
+    background-color: var(--card-color, #1e293b);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-bottom: var(--border-width-sm) solid var(--color-border);
+}
+
+.server-card:first-child .server-card-banner,
+.server-card.server-card-featured .server-card-banner {
+    height: 220px;
+}
+
+.server-card-banner img {
+    max-height: 120px;
+    max-width: 85%;
+    object-fit: contain;
+}
+
+.server-card-content {
+    padding: 1.5rem;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.server-card-content h3 {
+    font-size: 1.35rem;
+    font-weight: 800;
+    margin: 0 0 0.5rem 0;
+    color: var(--color-text-main);
+    letter-spacing: -0.3px;
+}
+
+.server-card-content p {
+    color: var(--color-text-muted);
+    font-size: 0.92rem;
+    line-height: 1.55;
+    margin: 0 0 1.25rem 0;
+}
+
+.server-card-link {
+    font-weight: 700;
+    font-size: 0.88rem;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+    color: var(--card-color, var(--color-primary));
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
 }

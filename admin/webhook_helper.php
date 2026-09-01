@@ -80,7 +80,7 @@ function enviarWebhookDiscord($categoriaEnvio, $titulo, $conteudo, $autor, $capa
         CURLOPT_POST => true,
         CURLOPT_POSTFIELDS => $payload,
         CURLOPT_RETURNTRANSFER => true,
-        CURLOPT_SSL_VERIFYPEER => false,
+        CURLOPT_SSL_VERIFYPEER => true, CURLOPT_SSL_VERIFYHOST => 2,
     ]);
 
     $response = curl_exec($ch);
@@ -148,7 +148,7 @@ function editarWebhookDiscord($categoriaEnvio, $mensagemID, $titulo, $conteudo, 
         CURLOPT_CUSTOMREQUEST => 'PATCH',
         CURLOPT_POSTFIELDS => $payload,
         CURLOPT_RETURNTRANSFER => true,
-        CURLOPT_SSL_VERIFYPEER => false,
+        CURLOPT_SSL_VERIFYPEER => true, CURLOPT_SSL_VERIFYHOST => 2,
     ]);
 
     $response = curl_exec($ch);
@@ -177,7 +177,7 @@ function deletarWebhookDiscord($categoriaEnvio, $mensagemID) {
         ],
         CURLOPT_CUSTOMREQUEST => 'DELETE',
         CURLOPT_RETURNTRANSFER => true,
-        CURLOPT_SSL_VERIFYPEER => false,
+        CURLOPT_SSL_VERIFYPEER => true, CURLOPT_SSL_VERIFYHOST => 2,
     ]);
 
     $response = curl_exec($ch);

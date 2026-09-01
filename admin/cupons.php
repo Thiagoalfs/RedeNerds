@@ -100,15 +100,20 @@ function statusDoCupom(array $cupom): array {
                                 <td class="text-end text-nowrap">
                                     <div class="d-inline-flex align-items-center justify-content-end gap-1">
                                         <a href="cupom_editar.php?id=<?php echo (int)$c['id']; ?>" class="btn btn-sm btn-primary">Editar</a>
-                                        <a href="api/cupons/toggle.php?id=<?php echo (int)$c['id']; ?>"
-                                           class="btn btn-sm btn-outline-secondary"
-                                           title="<?php echo $c['ativo'] ? 'Desativar cupom' : 'Ativar cupom'; ?>">
-                                            <i class="fa-solid <?php echo $c['ativo'] ? 'fa-eye' : 'fa-eye-slash'; ?>"></i>
-                                        </a>
-                                        <a href="api/cupons/deletar.php?id=<?php echo (int)$c['id']; ?>"
-                                           class="btn btn-sm btn-danger"
-                                           title="Deletar"
-                                           onclick="return confirm('Deletar o cupom <?php echo htmlspecialchars(addslashes($c['codigo']), ENT_QUOTES, 'UTF-8'); ?>? Essa ação não pode ser desfeita.');"><i class="fa-solid fa-trash"></i></a>
+                                        <form method="POST" action="api/cupons/toggle.php" class="d-inline">
+                                            <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($csrfToken, ENT_QUOTES, 'UTF-8'); ?>">
+                                            <input type="hidden" name="id" value="<?php echo (int)$c['id']; ?>">
+                                            <button type="submit" class="btn btn-sm btn-outline-secondary" title="<?php echo $c['ativo'] ? 'Desativar cupom' : 'Ativar cupom'; ?>">
+                                                <i class="fa-solid <?php echo $c['ativo'] ? 'fa-eye' : 'fa-eye-slash'; ?>"></i>
+                                            </button>
+                                        </form>
+                                        <form method="POST" action="api/cupons/deletar.php" class="d-inline" onsubmit="return confirm('Deletar o cupom <?php echo htmlspecialchars(addslashes($c['codigo']), ENT_QUOTES, 'UTF-8'); ?>? Essa ação não pode ser desfeita.');">
+                                            <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($csrfToken, ENT_QUOTES, 'UTF-8'); ?>">
+                                            <input type="hidden" name="id" value="<?php echo (int)$c['id']; ?>">
+                                            <button type="submit" class="btn btn-sm btn-danger" title="Deletar">
+                                                <i class="fa-solid fa-trash"></i>
+                                            </button>
+                                        </form>
                                     </div>
                                 </td>
                             </tr>

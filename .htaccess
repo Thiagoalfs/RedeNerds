@@ -4,6 +4,9 @@
 <IfModule mod_rewrite.c>
     RewriteEngine On
 
+    # Redirecionamento 301 da rota de novidades para a secao da home
+    RewriteRule ^novidades/?$ /#atualizacoes-section [R=301,L,NE]
+
     RewriteCond %{HTTPS} !=on [OR]
     RewriteCond %{HTTP:X-Forwarded-Proto} =http [OR]
     RewriteCond %{HTTP:CF-Visitor} '"scheme":"http"'

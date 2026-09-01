@@ -1,3 +1,4 @@
+@import url('tokens.css');
 @import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
 
 :root {
@@ -173,7 +174,7 @@ button.discord {
     font-weight: 700;
     padding: 9px 18px;
     border-radius: 8px;
-    box-shadow: 0 4px 14px rgba(88, 101, 242, 0.4);
+    box-shadow: var(--shadow-hard);
     transition: background-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
 }
 
@@ -181,7 +182,7 @@ button.discord {
 button.discord:hover {
     background: #4752C4;
     transform: translateY(-2px);
-    box-shadow: 0 6px 18px rgba(88, 101, 242, 0.55);
+    box-shadow: var(--shadow-hard);
 }
 
 #big-header-buttons .discord i,
@@ -203,14 +204,14 @@ button.discord i {
     text-decoration: none;
     border-radius: 8px;
     border: none;
-    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35);
+    box-shadow: var(--shadow-hard);
     transition: background-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
 }
 
 .btn-servidores:hover {
     background-color: #F1F5F9;
     transform: translateY(-2px);
-    box-shadow: 0 6px 18px rgba(255, 255, 255, 0.2);
+    box-shadow: var(--shadow-hard);
 }
 
 .btn-servidores i {
@@ -280,20 +281,13 @@ a {
 }
 
 .subtitle {
-    margin: 0;
-    font-family: 'Poppins', sans-serif;
-    font-size: clamp(1.75rem, 3vw, 2.35rem);
-    font-weight: 800;
-    color: #FFFFFF;
+    font-family: var(--font-main);
+    font-size: clamp(1.8rem, 3.2vw, 2.5rem);
+    font-weight: 900;
+    text-transform: uppercase;
     letter-spacing: -0.5px;
-    line-height: 1.2;
-    padding: 0;
-    border: none;
-    text-shadow: 0 2px 12px rgba(0, 0, 0, 0.6);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 8px;
+    color: var(--color-text-main);
+    margin-bottom: 0.75rem;
 }
 
 .subtitle::after {

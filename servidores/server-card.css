@@ -1,3 +1,4 @@
+@import url('/shared/tokens.css');
 /* ==========================================================================
    PÁGINA DETALHES DO SERVIDOR - REDE NERDS
    Estética Gamer/Minecraft, Sólida, Alto Contraste, Sem Vidro/Blur.
@@ -121,7 +122,7 @@
     gap: 1.5rem;
     margin-bottom: 2rem;
     box-sizing: border-box;
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+    box-shadow: var(--shadow-hard);
 }
 
 .server-hero-left {
@@ -142,7 +143,7 @@
     justify-content: center;
     flex-shrink: 0;
     overflow: hidden;
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+    box-shadow: var(--shadow-hard);
 }
 
 .server-hero-icon {
@@ -305,7 +306,7 @@
     border-radius: 12px;
     padding: 1.75rem;
     box-sizing: border-box;
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+    box-shadow: var(--shadow-hard);
 }
 
 .block-header {
@@ -396,7 +397,7 @@
     border-radius: 12px;
     padding: 1.5rem;
     box-sizing: border-box;
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+    box-shadow: var(--shadow-hard);
 }
 
 .sidebar-card-title {

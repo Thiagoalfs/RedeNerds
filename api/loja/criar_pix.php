@@ -207,7 +207,7 @@ if ($isLiveMpToken) {
         CURLOPT_POST => true,
         CURLOPT_POSTFIELDS => json_encode($mpPayload),
         CURLOPT_RETURNTRANSFER => true,
-        CURLOPT_SSL_VERIFYPEER => false,
+        CURLOPT_SSL_VERIFYPEER => true, CURLOPT_SSL_VERIFYHOST => 2,
         CURLOPT_TIMEOUT => 15
     ]);
 
