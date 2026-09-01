@@ -1,0 +1,709 @@
+/**
+ * wiki.css - Estilos Minimalistas da Wiki (Rede Nerds)
+ * Layout com Sidebar Esquerda de Categorias (Accordion) e Destaques em Roxo (#B971DA).
+ */
+
+:root {
+  --wiki-bg: #f8fafc;
+  --wiki-surface: #ffffff;
+  --wiki-surface-subtle: #f1f5f9;
+  --wiki-border: #e2e8f0;
+  --wiki-border-strong: #cbd5e1;
+  --wiki-text-main: #0f172a;
+  --wiki-text-muted: #64748b;
+  --wiki-primary: #B971DA;
+  --wiki-primary-hover: #a453cb;
+  --wiki-primary-dark: #8e2ebd;
+  --wiki-primary-bg: rgba(185, 113, 218, 0.1);
+  --wiki-font-main: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --wiki-font-mono: 'JetBrains Mono', monospace;
+  --radius-sm: 6px;
+  --radius-md: 8px;
+}
+
+body {
+  font-family: var(--wiki-font-main);
+  background-color: var(--wiki-bg);
+  color: var(--wiki-text-main);
+  margin: 0;
+  padding: 0;
+  font-size: 0.92rem;
+  line-height: 1.6;
+}
+
+/* ======================================================== */
+/* 1. NAVBAR MINIMALISTA                                   */
+/* ======================================================== */
+.wiki-navbar {
+  background-color: #0f172a;
+  border-bottom: 1px solid #1e293b;
+  padding: 0.75rem 0;
+  position: sticky;
+  top: 0;
+  z-index: 1020;
+}
+
+.wiki-nav-container {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 1.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.wiki-nav-left {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+  flex-wrap: wrap;
+}
+
+.wiki-brand {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  text-decoration: none;
+  color: #ffffff;
+  font-weight: 800;
+  font-size: 1.05rem;
+  letter-spacing: -0.3px;
+}
+
+.wiki-brand img {
+  width: 28px;
+  height: 28px;
+  border-radius: 4px;
+}
+
+.wiki-brand-tag {
+  font-size: 0.65rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  background: #1e293b;
+  color: var(--wiki-primary);
+  padding: 2px 6px;
+  border-radius: 4px;
+  border: 1px solid #334155;
+}
+
+/* Dropdown Seletor de Servidor */
+.wiki-server-dropdown .btn-server-select {
+  background-color: #1e293b;
+  border: 1px solid #334155;
+  color: #f8fafc;
+  font-size: 0.82rem;
+  font-weight: 600;
+  padding: 0.4rem 0.85rem;
+  border-radius: var(--radius-sm);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: all 0.15s ease;
+}
+
+.wiki-server-dropdown .btn-server-select:hover,
+.wiki-server-dropdown .btn-server-select:focus {
+  background-color: #334155;
+  color: #ffffff;
+  border-color: var(--wiki-primary);
+}
+
+.dropdown-menu-dark-solid {
+  background-color: #0f172a;
+  border: 1px solid #334155;
+  border-radius: var(--radius-sm);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+  padding: 0.4rem;
+  min-width: 220px;
+}
+
+.dropdown-menu-dark-solid .dropdown-item {
+  color: #cbd5e1;
+  font-size: 0.84rem;
+  padding: 0.45rem 0.75rem;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.dropdown-menu-dark-solid .dropdown-item:hover {
+  background-color: #1e293b;
+  color: #ffffff;
+}
+
+.dropdown-menu-dark-solid .dropdown-item.active {
+  background-color: var(--wiki-primary);
+  color: #ffffff;
+  font-weight: 600;
+}
+
+.wiki-nav-links {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.wiki-nav-link {
+  color: #94a3b8;
+  text-decoration: none;
+  font-size: 0.82rem;
+  font-weight: 600;
+  padding: 0.4rem 0.75rem;
+  border-radius: var(--radius-sm);
+  transition: color 0.15s ease;
+}
+
+.wiki-nav-link:hover {
+  color: #ffffff;
+}
+
+/* ======================================================== */
+/* 2. LAYOUT COM SIDEBAR ESQUERDA                          */
+/* ======================================================== */
+.wiki-layout-docs {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 1.5rem 1.25rem 4rem;
+  display: flex;
+  gap: 2rem;
+  align-items: flex-start;
+}
+
+@media (max-width: 991px) {
+  .wiki-layout-docs {
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+}
+
+/* SIDEBAR ESQUERDA */
+.wiki-docs-sidebar {
+  width: 280px;
+  flex-shrink: 0;
+  background-color: var(--wiki-surface);
+  border: 1px solid var(--wiki-border);
+  border-radius: var(--radius-md);
+  padding: 1.25rem 1rem;
+  position: sticky;
+  top: 75px;
+}
+
+@media (max-width: 991px) {
+  .wiki-docs-sidebar {
+    width: 100%;
+    position: static;
+  }
+}
+
+.wiki-sidebar-server-info {
+  border-bottom: 1px solid var(--wiki-border);
+  padding-bottom: 1rem;
+  margin-bottom: 1rem;
+}
+
+.wiki-sidebar-icon {
+  width: 36px;
+  height: 36px;
+  border: 1px solid var(--wiki-border);
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--wiki-surface-subtle);
+  font-size: 1.1rem;
+  flex-shrink: 0;
+}
+
+.wiki-sidebar-heading {
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  color: var(--wiki-text-muted);
+  padding: 0 0.5rem 0.5rem;
+}
+
+/* Árvore de Categorias */
+.wiki-tree-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.wiki-tree-item {
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+}
+
+.wiki-cat-btn {
+  width: 100%;
+  text-align: left;
+  background: transparent;
+  border: none;
+  padding: 0.55rem 0.65rem;
+  border-radius: var(--radius-sm);
+  color: var(--wiki-text-main);
+  font-size: 0.85rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.wiki-cat-btn:hover {
+  background-color: var(--wiki-surface-subtle);
+}
+
+.wiki-cat-btn.selected {
+  background-color: var(--wiki-primary-bg);
+  color: var(--wiki-primary-dark);
+}
+
+.wiki-cat-btn .cat-icon {
+  width: 18px;
+  text-align: center;
+  font-size: 0.9rem;
+  color: var(--wiki-text-muted);
+}
+
+.wiki-cat-btn.selected .cat-icon {
+  color: var(--wiki-primary-dark);
+}
+
+.wiki-cat-btn .cat-count {
+  font-size: 0.7rem;
+  font-family: var(--wiki-font-mono);
+  background-color: var(--wiki-surface-subtle);
+  border: 1px solid var(--wiki-border);
+  color: var(--wiki-text-muted);
+  padding: 1px 5px;
+  border-radius: 4px;
+}
+
+.wiki-cat-btn .chevron-icon {
+  font-size: 0.7rem;
+  color: var(--wiki-text-muted);
+  transition: transform 0.2s ease;
+  margin-left: 0.35rem;
+}
+
+.wiki-tree-item.open .chevron-icon {
+  transform: rotate(90deg);
+}
+
+/* Sublista de Artigos (Accordion) */
+.wiki-articles-sublist {
+  display: none;
+  padding: 0.25rem 0 0.5rem 1.5rem;
+  border-left: 2px solid var(--wiki-border);
+  margin-left: 1rem;
+  margin-top: 0.2rem;
+}
+
+.wiki-tree-item.open .wiki-articles-sublist {
+  display: block;
+}
+
+.wiki-articles-sublist ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.wiki-sublist-link {
+  display: flex;
+  align-items: center;
+  padding: 0.35rem 0.5rem;
+  color: var(--wiki-text-muted);
+  text-decoration: none;
+  font-size: 0.8rem;
+  font-weight: 500;
+  border-radius: 4px;
+  transition: all 0.15s ease;
+}
+
+.wiki-sublist-link:hover {
+  color: var(--wiki-primary-dark);
+  background-color: var(--wiki-surface-subtle);
+}
+
+.wiki-sublist-link.active {
+  color: var(--wiki-primary-dark);
+  font-weight: 700;
+  background-color: var(--wiki-primary-bg);
+}
+
+.wiki-sublist-empty {
+  font-size: 0.75rem;
+  color: #94a3b8;
+  font-style: italic;
+  padding: 0.3rem 0.5rem;
+}
+
+/* ÁREA DE CONTEÚDO PRINCIPAL */
+.wiki-docs-main {
+  flex: 1;
+  min-width: 0;
+}
+
+.wiki-content-card {
+  background-color: var(--wiki-surface);
+  border: 1px solid var(--wiki-border);
+  border-radius: var(--radius-md);
+  padding: 2rem;
+}
+
+/* ======================================================== */
+/* 3. HUB DA WIKI (PÁGINA INICIAL /wiki/)                   */
+/* ======================================================== */
+.wiki-wrapper {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem 1.25rem 4rem;
+}
+
+.wiki-header-box {
+  background-color: var(--wiki-surface);
+  border: 1px solid var(--wiki-border);
+  border-radius: var(--radius-md);
+  padding: 2rem;
+  margin-bottom: 2rem;
+}
+
+.wiki-header-title {
+  font-size: 1.6rem;
+  font-weight: 800;
+  margin: 0 0 0.5rem 0;
+  color: var(--wiki-text-main);
+  letter-spacing: -0.5px;
+}
+
+.wiki-header-sub {
+  color: var(--wiki-text-muted);
+  font-size: 0.95rem;
+  margin: 0;
+}
+
+.wiki-search-box {
+  margin-top: 1.25rem;
+  position: relative;
+  max-width: 600px;
+}
+
+.wiki-search-input {
+  width: 100%;
+  padding: 0.65rem 1rem 0.65rem 2.5rem;
+  border: 1px solid var(--wiki-border);
+  border-radius: var(--radius-sm);
+  background-color: #ffffff;
+  color: var(--wiki-text-main);
+  font-size: 0.88rem;
+  outline: none;
+  transition: border-color 0.15s ease;
+}
+
+.wiki-search-input:focus {
+  border-color: var(--wiki-primary);
+}
+
+.wiki-search-icon {
+  position: absolute;
+  left: 0.9rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--wiki-text-muted);
+  font-size: 0.85rem;
+}
+
+.wiki-server-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 1.25rem;
+  margin-bottom: 2.5rem;
+}
+
+.wiki-server-card {
+  background-color: var(--wiki-surface);
+  border: 1px solid var(--wiki-border);
+  border-radius: var(--radius-md);
+  padding: 1.5rem;
+  text-decoration: none;
+  color: inherit;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  transition: border-color 0.15s ease;
+}
+
+.wiki-server-card:hover {
+  border-color: var(--wiki-primary);
+}
+
+.wiki-server-card-top {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.wiki-server-icon-box {
+  width: 44px;
+  height: 44px;
+  border: 1px solid var(--wiki-border);
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+  background-color: var(--wiki-surface-subtle);
+  flex-shrink: 0;
+}
+
+.wiki-icon-img {
+  width: 32px;
+  height: 32px;
+  object-fit: cover;
+  border-radius: 4px;
+}
+
+.wiki-server-card-name {
+  font-weight: 700;
+  font-size: 1.05rem;
+  margin: 0;
+  color: var(--wiki-text-main);
+}
+
+.wiki-server-card-desc {
+  font-size: 0.82rem;
+  color: var(--wiki-text-muted);
+  margin: 0.35rem 0 0;
+  line-height: 1.4;
+}
+
+.wiki-server-card-footer {
+  border-top: 1px solid var(--wiki-border);
+  padding-top: 0.85rem;
+  margin-top: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 0.78rem;
+  color: var(--wiki-text-muted);
+}
+
+.wiki-server-card-link {
+  color: var(--wiki-primary-dark);
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+/* ======================================================== */
+/* 4. LEITOR DE ARTIGO & MARKDOWN                          */
+/* ======================================================== */
+.wiki-breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.8rem;
+  color: var(--wiki-text-muted);
+  margin-bottom: 1rem;
+}
+
+.wiki-breadcrumb a {
+  color: var(--wiki-text-muted);
+  text-decoration: none;
+}
+
+.wiki-breadcrumb a:hover {
+  color: var(--wiki-primary-dark);
+}
+
+.wiki-article-title {
+  font-size: 1.8rem;
+  font-weight: 800;
+  color: var(--wiki-text-main);
+  letter-spacing: -0.5px;
+  margin: 0 0 0.5rem;
+  line-height: 1.3;
+}
+
+.wiki-article-meta {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-size: 0.78rem;
+  color: var(--wiki-text-muted);
+  border-bottom: 1px solid var(--wiki-border);
+  padding-bottom: 1.25rem;
+  margin-bottom: 1.75rem;
+}
+
+/* Tipografia Markdown */
+.wiki-content .wiki-h2 {
+  font-size: 1.3rem;
+  font-weight: 700;
+  margin: 2rem 0 0.85rem;
+  padding-bottom: 0.4rem;
+  border-bottom: 1px solid var(--wiki-border);
+  color: var(--wiki-text-main);
+}
+
+.wiki-content .wiki-h3 {
+  font-size: 1.1rem;
+  font-weight: 700;
+  margin: 1.5rem 0 0.65rem;
+  color: var(--wiki-text-main);
+}
+
+.wiki-content .wiki-p {
+  margin-bottom: 1.15rem;
+  font-size: 0.92rem;
+  color: #334155;
+}
+
+.wiki-inline-code {
+  font-family: var(--wiki-font-mono);
+  background-color: var(--wiki-surface-subtle);
+  border: 1px solid var(--wiki-border);
+  color: #0f172a;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 0.84rem;
+}
+
+.wiki-code-block {
+  border: 1px solid #334155;
+  background-color: #0f172a;
+  border-radius: var(--radius-sm);
+  margin: 1.25rem 0;
+  overflow: hidden;
+}
+
+.wiki-code-block .code-header {
+  background-color: #1e293b;
+  padding: 0.35rem 0.85rem;
+  font-size: 0.7rem;
+  font-family: var(--wiki-font-mono);
+  color: #94a3b8;
+  text-transform: uppercase;
+  border-bottom: 1px solid #334155;
+}
+
+.wiki-code-block pre {
+  margin: 0;
+  padding: 1rem;
+  overflow-x: auto;
+}
+
+.wiki-code-block code {
+  font-family: var(--wiki-font-mono);
+  color: #e2e8f0;
+  font-size: 0.84rem;
+}
+
+/* Callouts Minimalistas */
+.wiki-callout {
+  border-left: 3px solid;
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+  padding: 1rem 1.25rem;
+  margin: 1.25rem 0;
+  background-color: var(--wiki-surface);
+  border-top: 1px solid var(--wiki-border);
+  border-right: 1px solid var(--wiki-border);
+  border-bottom: 1px solid var(--wiki-border);
+}
+
+.wiki-callout .callout-header {
+  font-weight: 700;
+  font-size: 0.84rem;
+  margin-bottom: 0.35rem;
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+
+.wiki-callout .callout-body {
+  font-size: 0.85rem;
+  color: var(--wiki-text-muted);
+}
+
+.wiki-callout-tip {
+  border-left-color: var(--wiki-primary);
+}
+.wiki-callout-tip .callout-header {
+  color: var(--wiki-primary-dark);
+}
+
+.wiki-callout-warning {
+  border-left-color: #d97706;
+}
+.wiki-callout-warning .callout-header {
+  color: #d97706;
+}
+
+.wiki-callout-info {
+  border-left-color: #0284c7;
+}
+.wiki-callout-info .callout-header {
+  color: #0284c7;
+}
+
+/* Sumário Flutuante (TOC) */
+.wiki-toc-box {
+  background-color: var(--wiki-surface);
+  border: 1px solid var(--wiki-border);
+  border-radius: var(--radius-md);
+  padding: 1.25rem;
+  position: sticky;
+  top: 80px;
+}
+
+.wiki-toc-title {
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--wiki-text-muted);
+  margin-bottom: 0.75rem;
+}
+
+.wiki-toc-list {
+  list-style: none;
+  margin: 0;
+  padding: 0 0 0 0.5rem;
+  border-left: 2px solid var(--wiki-border);
+}
+
+.wiki-toc-list li {
+  margin-bottom: 0.4rem;
+}
+
+.wiki-toc-list a {
+  text-decoration: none;
+  font-size: 0.82rem;
+  color: var(--wiki-text-muted);
+  display: block;
+  transition: color 0.15s ease;
+}
+
+.wiki-toc-list a:hover {
+  color: var(--wiki-primary-dark);
+}
+
+/* Footer Minimalista */
+.wiki-footer {
+  background-color: #0f172a;
+  border-top: 1px solid #1e293b;
+  padding: 1.5rem 0;
+  text-align: center;
+  color: #64748b;
+  font-size: 0.8rem;
+  margin-top: 3rem;
+}
