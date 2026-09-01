@@ -5,6 +5,7 @@ $tituloPagina = 'Criar Servidor';
 require_once __DIR__ . "/includes/admin_header.php";
 require_once "icon_upload.php";
 require_once "bg_upload.php";
+require_once __DIR__ . "/../wiki/wiki_helper.php";
 
 $mensagem_sucesso = "";
 $mensagem_erro = "";
@@ -70,7 +71,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 ':enabled'    => $enabled ? 1 : 0,
             ]);
 
-            header("Location: servidores.php");
+            $novoServidorId = (int)$pdo->lastInsertId();
+garantirCategoriasPadraoWiki($pdo, $novoServidorId);
+header("Location: servidores.php");
             exit;
         } catch (PDOException $e) {
             $mensagem_erro = "Erro ao cadastrar servidor: " . $e->getMessage();
