@@ -70,11 +70,11 @@ if (isset($pdo) && $pdo instanceof PDO) {
         </a>
         <?php if ($isWikiAtiva): ?>
             <div class="sidebar-subnav ps-4 my-1 d-flex flex-column gap-1">
-                <a href="wiki.php" class="small text-decoration-none py-1 px-2 rounded <?php echo ($paginaAtiva === 'wiki' || $paginaAtiva === 'wiki_artigo_criar' || $paginaAtiva === 'wiki_artigo_editar') ? 'bg-primary text-white fw-semibold' : 'text-muted'; ?>">
-                    <i class="fa-regular fa-file-lines me-1"></i> Artigos
+                <a href="wiki.php" class="small text-decoration-none py-1 px-2 rounded d-flex align-items-center <?php echo ($paginaAtiva === 'wiki' || $paginaAtiva === 'wiki_artigo_criar' || $paginaAtiva === 'wiki_artigo_editar') ? 'bg-primary text-white fw-semibold' : ''; ?>" style="<?php echo ($paginaAtiva === 'wiki' || $paginaAtiva === 'wiki_artigo_criar' || $paginaAtiva === 'wiki_artigo_editar') ? '' : 'color: rgb(148, 163, 184);'; ?>">
+                    <i class="fa-regular fa-file-lines me-2"></i> <span>Artigos</span>
                 </a>
-                <a href="wiki_categorias.php" class="small text-decoration-none py-1 px-2 rounded <?php echo ($paginaAtiva === 'wiki_categorias') ? 'bg-primary text-white fw-semibold' : 'text-muted'; ?>">
-                    <i class="fa-solid fa-folder-tree me-1"></i> Categorias
+                <a href="wiki_categorias.php" class="small text-decoration-none py-1 px-2 rounded d-flex align-items-center <?php echo ($paginaAtiva === 'wiki_categorias') ? 'bg-primary text-white fw-semibold' : ''; ?>" style="<?php echo ($paginaAtiva === 'wiki_categorias') ? '' : 'color: rgb(148, 163, 184);'; ?>">
+                    <i class="fa-solid fa-folder-tree me-2"></i> <span>Categorias</span>
                 </a>
             </div>
         <?php endif; ?>
