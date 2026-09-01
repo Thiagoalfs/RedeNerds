@@ -45,7 +45,7 @@ try {
 
 <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-4">
     <div>
-        <h4 class="fw-bold mb-1">Olá, <?php echo htmlspecialchars($nome_usuario, ENT_QUOTES, 'UTF-8'); ?> 👋</h4>
+        <h4 class="fw-bold mb-1">Olá, <?php echo htmlspecialchars($nome_usuario, ENT_QUOTES, 'UTF-8'); ?></h4>
         <p class="text-muted small mb-0">Aqui está o resumo em tempo real da saúde da Rede Nerds.</p>
     </div>
     <div class="d-flex gap-2 flex-wrap">
@@ -155,15 +155,15 @@ try {
                                 <td>
                                     <span class="fw-semibold text-primary"><?php echo htmlspecialchars($ped['vip_nome'], ENT_QUOTES, 'UTF-8'); ?></span>
                                     <?php if (!empty($ped['cupom_codigo'])): ?>
-                                        <span class="badge bg-light text-dark border ms-1" style="font-size: 0.68rem;">🏷️ <?php echo htmlspecialchars($ped['cupom_codigo'], ENT_QUOTES, 'UTF-8'); ?></span>
+                                        <span class="badge bg-light text-dark border ms-1" style="font-size: 0.68rem;"><i class="fa-solid fa-tag me-1"></i><?php echo htmlspecialchars($ped['cupom_codigo'], ENT_QUOTES, 'UTF-8'); ?></span>
                                     <?php endif; ?>
                                 </td>
                                 <td><span class="badge bg-secondary"><?php echo htmlspecialchars($ped['servidor'], ENT_QUOTES, 'UTF-8'); ?></span></td>
                                 <td>
                                     <?php if ($metodo === 'cartao'): ?>
-                                        <span class="badge bg-info text-dark">💳 Cartão <?php echo ($parcelas > 1) ? "({$parcelas}x)" : ""; ?></span>
+                                        <span class="badge bg-info text-dark"><i class="fa-solid fa-credit-card me-1"></i> Cartão <?php echo ($parcelas > 1) ? "({$parcelas}x)" : ""; ?></span>
                                     <?php else: ?>
-                                        <span class="badge bg-success">⚡ PIX</span>
+                                        <span class="badge bg-success"><i class="fa-brands fa-pix me-1"></i> PIX</span>
                                     <?php endif; ?>
                                 </td>
                                 <td>
@@ -171,11 +171,11 @@ try {
                                 </td>
                                 <td>
                                     <?php if ($status === 'pago'): ?>
-                                        <span class="badge-status pago">🟢 Aprovado</span>
+                                        <span class="badge-status pago">Aprovado</span>
                                     <?php elseif ($status === 'pendente'): ?>
-                                        <span class="badge-status pendente">🟡 Pendente</span>
+                                        <span class="badge-status pendente">Pendente</span>
                                     <?php else: ?>
-                                        <span class="badge-status recusado">🔴 Recusado</span>
+                                        <span class="badge-status recusado">Recusado</span>
                                     <?php endif; ?>
                                 </td>
                                 <td class="text-muted small">
