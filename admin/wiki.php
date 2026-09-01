@@ -43,6 +43,16 @@ try {
     </div>
 </div>
 
+<!-- SUB-ABAS DE NAVEGAÇÃO -->
+<div class="d-flex gap-2 mb-3">
+    <a href="wiki.php<?php echo $filtroServidor ? '?servidor_id=' . $filtroServidor : ''; ?>" class="btn btn-primary btn-sm">
+        <i class="fa-regular fa-file-lines me-1"></i> Artigos da Wiki
+    </a>
+    <a href="wiki_categorias.php<?php echo $filtroServidor ? '?servidor_id=' . $filtroServidor : ''; ?>" class="btn btn-outline-secondary btn-sm">
+        <i class="fa-solid fa-folder-tree me-1"></i> Gerenciar Categorias
+    </a>
+</div>
+
 <!-- FILTROS -->
 <div class="admin-card mb-3">
     <div class="p-3">

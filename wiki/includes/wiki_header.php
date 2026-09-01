@@ -45,8 +45,11 @@ if ($servidorAtual && !empty($servidorAtual['servername'])) {
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     
+    <!-- DESIGN TOKENS OFICIAIS DA REDE NERDS -->
+    <link rel="stylesheet" href="/shared/tokens.css?v=1">
+
     <!-- CSS DA WIKI (Compatível tanto em /wiki/ quanto em root) -->
-    <link rel="stylesheet" href="wiki.css?v=3">
+    <link rel="stylesheet" href="wiki.css?v=4">
 </head>
 <body>
     <!-- NAVBAR MINIMALISTA -->

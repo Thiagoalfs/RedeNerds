@@ -7,18 +7,18 @@
   --wiki-bg: #f8fafc;
   --wiki-surface: #ffffff;
   --wiki-surface-subtle: #f1f5f9;
-  --wiki-border: #e2e8f0;
-  --wiki-border-strong: #cbd5e1;
+  --wiki-border: var(--color-border, #e2e8f0);
+  --wiki-border-strong: var(--color-border-strong, #cbd5e1);
   --wiki-text-main: #0f172a;
-  --wiki-text-muted: #64748b;
-  --wiki-primary: #B971DA;
-  --wiki-primary-hover: #a453cb;
-  --wiki-primary-dark: #8e2ebd;
+  --wiki-text-muted: var(--color-text-muted, #64748b);
+  --wiki-primary: var(--color-primary, #B971DA);
+  --wiki-primary-hover: var(--color-primary-hover, #a453cb);
+  --wiki-primary-dark: var(--color-primary-dark, #8e2ebd);
   --wiki-primary-bg: rgba(185, 113, 218, 0.1);
-  --wiki-font-main: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  --wiki-font-mono: 'JetBrains Mono', monospace;
-  --radius-sm: 6px;
-  --radius-md: 8px;
+  --wiki-font-main: var(--font-main, 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif);
+  --wiki-font-mono: var(--font-mono, 'JetBrains Mono', monospace);
+  --radius-sm: var(--radius-sm, 4px);
+  --radius-md: var(--radius-md, 6px);
 }
 
 body {
@@ -200,7 +200,7 @@ body {
 
 .wiki-sidebar-server-info {
   border-bottom: 1px solid var(--wiki-border);
-  padding-bottom: 1rem;
+  padding-bottom: 0.9rem;
   margin-bottom: 1rem;
 }
 
@@ -215,6 +215,71 @@ body {
   background-color: var(--wiki-surface-subtle);
   font-size: 1.1rem;
   flex-shrink: 0;
+}
+
+/* Caixa de Busca na Sidebar */
+.wiki-sidebar-search {
+  margin-top: 0.75rem;
+}
+
+.wiki-sidebar-search-box {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+
+.wiki-sidebar-search-icon {
+  position: absolute;
+  left: 10px;
+  color: var(--wiki-text-muted);
+  font-size: 0.75rem;
+  pointer-events: none;
+}
+
+.wiki-sidebar-search-input {
+  width: 100%;
+  background-color: var(--wiki-surface);
+  border: 1px solid var(--wiki-border);
+  border-radius: var(--radius-sm);
+  padding: 0.4rem 1.8rem 0.4rem 1.9rem;
+  font-family: var(--wiki-font-main);
+  font-size: 0.78rem;
+  color: var(--wiki-text-main);
+  transition: all 0.15s ease;
+  outline: none;
+  box-sizing: border-box;
+}
+
+.wiki-sidebar-search-input::placeholder {
+  color: var(--wiki-text-muted);
+  opacity: 0.85;
+}
+
+.wiki-sidebar-search-input:focus {
+  border-color: var(--wiki-primary);
+  box-shadow: 0 0 0 2px var(--wiki-primary-bg);
+}
+
+.wiki-sidebar-search-clear {
+  position: absolute;
+  right: 6px;
+  background: transparent;
+  border: none;
+  color: var(--wiki-text-muted);
+  cursor: pointer;
+  padding: 3px 5px;
+  font-size: 0.72rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  transition: all 0.15s ease;
+}
+
+.wiki-sidebar-search-clear:hover {
+  color: var(--wiki-text-main);
+  background-color: var(--wiki-surface-subtle);
 }
 
 .wiki-sidebar-heading {

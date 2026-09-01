@@ -61,12 +61,23 @@ if (isset($pdo) && $pdo instanceof PDO) {
                 <span>Equipe</span>
             </div>
         </a>
-                <a href="wiki.php" class="nav-item-link <?php echo ($paginaAtiva === 'wiki') ? 'active' : ''; ?>">
+        <?php $isWikiAtiva = in_array($paginaAtiva, ['wiki', 'wiki_categorias', 'wiki_artigo_criar', 'wiki_artigo_editar']); ?>
+        <a href="wiki.php" class="nav-item-link <?php echo $isWikiAtiva ? 'active' : ''; ?>">
             <div class="icon-wrap">
                 <i class="fa-solid fa-book-open"></i>
                 <span>Wiki & Guias</span>
             </div>
         </a>
+        <?php if ($isWikiAtiva): ?>
+            <div class="sidebar-subnav ps-4 my-1 d-flex flex-column gap-1">
+                <a href="wiki.php" class="small text-decoration-none py-1 px-2 rounded <?php echo ($paginaAtiva === 'wiki' || $paginaAtiva === 'wiki_artigo_criar' || $paginaAtiva === 'wiki_artigo_editar') ? 'bg-primary text-white fw-semibold' : 'text-muted'; ?>">
+                    <i class="fa-regular fa-file-lines me-1"></i> Artigos
+                </a>
+                <a href="wiki_categorias.php" class="small text-decoration-none py-1 px-2 rounded <?php echo ($paginaAtiva === 'wiki_categorias') ? 'bg-primary text-white fw-semibold' : 'text-muted'; ?>">
+                    <i class="fa-solid fa-folder-tree me-1"></i> Categorias
+                </a>
+            </div>
+        <?php endif; ?>
         <a href="noticias.php" class="nav-item-link <?php echo ($paginaAtiva === 'noticias') ? 'active' : ''; ?>">
             <div class="icon-wrap">
                 <i class="fa-solid fa-newspaper"></i>
