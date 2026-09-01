@@ -8,14 +8,6 @@
     --theme-color: #7DB9DF;
     --theme-shadow-color: rgba(125, 185, 223, 0.2);
     --theme-hover-bg: rgba(125, 185, 223, 0.12);
-    --bg-surface: #0b0f15;
-    --bg-card: #111622;
-    --bg-card-hover: #161c2b;
-    --border-subtle: rgba(255, 255, 255, 0.08);
-    --border-active: rgba(255, 255, 255, 0.16);
-    --text-primary: #ffffff;
-    --text-secondary: #9ca3af;
-    --text-muted: #6b7280;
 }
 
 /* Fundo Temático Dinâmico do Servidor (ex: nerddeadbg.webp) */
@@ -113,7 +105,7 @@
 /* 2. Banner / Hero Principal do Servidor */
 .server-hero-card {
     background-color: rgba(11, 15, 21, 0.92);
-    border: 1px solid var(--border-subtle);
+    border: 1px solid var(--color-border);
     border-radius: 14px;
     padding: 1.5rem;
     display: flex;
@@ -136,7 +128,7 @@
     width: 74px;
     height: 74px;
     border-radius: 12px;
-    background-color: var(--bg-card);
+    background-color: var(--color-surface-card);
     border: 2px solid var(--theme-color);
     display: flex;
     align-items: center;
@@ -201,9 +193,9 @@
     align-items: center;
     padding: 3px 9px;
     background-color: rgba(255, 255, 255, 0.06);
-    border: 1px solid var(--border-subtle);
+    border: 1px solid var(--color-border);
     border-radius: 6px;
-    color: var(--text-secondary);
+    color: var(--color-text-muted);
     font-size: 0.75rem;
     font-weight: 600;
 }
@@ -212,7 +204,7 @@
     margin: 0;
     font-size: 1.85rem;
     font-weight: 800;
-    color: var(--text-primary);
+    color: var(--color-text-main);
     line-height: 1.2;
     overflow-wrap: break-word;
 }
@@ -232,7 +224,7 @@
 .quick-ip-label {
     font-size: 0.78rem;
     font-weight: 600;
-    color: var(--text-muted);
+    color: var(--color-text-dim);
     text-transform: uppercase;
     letter-spacing: 0.5px;
 }
@@ -241,8 +233,8 @@
     display: inline-flex;
     align-items: center;
     gap: 8px;
-    background-color: var(--bg-card);
-    border: 1px solid var(--border-subtle);
+    background-color: var(--color-surface-card);
+    border: 1px solid var(--color-border);
     border-radius: 8px;
     padding: 6px 10px 6px 14px;
     box-sizing: border-box;
@@ -258,8 +250,8 @@
 
 .btn-copy-icon {
     background: rgba(255, 255, 255, 0.08);
-    border: 1px solid var(--border-subtle);
-    color: var(--text-secondary);
+    border: 1px solid var(--color-border);
+    color: var(--color-text-muted);
     width: 32px;
     height: 32px;
     border-radius: 6px;
@@ -302,7 +294,7 @@
 /* Blocos de Conteúdo */
 .server-card-block {
     background-color: rgba(11, 15, 21, 0.92);
-    border: 1px solid var(--border-subtle);
+    border: 1px solid var(--color-border);
     border-radius: 12px;
     padding: 1.75rem;
     box-sizing: border-box;
@@ -332,13 +324,13 @@
     margin: 0;
     font-size: 1.25rem;
     font-weight: 700;
-    color: var(--text-primary);
+    color: var(--color-text-main);
 }
 
 .block-header-line {
     flex: 1;
     height: 1px;
-    background: linear-gradient(90deg, var(--border-active), rgba(255, 255, 255, 0));
+    background: var(--color-border);
 }
 
 .server-description-text {
@@ -364,8 +356,8 @@
     align-items: flex-start;
     gap: 10px;
     padding: 10px 14px;
-    background-color: var(--bg-card);
-    border: 1px solid var(--border-subtle);
+    background-color: var(--color-surface-card);
+    border: 1px solid var(--color-border);
     border-radius: 8px;
     color: #e2e8f0;
     font-size: 0.92rem;
@@ -393,7 +385,7 @@
 
 .server-action-card {
     background-color: rgba(11, 15, 21, 0.92);
-    border: 1px solid var(--border-subtle);
+    border: 1px solid var(--color-border);
     border-radius: 12px;
     padding: 1.5rem;
     box-sizing: border-box;
@@ -404,7 +396,7 @@
     margin: 0 0 6px 0;
     font-size: 1.15rem;
     font-weight: 700;
-    color: var(--text-primary);
+    color: var(--color-text-main);
     display: flex;
     align-items: center;
     gap: 8px;
@@ -417,7 +409,7 @@
 .sidebar-card-subtitle {
     margin: 0 0 1.25rem 0;
     font-size: 0.85rem;
-    color: var(--text-secondary);
+    color: var(--color-text-muted);
     line-height: 1.4;
 }
 
@@ -459,8 +451,8 @@
     gap: 8px;
     width: 100%;
     padding: 11px 18px;
-    background-color: var(--bg-card);
-    border: 1px solid var(--border-subtle);
+    background-color: var(--color-surface-card);
+    border: 1px solid var(--color-border);
     color: #ffffff;
     font-weight: 600;
     font-size: 0.92rem;
@@ -472,7 +464,7 @@
 }
 
 .btn-cta-secondary:hover {
-    background-color: var(--bg-card-hover);
+    background-color: var(--color-surface-hover);
     border-color: rgba(255, 255, 255, 0.2);
     transform: translateY(-1px);
 }
@@ -485,7 +477,7 @@
 
 /* Especificações Rápidas */
 .sidebar-specs-list {
-    border-top: 1px solid var(--border-subtle);
+    border-top: 1px solid var(--color-border);
     padding-top: 1rem;
     display: flex;
     flex-direction: column;
@@ -500,7 +492,7 @@
 }
 
 .spec-name {
-    color: var(--text-muted);
+    color: var(--color-text-dim);
     display: flex;
     align-items: center;
     gap: 6px;
@@ -513,7 +505,7 @@
 
 /* Card VIP na Sidebar */
 .server-vip-card {
-    background: linear-gradient(180deg, rgba(185, 113, 218, 0.08) 0%, var(--bg-surface) 100%);
+    background: var(--color-surface);
     border: 1.5px solid rgba(185, 113, 218, 0.25);
     border-radius: 12px;
     padding: 1.4rem;

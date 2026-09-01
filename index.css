@@ -1,13 +1,4 @@
 @import url('/shared/tokens.css');
-:root {
-    --border-color-2: #B971DA;
-    --border-color-1: #7DB9DF;
-    --bg: #030407;
-    --surface: #0b0f15;
-    --text: #ffffff;
-    --text-muted: #a0a0a0;
-    --border-subtle: rgba(255, 255, 255, 0.08);
-}
 
 /* ======================================================== */
 /* HERO SECTION DA LANDING PAGE                             */
@@ -457,7 +448,7 @@
     border-radius: 14px;
     overflow: hidden;
     border: 1px solid rgba(255, 255, 255, 0.08);
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+    box-shadow: var(--shadow-hard);
     transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
     cursor: pointer;
     position: relative;
@@ -470,7 +461,7 @@
     --card-hover-shadow: var(--card-shadow);
 }
 .server-card[style*="--card-color"]:hover {
-    box-shadow: 0 12px 30px -4px var(--card-hover-shadow);
+    box-shadow: var(--shadow-hard-lg);
     border-color: var(--card-color);
 }
 .server-card[style*="--card-color"] .server-card-link {
@@ -491,33 +482,33 @@
     --card-hover-shadow: rgba(185, 113, 218, 0.35);
 }
 .server-card-1:hover {
-    box-shadow: 0 12px 30px -4px var(--card-hover-shadow);
+    box-shadow: var(--shadow-hard-lg);
     border-color: var(--card-color);
 }
 .server-card-1 .server-card-link { color: #B971DA; }
-.server-card-1 .banner-1 { background: linear-gradient(135deg, #5b1f8a 0%, #B971DA 100%); }
+.server-card-1 .banner-1 { background: var(--color-primary); }
 
 .server-card-2 {
     --card-color: #7DB9DF;
     --card-hover-shadow: rgba(125, 185, 223, 0.35);
 }
 .server-card-2:hover {
-    box-shadow: 0 12px 30px -4px var(--card-hover-shadow);
+    box-shadow: var(--shadow-hard-lg);
     border-color: var(--card-color);
 }
 .server-card-2 .server-card-link { color: #7DB9DF; }
-.server-card-2 .banner-2 { background: linear-gradient(135deg, #1f4f7a 0%, #7DB9DF 100%); }
+.server-card-2 .banner-2 { background: var(--color-accent); }
 
 .server-card-3 {
     --card-color: #E85D5D;
     --card-hover-shadow: rgba(232, 93, 93, 0.35);
 }
 .server-card-3:hover {
-    box-shadow: 0 12px 30px -4px var(--card-hover-shadow);
+    box-shadow: var(--shadow-hard-lg);
     border-color: var(--card-color);
 }
 .server-card-3 .server-card-link { color: #E85D5D; }
-.server-card-3 .banner-3 { background: linear-gradient(135deg, #7a1f1f 0%, #E85D5D 100%); }
+.server-card-3 .banner-3 { background: var(--color-danger-alt); }
 
 /* Banner com transição suave */
 .server-card-banner {
@@ -657,13 +648,13 @@
     align-items: flex-start;
     text-align: left;
     gap: 12px;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+    box-shadow: var(--shadow-hard);
     transition: transform 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
 }
 
 .passo-card:hover {
-    border-color: var(--border-color-1);
-    box-shadow: 0 12px 30px -4px rgba(125, 185, 223, 0.25);
+    border-color: var(--color-accent);
+    box-shadow: var(--shadow-hard-lg);
 }
 
 .passo-numero {
@@ -684,7 +675,7 @@
     border-radius: 10px;
     background: rgba(125, 185, 223, 0.1);
     border: 1px solid rgba(125, 185, 223, 0.25);
-    color: var(--border-color-1);
+    color: var(--color-accent);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -712,7 +703,7 @@
     gap: 6px;
     font-size: 13.5px;
     font-weight: 600;
-    color: var(--border-color-1);
+    color: var(--color-accent);
     margin-top: 4px;
     transition: gap 0.25s ease;
 }
@@ -770,8 +761,8 @@
     height: 110px;
     border-radius: 50%;
     overflow: hidden;
-    background-color: var(--surface);
-    border: 2px solid var(--border-subtle);
+    background-color: var(--color-surface);
+    border: 2px solid var(--color-border);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -780,8 +771,8 @@
 }
 
 .parceiro-avatar:hover {
-    border-color: var(--border-color-1);
-    box-shadow: 0 8px 20px rgba(125, 185, 223, 0.25);
+    border-color: var(--color-accent);
+    box-shadow: var(--shadow-hard);
 }
 
 .parceiro-avatar img {
@@ -795,7 +786,7 @@
     margin: 0;
     font-size: 14px;
     font-weight: 600;
-    color: var(--text);
+    color: var(--color-text-main);
     line-height: 1.3;
     max-width: 100%;
     word-wrap: break-word;
@@ -805,7 +796,7 @@
     display: inline-block;
     font-size: 10.5px;
     font-weight: 600;
-    color: var(--border-color-1);
+    color: var(--color-accent);
     background: rgba(125, 185, 223, 0.1);
     border: 1px solid rgba(125, 185, 223, 0.25);
     padding: 2px 8px;
@@ -830,7 +821,7 @@
     height: 28px;
     border-radius: 50%;
     background-color: rgba(255, 255, 255, 0.06);
-    color: var(--text-muted);
+    color: var(--color-text-muted);
     text-decoration: none;
     font-size: 14px;
     transition: transform 0.2s ease, background-color 0.2s ease, color 0.2s ease;
@@ -903,7 +894,7 @@
     background-color: #0b0f15;
     border: 1px solid rgba(255, 255, 255, 0.08);
     border-radius: 14px;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+    box-shadow: var(--shadow-hard);
     box-sizing: border-box;
 }
 
@@ -982,7 +973,7 @@
     border-radius: 8px;
     width: fit-content;
     transition: transform 0.15s ease, background-color 0.15s ease, box-shadow 0.15s ease;
-    box-shadow: 0 4px 14px rgba(88, 101, 242, 0.35);
+    box-shadow: var(--shadow-hard);
     box-sizing: border-box;
     margin-top: 4px;
 }
@@ -990,7 +981,7 @@
 .discord-cta:hover {
     background: #4752C4;
     transform: translateY(-2px);
-    box-shadow: 0 8px 22px rgba(88, 101, 242, 0.5);
+    box-shadow: var(--shadow-hard-lg);
 }
 
 .discord-cta i {
@@ -1003,7 +994,7 @@
     border-radius: 14px;
     overflow: hidden;
     border: 1px solid rgba(255, 255, 255, 0.08);
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+    box-shadow: var(--shadow-hard);
     display: flex;
 }
 
