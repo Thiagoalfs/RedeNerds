@@ -108,10 +108,20 @@ try {
                                 <td class="text-end text-nowrap">
                                     <div class="d-inline-flex align-items-center justify-content-end gap-1">
                                         <a href="wiki_artigo_editar.php?id=<?php echo (int)$art['id']; ?>" class="btn btn-sm btn-primary">Editar</a>
-                                        <a href="api/wiki/toggle.php?id=<?php echo (int)$art['id']; ?>" class="btn btn-sm btn-outline-secondary" title="<?php echo $art['publicado'] ? 'Ocultar' : 'Publicar'; ?>">
-                                            <i class="fa-solid <?php echo $art['publicado'] ? 'fa-eye' : 'fa-eye-slash'; ?>"></i>
-                                        </a>
-                                        <a href="api/wiki/deletar.php?id=<?php echo (int)$art['id']; ?>" class="btn btn-sm btn-danger" onclick="return confirm('Deletar este artigo da wiki?');" title="Deletar"><i class="fa-solid fa-trash"></i></a>
+                                        <form method="POST" action="api/wiki/toggle.php" class="d-inline">
+                                            <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($csrfToken, ENT_QUOTES, 'UTF-8'); ?>">
+                                            <input type="hidden" name="id" value="<?php echo (int)$art['id']; ?>">
+                                            <button type="submit" class="btn btn-sm btn-outline-secondary" title="<?php echo $art['publicado'] ? 'Ocultar' : 'Publicar'; ?>">
+                                                <i class="fa-solid <?php echo $art['publicado'] ? 'fa-eye' : 'fa-eye-slash'; ?>"></i>
+                                            </button>
+                                        </form>
+                                        <form method="POST" action="api/wiki/deletar.php" class="d-inline" onsubmit="return confirm('Deletar este artigo da wiki?');">
+                                            <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($csrfToken, ENT_QUOTES, 'UTF-8'); ?>">
+                                            <input type="hidden" name="id" value="<?php echo (int)$art['id']; ?>">
+                                            <button type="submit" class="btn btn-sm btn-danger" title="Deletar">
+                                                <i class="fa-solid fa-trash"></i>
+                                            </button>
+                                        </form>
                                     </div>
                                 </td>
                             </tr>

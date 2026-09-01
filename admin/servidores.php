@@ -76,14 +76,20 @@ function renderIconeTable(?string $icone): string {
                                 <td class="text-end text-nowrap">
                                     <div class="d-inline-flex align-items-center justify-content-end gap-1">
                                         <a href="servidor_editar.php?id=<?php echo (int)$s['id']; ?>" class="btn btn-sm btn-primary">Editar</a>
-                                        <a href="api/servidores/toggle.php?id=<?php echo (int)$s['id']; ?>"
-                                           class="btn btn-sm btn-outline-secondary"
-                                           title="<?php echo $s['enabled'] ? 'Ocultar servidor' : 'Exibir servidor'; ?>">
-                                            <i class="fa-solid <?php echo $s['enabled'] ? 'fa-eye' : 'fa-eye-slash'; ?>"></i>
-                                        </a>
-                                        <a href="api/servidores/deletar.php?id=<?php echo (int)$s['id']; ?>"
-                                           class="btn btn-sm btn-danger"
-                                           onclick="return confirm('Deletar o servidor <?php echo htmlspecialchars(addslashes($s['servername']), ENT_QUOTES, 'UTF-8'); ?>? Essa ação não pode ser desfeita.');" title="Deletar"><i class="fa-solid fa-trash"></i></a>
+                                        <form method="POST" action="api/servidores/toggle.php" class="d-inline">
+                                            <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($csrfToken, ENT_QUOTES, 'UTF-8'); ?>">
+                                            <input type="hidden" name="id" value="<?php echo (int)$s['id']; ?>">
+                                            <button type="submit" class="btn btn-sm btn-outline-secondary" title="<?php echo $s['enabled'] ? 'Ocultar servidor' : 'Exibir servidor'; ?>">
+                                                <i class="fa-solid <?php echo $s['enabled'] ? 'fa-eye' : 'fa-eye-slash'; ?>"></i>
+                                            </button>
+                                        </form>
+                                        <form method="POST" action="api/servidores/deletar.php" class="d-inline" onsubmit="return confirm('Deletar o servidor <?php echo htmlspecialchars(addslashes($s['servername']), ENT_QUOTES, 'UTF-8'); ?>? Essa ação não pode ser desfeita.');">
+                                            <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($csrfToken, ENT_QUOTES, 'UTF-8'); ?>">
+                                            <input type="hidden" name="id" value="<?php echo (int)$s['id']; ?>">
+                                            <button type="submit" class="btn btn-sm btn-danger" title="Deletar">
+                                                <i class="fa-solid fa-trash"></i>
+                                            </button>
+                                        </form>
                                     </div>
                                 </td>
                             </tr>

@@ -1,3 +1,4 @@
+@import url('/shared/tokens.css');
 /* =========================================
    Equipe — Mobile-first & Carrossel Dinâmico
    ========================================= */
@@ -56,7 +57,7 @@
 
 .btn-carousel-scroll {
     background: rgba(255, 255, 255, 0.08);
-    border: 1px solid rgba(255, 255, 255, 0.14);
+    border: var(--border-width-sm) solid var(--color-border);
     color: #ffffff;
     width: 26px;
     height: 26px;

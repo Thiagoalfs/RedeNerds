@@ -129,7 +129,7 @@ function enviarNotificacaoCompraDiscord($nick, $tipoConta, $servidor, $vipNome, 
         CURLOPT_POST => true,
         CURLOPT_POSTFIELDS => $payload,
         CURLOPT_RETURNTRANSFER => true,
-        CURLOPT_SSL_VERIFYPEER => false,
+        CURLOPT_SSL_VERIFYPEER => true, CURLOPT_SSL_VERIFYHOST => 2,
         CURLOPT_TIMEOUT => 5
     ]);
 

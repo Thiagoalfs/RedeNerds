@@ -2,8 +2,10 @@
 require_once __DIR__ . "/../../sessao.php";
 require_once __DIR__ . "/../../../config.php";
 
-$id = isset($_GET['id']) ? (int)$_GET['id'] : (isset($_POST['id']) ? (int)$_POST['id'] : 0);
-$isAjax = (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest') || (isset($_GET['format']) && $_GET['format'] === 'json');
+exigirCSRF();
+
+$id = isset($_POST['id']) ? (int)$_POST['id'] : 0;
+$isAjax = (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest') || (isset($_POST['format']) && $_POST['format'] === 'json');
 
 if ($id <= 0) {
     if ($isAjax) {

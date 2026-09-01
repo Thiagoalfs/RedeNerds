@@ -30,8 +30,10 @@ async function carregarServidores() {
 
         // Só substitui os cards estáticos depois que os dinâmicos carregaram com sucesso
         grid.innerHTML = '';
-        dados.servidores.forEach(servidor => {
-            grid.appendChild(criarCardServidor(servidor));
+        dados.servidores.forEach((servidor, idx) => {
+            const cardEl = criarCardServidor(servidor);
+            if (idx === 0) cardEl.classList.add('server-card-featured');
+            grid.appendChild(cardEl);
         });
     } catch (erro) {
         // Em caso de falha, mantém os cards estáticos do HTML como fallback
