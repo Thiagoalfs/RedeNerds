@@ -32,7 +32,7 @@ foreach ($membros as $m) {
     <?php foreach ($grupos as $cargo => $lista): ?>
         <div class="admin-card mb-3">
             <div class="admin-card-header">
-                <h6 class="fw-bold mb-0">🏷️ <?php echo htmlspecialchars($cargo, ENT_QUOTES, 'UTF-8'); ?></h6>
+                <h6 class="fw-bold mb-0"><i class="fa-solid fa-users me-1 text-primary"></i> <?php echo htmlspecialchars($cargo, ENT_QUOTES, 'UTF-8'); ?></h6>
                 <span class="badge bg-light text-dark border"><?php echo count($lista); ?> membro(s)</span>
             </div>
             <div class="card-body p-0">
@@ -63,7 +63,7 @@ foreach ($membros as $m) {
                                             <a href="equipe_editar.php?id=<?php echo (int)$m['id']; ?>" class="btn btn-sm btn-primary">Editar</a>
                                             <a href="api/equipe/deletar.php?id=<?php echo (int)$m['id']; ?>"
                                                class="btn btn-sm btn-danger"
-                                               onclick="return confirm('Remover <?php echo htmlspecialchars(addslashes($m['nick']), ENT_QUOTES, 'UTF-8'); ?> da equipe?');" title="Deletar">🗑️</a>
+                                               onclick="return confirm('Remover <?php echo htmlspecialchars(addslashes($m['nick']), ENT_QUOTES, 'UTF-8'); ?> da equipe?');" title="Deletar"><i class="fa-solid fa-trash"></i></a>
                                         </div>
                                     </td>
                                 </tr>

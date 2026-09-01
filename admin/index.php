@@ -154,7 +154,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <div class="container-fluid px-3">
         <div class="card card-login mx-auto">
             <div class="card-body p-3 p-sm-4 p-md-5">
-                <h3 class="text-center mb-3 mb-md-4">🔐 Painel Administrativo</h3>
+                <h3 class="text-center mb-3 mb-md-4"><i class="fa-solid fa-shield-halved me-2 text-primary"></i> Painel Administrativo</h3>
                 <p class="text-center text-muted mb-3 mb-md-4 small">Acesso restrito para administradores</p>
 
                 <?php if ($mensagem_erro): ?>

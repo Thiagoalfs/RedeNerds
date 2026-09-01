@@ -81,16 +81,16 @@ try {
             <div class="col-6 col-md-3">
                 <select name="status" class="form-select form-select-sm">
                     <option value="">Status: Todos</option>
-                    <option value="pago" <?php echo ($filtroStatus === 'pago') ? 'selected' : ''; ?>>🟢 Aprovados</option>
-                    <option value="pendente" <?php echo ($filtroStatus === 'pendente') ? 'selected' : ''; ?>>🟡 Pendentes</option>
-                    <option value="recusado" <?php echo ($filtroStatus === 'recusado') ? 'selected' : ''; ?>>🔴 Recusados / Cancelados</option>
+                    <option value="pago" <?php echo ($filtroStatus === 'pago') ? 'selected' : ''; ?>>Aprovados</option>
+                    <option value="pendente" <?php echo ($filtroStatus === 'pendente') ? 'selected' : ''; ?>>Pendentes</option>
+                    <option value="recusado" <?php echo ($filtroStatus === 'recusado') ? 'selected' : ''; ?>>Recusados / Cancelados</option>
                 </select>
             </div>
             <div class="col-6 col-md-3">
                 <select name="metodo" class="form-select form-select-sm">
                     <option value="">Método: Todos</option>
-                    <option value="pix" <?php echo ($filtroMetodo === 'pix') ? 'selected' : ''; ?>>⚡ PIX</option>
-                    <option value="cartao" <?php echo ($filtroMetodo === 'cartao') ? 'selected' : ''; ?>>💳 Cartão de Crédito</option>
+                    <option value="pix" <?php echo ($filtroMetodo === 'pix') ? 'selected' : ''; ?>>PIX</option>
+                    <option value="cartao" <?php echo ($filtroMetodo === 'cartao') ? 'selected' : ''; ?>>Cartão de Crédito</option>
                 </select>
             </div>
             <div class="col-12 col-md-2 d-flex gap-2">
@@ -148,9 +148,9 @@ try {
                                 <td><span class="badge bg-secondary"><?php echo htmlspecialchars($p['servidor'], ENT_QUOTES, 'UTF-8'); ?></span></td>
                                 <td>
                                     <?php if ($metodo === 'cartao'): ?>
-                                        <span class="badge bg-info text-dark">💳 Cartão <?php echo ($parcelas > 1) ? "({$parcelas}x)" : ""; ?></span>
+                                        <span class="badge bg-info text-dark"><i class="fa-solid fa-credit-card me-1"></i> Cartão <?php echo ($parcelas > 1) ? "({$parcelas}x)" : ""; ?></span>
                                     <?php else: ?>
-                                        <span class="badge bg-success">⚡ PIX</span>
+                                        <span class="badge bg-success">PIX</span>
                                     <?php endif; ?>
                                 </td>
                                 <td>
@@ -161,18 +161,18 @@ try {
                                 </td>
                                 <td>
                                     <?php if (!empty($p['cupom_codigo'])): ?>
-                                        <span class="badge bg-light text-dark border">🏷️ <?php echo htmlspecialchars($p['cupom_codigo'], ENT_QUOTES, 'UTF-8'); ?></span>
+                                        <span class="badge bg-light text-dark border"><i class="fa-solid fa-tag me-1"></i><?php echo htmlspecialchars($p['cupom_codigo'], ENT_QUOTES, 'UTF-8'); ?></span>
                                     <?php else: ?>
                                         <span class="text-muted">—</span>
                                     <?php endif; ?>
                                 </td>
                                 <td>
                                     <?php if ($status === 'pago'): ?>
-                                        <span class="badge-status pago">🟢 Aprovado</span>
+                                        <span class="badge-status pago">Aprovado</span>
                                     <?php elseif ($status === 'pendente'): ?>
-                                        <span class="badge-status pendente">🟡 Pendente</span>
+                                        <span class="badge-status pendente">Pendente</span>
                                     <?php else: ?>
-                                        <span class="badge-status recusado">🔴 Recusado</span>
+                                        <span class="badge-status recusado">Recusado</span>
                                     <?php endif; ?>
                                 </td>
                                 <td class="text-muted small">
@@ -242,12 +242,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function renderDetalhesHtml(p) {
         const statusBadge = (p.status === 'pago') 
-            ? '<span class="badge bg-success">🟢 Aprovado</span>' 
-            : (p.status === 'pendente' ? '<span class="badge bg-warning text-dark">🟡 Pendente</span>' : '<span class="badge bg-danger">🔴 Recusado / Cancelado</span>');
+            ? '<span class="badge bg-success">Aprovado</span>' 
+            : (p.status === 'pendente' ? '<span class="badge bg-warning text-dark">Pendente</span>' : '<span class="badge bg-danger">Recusado / Cancelado</span>');
 
         const metodoBadge = (p.metodo_pagamento === 'cartao')
-            ? `💳 Cartão de Crédito ${(p.parcelas && p.parcelas > 1) ? `(${p.parcelas}x)` : ''}`
-            : '⚡ PIX';
+            ? `<i class="fa-solid fa-credit-card me-1"></i> Cartão de Crédito ${(p.parcelas && p.parcelas > 1) ? `(${p.parcelas}x)` : ''}`
+            : '<i class="fa-brands fa-pix me-1"></i> PIX';
 
         const valorFormatado = Number(p.valor || 0).toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2});
         const descontoFormatado = Number(p.desconto_aplicado || 0).toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2});
@@ -296,7 +296,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 ${p.cupom_codigo ? `
                 <li class="list-group-item d-flex justify-content-between align-items-center">
                     <span class="text-muted">Cupom Aplicado:</span>
-                    <span class="badge bg-light text-dark border">🏷️ ${p.cupom_codigo} (-R$ ${descontoFormatado})</span>
+                    <span class="badge bg-light text-dark border"><i class="fa-solid fa-tag me-1"></i>${p.cupom_codigo} (-R$ ${descontoFormatado})</span>
                 </li>` : ''}
                 <li class="list-group-item d-flex justify-content-between align-items-center">
                     <span class="text-muted">Valor Pago:</span>

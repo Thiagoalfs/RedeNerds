@@ -1,3 +1,24 @@
+# ========================================================
+# FORÇAR HTTPS (Compatível com Apache, LiteSpeed, Cloudflare e Nginx Proxy)
+# ========================================================
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+
+    RewriteCond %{HTTPS} !=on [OR]
+    RewriteCond %{HTTP:X-Forwarded-Proto} =http [OR]
+    RewriteCond %{HTTP:CF-Visitor} '"scheme":"http"'
+    RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+</IfModule>
+
+# ========================================================
+# HEADERS DE SEGURANÇA E HSTS
+# ========================================================
+<IfModule mod_headers.c>
+    Header always set Strict-Transport-Security "max-age=31536000; includeSubDomains" env=HTTPS
+    Header set X-Content-Type-Options "nosniff"
+    Header set X-Frame-Options "SAMEORIGIN"
+</IfModule>
+
 ErrorDocument 404 /errors/404/index.html
 
 <FilesMatch "config\.php$">

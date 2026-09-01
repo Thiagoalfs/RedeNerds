@@ -111,7 +111,7 @@ try {
                                 <td class="text-end text-nowrap">
                                     <div class="d-inline-flex align-items-center justify-content-end gap-1">
                                         <a href="editar.php?id=<?php echo (int)$n['id']; ?>" class="btn btn-sm btn-primary">Editar</a>
-                                        <a href="api/noticias/deletar.php?id=<?php echo (int)$n['id']; ?>" class="btn btn-sm btn-danger" onclick="return confirm('Deletar esta novidade? Essa ação não pode ser desfeita.');" title="Deletar">🗑️</a>
+                                        <a href="api/noticias/deletar.php?id=<?php echo (int)$n['id']; ?>" class="btn btn-sm btn-danger" onclick="return confirm('Deletar esta novidade? Essa ação não pode ser desfeita.');" title="Deletar"><i class="fa-solid fa-trash"></i></a>
                                     </div>
                                 </td>
                             </tr>

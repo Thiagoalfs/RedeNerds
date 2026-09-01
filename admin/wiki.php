@@ -99,9 +99,9 @@ try {
                                 <td><span class="badge bg-light text-dark border font-monospace"><?php echo (int)$art['visualizacoes']; ?></span></td>
                                 <td>
                                     <?php if ($art['publicado']): ?>
-                                        <span class="badge-status ativo">🟢 Publicado</span>
+                                        <span class="badge-status ativo">Publicado</span>
                                     <?php else: ?>
-                                        <span class="badge-status inativo">⚪ Oculto</span>
+                                        <span class="badge-status inativo">Oculto</span>
                                     <?php endif; ?>
                                 </td>
                                 <td class="text-muted small"><?php echo date('d/m/Y H:i', strtotime($art['criado_em'])); ?></td>
@@ -111,7 +111,7 @@ try {
                                         <a href="api/wiki/toggle.php?id=<?php echo (int)$art['id']; ?>" class="btn btn-sm btn-outline-secondary" title="<?php echo $art['publicado'] ? 'Ocultar' : 'Publicar'; ?>">
                                             <i class="fa-solid <?php echo $art['publicado'] ? 'fa-eye' : 'fa-eye-slash'; ?>"></i>
                                         </a>
-                                        <a href="api/wiki/deletar.php?id=<?php echo (int)$art['id']; ?>" class="btn btn-sm btn-danger" onclick="return confirm('Deletar este artigo da wiki?');" title="Deletar">🗑️</a>
+                                        <a href="api/wiki/deletar.php?id=<?php echo (int)$art['id']; ?>" class="btn btn-sm btn-danger" onclick="return confirm('Deletar este artigo da wiki?');" title="Deletar"><i class="fa-solid fa-trash"></i></a>
                                     </div>
                                 </td>
                             </tr>

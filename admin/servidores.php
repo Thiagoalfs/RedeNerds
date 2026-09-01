@@ -68,9 +68,9 @@ function renderIconeTable(?string $icone): string {
                                 </td>
                                 <td>
                                     <?php if ($s['enabled']): ?>
-                                        <span class="badge-status visivel">🟢 Visível</span>
+                                        <span class="badge-status visivel">Visível</span>
                                     <?php else: ?>
-                                        <span class="badge-status oculto">⚪ Oculto</span>
+                                        <span class="badge-status oculto">Oculto</span>
                                     <?php endif; ?>
                                 </td>
                                 <td class="text-end text-nowrap">
@@ -83,7 +83,7 @@ function renderIconeTable(?string $icone): string {
                                         </a>
                                         <a href="api/servidores/deletar.php?id=<?php echo (int)$s['id']; ?>"
                                            class="btn btn-sm btn-danger"
-                                           onclick="return confirm('Deletar o servidor <?php echo htmlspecialchars(addslashes($s['servername']), ENT_QUOTES, 'UTF-8'); ?>? Essa ação não pode ser desfeita.');" title="Deletar">🗑️</a>
+                                           onclick="return confirm('Deletar o servidor <?php echo htmlspecialchars(addslashes($s['servername']), ENT_QUOTES, 'UTF-8'); ?>? Essa ação não pode ser desfeita.');" title="Deletar"><i class="fa-solid fa-trash"></i></a>
                                     </div>
                                 </td>
                             </tr>

@@ -173,7 +173,7 @@ header("Location: servidores.php");
                             <?php foreach ($features as $i => $feat): ?>
                                 <div class="input-group mb-2 feature-row">
                                     <input type="text" class="form-control" name="features[]" value="<?php echo htmlspecialchars($feat, ENT_QUOTES, 'UTF-8'); ?>" placeholder="Ex: Economia balanceada">
-                                    <button type="button" class="btn btn-outline-danger" onclick="removerFeature(this)">✕</button>
+                                    <button type="button" class="btn btn-outline-danger" onclick="removerFeature(this)"><i class="fa-solid fa-xmark"></i></button>
                                 </div>
                             <?php endforeach; ?>
                         </div>
@@ -199,7 +199,7 @@ function adicionarFeature() {
     const container = document.getElementById('features-container');
     const div = document.createElement('div');
     div.className = 'input-group mb-2 feature-row';
-    div.innerHTML = '<input type="text" class="form-control" name="features[]" placeholder="Ex: Novo recurso"><button type="button" class="btn btn-outline-danger" onclick="removerFeature(this)">✕</button>';
+    div.innerHTML = '<input type="text" class="form-control" name="features[]" placeholder="Ex: Novo recurso"><button type="button" class="btn btn-outline-danger" onclick="removerFeature(this)"><i class="fa-solid fa-xmark"></i></button>';
     container.appendChild(div);
 }
 

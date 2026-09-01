@@ -108,7 +108,7 @@ function statusDoCupom(array $cupom): array {
                                         <a href="api/cupons/deletar.php?id=<?php echo (int)$c['id']; ?>"
                                            class="btn btn-sm btn-danger"
                                            title="Deletar"
-                                           onclick="return confirm('Deletar o cupom <?php echo htmlspecialchars(addslashes($c['codigo']), ENT_QUOTES, 'UTF-8'); ?>? Essa ação não pode ser desfeita.');">🗑️</a>
+                                           onclick="return confirm('Deletar o cupom <?php echo htmlspecialchars(addslashes($c['codigo']), ENT_QUOTES, 'UTF-8'); ?>? Essa ação não pode ser desfeita.');"><i class="fa-solid fa-trash"></i></a>
                                     </div>
                                 </td>
                             </tr>
