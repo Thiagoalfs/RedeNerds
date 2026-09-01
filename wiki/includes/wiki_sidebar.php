@@ -20,6 +20,17 @@ $artigoAtivoId = $artigoAtivoId ?? 0;
                 <span class="text-muted small font-monospace" style="font-size: 0.7rem;"><?php echo htmlspecialchars($servidorAtual['ip'] ?? '', ENT_QUOTES, 'UTF-8'); ?></span>
             </div>
         </div>
+
+        <!-- CAIXA DE PESQUISA DO SERVIDOR -->
+        <div class="wiki-sidebar-search mt-2">
+            <div class="wiki-sidebar-search-box">
+                <i class="fa-solid fa-magnifying-glass wiki-sidebar-search-icon"></i>
+                <input type="text" id="wiki-sidebar-search-input" class="wiki-sidebar-search-input" placeholder="Pesquisar tópicos..." autocomplete="off">
+                <button type="button" id="wiki-sidebar-search-clear" class="wiki-sidebar-search-clear" style="display: none;" title="Limpar pesquisa">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+        </div>
     </div>
 
     <!-- TÍTULO DA NAVEGAÇÃO -->
@@ -83,7 +94,13 @@ function toggleCategoriaWiki(catId, servidorSlug, catSlug) {
 
     // Se estivermos na página do servidor (servidor.php), podemos selecionar a categoria
     if (window.location.pathname.includes('servidor.php')) {
-        // Altera via URL para atualizar o painel principal se não estava aberta
+        const searchInput = document.getElementById('wiki-sidebar-search-input');
+        if (searchInput && searchInput.value.trim() !== '') {
+            searchInput.value = '';
+            if (typeof window.executarBuscaWiki === 'function') {
+                window.executarBuscaWiki('');
+            }
+        }
         window.location.href = `servidor.php?s=${servidorSlug}&cat=${catSlug}`;
         return;
     }
@@ -96,4 +113,61 @@ function toggleCategoriaWiki(catId, servidorSlug, catSlug) {
         item.classList.add('open');
     }
 }
+
+document.addEventListener('DOMContentLoaded', () => {
+    const searchInput = document.getElementById('wiki-sidebar-search-input');
+    const searchClear = document.getElementById('wiki-sidebar-search-clear');
+    const treeItems = document.querySelectorAll('.wiki-tree-item');
+
+    if (searchInput) {
+        searchInput.addEventListener('input', (e) => {
+            const query = e.target.value.toLowerCase().trim();
+            if (searchClear) {
+                searchClear.style.display = query ? 'flex' : 'none';
+            }
+
+            // Filtro dinâmico na árvore de categorias da sidebar
+            treeItems.forEach(item => {
+                const catBtn = item.querySelector('.wiki-cat-btn');
+                const catName = catBtn ? catBtn.querySelector('.cat-name').textContent.toLowerCase() : '';
+                const links = item.querySelectorAll('.wiki-sublist-link');
+                let matchCount = 0;
+
+                links.forEach(link => {
+                    const title = link.textContent.toLowerCase();
+                    if (!query || title.includes(query) || catName.includes(query)) {
+                        link.parentElement.style.display = '';
+                        matchCount++;
+                    } else {
+                        link.parentElement.style.display = 'none';
+                    }
+                });
+
+                if (!query) {
+                    item.style.display = '';
+                    const isOriginalOpen = item.dataset.catId === "<?php echo (int)$categoriaAtivaId; ?>";
+                    item.classList.toggle('open', isOriginalOpen);
+                } else if (matchCount > 0 || catName.includes(query)) {
+                    item.style.display = '';
+                    item.classList.add('open');
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+
+            // Dispara busca na área principal de servidor.php se disponível
+            if (typeof window.executarBuscaWiki === 'function') {
+                window.executarBuscaWiki(query);
+            }
+        });
+
+        if (searchClear) {
+            searchClear.addEventListener('click', () => {
+                searchInput.value = '';
+                searchInput.dispatchEvent(new Event('input'));
+                searchInput.focus();
+            });
+        }
+    }
+});
 </script>

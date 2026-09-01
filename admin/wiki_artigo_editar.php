@@ -83,6 +83,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $erro = "Preencha todos os campos obrigatórios.";
     } else {
         try {
+            // Garante que a categoria pertença estritamente a este servidor
+            $stmtCatCheck = $pdo->prepare("SELECT id FROM wiki_categorias WHERE id = :cat_id AND servidor_id = :servidor_id LIMIT 1");
+            $stmtCatCheck->execute([':cat_id' => $categoria_id, ':servidor_id' => $servidor_id]);
+            if (!$stmtCatCheck->fetch()) {
+                $stmtFirstCat = $pdo->prepare("SELECT id FROM wiki_categorias WHERE servidor_id = :servidor_id ORDER BY ordem ASC, id ASC LIMIT 1");
+                $stmtFirstCat->execute([':servidor_id' => $servidor_id]);
+                $categoria_id = (int)$stmtFirstCat->fetchColumn();
+            }
+
+            if ($categoria_id <= 0) {
+                throw new Exception("Nenhuma categoria encontrada para o servidor selecionado.");
+            }
+
             $upd = $pdo->prepare("
                 UPDATE wiki_artigos 
                 SET servidor_id = :servidor_id, categoria_id = :categoria_id, titulo = :titulo, conteudo = :conteudo, autor = :autor, publicado = :publicado
@@ -125,6 +138,7 @@ $categoriasDisponiveis = getCategoriasServidorWiki($pdo, $servidor_id);
                 <?php endif; ?>
 
                 <form method="POST" action="wiki_artigo_editar.php?id=<?php echo (int)$id; ?>">
+                    <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($csrfToken, ENT_QUOTES, 'UTF-8'); ?>">
                     <input type="hidden" name="id" value="<?php echo (int)$id; ?>">
                     <div class="row g-3 mb-3">
                         <div class="col-md-6 admin-form-group">
@@ -138,7 +152,12 @@ $categoriasDisponiveis = getCategoriasServidorWiki($pdo, $servidor_id);
                             </select>
                         </div>
                         <div class="col-md-6 admin-form-group">
-                            <label for="categoria_id">Categoria *</label>
+                            <div class="d-flex align-items-center justify-content-between mb-1">
+                                <label for="categoria_id" class="mb-0">Categoria *</label>
+                                <button type="button" class="btn btn-link btn-sm p-0 text-decoration-none" data-bs-toggle="modal" data-bs-target="#modalNovaCategoriaRapida">
+                                    <i class="fa-solid fa-plus-circle me-1"></i> Nova Categoria
+                                </button>
+                            </div>
                             <select class="admin-form-control" id="categoria_id" name="categoria_id" required>
                                 <?php foreach ($categoriasDisponiveis as $c): ?>
                                     <option value="<?php echo (int)$c['id']; ?>" <?php echo ($categoria_id === (int)$c['id']) ? 'selected' : ''; ?>>
@@ -186,8 +205,46 @@ $categoriasDisponiveis = getCategoriasServidorWiki($pdo, $servidor_id);
     </div>
 </div>
 
+<!-- MODAL RÁPIDO: NOVA CATEGORIA -->
+<div class="modal fade" id="modalNovaCategoriaRapida" tabindex="-1" aria-labelledby="modalNovaCategoriaRapidaLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <form id="form-nova-cat-rapida" onsubmit="criarCategoriaRapida(event)">
+                <div class="modal-header">
+                    <h5 class="modal-title fw-bold" id="modalNovaCategoriaRapidaLabel">
+                        <i class="fa-solid fa-folder-plus text-primary me-2"></i> Criar Nova Categoria
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="feedback-cat-rapida" class="alert alert-danger d-none small"></div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold">Nome da Categoria <span class="text-danger">*</span></label>
+                        <input type="text" id="cat-rapida-nome" class="form-control form-control-sm" placeholder="Ex: Chefões & Dungeons" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold">Ícone (FontAwesome)</label>
+                        <input type="text" id="cat-rapida-icone" class="form-control form-control-sm" value="fa-solid fa-folder">
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold">Ordem</label>
+                        <input type="number" id="cat-rapida-ordem" class="form-control form-control-sm" value="0">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" id="btn-submit-cat-rapida" class="btn btn-success btn-sm">Criar e Selecionar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
 <script>
-async function carregarCategorias(servidorId) {
+async function carregarCategorias(servidorId, categoriaIdPreSelecionada = null) {
     const select = document.getElementById('categoria_id');
     select.innerHTML = '<option value="">Carregando categorias...</option>';
     try {
@@ -199,10 +256,66 @@ async function carregarCategorias(servidorId) {
                 const opt = document.createElement('option');
                 opt.value = c.id;
                 opt.textContent = c.nome;
+                if (categoriaIdPreSelecionada && parseInt(categoriaIdPreSelecionada, 10) === parseInt(c.id, 10)) {
+                    opt.selected = true;
+                }
                 select.appendChild(opt);
             });
+        } else {
+            select.innerHTML = '<option value="">Nenhuma categoria cadastrada</option>';
         }
-    } catch (e) {}
+    } catch (e) {
+        select.innerHTML = '<option value="">Erro ao carregar categorias</option>';
+    }
+}
+
+async function criarCategoriaRapida(e) {
+    e.preventDefault();
+    const servidorId = document.getElementById('servidor_id').value;
+    const nome = document.getElementById('cat-rapida-nome').value.trim();
+    const icone = document.getElementById('cat-rapida-icone').value.trim() || 'fa-solid fa-folder';
+    const ordem = document.getElementById('cat-rapida-ordem').value || 0;
+    const feedback = document.getElementById('feedback-cat-rapida');
+    const btn = document.getElementById('btn-submit-cat-rapida');
+
+    if (!nome) return;
+
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin me-1"></i> Criando...';
+    feedback.classList.add('d-none');
+
+    const formData = new FormData();
+    formData.append('csrf_token', '<?php echo $csrfToken; ?>');
+    formData.append('servidor_id', servidorId);
+    formData.append('nome', nome);
+    formData.append('icone', icone);
+    formData.append('ordem', ordem);
+
+    try {
+        const res = await fetch('api/wiki/categoria_criar.php?ajax=1', {
+            method: 'POST',
+            body: formData,
+            headers: { 'X-Requested-With': 'XMLHttpRequest' }
+        });
+        const data = await res.json();
+
+        if (data.success && data.categoria) {
+            await carregarCategorias(servidorId, data.categoria.id);
+            const modalEl = document.getElementById('modalNovaCategoriaRapida');
+            const modal = bootstrap.Modal.getInstance(modalEl);
+            if (modal) modal.hide();
+            document.getElementById('form-nova-cat-rapida').reset();
+        } else {
+            feedback.textContent = data.erro || 'Erro ao criar categoria.';
+            feedback.classList.remove('d-none');
+        }
+    } catch (err) {
+        feedback.textContent = 'Erro de comunicação ao criar categoria.';
+        feedback.classList.remove('d-none');
+    } finally {
+        btn.disabled = false;
+        btn.innerHTML = 'Criar e Selecionar';
+    }
 }
 </script>
 
