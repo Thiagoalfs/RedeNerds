@@ -4,31 +4,6 @@
  * Estética sólida, limpa, alto contraste, sem blur, sem glow de IA.
  */
 
-:root {
-  --bg-page: #0B0E14;
-  --bg-surface: #111622;
-  --bg-surface-hover: #161D2D;
-  --bg-subtle: #1C2438;
-  --border-color: #232D42;
-  --border-active: #3B4B6E;
-  
-  --text-main: #F1F5F9;
-  --text-muted: #94A3B8;
-  --text-subtle: #64748B;
-  
-  --color-primary: #38BDF8;
-  --color-success: #10B981;
-  --color-warning: #F59E0B;
-  --color-danger: #EF4444;
-
-  --font-display: 'Poppins', -apple-system, BlinkMacSystemFont, sans-serif;
-  --font-body: 'Poppins', -apple-system, BlinkMacSystemFont, sans-serif;
-  --font-mono: 'JetBrains Mono', monospace;
-
-  --radius-md: 8px;
-  --radius-sm: 5px;
-}
-
 /* ======================================================== */
 /* 0. CONTROLE DO ATRIBUTO HIDDEN                           */
 /* ======================================================== */
@@ -49,9 +24,9 @@
 /* 1. ESTRUTURA DA PÁGINA                                   */
 /* ======================================================== */
 .loja-page-body {
-  background: var(--bg-page) !important;
-  font-family: var(--font-body);
-  color: var(--text-main);
+  background: var(--color-bg) !important;
+  font-family: var(--font-main);
+  color: var(--color-text-main);
 }
 
 .loja-container {
@@ -72,7 +47,7 @@
 /* 2. BARRA DE PERFIL DO JOGADOR                            */
 /* ======================================================== */
 .loja-profile-bar {
-  background: var(--bg-surface);
+  background: var(--color-surface);
   border: var(--border-width-sm) solid var(--color-border);
   border-radius: var(--radius-md);
   padding: 0.85rem 1.25rem;
@@ -113,7 +88,7 @@
 
 .profile-caption {
   font-size: 0.78rem;
-  color: var(--text-muted);
+  color: var(--color-text-muted);
 }
 
 .account-badge {
@@ -131,12 +106,12 @@
 
 .account-badge.pirata {
   background: rgba(255, 255, 255, 0.08);
-  color: var(--text-muted);
-  border-color: var(--border-color);
+  color: var(--color-text-muted);
+  border-color: var(--color-border);
 }
 
 .profile-nick {
-  font-family: var(--font-display);
+  font-family: var(--font-main);
   font-size: 1.05rem;
   font-weight: 700;
   color: #FFFFFF;
@@ -144,11 +119,11 @@
 
 .btn-outline-action {
   background: transparent;
-  color: var(--text-muted);
+  color: var(--color-text-muted);
   border: var(--border-width-sm) solid var(--color-border);
   padding: 0.45rem 0.9rem;
   border-radius: var(--radius-sm);
-  font-family: var(--font-body);
+  font-family: var(--font-main);
   font-size: 0.82rem;
   font-weight: 600;
   cursor: pointer;
@@ -159,16 +134,16 @@
 }
 
 .btn-outline-action:hover {
-  background: var(--bg-subtle);
+  background: var(--color-surface-subtle);
   color: #FFFFFF;
-  border-color: var(--border-active);
+  border-color: var(--color-border-strong);
 }
 
 /* ======================================================== */
 /* 3. AVISO BLOQUEADO (SEM NICK)                            */
 /* ======================================================== */
 .loja-locked-banner {
-  background: var(--bg-surface);
+  background: var(--color-surface);
   border: var(--border-width-sm) solid var(--color-border);
   border-radius: var(--radius-md);
   padding: 3rem 1.5rem;
@@ -199,7 +174,7 @@
 }
 
 .locked-text-content h2 {
-  font-family: var(--font-display);
+  font-family: var(--font-main);
   font-size: 1.3rem;
   font-weight: 700;
   color: #FFFFFF;
@@ -208,7 +183,7 @@
 
 .locked-text-content p {
   font-size: 0.88rem;
-  color: var(--text-muted);
+  color: var(--color-text-muted);
   margin: 0;
   line-height: 1.5;
 }
@@ -216,7 +191,7 @@
 .btn-solid-primary {
   background: #E2E8F0;
   color: #0F172A;
-  font-family: var(--font-body);
+  font-family: var(--font-main);
   font-weight: 700;
   font-size: 0.88rem;
   padding: 0.65rem 1.4rem;
@@ -255,7 +230,7 @@
   font-family: var(--font-mono);
   font-size: 0.75rem;
   font-weight: 700;
-  color: var(--text-subtle);
+  color: var(--color-text-dim);
   text-transform: uppercase;
   letter-spacing: 0.5px;
   text-align: center;
@@ -266,7 +241,7 @@
   align-items: center;
   justify-content: center;
   gap: 0.35rem;
-  background: var(--bg-surface);
+  background: var(--color-surface);
   border: var(--border-width-sm) solid var(--color-border);
   padding: 4px;
   border-radius: var(--radius-md);
@@ -278,8 +253,8 @@
 .server-tab {
   background: transparent;
   border: 1px solid transparent;
-  color: var(--text-muted);
-  font-family: var(--font-body);
+  color: var(--color-text-muted);
+  font-family: var(--font-main);
   font-size: 0.88rem;
   font-weight: 600;
   padding: 0.45rem 1rem;
@@ -310,8 +285,8 @@
 }
 
 .server-tab.active {
-  background: var(--bg-subtle);
-  border-color: var(--server-color, var(--border-active));
+  background: var(--color-surface-subtle);
+  border-color: var(--server-color, var(--color-border-strong));
   color: #FFFFFF;
 }
 
@@ -350,7 +325,7 @@
   max-width: 360px;
   min-width: 280px;
   box-sizing: border-box;
-  background: var(--bg-surface);
+  background: var(--color-surface);
   border: var(--border-width-sm) solid var(--color-border);
   border-radius: var(--radius-md);
   padding: 1.4rem;
@@ -369,13 +344,13 @@
 }
 
 .vip-card:hover {
-  background: var(--bg-surface-hover);
-  border-color: var(--border-active);
+  background: var(--color-surface-hover);
+  border-color: var(--color-border-strong);
 }
 
 .vip-card.is-featured {
   border-color: rgba(245, 158, 11, 0.4);
-  background: linear-gradient(180deg, rgba(245, 158, 11, 0.04) 0%, var(--bg-surface) 100%);
+  background: var(--color-surface);
 }
 
 .vip-card.is-featured:hover {
@@ -395,7 +370,7 @@
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.5px;
-  color: var(--text-subtle);
+  color: var(--color-text-dim);
 }
 
 .featured-pill {
@@ -412,7 +387,7 @@
 }
 
 .vip-title {
-  font-family: var(--font-display);
+  font-family: var(--font-main);
   font-size: 1.3rem;
   font-weight: 700;
   color: #FFFFFF;
@@ -425,18 +400,18 @@
   gap: 0.3rem;
   padding-bottom: 1rem;
   margin-bottom: 1.1rem;
-  border-bottom: 1px solid var(--border-color);
+  border-bottom: 1px solid var(--color-border);
 }
 
 .price-currency {
   font-family: var(--font-mono);
   font-size: 0.9rem;
   font-weight: 600;
-  color: var(--text-muted);
+  color: var(--color-text-muted);
 }
 
 .price-val {
-  font-family: var(--font-display);
+  font-family: var(--font-main);
   font-size: 1.85rem;
   font-weight: 700;
   color: #FFFFFF;
@@ -446,7 +421,7 @@
 .price-period {
   font-family: var(--font-mono);
   font-size: 0.78rem;
-  color: var(--text-subtle);
+  color: var(--color-text-dim);
 }
 
 .vip-benefits {
@@ -461,7 +436,7 @@
 
 .vip-benefits li {
   font-size: 0.84rem;
-  color: var(--text-main);
+  color: var(--color-text-main);
   display: flex;
   align-items: flex-start;
   gap: 0.55rem;
@@ -477,10 +452,10 @@
 
 .btn-purchase-card {
   width: 100%;
-  background: var(--bg-subtle);
+  background: var(--color-surface-subtle);
   border: var(--border-width-sm) solid var(--color-border);
-  color: var(--text-main);
-  font-family: var(--font-body);
+  color: var(--color-text-main);
+  font-family: var(--font-main);
   font-size: 0.85rem;
   font-weight: 600;
   padding: 0.7rem 1rem;
@@ -523,7 +498,7 @@
 /* 6. ESTADOS DE FEEDBACK                                   */
 /* ======================================================== */
 .state-feedback {
-  background: var(--bg-surface);
+  background: var(--color-surface);
   border: var(--border-width-sm) solid var(--color-border);
   border-radius: var(--radius-md);
   padding: 3rem 1.5rem;
@@ -532,7 +507,7 @@
   flex-direction: column;
   align-items: center;
   gap: 0.75rem;
-  color: var(--text-muted);
+  color: var(--color-text-muted);
   font-size: 0.88rem;
 }
 
@@ -564,7 +539,7 @@
   gap: 1.75rem;
   flex-wrap: wrap;
   padding: 1.5rem 0;
-  border-top: 1px solid var(--border-color);
+  border-top: 1px solid var(--color-border);
 }
 
 .info-pill {
@@ -572,11 +547,11 @@
   align-items: center;
   gap: 0.45rem;
   font-size: 0.8rem;
-  color: var(--text-subtle);
+  color: var(--color-text-dim);
 }
 
 .info-pill i {
-  color: var(--text-muted);
+  color: var(--color-text-muted);
 }
 
 /* ======================================================== */
@@ -609,7 +584,7 @@
 
 .dialog-card {
   background: #111622;
-  border: 1px solid var(--border-active);
+  border: 1px solid var(--color-border-strong);
   border-radius: var(--radius-md);
   width: 100%;
   max-width: 440px;
@@ -633,7 +608,7 @@
 
 .dialog-header {
   padding: 1rem 1.25rem;
-  border-bottom: 1px solid var(--border-color);
+  border-bottom: 1px solid var(--color-border);
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -644,7 +619,7 @@
 
 .dialog-header h3 {
   margin: 0;
-  font-family: var(--font-display);
+  font-family: var(--font-main);
   font-size: 1.05rem;
   font-weight: 700;
   color: #FFFFFF;
@@ -653,7 +628,7 @@
 .dialog-close-btn {
   background: transparent;
   border: none;
-  color: var(--text-muted);
+  color: var(--color-text-muted);
   font-size: 1.2rem;
   cursor: pointer;
   padding: 4px 6px;
@@ -718,7 +693,7 @@
 }
 
 .preview-nick-name {
-  font-family: var(--font-display);
+  font-family: var(--font-main);
   font-size: 0.9rem;
   font-weight: 700;
   color: #FFFFFF;
@@ -734,7 +709,7 @@
 .form-field label {
   font-size: 0.8rem;
   font-weight: 600;
-  color: var(--text-muted);
+  color: var(--color-text-muted);
 }
 
 .form-field input[type="text"] {
@@ -742,7 +717,7 @@
   border: var(--border-width-sm) solid var(--color-border);
   border-radius: var(--radius-sm);
   padding: 0.75rem 0.9rem;
-  font-family: var(--font-body);
+  font-family: var(--font-main);
   font-size: 0.9rem;
   color: #FFFFFF;
   outline: none;
@@ -780,8 +755,8 @@
   gap: 8px;
   background: transparent;
   border: 1px solid transparent;
-  color: var(--text-muted);
-  font-family: var(--font-body);
+  color: var(--color-text-muted);
+  font-family: var(--font-main);
   font-size: 0.85rem;
   font-weight: 600;
   padding: 0.45rem 0.8rem;
@@ -799,8 +774,8 @@
 }
 
 .toggle-btn.active {
-  background: var(--bg-subtle);
-  border-color: var(--border-active);
+  background: var(--color-surface-subtle);
+  border-color: var(--color-border-strong);
   color: #FFFFFF;
 }
 
@@ -836,12 +811,12 @@
 .summary-caption {
   font-family: var(--font-mono);
   font-size: 0.7rem;
-  color: var(--text-subtle);
+  color: var(--color-text-dim);
   display: block;
 }
 
 .summary-title {
-  font-family: var(--font-display);
+  font-family: var(--font-main);
   font-size: 0.88rem;
   color: #FFFFFF;
 }
@@ -856,10 +831,10 @@
 }
 
 .summary-amount-original {
-  font-family: var(--font-display);
+  font-family: var(--font-main);
   font-size: 0.85rem;
   font-weight: 500;
-  color: var(--text-subtle);
+  color: var(--color-text-dim);
   text-decoration: line-through;
   display: block;
   line-height: 1;
@@ -867,7 +842,7 @@
 }
 
 .summary-amount {
-  font-family: var(--font-display);
+  font-family: var(--font-main);
   font-size: 1.15rem;
   font-weight: 700;
   color: var(--color-success);
@@ -897,7 +872,7 @@
 .coupon-icon-inside {
   position: absolute;
   left: 0.85rem;
-  color: var(--text-muted);
+  color: var(--color-text-muted);
   font-size: 0.85rem;
   pointer-events: none;
 }
@@ -908,7 +883,7 @@
   border: var(--border-width-sm) solid var(--color-border);
   border-radius: var(--radius-sm);
   padding: 0.65rem 0.8rem 0.65rem 2.2rem;
-  font-family: var(--font-body);
+  font-family: var(--font-main);
   font-size: 0.84rem;
   color: #FFFFFF;
   text-transform: uppercase;
@@ -923,10 +898,10 @@
 }
 
 .btn-coupon-apply {
-  background: var(--bg-subtle);
+  background: var(--color-surface-subtle);
   border: var(--border-width-sm) solid var(--color-border);
   color: #FFFFFF;
-  font-family: var(--font-body);
+  font-family: var(--font-main);
   font-size: 0.82rem;
   font-weight: 700;
   padding: 0 1.1rem;
@@ -1019,7 +994,7 @@
 
 .pix-status-title {
   font-size: 0.88rem;
-  color: var(--text-muted);
+  color: var(--color-text-muted);
   margin: 0;
 }
 
@@ -1060,7 +1035,7 @@
 
 .copia-cola-group label {
   font-size: 0.78rem;
-  color: var(--text-muted);
+  color: var(--color-text-muted);
 }
 
 .copia-cola-row {
@@ -1091,7 +1066,7 @@
   align-items: center;
   gap: 0.45rem;
   font-size: 0.75rem;
-  color: var(--text-subtle);
+  color: var(--color-text-dim);
 }
 
 .pulse-indicator {
@@ -1115,7 +1090,7 @@
 }
 
 .success-title {
-  font-family: var(--font-display);
+  font-family: var(--font-main);
   font-size: 1.25rem;
   font-weight: 700;
   color: #FFFFFF;
@@ -1124,7 +1099,7 @@
 
 .success-subtitle {
   font-size: 0.85rem;
-  color: var(--text-muted);
+  color: var(--color-text-muted);
   margin: 0;
 }
 
@@ -1152,7 +1127,7 @@
 .receipt-label {
   font-family: var(--font-mono);
   font-size: 0.78rem;
-  color: var(--text-subtle);
+  color: var(--color-text-dim);
 }
 
 .receipt-val {
@@ -1187,7 +1162,7 @@
   align-items: center;
   gap: 0.5rem;
   font-size: 0.8rem;
-  color: var(--text-muted);
+  color: var(--color-text-muted);
   background: rgba(56, 189, 248, 0.06);
   border: 1px solid rgba(56, 189, 248, 0.15);
   padding: 0.6rem 0.85rem;
@@ -1232,7 +1207,7 @@
 
 .error-view h4 {
   margin: 0;
-  font-family: var(--font-display);
+  font-family: var(--font-main);
   font-size: 1.35rem;
   font-weight: 700;
   color: #FFFFFF;
@@ -1241,7 +1216,7 @@
 .error-view p {
   margin: 0;
   font-size: 0.9rem;
-  color: var(--text-muted);
+  color: var(--color-text-muted);
   line-height: 1.5;
   max-width: 320px;
 }
@@ -1283,8 +1258,8 @@
   background: transparent;
   border: 1px solid transparent;
   border-radius: 6px;
-  color: var(--text-muted);
-  font-family: var(--font-body);
+  color: var(--color-text-muted);
+  font-family: var(--font-main);
   font-size: 0.85rem;
   font-weight: 700;
   cursor: pointer;
@@ -1298,8 +1273,8 @@
 }
 
 .method-nav-btn.active {
-  background: var(--bg-subtle);
-  border-color: var(--border-active);
+  background: var(--color-surface-subtle);
+  border-color: var(--color-border-strong);
   color: #FFFFFF;
   box-shadow: var(--shadow-hard);
 }
@@ -1365,7 +1340,7 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  color: var(--text-muted);
+  color: var(--color-text-muted);
   pointer-events: none;
 }
 
@@ -1387,7 +1362,7 @@
   border: var(--border-width-sm) solid var(--color-border);
   border-radius: var(--radius-sm);
   padding: 0.72rem 0.9rem;
-  font-family: var(--font-body);
+  font-family: var(--font-main);
   font-size: 0.88rem;
   color: #FFFFFF;
   outline: none;
@@ -1450,7 +1425,7 @@
   gap: 1.25rem;
   margin-top: 0.6rem;
   font-size: 0.72rem;
-  color: var(--text-subtle);
+  color: var(--color-text-dim);
 }
 
 .card-security-badges span {

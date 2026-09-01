@@ -53,7 +53,7 @@ function criarCardServidor(servidor) {
     card.style.setProperty('--card-shadow', hexParaRgba(cor, 0.15));
     card.style.setProperty('--card-hover-shadow', hexParaRgba(cor, 0.45));
     card.style.setProperty('--card-hover-border', clarear(cor, 25));
-    card.style.setProperty('--card-gradient', `linear-gradient(135deg, ${escurecer(cor, 45)} 0%, ${cor} 100%)`);
+    card.style.setProperty('--card-gradient', cor);
 
     // Banner: usa o ícone do servidor em destaque sobre um gradiente na cor do tema
     const banner = document.createElement('div');

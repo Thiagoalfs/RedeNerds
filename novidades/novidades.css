@@ -2,15 +2,6 @@
 /* ==========================================================================
    Variáveis Globais
    ========================================================================== */
-:root {
-    --border-color-1: #7DB9DF;  /* Potato Nerd / Destaques */
-    --border-color-2: #B971DA;  /* NerdSky */
-    --border-color-3: #E85D5D;  /* NerdDead */
-    --card-bg: #0b0f15;
-    --border-subtle: rgba(255, 255, 255, 0.08);
-    --text-muted: #c5c5c5;
-}
-
 /* ==========================================================================
    Layout Base & Containers
    ========================================================================== */
@@ -66,7 +57,7 @@
     background-color: #171B24;
     border-color: rgba(255, 255, 255, 0.18);
     transform: translateY(-4px);
-    box-shadow: 0 12px 24px -6px rgba(0, 0, 0, 0.4);
+    box-shadow: var(--shadow-hard);
 }
 
 .news-div-banner {
@@ -174,7 +165,7 @@
     flex-direction: column;
     text-decoration: none;
     color: white;
-    background-color: var(--card-bg);
+    background-color: var(--color-surface-card);
     border-radius: 14px;
     overflow: hidden;
     border: 1px solid rgba(255, 255, 255, 0.08);
@@ -211,7 +202,7 @@
     content: '';
     position: absolute;
     inset: 0;
-    background: linear-gradient(to bottom, transparent 55%, var(--card-bg) 100%);
+    background: linear-gradient(to bottom, transparent 55%, var(--color-surface-card) 100%);
     pointer-events: none;
 }
 
@@ -238,7 +229,7 @@
 
 .all-news-desc {
     margin: 0;
-    color: var(--text-muted);
+    color: var(--color-text-muted);
     font-size: 13.5px;
     line-height: 1.5;
     display: -webkit-box;
@@ -259,7 +250,7 @@
     padding-top: 12px;
     border-top: 1px solid rgba(255, 255, 255, 0.05);
     font-size: 0.8rem;
-    color: var(--text-muted);
+    color: var(--color-text-muted);
 }
 
 .all-news-author {
@@ -304,7 +295,7 @@
     flex-direction: row;
     align-items: center;
     gap: 8px;
-    color: var(--text-muted);
+    color: var(--color-text-muted);
     font-size: 13px;
     margin: 0;
 }
@@ -414,7 +405,7 @@
     background: transparent;
     border: none;
     padding: 6px 12px;
-    color: var(--border-color-1);
+    color: var(--color-accent);
     font-weight: 600;
     font-size: 15px;
     font-family: inherit;
@@ -480,7 +471,7 @@
 .news-search-icon {
     position: absolute;
     left: 14px;
-    color: var(--text-muted);
+    color: var(--color-text-muted);
     font-size: 0.95rem;
     pointer-events: none;
     transition: color 0.2s ease;
@@ -489,8 +480,8 @@
 .news-search-input {
     width: 100%;
     padding: 0.75rem 2.6rem 0.75rem 2.4rem;
-    background-color: var(--card-bg);
-    border: 1.5px solid var(--border-subtle);
+    background-color: var(--color-surface-card);
+    border: 1.5px solid var(--color-border);
     border-radius: 10px;
     color: white;
     font-size: 0.95rem;
@@ -512,13 +503,13 @@
 }
 
 .news-search-input:focus {
-    border-color: var(--border-color-1);
-    box-shadow: 0 0 0 3px rgba(125, 185, 223, 0.15);
+    border-color: var(--color-accent);
+    box-shadow: var(--shadow-hard-sm);
 }
 
 .news-search-input:focus ~ .news-search-icon,
 .news-search-wrapper:focus-within .news-search-icon {
-    color: var(--border-color-1);
+    color: var(--color-accent);
 }
 
 .news-search-clear {
@@ -532,7 +523,7 @@
     border-radius: 50%;
     border: none;
     background-color: rgba(255, 255, 255, 0.08);
-    color: var(--text-muted);
+    color: var(--color-text-muted);
     cursor: pointer;
     font-size: 0.85rem;
     transition: background-color 0.2s ease, color 0.2s ease, transform 0.15s ease;
@@ -564,8 +555,8 @@
     gap: 0.6rem;
     width: 100%;
     padding: 0.75rem 1rem;
-    background-color: var(--card-bg);
-    border: 1.5px solid var(--border-subtle);
+    background-color: var(--color-surface-card);
+    border: 1.5px solid var(--color-border);
     border-radius: 10px;
     color: white;
     font-size: 0.95rem;
@@ -577,21 +568,21 @@
 }
 
 .news-filter-btn:hover {
-    border-color: var(--border-color-1);
+    border-color: var(--color-accent);
 }
 
 .news-filter-btn[aria-expanded="true"] {
-    border-color: var(--border-color-1);
-    box-shadow: 0 0 0 3px rgba(125, 185, 223, 0.15);
+    border-color: var(--color-accent);
+    box-shadow: var(--shadow-hard-sm);
 }
 
 .news-filter-btn > i:first-child {
-    color: var(--border-color-1);
+    color: var(--color-accent);
     font-size: 0.95rem;
 }
 
 .news-filter-chevron {
-    color: var(--text-muted);
+    color: var(--color-text-muted);
     font-size: 0.8rem;
     transition: transform 0.2s ease;
 }
@@ -608,8 +599,8 @@
     list-style: none;
     margin: 0;
     padding: 6px;
-    background-color: var(--card-bg);
-    border: 1.5px solid var(--border-subtle);
+    background-color: var(--color-surface-card);
+    border: 1.5px solid var(--color-border);
     border-radius: 10px;
     box-shadow: var(--shadow-hard);
     z-index: 50;
@@ -641,7 +632,7 @@
 
 .news-filter-dropdown li[aria-selected="true"] {
     background-color: rgba(125, 185, 223, 0.15);
-    color: var(--border-color-1);
+    color: var(--color-accent);
 }
 
 .filter-dot {
@@ -654,14 +645,14 @@
 }
 
 .filter-dot-all { background-color: #ffffff; }
-.filter-dot-nerdsky { background-color: var(--border-color-2); }
-.filter-dot-potato { background-color: var(--border-color-1); }
-.filter-dot-nerddead { background-color: var(--border-color-3); }
+.filter-dot-nerdsky { background-color: var(--color-primary); }
+.filter-dot-potato { background-color: var(--color-accent); }
+.filter-dot-nerddead { background-color: var(--color-danger-alt); }
 
 /* Informações de Resultado / Estados Vazios */
 .news-results-info {
     text-align: center;
-    color: var(--text-muted);
+    color: var(--color-text-muted);
     font-size: 0.85rem;
     margin: 0 auto 1rem auto;
     padding: 0 0.5rem;
@@ -670,20 +661,20 @@
 }
 
 .news-results-info span#news-results-count {
-    color: var(--border-color-1);
+    color: var(--color-accent);
     font-weight: 700;
 }
 
 .all-news-empty {
     text-align: center;
     padding: 2rem;
-    color: var(--text-muted);
+    color: var(--color-text-muted);
 }
 
 .all-news-empty.filtered {
     padding: 2.5rem 1rem;
     font-size: 1rem;
-    color: var(--text-muted);
+    color: var(--color-text-muted);
 }
 
 /* ==========================================================================
@@ -713,8 +704,8 @@
     min-width: 38px;
     height: 38px;
     padding: 0 0.6rem;
-    background-color: var(--card-bg);
-    border: 1.5px solid var(--border-subtle);
+    background-color: var(--color-surface-card);
+    border: 1.5px solid var(--color-border);
     border-radius: 8px;
     color: white;
     font-size: 0.9rem;
@@ -726,14 +717,14 @@
 }
 
 .news-page-btn:hover:not(:disabled):not(.active) {
-    border-color: var(--border-color-1);
-    color: var(--border-color-1);
+    border-color: var(--color-accent);
+    color: var(--color-accent);
     transform: translateY(-1px);
 }
 
 .news-page-btn.active {
-    background-color: var(--border-color-1);
-    border-color: var(--border-color-1);
+    background-color: var(--color-accent);
+    border-color: var(--color-accent);
     color: #030407;
     cursor: default;
 }
@@ -749,7 +740,7 @@
     justify-content: center;
     min-width: 24px;
     height: 38px;
-    color: var(--text-muted);
+    color: var(--color-text-muted);
     font-size: 0.9rem;
     user-select: none;
 }
