@@ -30,7 +30,7 @@ try {
         $totalCuponsAtivos = (int)$pdo->query("SELECT COUNT(*) FROM cupons WHERE ativo = 1 AND expira_em >= NOW()")->fetchColumn();
         $totalUsosCupons = (int)$pdo->query("SELECT COALESCE(SUM(usos_total), 0) FROM cupons")->fetchColumn();
 
-        // Servidores & Notícias
+        // Servidores & Novidades
         $totalServidores = (int)$pdo->query("SELECT COUNT(*) FROM servidores WHERE enabled = 1")->fetchColumn();
         $totalNoticias = (int)$pdo->query("SELECT COUNT(*) FROM novidades")->fetchColumn();
 
@@ -49,7 +49,7 @@ try {
         <p class="text-muted small mb-0">Aqui está o resumo em tempo real da saúde da Rede Nerds.</p>
     </div>
     <div class="d-flex gap-2 flex-wrap">
-        <a href="criar.php" class="btn btn-primary btn-sm"><i class="fa-solid fa-plus me-1"></i> Nova Notícia</a>
+        <a href="criar.php" class="btn btn-primary btn-sm"><i class="fa-solid fa-plus me-1"></i> Nova Novidade</a>
         <a href="cupom_criar.php" class="btn btn-success btn-sm"><i class="fa-solid fa-tags me-1"></i> Novo Cupom</a>
         <a href="servidor_criar.php" class="btn btn-outline-secondary btn-sm"><i class="fa-solid fa-server me-1"></i> Novo Servidor</a>
     </div>
@@ -98,7 +98,7 @@ try {
         <div class="kpi-info">
             <span class="kpi-label">Servidores Online</span>
             <div class="kpi-value"><?php echo $totalServidores; ?></div>
-            <span class="kpi-subtext"><?php echo $totalNoticias; ?> notícia(s) no site</span>
+            <span class="kpi-subtext"><?php echo $totalNoticias; ?> novidade(s) no site</span>
         </div>
         <div class="kpi-icon-box kpi-icon-yellow">
             <i class="fa-solid fa-server"></i>

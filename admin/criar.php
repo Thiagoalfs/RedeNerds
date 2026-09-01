@@ -1,6 +1,6 @@
 <?php
 $paginaAtiva = 'noticias';
-$tituloPagina = 'Nova Notícia';
+$tituloPagina = 'Nova Novidade';
 
 require_once __DIR__ . "/includes/admin_header.php";
 require_once "capa_upload.php";
@@ -27,7 +27,23 @@ try {
 $categorias_envio = ['Anúncios', 'Atualizações'];
 
 try {
-    $nicksEquipe = $pdo->query("SELECT DISTINCT nick FROM equipe ORDER BY nick ASC")->fetchAll(PDO::FETCH_COLUMN, 0);
+    $cargosPermitidos = ['Fundadores', 'Fundador', 'Diretores', 'Diretor', 'Coordenadores', 'Coordenador', 'Administradores', 'Administrador'];
+    $placeholders = implode(',', array_fill(0, count($cargosPermitidos), '?'));
+    $stmtEquipe = $pdo->prepare("
+        SELECT DISTINCT nick 
+        FROM equipe 
+        WHERE nick IS NOT NULL AND nick != '' 
+          AND (
+              cargo IN ($placeholders) 
+              OR LOWER(cargo) LIKE '%fundad%' 
+              OR LOWER(cargo) LIKE '%direto%' 
+              OR LOWER(cargo) LIKE '%coordena%' 
+              OR LOWER(cargo) LIKE '%admin%'
+          )
+        ORDER BY nick ASC
+    ");
+    $stmtEquipe->execute($cargosPermitidos);
+    $nicksEquipe = $stmtEquipe->fetchAll(PDO::FETCH_COLUMN, 0);
 } catch (PDOException $e) {
     $nicksEquipe = [];
 }
@@ -72,7 +88,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             header("Location: noticias.php");
             exit;
         } catch (PDOException $e) {
-            $mensagem_erro = "Erro ao salvar notícia: " . $e->getMessage();
+            $mensagem_erro = "Erro ao salvar novidade: " . $e->getMessage();
         }
     }
 }
@@ -82,8 +98,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <div class="col-12 col-xl-10">
         <div class="admin-card">
             <div class="admin-card-header">
-                <h5 class="admin-card-title"><i class="fa-solid fa-newspaper text-success"></i> Publicar Nova Notícia</h5>
-                <a href="noticias.php" class="btn btn-outline-secondary btn-sm">← Voltar para Notícias</a>
+                <h5 class="admin-card-title"><i class="fa-solid fa-newspaper text-success"></i> Publicar Nova Novidade</h5>
+                <a href="noticias.php" class="btn btn-outline-secondary btn-sm">← Voltar para Novidades</a>
             </div>
             <div class="p-4">
                 <?php if ($mensagem_erro): ?>
@@ -92,7 +108,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                 <form method="POST" enctype="multipart/form-data">
                     <div class="admin-form-group">
-                        <label for="titulo">Título da Notícia *</label>
+                        <label for="titulo">Título da Novidade *</label>
                         <input type="text" class="admin-form-control" id="titulo" name="titulo" value="<?php echo htmlspecialchars($titulo, ENT_QUOTES, 'UTF-8'); ?>" placeholder="Ex: Inauguração do Novo Servidor" required autofocus>
                     </div>
 
@@ -119,18 +135,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         </div>
                         <div class="col-md-4 admin-form-group">
                             <label for="autor">Autor da Postagem *</label>
-                            <input type="text" class="admin-form-control" id="autor" name="autor" list="nicks-equipe-list" value="<?php echo htmlspecialchars($autor, ENT_QUOTES, 'UTF-8'); ?>" placeholder="Seu nick" required>
-                            <datalist id="nicks-equipe-list">
+                            <select class="admin-form-control" id="autor" name="autor" required>
                                 <?php foreach ($nicksEquipe as $nk): ?>
-                                    <option value="<?php echo htmlspecialchars($nk, ENT_QUOTES, 'UTF-8'); ?>"></option>
+                                    <option value="<?php echo htmlspecialchars($nk, ENT_QUOTES, 'UTF-8'); ?>" <?php echo ($autor === $nk) ? 'selected' : ''; ?>>
+                                        <?php echo htmlspecialchars($nk, ENT_QUOTES, 'UTF-8'); ?>
+                                    </option>
                                 <?php endforeach; ?>
-                            </datalist>
+                            </select>
                         </div>
                     </div>
 
                     <div class="admin-form-group mb-3">
                         <label for="conteudo">Conteúdo (Markdown suportado) *</label>
-                        <textarea class="admin-form-control font-monospace" id="conteudo" name="conteudo" rows="8" placeholder="Escreva a notícia aqui..." required><?php echo htmlspecialchars($conteudo, ENT_QUOTES, 'UTF-8'); ?></textarea>
+                        <textarea class="admin-form-control font-monospace" id="conteudo" name="conteudo" rows="8" placeholder="Escreva a novidade aqui..." required><?php echo htmlspecialchars($conteudo, ENT_QUOTES, 'UTF-8'); ?></textarea>
                     </div>
 
                     <!-- CAPA -->
@@ -163,7 +180,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                     <div class="d-flex justify-content-end gap-2">
                         <a href="noticias.php" class="btn btn-outline-secondary">Cancelar</a>
-                        <button type="submit" class="btn btn-success fw-bold px-4">Publicar Notícia</button>
+                        <button type="submit" class="btn btn-success fw-bold px-4">Publicar Novidade</button>
                     </div>
                 </form>
             </div>

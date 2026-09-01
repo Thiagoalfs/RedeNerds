@@ -33,54 +33,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 console.error("Erro ao carregar footer:", error);
             });
     }
-
-    // 3. Inicia animações de Scroll Reveal (em todas as páginas)
-    initScrollReveal();
 });
-
-function initScrollReveal() {
-    const selector = 'section, .section, .servers-grid > *, .news-div, .parceiro, .mv-card, .valor-item, .features-list > li, .downloads-grid > *, .discord-grid > *, .canal-card, .faq-item, .dica-card, .regra-card, .regra-item';
-
-    function observeElements() {
-        const elements = document.querySelectorAll(selector);
-        if (!('IntersectionObserver' in window)) {
-            elements.forEach(el => el.classList.add('is-revealed'));
-            return;
-        }
-
-        const observer = new IntersectionObserver((entries, obs) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    entry.target.classList.add('is-revealed');
-                    obs.unobserve(entry.target);
-                }
-            });
-        }, {
-            rootMargin: '0px 0px -40px 0px',
-            threshold: 0.08
-        });
-
-        elements.forEach(el => {
-            if (!el.classList.contains('reveal-on-scroll')) {
-                el.classList.add('reveal-on-scroll');
-                observer.observe(el);
-            }
-        });
-    }
-
-    observeElements();
-
-    // Re-observa elementos adicionados dinamicamente via fetch (ex: notícias, servidores)
-    const target = document.getElementById('page-wrapper') || document.body;
-    if (window.MutationObserver && target) {
-        let debounceTimer;
-        const mutObs = new MutationObserver(() => {
-            clearTimeout(debounceTimer);
-            debounceTimer = setTimeout(observeElements, 100);
-        });
-        mutObs.observe(target, { childList: true, subtree: true });
-    }
-}
 
 function initFooterCopyIP() {
     const ipBox = document.getElementById('footer-ip-box');

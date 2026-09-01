@@ -113,16 +113,6 @@ body {
     filter: drop-shadow(0 16px 32px rgba(0, 0, 0, 0.8));
     user-select: none;
     flex-shrink: 0;
-    animation: floatLogo 6s ease-in-out infinite;
-}
-
-@keyframes floatLogo {
-    0%, 100% {
-        transform: translateY(0px);
-    }
-    50% {
-        transform: translateY(-6px);
-    }
 }
 
 #big-header-text {
@@ -422,53 +412,6 @@ a {
     #big-header-buttons button {
         width: 100%;
         box-sizing: border-box;
-    }
-}
-
-/* ======================================================== */
-/* SCROLL REVEAL ANIMATIONS (Global em todas as páginas)     */
-/* ======================================================== */
-.reveal-on-scroll {
-    opacity: 0;
-    transform: translateY(22px);
-    transition: opacity 0.5s cubic-bezier(0.16, 1, 0.3, 1), transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
-    will-change: opacity, transform;
-}
-
-.reveal-on-scroll.is-revealed {
-    opacity: 1;
-    transform: translateY(0);
-}
-
-/* Delays escalonados para itens em grade/lista */
-.servers-grid > .reveal-on-scroll:nth-child(1),
-.parceiros-grid > .reveal-on-scroll:nth-child(1),
-.missao-visao-grid > .reveal-on-scroll:nth-child(1),
-.valores-grid > .reveal-on-scroll:nth-child(1),
-.features-list > .reveal-on-scroll:nth-child(1) {
-    transition-delay: 0.04s;
-}
-
-.servers-grid > .reveal-on-scroll:nth-child(2),
-.parceiros-grid > .reveal-on-scroll:nth-child(2),
-.missao-visao-grid > .reveal-on-scroll:nth-child(2),
-.valores-grid > .reveal-on-scroll:nth-child(2),
-.features-list > .reveal-on-scroll:nth-child(2) {
-    transition-delay: 0.12s;
-}
-
-.servers-grid > .reveal-on-scroll:nth-child(3),
-.parceiros-grid > .reveal-on-scroll:nth-child(3),
-.valores-grid > .reveal-on-scroll:nth-child(3),
-.features-list > .reveal-on-scroll:nth-child(3) {
-    transition-delay: 0.20s;
-}
-
-@media (prefers-reduced-motion: reduce) {
-    .reveal-on-scroll {
-        opacity: 1 !important;
-        transform: none !important;
-        transition: none !important;
     }
 }
 

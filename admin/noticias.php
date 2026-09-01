@@ -1,6 +1,6 @@
 <?php
 $paginaAtiva = 'noticias';
-$tituloPagina = 'Notícias';
+$tituloPagina = 'Novidades';
 require_once __DIR__ . "/includes/admin_header.php";
 
 const POR_PAGINA = 10;
@@ -44,10 +44,10 @@ try {
 
 <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-3">
     <div>
-        <h4 class="fw-bold mb-1">Notícias</h4>
-        <p class="text-muted small mb-0"><?php echo $totalNoticias; ?> notícia(s) cadastrada(s)</p>
+        <h4 class="fw-bold mb-1">Novidades</h4>
+        <p class="text-muted small mb-0"><?php echo $totalNoticias; ?> novidade(s) cadastrada(s)</p>
     </div>
-    <a href="criar.php" class="btn btn-success btn-sm"><i class="fa-solid fa-plus me-1"></i> Nova notícia</a>
+    <a href="criar.php" class="btn btn-success btn-sm"><i class="fa-solid fa-plus me-1"></i> Nova novidade</a>
 </div>
 
 <!-- BUSCA -->
@@ -70,7 +70,7 @@ try {
     </div>
 </div>
 
-<!-- TABELA DE NOTÍCIAS -->
+<!-- TABELA DE NOVIDADES -->
 <div class="admin-card">
     <div class="card-body p-0">
         <div class="table-responsive">
@@ -89,7 +89,7 @@ try {
                 <tbody>
                     <?php if (empty($noticias)): ?>
                         <tr>
-                            <td colspan="7" class="text-center py-4 text-muted">Nenhuma notícia encontrada.</td>
+                            <td colspan="7" class="text-center py-4 text-muted">Nenhuma novidade encontrada.</td>
                         </tr>
                     <?php else: ?>
                         <?php foreach ($noticias as $n): ?>
@@ -111,7 +111,7 @@ try {
                                 <td class="text-end text-nowrap">
                                     <div class="d-inline-flex align-items-center justify-content-end gap-1">
                                         <a href="editar.php?id=<?php echo (int)$n['id']; ?>" class="btn btn-sm btn-primary">Editar</a>
-                                        <a href="api/noticias/deletar.php?id=<?php echo (int)$n['id']; ?>" class="btn btn-sm btn-danger" onclick="return confirm('Deletar esta notícia? Essa ação não pode ser desfeita.');" title="Deletar">🗑️</a>
+                                        <a href="api/noticias/deletar.php?id=<?php echo (int)$n['id']; ?>" class="btn btn-sm btn-danger" onclick="return confirm('Deletar esta novidade? Essa ação não pode ser desfeita.');" title="Deletar">🗑️</a>
                                     </div>
                                 </td>
                             </tr>
