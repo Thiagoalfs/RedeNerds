@@ -152,6 +152,10 @@ $lastName = !empty($partesNome) ? implode(' ', $partesNome) : $firstName;
 
 // 4. REVALIDAÇÃO DO PREÇO REAL NO BANCO DE DADOS (Nunca confiar no front)
 $valorReal = 0.00;
+$valorOriginal = 0.00;
+$descontoAplicado = 0.00;
+$cupomEnviado = strtoupper(trim($data['cupom'] ?? ''));
+$cupomCodigo = null;
 $vipNome = '';
 
 try {
@@ -162,11 +166,49 @@ try {
 
         if ($vipRow) {
             $valorReal = (float)$vipRow['preco'];
+            $valorOriginal = $valorReal;
             $vipNome = $vipRow['nome'];
+        }
+
+        // Validação de Cupom de Desconto
+        if (!empty($cupomEnviado)) {
+            $stmtCupom = $pdo->prepare("SELECT * FROM cupons WHERE codigo = :codigo LIMIT 1");
+            $stmtCupom->execute([':codigo' => $cupomEnviado]);
+            $cupomRow = $stmtCupom->fetch(PDO::FETCH_ASSOC);
+
+            if ($cupomRow) {
+                $now = time();
+                $expiraTs = strtotime($cupomRow['expira_em']);
+                $isExpirado = ($expiraTs && $expiraTs < $now);
+
+                if (!$cupomRow['ativo']) {
+                    http_response_code(400);
+                    echo json_encode(["erro" => "O cupom '{$cupomEnviado}' está desativado."], JSON_UNESCAPED_UNICODE);
+                    exit;
+                }
+
+                if ($isExpirado) {
+                    http_response_code(400);
+                    echo json_encode(["erro" => "O cupom '{$cupomEnviado}' expirou em " . date('d/m/Y H:i', $expiraTs) . "."], JSON_UNESCAPED_UNICODE);
+                    exit;
+                }
+
+                $porcentagem = (float)$cupomRow['porcentagem_desconto'];
+                $descontoAplicado = round($valorOriginal * ($porcentagem / 100), 2);
+                $valorReal = max(0.01, round($valorOriginal - $descontoAplicado, 2));
+                $cupomCodigo = $cupomRow['codigo'];
+
+                // Incrementa contador de usos
+                $pdo->prepare("UPDATE cupons SET usos_total = usos_total + 1 WHERE id = :id")->execute([':id' => $cupomRow['id']]);
+            } else {
+                http_response_code(404);
+                echo json_encode(["erro" => "Cupom '{$cupomEnviado}' não encontrado."], JSON_UNESCAPED_UNICODE);
+                exit;
+            }
         }
     }
 } catch (Exception $e) {
-    error_log("Erro ao buscar preço do VIP no BD: " . $e->getMessage());
+    error_log("Erro ao buscar preço do VIP/Cupom no BD: " . $e->getMessage());
 }
 
 // Fallback caso não encontre no BD
@@ -331,11 +373,13 @@ try {
         $stmt = $pdo->prepare("
             INSERT INTO pedidos_vip (
                 txid, mp_payment_id, nick, payer_email, payer_cpf, tipo_conta, servidor, 
-                vip_id, vip_nome, valor, valor_total, status, status_detail, metodo_pagamento, 
+                vip_id, vip_nome, cupom_codigo, valor, valor_original, desconto_aplicado, 
+                valor_total, status, status_detail, metodo_pagamento, 
                 parcelas, card_first_six_digits, card_last_four_digits, card_payment_method_id, criado_em, pago_em
             ) VALUES (
                 :txid, :mp_id, :nick, :email, :cpf, :tipo_conta, :servidor,
-                :vip_id, :vip_nome, :valor, :valor_total, :status, :status_detail, 'cartao',
+                :vip_id, :vip_nome, :cupom_codigo, :valor, :valor_original, :desconto_aplicado, 
+                :valor_total, :status, :status_detail, 'cartao',
                 :parcelas, :card_six, :card_four, :method_id, NOW(), :pago_em
             )
         ");
@@ -349,7 +393,10 @@ try {
             ':servidor' => $servidor,
             ':vip_id' => $vipId,
             ':vip_nome' => $vipNome,
+            ':cupom_codigo' => $cupomCodigo,
             ':valor' => $valorReal,
+            ':valor_original' => $valorOriginal,
+            ':desconto_aplicado' => $descontoAplicado,
             ':valor_total' => $totalPagoComJuros,
             ':status' => $statusBd,
             ':status_detail' => $mpStatusDetail,
@@ -377,7 +424,9 @@ if ($statusBd === 'pago') {
             '#7DB9DF',
             'cartao',
             $installments,
-            $totalPagoComJuros
+            $totalPagoComJuros,
+            $cupomCodigo,
+            $descontoAplicado
         );
     } catch (Exception $e) {
         error_log("Erro ao disparar webhook Discord: " . $e->getMessage());
@@ -395,6 +444,9 @@ if ($mpStatus === 'approved') {
         "servidor" => $servidor,
         "vip_nome" => $vipNome,
         "valor" => $valorReal,
+        "valor_original" => $valorOriginal,
+        "desconto_aplicado" => $descontoAplicado,
+        "cupom" => $cupomCodigo,
         "valor_total" => $totalPagoComJuros,
         "parcelas" => $installments,
         "mensagem" => "Pagamento aprovado com sucesso! Seu VIP foi liberado no servidor."
@@ -408,6 +460,10 @@ if ($mpStatus === 'approved') {
         "nick" => $nick,
         "servidor" => $servidor,
         "vip_nome" => $vipNome,
+        "valor" => $valorReal,
+        "valor_original" => $valorOriginal,
+        "desconto_aplicado" => $descontoAplicado,
+        "cupom" => $cupomCodigo,
         "mensagem" => "Pagamento em análise de segurança. Seu VIP será liberado automaticamente assim que o Mercado Pago aprovar."
     ], JSON_UNESCAPED_UNICODE);
 } else {
