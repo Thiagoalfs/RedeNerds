@@ -30,9 +30,8 @@ async function carregarServidores() {
 
         // Só substitui os cards estáticos depois que os dinâmicos carregaram com sucesso
         grid.innerHTML = '';
-        dados.servidores.forEach((servidor, idx) => {
+        dados.servidores.forEach((servidor) => {
             const cardEl = criarCardServidor(servidor);
-            if (idx === 0) cardEl.classList.add('server-card-featured');
             grid.appendChild(cardEl);
         });
     } catch (erro) {
@@ -47,15 +46,11 @@ function criarCardServidor(servidor) {
     const card = document.createElement('a');
     card.href = `servidores/?servidor=${encodeURIComponent(servidor.nome)}`;
     card.className = 'server-card';
-
-    // Cores dinâmicas via CSS custom properties (ver index.css)
     card.style.setProperty('--card-color', cor);
     card.style.setProperty('--card-shadow', hexParaRgba(cor, 0.15));
-    card.style.setProperty('--card-hover-shadow', hexParaRgba(cor, 0.45));
-    card.style.setProperty('--card-hover-border', clarear(cor, 25));
-    card.style.setProperty('--card-gradient', cor);
+    card.style.setProperty('--card-hover-shadow', hexParaRgba(cor, 0.4));
 
-    // Banner: usa o ícone do servidor em destaque sobre um gradiente na cor do tema
+    // Banner
     const banner = document.createElement('div');
     banner.className = 'server-card-banner';
 
@@ -83,7 +78,7 @@ function criarCardServidor(servidor) {
 
     const link = document.createElement('span');
     link.className = 'server-card-link';
-    link.innerHTML = 'Ver detalhes <i class="fa-solid fa-arrow-right"></i>';
+    link.innerHTML = 'VER DETALHES <i class="fa-solid fa-arrow-right"></i>';
 
     content.appendChild(titulo);
     content.appendChild(descricao);
@@ -93,6 +88,15 @@ function criarCardServidor(servidor) {
     card.appendChild(content);
 
     return card;
+}
+
+function escapeHTML(str) {
+    return String(str ?? '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
 }
 
 function limitarNoSegundoPonto(texto) {

@@ -160,29 +160,35 @@ button {
     line-height: 1;
 }
 
-/* Botão Discord no Header */
-#big-header-buttons .discord,
-button.discord {
-    background: #5865F2;
+/* Botão Discord no Header / Hero */
+.btn-hero-discord {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 9px;
+    padding: 12px 24px;
+    background-color: #5865F2;
     color: #FFFFFF !important;
-    font-size: 0.88rem;
-    font-weight: 700;
-    padding: 9px 18px;
-    border-radius: 8px;
+    font-size: 0.95rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    text-decoration: none;
+    border: 2px solid #000;
+    border-radius: var(--radius-sm);
     box-shadow: var(--shadow-hard);
-    transition: background-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+    transition: transform 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease;
 }
 
-#big-header-buttons .discord:hover,
-button.discord:hover {
-    background: #4752C4;
-    transform: translateY(-2px);
-    box-shadow: var(--shadow-hard);
+.btn-hero-discord:hover {
+    background-color: #4752C4;
+    transform: translate(-2px, -2px);
+    box-shadow: var(--shadow-hard-lg);
 }
 
-#big-header-buttons .discord i,
-button.discord i {
-    font-size: 16px;
+.btn-hero-discord i {
+    font-size: 1.1rem;
+    color: #FFFFFF;
 }
 
 /* Botão Conheça nossos servidores */
