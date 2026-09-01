@@ -1,10 +1,24 @@
 <?php
-$paginaAtiva = 'wiki';
-$tituloPagina = 'Editar Artigo da Wiki';
-require_once __DIR__ . "/includes/admin_header.php";
+require_once __DIR__ . "/sessao.php";
+$configPaths = [
+    __DIR__ . "/config.php",
+    __DIR__ . "/../config.php",
+    __DIR__ . "/../../config.php",
+    ($_SERVER['DOCUMENT_ROOT'] ?? '') . "/config.php"
+];
+$configPath = null;
+foreach ($configPaths as $cp) {
+    if (!empty($cp) && file_exists($cp)) {
+        $configPath = $cp;
+        break;
+    }
+}
+if ($configPath) {
+    require_once $configPath;
+}
 require_once __DIR__ . "/../wiki/wiki_helper.php";
 
-$id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
+$id = isset($_GET['id']) ? (int)$_GET['id'] : (isset($_POST['id']) ? (int)$_POST['id'] : 0);
 if ($id <= 0) {
     header("Location: wiki.php");
     exit;
@@ -64,6 +78,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
+$paginaAtiva = 'wiki';
+$tituloPagina = 'Editar Artigo da Wiki';
+require_once __DIR__ . "/includes/admin_header.php";
 $categoriasDisponiveis = getCategoriasServidorWiki($pdo, $servidor_id);
 ?>
 
@@ -80,6 +97,7 @@ $categoriasDisponiveis = getCategoriasServidorWiki($pdo, $servidor_id);
                 <?php endif; ?>
 
                 <form method="POST" action="wiki_artigo_editar.php?id=<?php echo (int)$id; ?>">
+                    <input type="hidden" name="id" value="<?php echo (int)$id; ?>">
                     <div class="row g-3 mb-3">
                         <div class="col-md-6 admin-form-group">
                             <label for="servidor_id">Servidor *</label>
