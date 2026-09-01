@@ -181,6 +181,7 @@ try {
                                 <td class="text-end">
                                     <button type="button" class="btn btn-sm btn-outline-primary btn-ver-detalhes" 
                                             data-id="<?php echo (int)$p['id']; ?>"
+                                            data-pedido='<?php echo htmlspecialchars(json_encode($p, JSON_UNESCAPED_UNICODE), ENT_QUOTES, 'UTF-8'); ?>'
                                             title="Ver Detalhes do Pedido">
                                         <i class="fa-solid fa-eye"></i>
                                     </button>
@@ -239,41 +240,114 @@ document.addEventListener('DOMContentLoaded', () => {
     const modalInstance = new bootstrap.Modal(modalEl);
     const bodyContent = document.getElementById('detalhes-conteudo');
 
+    function renderDetalhesHtml(p) {
+        const statusBadge = (p.status === 'pago') 
+            ? '<span class="badge bg-success">🟢 Aprovado</span>' 
+            : (p.status === 'pendente' ? '<span class="badge bg-warning text-dark">🟡 Pendente</span>' : '<span class="badge bg-danger">🔴 Recusado / Cancelado</span>');
+
+        const metodoBadge = (p.metodo_pagamento === 'cartao')
+            ? `💳 Cartão de Crédito ${(p.parcelas && p.parcelas > 1) ? `(${p.parcelas}x)` : ''}`
+            : '⚡ PIX';
+
+        const valorFormatado = Number(p.valor || 0).toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+        const descontoFormatado = Number(p.desconto_aplicado || 0).toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+        const valorOrigFormatado = Number(p.valor_original || p.valor || 0).toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+
+        return `
+            <div class="d-flex align-items-center gap-3 p-3 bg-light rounded mb-3 border">
+                <img src="https://mc-heads.net/avatar/${encodeURIComponent(p.nick)}/48" class="rounded border" width="48" height="48" onerror="this.src='https://mc-heads.net/avatar/MHF_Steve/48'">
+                <div>
+                    <h6 class="fw-bold mb-0">${p.nick}</h6>
+                    <small class="text-muted">${p.servidor || 'Servidor'} • <span class="text-primary fw-semibold">${p.vip_nome || 'VIP'}</span></small>
+                </div>
+            </div>
+            <ul class="list-group list-group-flush small">
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    <span class="text-muted">Status:</span>
+                    <div>${statusBadge}</div>
+                </li>
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    <span class="text-muted">Identificador (TXID):</span>
+                    <strong class="font-monospace text-dark">${p.txid || '—'}</strong>
+                </li>
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    <span class="text-muted">Mercado Pago ID:</span>
+                    <span class="font-monospace">${p.mp_payment_id || '—'}</span>
+                </li>
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    <span class="text-muted">Método:</span>
+                    <strong>${metodoBadge}</strong>
+                </li>
+                ${p.payer_email ? `
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    <span class="text-muted">E-mail Pagador:</span>
+                    <span>${p.payer_email}</span>
+                </li>` : ''}
+                ${p.payer_cpf ? `
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    <span class="text-muted">CPF Pagador:</span>
+                    <span class="font-monospace">${p.payer_cpf}</span>
+                </li>` : ''}
+                ${p.card_first_six_digits ? `
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    <span class="text-muted">Cartão:</span>
+                    <span>${p.card_first_six_digits}••••••${p.card_last_four_digits}</span>
+                </li>` : ''}
+                ${p.cupom_codigo ? `
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    <span class="text-muted">Cupom Aplicado:</span>
+                    <span class="badge bg-light text-dark border">🏷️ ${p.cupom_codigo} (-R$ ${descontoFormatado})</span>
+                </li>` : ''}
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    <span class="text-muted">Valor Pago:</span>
+                    <strong class="text-success fs-6">R$ ${valorFormatado}</strong>
+                </li>
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    <span class="text-muted">Criado em:</span>
+                    <span>${p.criado_em || '—'}</span>
+                </li>
+                ${p.pago_em ? `
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    <span class="text-muted">Pago em:</span>
+                    <span>${p.pago_em}</span>
+                </li>` : ''}
+            </ul>
+        `;
+    }
+
     document.querySelectorAll('.btn-ver-detalhes').forEach(btn => {
         btn.addEventListener('click', async () => {
             const id = btn.dataset.id;
+
+            // Tentativa instantânea via data-pedido embutido (zero delay)
+            if (btn.dataset.pedido) {
+                try {
+                    const p = JSON.parse(btn.dataset.pedido);
+                    bodyContent.innerHTML = renderDetalhesHtml(p);
+                    modalInstance.show();
+                    return;
+                } catch(e) {}
+            }
+
+            // Fallback via API se não estiver em cache no elemento
             bodyContent.innerHTML = '<div class="text-center py-4"><div class="spinner-border text-primary" role="status"></div></div>';
             modalInstance.show();
 
             try {
-                const res = await fetch(`api/pedidos/detalhes.php?id=${id}`);
-                const data = await res.json();
-                if (!res.ok || !data.pedido) throw new Error(data.erro || 'Falha ao buscar dados');
-
-                const p = data.pedido;
-                bodyContent.innerHTML = `
-                    <div class="d-flex align-items-center gap-3 p-3 bg-light rounded mb-3">
-                        <img src="https://mc-heads.net/avatar/${encodeURIComponent(p.nick)}/48" class="rounded border" width="48" height="48" onerror="this.src='https://mc-heads.net/avatar/MHF_Steve/48'">
-                        <div>
-                            <h6 class="fw-bold mb-0">${p.nick}</h6>
-                            <small class="text-muted">${p.servidor} • ${p.vip_nome}</small>
-                        </div>
-                    </div>
-                    <ul class="list-group list-group-flush small">
-                        <li class="list-group-item d-flex justify-content-between"><span>Identificador (TXID):</span> <strong class="font-monospace">${p.txid}</strong></li>
-                        <li class="list-group-item d-flex justify-content-between"><span>Mercado Pago ID:</span> <span class="font-monospace">${p.mp_payment_id || '—'}</span></li>
-                        <li class="list-group-item d-flex justify-content-between"><span>Método:</span> <strong>${p.metodo_pagamento ? p.metodo_pagamento.toUpperCase() : 'PIX'}</strong></li>
-                        ${p.parcelas > 1 ? `<li class="list-group-item d-flex justify-content-between"><span>Parcelamento:</span> <span>${p.parcelas}x</span></li>` : ''}
-                        ${p.payer_email ? `<li class="list-group-item d-flex justify-content-between"><span>E-mail do Pagador:</span> <span>${p.payer_email}</span></li>` : ''}
-                        ${p.payer_cpf ? `<li class="list-group-item d-flex justify-content-between"><span>CPF do Pagador:</span> <span class="font-monospace">${p.payer_cpf}</span></li>` : ''}
-                        ${p.card_first_six_digits ? `<li class="list-group-item d-flex justify-content-between"><span>Cartão:</span> <span>${p.card_first_six_digits}••••••${p.card_last_four_digits}</span></li>` : ''}
-                        <li class="list-group-item d-flex justify-content-between"><span>Valor Pago:</span> <strong class="text-success fs-6">R$ ${Number(p.valor).toLocaleString('pt-BR', {minimumFractionDigits: 2})}</strong></li>
-                        ${p.cupom_codigo ? `<li class="list-group-item d-flex justify-content-between"><span>Cupom Aplicado:</span> <span class="badge bg-light text-dark border">🏷️ ${p.cupom_codigo} (-R$ ${Number(p.desconto_aplicado || 0).toLocaleString('pt-BR', {minimumFractionDigits: 2})})</span></li>` : ''}
-                        <li class="list-group-item d-flex justify-content-between"><span>Status:</span> <span>${p.status} (${p.status_detail || 'ok'})</span></li>
-                        <li class="list-group-item d-flex justify-content-between"><span>Criado em:</span> <span>${p.criado_em}</span></li>
-                        ${p.pago_em ? `<li class="list-group-item d-flex justify-content-between"><span>Pago em:</span> <span>${p.pago_em}</span></li>` : ''}
-                    </ul>
-                `;
+                const res = await fetch(`api/pedidos/detalhes.php?id=${id}`, {
+                    headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' }
+                });
+                const text = await res.text();
+                let data;
+                try {
+                    data = JSON.parse(text);
+                } catch (e) {
+                    throw new Error('Falha ao processar resposta do servidor.');
+                }
+                if (!res.ok || !data.pedido) {
+                    throw new Error(data.erro || 'Falha ao buscar dados do pedido.');
+                }
+                bodyContent.innerHTML = renderDetalhesHtml(data.pedido);
             } catch (err) {
                 bodyContent.innerHTML = `<div class="alert alert-danger mb-0">${err.message}</div>`;
             }
