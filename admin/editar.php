@@ -1,6 +1,6 @@
 <?php
 $paginaAtiva = 'noticias';
-$tituloPagina = 'Editar Notícia';
+$tituloPagina = 'Editar Novidade';
 
 require_once __DIR__ . "/includes/admin_header.php";
 require_once "capa_upload.php";
@@ -71,7 +71,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             header("Location: noticias.php");
             exit;
         } catch (PDOException $e) {
-            $mensagem_erro = "Erro ao atualizar notícia: " . $e->getMessage();
+            $mensagem_erro = "Erro ao atualizar novidade: " . $e->getMessage();
         }
     }
 }
@@ -81,8 +81,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <div class="col-12 col-xl-10">
         <div class="admin-card">
             <div class="admin-card-header">
-                <h5 class="admin-card-title"><i class="fa-solid fa-pen text-primary"></i> Editar Notícia</h5>
-                <a href="noticias.php" class="btn btn-outline-secondary btn-sm">← Voltar para Notícias</a>
+                <h5 class="admin-card-title"><i class="fa-solid fa-pen text-primary"></i> Editar Novidade</h5>
+                <a href="noticias.php" class="btn btn-outline-secondary btn-sm">← Voltar para Novidades</a>
             </div>
             <div class="p-4">
                 <?php if ($mensagem_erro): ?>
@@ -93,7 +93,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <input type="hidden" name="id" value="<?php echo (int)$id; ?>">
 
                     <div class="admin-form-group">
-                        <label for="titulo">Título da Notícia *</label>
+                        <label for="titulo">Título da Novidade *</label>
                         <input type="text" class="admin-form-control" id="titulo" name="titulo" value="<?php echo htmlspecialchars($titulo, ENT_QUOTES, 'UTF-8'); ?>" required>
                     </div>
 

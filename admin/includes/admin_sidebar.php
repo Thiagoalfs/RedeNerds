@@ -70,7 +70,7 @@ if (isset($pdo) && $pdo instanceof PDO) {
         <a href="noticias.php" class="nav-item-link <?php echo ($paginaAtiva === 'noticias') ? 'active' : ''; ?>">
             <div class="icon-wrap">
                 <i class="fa-solid fa-newspaper"></i>
-                <span>Notícias</span>
+                <span>Novidades</span>
             </div>
         </a>
     </nav>

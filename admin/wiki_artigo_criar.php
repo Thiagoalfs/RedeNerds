@@ -20,12 +20,37 @@ require_once __DIR__ . "/../wiki/wiki_helper.php";
 
 $servidores = $pdo->query("SELECT id, servername FROM servidores ORDER BY servername ASC")->fetchAll(PDO::FETCH_ASSOC);
 
+try {
+    $cargosPermitidos = ['Fundadores', 'Fundador', 'Diretores', 'Diretor', 'Coordenadores', 'Coordenador', 'Administradores', 'Administrador'];
+    $placeholders = implode(',', array_fill(0, count($cargosPermitidos), '?'));
+    $stmtEquipe = $pdo->prepare("
+        SELECT DISTINCT nick 
+        FROM equipe 
+        WHERE nick IS NOT NULL AND nick != '' 
+          AND (
+              cargo IN ($placeholders) 
+              OR LOWER(cargo) LIKE '%fundad%' 
+              OR LOWER(cargo) LIKE '%direto%' 
+              OR LOWER(cargo) LIKE '%coordena%' 
+              OR LOWER(cargo) LIKE '%admin%'
+          )
+        ORDER BY nick ASC
+    ");
+    $stmtEquipe->execute($cargosPermitidos);
+    $nicksEquipe = $stmtEquipe->fetchAll(PDO::FETCH_COLUMN, 0);
+} catch (PDOException $e) {
+    $nicksEquipe = [];
+}
+if (empty($nicksEquipe)) {
+    $nicksEquipe = [$_SESSION['usuario_nome'] ?? 'Admin'];
+}
+
 $erro = null;
 $servidor_id = (int)($_POST['servidor_id'] ?? ($servidores[0]['id'] ?? 0));
 $categoria_id = (int)($_POST['categoria_id'] ?? 0);
 $titulo = trim($_POST['titulo'] ?? '');
 $conteudo = trim($_POST['conteudo'] ?? '');
-$autor = trim($_POST['autor'] ?? ($_SESSION['usuario_nome'] ?? 'Admin'));
+$autor = trim($_POST['autor'] ?? ($nicksEquipe[0] ?? ($_SESSION['usuario_nome'] ?? 'Admin')));
 $publicado = isset($_POST['publicado']) ? 1 : 0;
 
 if ($servidor_id > 0) {
@@ -33,8 +58,8 @@ if ($servidor_id > 0) {
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    if ($servidor_id <= 0 || empty($titulo) || empty($conteudo)) {
-        $erro = "Preencha o servidor, título e conteúdo do artigo.";
+    if ($servidor_id <= 0 || empty($titulo) || empty($conteudo) || empty($autor)) {
+        $erro = "Preencha o servidor, título, autor e conteúdo do artigo.";
     } else {
         $slug = preg_replace('/[^a-z0-9]+/i', '-', strtolower(iconv('UTF-8', 'ASCII//TRANSLIT', $titulo)));
         $slug = trim($slug, '-');
@@ -118,8 +143,14 @@ $categoriasDisponiveis = getCategoriasServidorWiki($pdo, $servidor_id);
                             <input type="text" class="admin-form-control" id="titulo" name="titulo" value="<?php echo htmlspecialchars($titulo, ENT_QUOTES, 'UTF-8'); ?>" placeholder="Ex: Como proteger seu terreno inicial" required autofocus>
                         </div>
                         <div class="col-md-4 admin-form-group">
-                            <label for="autor">Autor *</label>
-                            <input type="text" class="admin-form-control" id="autor" name="autor" value="<?php echo htmlspecialchars($autor, ENT_QUOTES, 'UTF-8'); ?>" required>
+                            <label for="autor">Autor (Membro da Equipe) *</label>
+                            <select class="admin-form-control" id="autor" name="autor" required>
+                                <?php foreach ($nicksEquipe as $nk): ?>
+                                    <option value="<?php echo htmlspecialchars($nk, ENT_QUOTES, 'UTF-8'); ?>" <?php echo ($autor === $nk) ? 'selected' : ''; ?>>
+                                        <?php echo htmlspecialchars($nk, ENT_QUOTES, 'UTF-8'); ?>
+                                    </option>
+                                <?php endforeach; ?>
+                            </select>
                         </div>
                     </div>
 

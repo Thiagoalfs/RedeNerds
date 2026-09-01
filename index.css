@@ -30,16 +30,6 @@
     filter: drop-shadow(0 16px 32px rgba(0, 0, 0, 0.8));
     user-select: none;
     flex-shrink: 0;
-    animation: floatLogo 6s ease-in-out infinite;
-}
-
-@keyframes floatLogo {
-    0%, 100% {
-        transform: translateY(0px);
-    }
-    50% {
-        transform: translateY(-6px);
-    }
 }
 
 #big-header-text {
