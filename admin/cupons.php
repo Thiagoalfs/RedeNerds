@@ -203,8 +203,9 @@ $nome_usuario = $_SESSION['usuario_nome'] ?? 'Administrador';
                                 <div><strong>Usos:</strong> <?php echo (int)$c['usos_total']; ?> compra(s)</div>
                             </div>
                             <div class="acoes">
-                                <a href="cupom_editar.php?id=<?php echo (int)$c['id']; ?>" class="btn btn-sm btn-primary">✏️ Editar</a>
+                                <a href="cupom_editar.php?id=<?php echo (int)$c['id']; ?>" class="btn btn-sm btn-primary">Editar</a>
                                 <a href="cupom_toggle.php?id=<?php echo (int)$c['id']; ?>" class="btn btn-sm btn-outline-secondary">
+                                    <i class="fa-solid <?php echo $c['ativo'] ? 'fa-eye' : 'fa-eye-slash'; ?>"></i>
                                     <?php echo $c['ativo'] ? 'Desativar' : 'Ativar'; ?>
                                 </a>
                                 <a href="cupom_deletar.php?id=<?php echo (int)$c['id']; ?>"
@@ -225,13 +226,13 @@ $nome_usuario = $_SESSION['usuario_nome'] ?? 'Administrador';
                         <table class="table table-hover mb-0 align-middle">
                             <thead class="table-light">
                                 <tr>
-                                    <th style="width:180px;">Código do Cupom</th>
+                                    <th style="width:180px;">Código</th>
                                     <th style="width:130px;">Desconto</th>
-                                    <th>Expira em</th>
-                                    <th style="width:120px;">Status</th>
-                                    <th style="width:110px;">Usos</th>
+                                    <th style="width:200px;">Validade</th>
+                                    <th style="width:110px;">Status</th>
+                                    <th style="width:90px;">Usos</th>
                                     <th style="width:150px;">Criado em</th>
-                                    <th style="width:170px;" class="text-end">Ações</th>
+                                    <th class="text-end" style="width:180px;">Ações</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -266,17 +267,19 @@ $nome_usuario = $_SESSION['usuario_nome'] ?? 'Administrador';
                                             <td class="text-muted small">
                                                 <?php echo formatarDataHora($c['criado_em']); ?>
                                             </td>
-                                            <td class="text-end">
-                                                <a href="cupom_editar.php?id=<?php echo (int)$c['id']; ?>" class="btn btn-sm btn-primary" title="Editar">✏️</a>
-                                                <a href="cupom_toggle.php?id=<?php echo (int)$c['id']; ?>"
-                                                   class="btn btn-sm btn-outline-secondary"
-                                                   title="<?php echo $c['ativo'] ? 'Desativar cupom' : 'Ativar cupom'; ?>">
-                                                    <?php echo $c['ativo'] ? 'Desativar' : 'Ativar'; ?>
-                                                </a>
-                                                <a href="cupom_deletar.php?id=<?php echo (int)$c['id']; ?>"
-                                                   class="btn btn-sm btn-danger"
-                                                   title="Deletar"
-                                                   onclick="return confirm('Deletar o cupom <?php echo htmlspecialchars(addslashes($c['codigo']), ENT_QUOTES, 'UTF-8'); ?>? Essa ação não pode ser desfeita.');">🗑️</a>
+                                            <td class="text-end text-nowrap">
+                                                <div class="d-inline-flex align-items-center justify-content-end gap-1">
+                                                    <a href="cupom_editar.php?id=<?php echo (int)$c['id']; ?>" class="btn btn-sm btn-primary">Editar</a>
+                                                    <a href="cupom_toggle.php?id=<?php echo (int)$c['id']; ?>"
+                                                       class="btn btn-sm btn-outline-secondary"
+                                                       title="<?php echo $c['ativo'] ? 'Desativar cupom' : 'Ativar cupom'; ?>">
+                                                        <i class="fa-solid <?php echo $c['ativo'] ? 'fa-eye' : 'fa-eye-slash'; ?>"></i>
+                                                    </a>
+                                                    <a href="cupom_deletar.php?id=<?php echo (int)$c['id']; ?>"
+                                                       class="btn btn-sm btn-danger"
+                                                       title="Deletar"
+                                                       onclick="return confirm('Deletar o cupom <?php echo htmlspecialchars(addslashes($c['codigo']), ENT_QUOTES, 'UTF-8'); ?>? Essa ação não pode ser desfeita.');">🗑️</a>
+                                                </div>
                                             </td>
                                         </tr>
                                     <?php endforeach; ?>

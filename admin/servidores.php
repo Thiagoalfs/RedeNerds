@@ -157,9 +157,10 @@ $nome_usuario = $_SESSION['usuario_nome'] ?? 'Administrador';
                             <div class="slug">/<?php echo htmlspecialchars($s['nome'], ENT_QUOTES, 'UTF-8'); ?></div>
                             <div class="ip">🌐 <?php echo htmlspecialchars($s['ip'], ENT_QUOTES, 'UTF-8'); ?></div>
                             <div class="acoes">
-                                <a href="servidor_editar.php?id=<?php echo (int)$s['id']; ?>" class="btn btn-sm btn-primary">✏️ Editar</a>
+                                <a href="servidor_editar.php?id=<?php echo (int)$s['id']; ?>" class="btn btn-sm btn-primary">Editar</a>
                                 <a href="servidor_toggle.php?id=<?php echo (int)$s['id']; ?>" class="btn btn-sm btn-outline-secondary">
-                                    <?php echo $s['enabled'] ? '🙈 Ocultar' : '👁️ Exibir'; ?>
+                                    <i class="fa-solid <?php echo $s['enabled'] ? 'fa-eye' : 'fa-eye-slash'; ?>"></i>
+                                    <?php echo $s['enabled'] ? 'Ocultar' : 'Exibir'; ?>
                                 </a>
                                 <a href="servidor_deletar.php?id=<?php echo (int)$s['id']; ?>"
                                    class="btn btn-sm btn-danger"
@@ -219,9 +220,11 @@ $nome_usuario = $_SESSION['usuario_nome'] ?? 'Administrador';
                                             </td>
                                             <td class="text-center text-nowrap">
                                                 <div class="d-inline-flex align-items-center justify-content-center gap-1">
-                                                    <a href="servidor_editar.php?id=<?php echo (int)$s['id']; ?>" class="btn btn-sm btn-primary">✏️ Editar</a>
-                                                    <a href="servidor_toggle.php?id=<?php echo (int)$s['id']; ?>" class="btn btn-sm btn-outline-secondary">
-                                                        <?php echo $s['enabled'] ? '🙈' : '👁️'; ?>
+                                                    <a href="servidor_editar.php?id=<?php echo (int)$s['id']; ?>" class="btn btn-sm btn-primary">Editar</a>
+                                                    <a href="servidor_toggle.php?id=<?php echo (int)$s['id']; ?>"
+                                                       class="btn btn-sm btn-outline-secondary"
+                                                       title="<?php echo $s['enabled'] ? 'Ocultar servidor' : 'Exibir servidor'; ?>">
+                                                        <i class="fa-solid <?php echo $s['enabled'] ? 'fa-eye' : 'fa-eye-slash'; ?>"></i>
                                                     </a>
                                                     <a href="servidor_deletar.php?id=<?php echo (int)$s['id']; ?>"
                                                        class="btn btn-sm btn-danger"
