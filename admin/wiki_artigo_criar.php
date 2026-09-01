@@ -1,7 +1,21 @@
 <?php
-$paginaAtiva = 'wiki';
-$tituloPagina = 'Criar Artigo da Wiki';
-require_once __DIR__ . "/includes/admin_header.php";
+require_once __DIR__ . "/sessao.php";
+$configPaths = [
+    __DIR__ . "/config.php",
+    __DIR__ . "/../config.php",
+    __DIR__ . "/../../config.php",
+    ($_SERVER['DOCUMENT_ROOT'] ?? '') . "/config.php"
+];
+$configPath = null;
+foreach ($configPaths as $cp) {
+    if (!empty($cp) && file_exists($cp)) {
+        $configPath = $cp;
+        break;
+    }
+}
+if ($configPath) {
+    require_once $configPath;
+}
 require_once __DIR__ . "/../wiki/wiki_helper.php";
 
 $servidores = $pdo->query("SELECT id, servername FROM servidores ORDER BY servername ASC")->fetchAll(PDO::FETCH_ASSOC);
@@ -11,7 +25,7 @@ $servidor_id = (int)($_POST['servidor_id'] ?? ($servidores[0]['id'] ?? 0));
 $categoria_id = (int)($_POST['categoria_id'] ?? 0);
 $titulo = trim($_POST['titulo'] ?? '');
 $conteudo = trim($_POST['conteudo'] ?? '');
-$autor = trim($_POST['autor'] ?? $nome_usuario);
+$autor = trim($_POST['autor'] ?? ($_SESSION['usuario_nome'] ?? 'Admin'));
 $publicado = isset($_POST['publicado']) ? 1 : 0;
 
 if ($servidor_id > 0) {
@@ -24,8 +38,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     } else {
         $slug = preg_replace('/[^a-z0-9]+/i', '-', strtolower(iconv('UTF-8', 'ASCII//TRANSLIT', $titulo)));
         $slug = trim($slug, '-');
-
-        // Se slug ficar vazio
         if (empty($slug)) $slug = 'artigo-' . time();
 
         try {
@@ -58,6 +70,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
+$paginaAtiva = 'wiki';
+$tituloPagina = 'Criar Artigo da Wiki';
+require_once __DIR__ . "/includes/admin_header.php";
 $categoriasDisponiveis = getCategoriasServidorWiki($pdo, $servidor_id);
 ?>
 
