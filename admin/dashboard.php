@@ -1,324 +1,193 @@
 <?php
-require_once "sessao.php";
-$configPaths = [
-    __DIR__ . "/../../config.php",
-    __DIR__ . "/../config.php",
-    ($_SERVER['DOCUMENT_ROOT'] ?? '') . "/../config.php",
-    ($_SERVER['DOCUMENT_ROOT'] ?? '') . "/config.php"
-];
-$configPath = null;
-foreach ($configPaths as $cp) {
-    if (!empty($cp) && file_exists($cp)) {
-        $configPath = $cp;
-        break;
-    }
-}
-if (!$configPath) {
-    die("Erro: Arquivo config.php não encontrado.");
-}
-require_once $configPath;
+$paginaAtiva = 'dashboard';
+$tituloPagina = 'Visão Geral';
+require_once __DIR__ . "/includes/admin_header.php";
 
-const POR_PAGINA = 10;
-
-$pagina = isset($_GET['page']) ? max(1, intval($_GET['page'])) : 1;
-$offset = ($pagina - 1) * POR_PAGINA;
-
+// 1. Consulta Métricas & KPIs
+$totalFaturamento = 0.00;
+$faturamentoMes = 0.00;
+$totalPedidosPagos = 0;
+$totalPedidosPendentes = 0;
+$totalCuponsAtivos = 0;
+$totalUsosCupons = 0;
+$totalServidores = 0;
 $totalNoticias = 0;
-$totalPaginas = 1;
-$noticias = [];
+$ultimosPedidos = [];
 
 try {
-    $totalNoticias = (int) $pdo->query("SELECT COUNT(*) FROM novidades")->fetchColumn();
-    $totalPaginas = $totalNoticias > 0 ? (int) ceil($totalNoticias / POR_PAGINA) : 1;
+    if (isset($pdo) && $pdo instanceof PDO) {
+        // Faturamento Total
+        $totalFaturamento = (float)$pdo->query("SELECT COALESCE(SUM(valor), 0) FROM pedidos_vip WHERE status = 'pago'")->fetchColumn();
 
-    // Evita pedir uma página além do total (ex: item deletado)
-    if ($pagina > $totalPaginas) {
-        $pagina = $totalPaginas;
-        $offset = ($pagina - 1) * POR_PAGINA;
+        // Faturamento do Mês Atual
+        $faturamentoMes = (float)$pdo->query("SELECT COALESCE(SUM(valor), 0) FROM pedidos_vip WHERE status = 'pago' AND MONTH(criado_em) = MONTH(CURRENT_DATE()) AND YEAR(criado_em) = YEAR(CURRENT_DATE())")->fetchColumn();
+
+        // Pedidos Pagos vs Pendentes
+        $totalPedidosPagos = (int)$pdo->query("SELECT COUNT(*) FROM pedidos_vip WHERE status = 'pago'")->fetchColumn();
+        $totalPedidosPendentes = (int)$pdo->query("SELECT COUNT(*) FROM pedidos_vip WHERE status = 'pendente'")->fetchColumn();
+
+        // Cupons
+        $totalCuponsAtivos = (int)$pdo->query("SELECT COUNT(*) FROM cupons WHERE ativo = 1 AND expira_em >= NOW()")->fetchColumn();
+        $totalUsosCupons = (int)$pdo->query("SELECT COALESCE(SUM(usos_total), 0) FROM cupons")->fetchColumn();
+
+        // Servidores & Notícias
+        $totalServidores = (int)$pdo->query("SELECT COUNT(*) FROM servidores WHERE enabled = 1")->fetchColumn();
+        $totalNoticias = (int)$pdo->query("SELECT COUNT(*) FROM novidades")->fetchColumn();
+
+        // Últimos 8 Pedidos
+        $stmtUltimos = $pdo->query("SELECT * FROM pedidos_vip ORDER BY id DESC LIMIT 8");
+        $ultimosPedidos = $stmtUltimos->fetchAll(PDO::FETCH_ASSOC);
     }
-
-    $stmt = $pdo->prepare("SELECT id, titulo, category, categoria_envio, capa, criado_em, autor FROM novidades ORDER BY criado_em DESC LIMIT :limit OFFSET :offset");
-    $stmt->bindValue(':limit', POR_PAGINA, PDO::PARAM_INT);
-    $stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
-    $stmt->execute();
-    $noticias = $stmt->fetchAll(PDO::FETCH_ASSOC);
-} catch (PDOException $e) {
-    $noticias = [];
+} catch (Exception $e) {
+    error_log("Erro no dashboard admin: " . $e->getMessage());
 }
-
-// Mapa com variações (servername, slug, sem espaço, singular/plural) => themecolor
-$coresPorServidor = [];
-try {
-    $stmt = $pdo->query("SELECT servername, nome, themecolor FROM servidores");
-    foreach ($stmt->fetchAll(PDO::FETCH_ASSOC) as $s) {
-        $cor = $s['themecolor'];
-        $sn = trim($s['servername'] ?? '');
-        $nm = trim($s['nome'] ?? '');
-
-        if ($sn !== '') {
-            $coresPorServidor[$sn] = $cor;
-            $cleanSn = strtolower(str_replace(' ', '', $sn));
-            $coresPorServidor[$cleanSn] = $cor;
-            $coresPorServidor[rtrim($cleanSn, 's')] = $cor;
-            $coresPorServidor[$cleanSn . 's'] = $cor;
-        }
-
-        if ($nm !== '') {
-            $coresPorServidor[$nm] = $cor;
-            $cleanNm = strtolower(str_replace(' ', '', $nm));
-            $coresPorServidor[$cleanNm] = $cor;
-            $coresPorServidor[rtrim($cleanNm, 's')] = $cor;
-            $coresPorServidor[$cleanNm . 's'] = $cor;
-        }
-    }
-} catch (PDOException $e) {
-    $coresPorServidor = [];
-}
-
-function corDoServidor($nome, $mapa) {
-    if (!$nome) return '#6c757d';
-    if (isset($mapa[$nome])) return $mapa[$nome];
-
-    $clean = strtolower(str_replace(' ', '', trim($nome)));
-    if (isset($mapa[$clean])) return $mapa[$clean];
-
-    $cleanNoS = rtrim($clean, 's');
-    if (isset($mapa[$cleanNoS])) return $mapa[$cleanNoS];
-
-    $cleanWithS = $clean . 's';
-    if (isset($mapa[$cleanWithS])) return $mapa[$cleanWithS];
-
-    return '#6c757d';
-}
-
-function corTextoContraste($hex) {
-    $hex = ltrim($hex, '#');
-    if (strlen($hex) === 3) {
-        $hex = $hex[0].$hex[0].$hex[1].$hex[1].$hex[2].$hex[2];
-    }
-    if (strlen($hex) !== 6) {
-        return '#ffffff';
-    }
-    $r = hexdec(substr($hex, 0, 2));
-    $g = hexdec(substr($hex, 2, 2));
-    $b = hexdec(substr($hex, 4, 2));
-    $yiq = (($r * 299) + ($g * 587) + ($b * 114)) / 1000;
-    return ($yiq >= 150) ? '#1a1a1a' : '#ffffff';
-}
-
-// Monta a URL de uma página de paginação preservando outros parâmetros da query string
-function urlPagina($pagina) {
-    $params = $_GET;
-    $params['page'] = $pagina;
-    return 'dashboard.php?' . http_build_query($params);
-}
-
-function formatarData($data) {
-    $ts = strtotime($data);
-    if (!$ts) return '-';
-    return date('d/m/Y H:i', $ts);
-}
-
-$nome_usuario = $_SESSION['usuario_nome'] ?? 'Administrador';
 ?>
-<!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard - Painel Administrativo</title>
-    <link rel="icon" type="image/x-icon" href="/assets/images/logo.webp">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="dbcommon.css?v=1" rel="stylesheet">
-    <style>
-        /* Ajustes específicos desta página */
-        .noticia-thumb-table {
-            width: 60px;
-            height: 40px;
-            object-fit: cover;
-            border-radius: 4px;
-            border: 1px solid #e0e0e0;
-        }
-    </style>
-</head>
-<body>
-    <nav class="navbar navbar-dark bg-dark shadow-sm">
-        <div class="container-fluid">
-            <a class="navbar-brand" href="dashboard.php">⚙️ Painel</a>
-            <div class="d-flex align-items-center gap-2">
-                <span class="text-white small d-none d-sm-inline">
-                    Olá, <strong><?php echo htmlspecialchars($nome_usuario, ENT_QUOTES, 'UTF-8'); ?></strong>
-                </span>
-                <a href="#" class="btn btn-outline-light btn-sm">📰 Notícias</a>
-                <a href="equipe.php" class="btn btn-outline-light btn-sm">🧑‍🤝‍🧑 Equipe</a>
-                <a href="servidores.php" class="btn btn-outline-light btn-sm">🖥️ Servidores</a>
-                <a href="cupons.php" class="btn btn-outline-light btn-sm">🏷️ Cupons</a>
-                <a href="logout.php" class="btn btn-outline-light btn-sm">Sair</a>
-            </div>
+
+<div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-4">
+    <div>
+        <h4 class="fw-bold mb-1">Olá, <?php echo htmlspecialchars($nome_usuario, ENT_QUOTES, 'UTF-8'); ?> 👋</h4>
+        <p class="text-muted small mb-0">Aqui está o resumo em tempo real da saúde da Rede Nerds.</p>
+    </div>
+    <div class="d-flex gap-2 flex-wrap">
+        <a href="criar.php" class="btn btn-primary btn-sm"><i class="fa-solid fa-plus me-1"></i> Nova Notícia</a>
+        <a href="cupom_criar.php" class="btn btn-success btn-sm"><i class="fa-solid fa-tags me-1"></i> Novo Cupom</a>
+        <a href="servidor_criar.php" class="btn btn-outline-secondary btn-sm"><i class="fa-solid fa-server me-1"></i> Novo Servidor</a>
+    </div>
+</div>
+
+<!-- GRID DE CARDS KPI -->
+<div class="kpi-grid">
+    <!-- Card 1: Faturamento Total -->
+    <div class="kpi-card">
+        <div class="kpi-info">
+            <span class="kpi-label">Faturamento Aprovado</span>
+            <div class="kpi-value text-success">R$ <?php echo number_format($totalFaturamento, 2, ',', '.'); ?></div>
+            <span class="kpi-subtext">R$ <?php echo number_format($faturamentoMes, 2, ',', '.'); ?> este mês</span>
         </div>
-    </nav>
-
-    <div class="container-fluid px-3 px-md-4 mt-3">
-        <div class="page-header">
-            <div>
-                <h5 class="mb-0 fw-bold">Notícias</h5>
-                <small class="text-muted"><?php echo $totalNoticias; ?> publicada(s)<?php if ($totalPaginas > 1): ?> · página <?php echo $pagina; ?> de <?php echo $totalPaginas; ?><?php endif; ?></small>
-            </div>
-            <a href="criar.php" class="btn btn-success btn-sm">➕ Nova</a>
+        <div class="kpi-icon-box kpi-icon-green">
+            <i class="fa-solid fa-wallet"></i>
         </div>
-
-        <!-- MOBILE: cards -->
-        <div class="cards-mobile">
-            <?php if (empty($noticias)): ?>
-                <p class="text-center text-muted py-4">Nenhuma notícia cadastrada.</p>
-            <?php else: ?>
-                <?php foreach ($noticias as $n): ?>
-                    <div class="list-card" style="--accent: <?php echo htmlspecialchars(corDoServidor($n['category'], $coresPorServidor), ENT_QUOTES, 'UTF-8'); ?>;">
-                        <div class="thumb-square thumb-lg">
-                            <?php if (!empty($n['capa'])): ?>
-                                <img src="<?php echo htmlspecialchars($n['capa'], ENT_QUOTES, 'UTF-8'); ?>"
-                                     alt="capa" onerror="this.closest('.thumb-square').innerHTML='🖼️'">
-                            <?php else: ?>
-                                🖼️
-                            <?php endif; ?>
-                        </div>
-
-                        <div class="info">
-                            <div class="title"><?php echo htmlspecialchars($n['titulo'], ENT_QUOTES, 'UTF-8'); ?></div>
-                            <div class="meta">
-                                <div>
-                                    <?php 
-                                        $corBg = corDoServidor($n['category'], $coresPorServidor);
-                                        $corTxt = corTextoContraste($corBg);
-                                    ?>
-                                    <span class="badge me-1" style="background-color: <?php echo htmlspecialchars($corBg, ENT_QUOTES, 'UTF-8'); ?>; color: <?php echo $corTxt; ?>;" title="Servidor">🌐 <?php echo htmlspecialchars($n['category'] ?? '—', ENT_QUOTES, 'UTF-8'); ?></span>
-                                    <span class="badge bg-secondary me-1" title="Categoria de Envio">📢 <?php echo htmlspecialchars($n['categoria_envio'] ?? '—', ENT_QUOTES, 'UTF-8'); ?></span>
-                                </div>
-                                <div class="mt-1">
-                                    👤 <?php echo htmlspecialchars($n['autor'] ?? '', ENT_QUOTES, 'UTF-8'); ?> · 🕒 <?php echo formatarData($n['criado_em']); ?>
-                                </div>
-                            </div>
-                            <div class="actions">
-                                <a href="editar.php?id=<?php echo (int)$n['id']; ?>" class="btn btn-sm btn-primary">Editar</a>
-                                <a href="deletar.php?id=<?php echo (int)$n['id']; ?>"
-                                   class="btn btn-sm btn-danger"
-                                   onclick="return confirm('Deletar esta notícia?');">🗑️ Deletar</a>
-                            </div>
-                        </div>
-                    </div>
-                <?php endforeach; ?>
-            <?php endif; ?>
-
-            <?php if ($totalPaginas > 1): ?>
-                <nav aria-label="Paginação de notícias" class="d-flex justify-content-center mt-3">
-                    <ul class="pagination pagination-sm mb-0">
-                        <li class="page-item <?php echo $pagina <= 1 ? 'disabled' : ''; ?>">
-                            <a class="page-link" href="<?php echo htmlspecialchars(urlPagina(max(1, $pagina - 1)), ENT_QUOTES, 'UTF-8'); ?>">‹</a>
-                        </li>
-                        <?php for ($p = 1; $p <= $totalPaginas; $p++): ?>
-                            <li class="page-item <?php echo $p === $pagina ? 'active' : ''; ?>">
-                                <a class="page-link" href="<?php echo htmlspecialchars(urlPagina($p), ENT_QUOTES, 'UTF-8'); ?>"><?php echo $p; ?></a>
-                            </li>
-                        <?php endfor; ?>
-                        <li class="page-item <?php echo $pagina >= $totalPaginas ? 'disabled' : ''; ?>">
-                            <a class="page-link" href="<?php echo htmlspecialchars(urlPagina(min($totalPaginas, $pagina + 1)), ENT_QUOTES, 'UTF-8'); ?>">›</a>
-                        </li>
-                    </ul>
-                </nav>
-            <?php endif; ?>
-        </div>
-
-        <!-- DESKTOP: tabela -->
-        <div class="tabela-desktop">
-            <div class="card shadow-sm">
-                <div class="card-body p-0">
-                    <div class="table-responsive">
-                        <table class="table table-hover mb-0 align-middle">
-                            <thead class="table-light">
-                                <tr>
-                                    <th style="width:70px;">Capa</th>
-                                    <th>Título</th>
-                                    <th style="width:110px;">Servidor</th>
-                                    <th style="width:130px;">Categoria</th>
-                                    <th style="width:120px;">Autor</th>
-                                    <th style="width:130px;">Data</th>
-                                    <th class="text-center text-nowrap" style="width:140px;">Ações</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <?php if (empty($noticias)): ?>
-                                    <tr>
-                                        <td colspan="7" class="text-center py-4 text-muted">
-                                            Nenhuma notícia cadastrada.
-                                        </td>
-                                    </tr>
-                                <?php else: ?>
-                                <?php foreach ($noticias as $n): ?>
-                                        <tr>
-                                            <td>
-                                                <?php if (!empty($n['capa'])): ?>
-                                                    <img src="<?php echo htmlspecialchars($n['capa'], ENT_QUOTES, 'UTF-8'); ?>"
-                                                         alt="capa" class="noticia-thumb-table"
-                                                         onerror="this.style.display='none'">
-                                                <?php else: ?>
-                                                    <span class="text-muted">—</span>
-                                                <?php endif; ?>
-                                            </td>
-                                            <td><?php echo htmlspecialchars($n['titulo'], ENT_QUOTES, 'UTF-8'); ?></td>
-                                            <td>
-                                                <?php 
-                                                    $corBg = corDoServidor($n['category'], $coresPorServidor);
-                                                    $corTxt = corTextoContraste($corBg);
-                                                ?>
-                                                <span class="badge" style="background-color: <?php echo htmlspecialchars($corBg, ENT_QUOTES, 'UTF-8'); ?>; color: <?php echo $corTxt; ?>;">
-                                                    <?php echo htmlspecialchars($n['category'] ?? '—', ENT_QUOTES, 'UTF-8'); ?>
-                                                </span>
-                                            </td>
-                                            <td>
-                                                <span class="badge bg-secondary">
-                                                    <?php echo htmlspecialchars($n['categoria_envio'] ?? '—', ENT_QUOTES, 'UTF-8'); ?>
-                                                </span>
-                                            </td>
-                                            <td><?php echo htmlspecialchars($n['autor'] ?? '—', ENT_QUOTES, 'UTF-8'); ?></td>
-                                            <td><small><?php echo formatarData($n['criado_em']); ?></small></td>
-                                            <td class="text-center text-nowrap">
-                                                <div class="d-inline-flex align-items-center justify-content-center gap-1">
-                                                    <a href="editar.php?id=<?php echo (int)$n['id']; ?>" class="btn btn-sm btn-primary">Editar</a>
-                                                    <a href="deletar.php?id=<?php echo (int)$n['id']; ?>"
-                                                       class="btn btn-sm btn-danger"
-                                                       onclick="return confirm('Deletar esta notícia? Essa ação não pode ser desfeita.');">🗑️</a>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                    <?php endforeach; ?>
-                                <?php endif; ?>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-
-            <?php if ($totalPaginas > 1): ?>
-                <nav aria-label="Paginação de notícias" class="d-flex justify-content-center mt-3">
-                    <ul class="pagination mb-0">
-                        <li class="page-item <?php echo $pagina <= 1 ? 'disabled' : ''; ?>">
-                            <a class="page-link" href="<?php echo htmlspecialchars(urlPagina(max(1, $pagina - 1)), ENT_QUOTES, 'UTF-8'); ?>">‹ Anterior</a>
-                        </li>
-                        <?php for ($p = 1; $p <= $totalPaginas; $p++): ?>
-                            <li class="page-item <?php echo $p === $pagina ? 'active' : ''; ?>">
-                                <a class="page-link" href="<?php echo htmlspecialchars(urlPagina($p), ENT_QUOTES, 'UTF-8'); ?>"><?php echo $p; ?></a>
-                            </li>
-                        <?php endfor; ?>
-                        <li class="page-item <?php echo $pagina >= $totalPaginas ? 'disabled' : ''; ?>">
-                            <a class="page-link" href="<?php echo htmlspecialchars(urlPagina(min($totalPaginas, $pagina + 1)), ENT_QUOTES, 'UTF-8'); ?>">Próxima ›</a>
-                        </li>
-                    </ul>
-                </nav>
-            <?php endif; ?>
-        </div>
-
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-</body>
-</html>
+    <!-- Card 2: Pedidos VIP -->
+    <div class="kpi-card">
+        <div class="kpi-info">
+            <span class="kpi-label">Vendas VIP Aprovadas</span>
+            <div class="kpi-value"><?php echo $totalPedidosPagos; ?></div>
+            <span class="kpi-subtext text-warning fw-semibold"><?php echo $totalPedidosPendentes; ?> pedido(s) pendente(s)</span>
+        </div>
+        <div class="kpi-icon-box kpi-icon-blue">
+            <i class="fa-solid fa-receipt"></i>
+        </div>
+    </div>
+
+    <!-- Card 3: Cupons Ativos -->
+    <div class="kpi-card">
+        <div class="kpi-info">
+            <span class="kpi-label">Cupons Ativos</span>
+            <div class="kpi-value text-purple"><?php echo $totalCuponsAtivos; ?></div>
+            <span class="kpi-subtext"><?php echo $totalUsosCupons; ?> desconto(s) aplicado(s)</span>
+        </div>
+        <div class="kpi-icon-box kpi-icon-purple">
+            <i class="fa-solid fa-tags"></i>
+        </div>
+    </div>
+
+    <!-- Card 4: Servidores Ativos -->
+    <div class="kpi-card">
+        <div class="kpi-info">
+            <span class="kpi-label">Servidores Online</span>
+            <div class="kpi-value"><?php echo $totalServidores; ?></div>
+            <span class="kpi-subtext"><?php echo $totalNoticias; ?> notícia(s) no site</span>
+        </div>
+        <div class="kpi-icon-box kpi-icon-yellow">
+            <i class="fa-solid fa-server"></i>
+        </div>
+    </div>
+</div>
+
+<!-- TABELA DE ATIVIDADES RECENTES (ÚLTIMOS PEDIDOS) -->
+<div class="admin-card">
+    <div class="admin-card-header">
+        <h5 class="admin-card-title">
+            <i class="fa-solid fa-clock-rotate-left text-primary"></i>
+            Últimos Pedidos da Loja
+        </h5>
+        <a href="pedidos.php" class="btn btn-outline-primary btn-sm">Ver todos os pedidos →</a>
+    </div>
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-admin align-middle mb-0">
+                <thead>
+                    <tr>
+                        <th style="width: 220px;">Jogador</th>
+                        <th>Pacote VIP</th>
+                        <th>Servidor</th>
+                        <th>Método</th>
+                        <th>Valor</th>
+                        <th>Status</th>
+                        <th>Data</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php if (empty($ultimosPedidos)): ?>
+                        <tr>
+                            <td colspan="7" class="text-center py-4 text-muted">Nenhum pedido registrado ainda.</td>
+                        </tr>
+                    <?php else: ?>
+                        <?php foreach ($ultimosPedidos as $ped): 
+                            $status = strtolower($ped['status'] ?? 'pendente');
+                            $metodo = strtolower($ped['metodo_pagamento'] ?? 'pix');
+                            $parcelas = (int)($ped['parcelas'] ?? 1);
+                        ?>
+                            <tr>
+                                <td>
+                                    <div class="d-flex align-items-center gap-2">
+                                        <img src="https://mc-heads.net/avatar/<?php echo urlencode($ped['nick']); ?>/28" 
+                                             class="rounded border" width="28" height="28" alt="Skin"
+                                             onerror="this.src='https://mc-heads.net/avatar/MHF_Steve/28'">
+                                        <div>
+                                            <strong class="text-dark"><?php echo htmlspecialchars($ped['nick'], ENT_QUOTES, 'UTF-8'); ?></strong>
+                                            <small class="text-muted d-block font-monospace" style="font-size: 0.72rem;"><?php echo htmlspecialchars($ped['txid'], ENT_QUOTES, 'UTF-8'); ?></small>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <span class="fw-semibold text-primary"><?php echo htmlspecialchars($ped['vip_nome'], ENT_QUOTES, 'UTF-8'); ?></span>
+                                    <?php if (!empty($ped['cupom_codigo'])): ?>
+                                        <span class="badge bg-light text-dark border ms-1" style="font-size: 0.68rem;">🏷️ <?php echo htmlspecialchars($ped['cupom_codigo'], ENT_QUOTES, 'UTF-8'); ?></span>
+                                    <?php endif; ?>
+                                </td>
+                                <td><span class="badge bg-secondary"><?php echo htmlspecialchars($ped['servidor'], ENT_QUOTES, 'UTF-8'); ?></span></td>
+                                <td>
+                                    <?php if ($metodo === 'cartao'): ?>
+                                        <span class="badge bg-info text-dark">💳 Cartão <?php echo ($parcelas > 1) ? "({$parcelas}x)" : ""; ?></span>
+                                    <?php else: ?>
+                                        <span class="badge bg-success">⚡ PIX</span>
+                                    <?php endif; ?>
+                                </td>
+                                <td>
+                                    <strong class="text-dark">R$ <?php echo number_format((float)$ped['valor'], 2, ',', '.'); ?></strong>
+                                </td>
+                                <td>
+                                    <?php if ($status === 'pago'): ?>
+                                        <span class="badge-status pago">🟢 Aprovado</span>
+                                    <?php elseif ($status === 'pendente'): ?>
+                                        <span class="badge-status pendente">🟡 Pendente</span>
+                                    <?php else: ?>
+                                        <span class="badge-status recusado">🔴 Recusado</span>
+                                    <?php endif; ?>
+                                </td>
+                                <td class="text-muted small">
+                                    <?php echo date('d/m/Y H:i', strtotime($ped['criado_em'])); ?>
+                                </td>
+                            </tr>
+                        <?php endforeach; ?>
+                    <?php endif; ?>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<?php require_once __DIR__ . "/includes/admin_footer.php"; ?>

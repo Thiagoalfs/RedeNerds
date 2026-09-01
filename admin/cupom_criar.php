@@ -1,22 +1,6 @@
 <?php
-require_once "sessao.php";
-$configPaths = [
-    __DIR__ . "/../../config.php",
-    __DIR__ . "/../config.php",
-    ($_SERVER['DOCUMENT_ROOT'] ?? '') . "/../config.php",
-    ($_SERVER['DOCUMENT_ROOT'] ?? '') . "/config.php"
-];
-$configPath = null;
-foreach ($configPaths as $cp) {
-    if (!empty($cp) && file_exists($cp)) {
-        $configPath = $cp;
-        break;
-    }
-}
-if (!$configPath) {
-    die("Erro: Arquivo config.php não encontrado.");
-}
-require_once $configPath;
+$paginaAtiva = 'cupons';
+$tituloPagina = 'Criar Cupom';
 
 $erro = null;
 $codigo = '';
@@ -24,13 +8,14 @@ $porcentagem = 10.0;
 $expira_em = date('Y-m-d\TH:i', strtotime('+30 days'));
 $ativo = 1;
 
+require_once __DIR__ . "/includes/admin_header.php";
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $codigo = strtoupper(trim($_POST['codigo'] ?? ''));
     $porcentagem = (float)str_replace(',', '.', $_POST['porcentagem'] ?? '0');
     $expira_em = trim($_POST['expira_em'] ?? '');
     $ativo = isset($_POST['ativo']) ? 1 : 0;
 
-    // Remove caracteres especiais do código
     $codigo = preg_replace('/[^A-Z0-9_-]/', '', $codigo);
 
     if (empty($codigo) || strlen($codigo) < 2 || strlen($codigo) > 50) {
@@ -43,7 +28,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $expiraSql = date('Y-m-d H:i:s', strtotime($expira_em));
 
         try {
-            // Verifica se já existe
             $check = $pdo->prepare("SELECT id FROM cupons WHERE codigo = :codigo LIMIT 1");
             $check->execute([':codigo' => $codigo]);
             if ($check->fetch()) {
@@ -64,99 +48,66 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 exit;
             }
         } catch (PDOException $e) {
-            $erro = "Erro no banco de dados: " . $e->getMessage();
+            $erro = "Erro ao salvar cupom: " . $e->getMessage();
         }
     }
 }
-
-$nome_usuario = $_SESSION['usuario_nome'] ?? 'Administrador';
 ?>
-<!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Novo Cupom - Painel Administrativo</title>
-    <link rel="icon" type="image/x-icon" href="/assets/images/logo.webp">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="dbcommon.css?v=1" rel="stylesheet">
-    <style>
-        body { background-color: #f0f2f5; font-size: 15px; }
-        .form-card {
-            background: white;
-            border-radius: 12px;
-            box-shadow: 0 1px 4px rgba(0,0,0,0.08);
-            padding: 24px;
-            max-width: 600px;
-            margin: 0 auto;
-        }
-    </style>
-</head>
-<body>
-    <nav class="navbar navbar-dark bg-dark shadow-sm">
-        <div class="container-fluid">
-            <a class="navbar-brand" href="dashboard.php">⚙️ Painel</a>
-            <div class="d-flex align-items-center gap-2">
-                <a href="cupons.php" class="btn btn-outline-light btn-sm">← Voltar para Cupons</a>
+
+<div class="row justify-content-center">
+    <div class="col-12 col-md-8 col-lg-6">
+        <div class="admin-card">
+            <div class="admin-card-header">
+                <h5 class="admin-card-title"><i class="fa-solid fa-plus text-success"></i> Criar Novo Cupom</h5>
+                <a href="cupons.php" class="btn btn-outline-secondary btn-sm">← Voltar</a>
             </div>
-        </div>
-    </nav>
+            <div class="p-4">
+                <?php if ($erro): ?>
+                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                        <i class="fa-solid fa-triangle-exclamation me-1"></i> <?php echo htmlspecialchars($erro, ENT_QUOTES, 'UTF-8'); ?>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                <?php endif; ?>
 
-    <div class="container px-3 px-md-4 mt-4 mb-5">
-        <div class="form-card">
-            <div class="d-flex align-items-center justify-content-between mb-4 pb-2 border-bottom">
-                <h5 class="mb-0 fw-bold">➕ Criar Novo Cupom de Desconto</h5>
-            </div>
+                <form method="POST" action="cupom_criar.php">
+                    <div class="admin-form-group">
+                        <label for="codigo">Código do Cupom (Ex: NERD10, PROMO20)</label>
+                        <input type="text" class="admin-form-control text-uppercase fw-bold" id="codigo" name="codigo" 
+                               value="<?php echo htmlspecialchars($codigo, ENT_QUOTES, 'UTF-8'); ?>" 
+                               placeholder="EX: NERD10" maxlength="50" required autofocus>
+                        <small class="text-muted">Será convertido automaticamente em letras maiúsculas.</small>
+                    </div>
 
-            <?php if ($erro): ?>
-                <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                    <i class="fa-solid fa-triangle-exclamation me-1"></i> <?php echo htmlspecialchars($erro, ENT_QUOTES, 'UTF-8'); ?>
-                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                </div>
-            <?php endif; ?>
-
-            <form method="POST" action="cupom_criar.php">
-                <div class="mb-3">
-                    <label for="codigo" class="form-label fw-semibold">Código do Cupom (Ex: NERD10, PROMO20)</label>
-                    <input type="text" class="form-control text-uppercase fw-bold" id="codigo" name="codigo" 
-                           value="<?php echo htmlspecialchars($codigo, ENT_QUOTES, 'UTF-8'); ?>" 
-                           placeholder="EX: NERD10" maxlength="50" required autofocus>
-                    <div class="form-text">Será convertido automaticamente em letras maiúsculas.</div>
-                </div>
-
-                <div class="row g-3 mb-3">
-                    <div class="col-md-6">
-                        <label for="porcentagem" class="form-label fw-semibold">Porcentagem de Desconto (%)</label>
-                        <div class="input-group">
-                            <input type="number" step="0.5" min="0.5" max="100" class="form-control" id="porcentagem" name="porcentagem" 
-                                   value="<?php echo htmlspecialchars($porcentagem, ENT_QUOTES, 'UTF-8'); ?>" required>
-                            <span class="input-group-text">% OFF</span>
+                    <div class="row g-3">
+                        <div class="col-md-6 admin-form-group">
+                            <label for="porcentagem">Porcentagem de Desconto (%)</label>
+                            <div class="input-group">
+                                <input type="number" step="0.5" min="0.5" max="100" class="form-control" id="porcentagem" name="porcentagem" 
+                                       value="<?php echo htmlspecialchars($porcentagem, ENT_QUOTES, 'UTF-8'); ?>" required>
+                                <span class="input-group-text">% OFF</span>
+                            </div>
                         </div>
-                        <div class="form-text">Ex: 10 para 10% de desconto.</div>
+
+                        <div class="col-md-6 admin-form-group">
+                            <label for="expira_em">Expira em (Data e Hora)</label>
+                            <input type="datetime-local" class="admin-form-control" id="expira_em" name="expira_em" 
+                                   value="<?php echo htmlspecialchars($expira_em, ENT_QUOTES, 'UTF-8'); ?>" required>
+                        </div>
                     </div>
 
-                    <div class="col-md-6">
-                        <label for="expira_em" class="form-label fw-semibold">Expira em (Data e Hora)</label>
-                        <input type="datetime-local" class="form-control" id="expira_em" name="expira_em" 
-                               value="<?php echo htmlspecialchars($expira_em, ENT_QUOTES, 'UTF-8'); ?>" required>
-                        <div class="form-text">O cupom desativa automaticamente após esta data.</div>
+                    <div class="mb-4 form-check form-switch">
+                        <input class="form-check-input" type="checkbox" role="switch" id="ativo" name="ativo" value="1" <?php echo $ativo ? 'checked' : ''; ?>>
+                        <label class="form-check-label fw-semibold" for="ativo">Cupom Ativo para uso imediato</label>
                     </div>
-                </div>
 
-                <div class="mb-4 form-check form-switch">
-                    <input class="form-check-input" type="checkbox" role="switch" id="ativo" name="ativo" value="1" <?php echo $ativo ? 'checked' : ''; ?>>
-                    <label class="form-check-label fw-semibold" for="ativo">Cupom Ativo para uso imediato</label>
-                </div>
-
-                <div class="d-flex justify-content-end gap-2">
-                    <a href="cupons.php" class="btn btn-outline-secondary">Cancelar</a>
-                    <button type="submit" class="btn btn-success fw-bold px-4">Salvar Cupom</button>
-                </div>
-            </form>
+                    <div class="d-flex justify-content-end gap-2">
+                        <a href="cupons.php" class="btn btn-outline-secondary">Cancelar</a>
+                        <button type="submit" class="btn btn-success fw-bold px-4">Salvar Cupom</button>
+                    </div>
+                </form>
+            </div>
         </div>
     </div>
+</div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-</body>
-</html>
+<?php require_once __DIR__ . "/includes/admin_footer.php"; ?>
