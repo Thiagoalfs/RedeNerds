@@ -149,6 +149,7 @@ $nome_usuario = $_SESSION['usuario_nome'] ?? 'Administrador';
                 <span class="text-white small d-none d-sm-inline">
                     Olá, <strong><?php echo htmlspecialchars($nome_usuario, ENT_QUOTES, 'UTF-8'); ?></strong>
                 </span>
+                <a href="#" class="btn btn-outline-light btn-sm">📰 Notícias</a>
                 <a href="equipe.php" class="btn btn-outline-light btn-sm">🧑‍🤝‍🧑 Equipe</a>
                 <a href="servidores.php" class="btn btn-outline-light btn-sm">🖥️ Servidores</a>
                 <a href="cupons.php" class="btn btn-outline-light btn-sm">🏷️ Cupons</a>
@@ -198,7 +199,7 @@ $nome_usuario = $_SESSION['usuario_nome'] ?? 'Administrador';
                                 </div>
                             </div>
                             <div class="actions">
-                                <a href="editar.php?id=<?php echo (int)$n['id']; ?>" class="btn btn-sm btn-primary">✏️ Editar</a>
+                                <a href="editar.php?id=<?php echo (int)$n['id']; ?>" class="btn btn-sm btn-primary">Editar</a>
                                 <a href="deletar.php?id=<?php echo (int)$n['id']; ?>"
                                    class="btn btn-sm btn-danger"
                                    onclick="return confirm('Deletar esta notícia?');">🗑️ Deletar</a>
@@ -282,7 +283,7 @@ $nome_usuario = $_SESSION['usuario_nome'] ?? 'Administrador';
                                             <td><small><?php echo formatarData($n['criado_em']); ?></small></td>
                                             <td class="text-center text-nowrap">
                                                 <div class="d-inline-flex align-items-center justify-content-center gap-1">
-                                                    <a href="editar.php?id=<?php echo (int)$n['id']; ?>" class="btn btn-sm btn-primary">✏️ Editar</a>
+                                                    <a href="editar.php?id=<?php echo (int)$n['id']; ?>" class="btn btn-sm btn-primary">Editar</a>
                                                     <a href="deletar.php?id=<?php echo (int)$n['id']; ?>"
                                                        class="btn btn-sm btn-danger"
                                                        onclick="return confirm('Deletar esta notícia? Essa ação não pode ser desfeita.');">🗑️</a>
