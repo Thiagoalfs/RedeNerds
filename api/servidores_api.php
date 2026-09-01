@@ -45,7 +45,10 @@ function tipoDoIcone(?string $icone): string
     if (!$icone) {
         return 'fa';
     }
-    if (strpos($icone, ICON_UPLOAD_DIR_PUBLICA) === 0 || preg_match('#^https?://#i', $icone)) {
+    $iconeTrim = trim($icone);
+    if (preg_match('/\.(png|jpe?g|webp|gif|svg)(\?.*)?$/i', $iconeTrim) 
+        || strpos($iconeTrim, '/') !== false 
+        || preg_match('#^https?://#i', $iconeTrim)) {
         return 'img';
     }
     return 'fa';

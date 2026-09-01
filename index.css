@@ -79,31 +79,6 @@
     margin-bottom: 0;
 }
 
-.btn-hero-discord {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 9px;
-    padding: 12px 24px;
-    background-color: #5865F2;
-    color: #FFFFFF !important;
-    font-size: 0.95rem;
-    font-weight: 800;
-    text-transform: uppercase;
-    letter-spacing: 0.3px;
-    text-decoration: none;
-    border: 2px solid #000;
-    border-radius: var(--radius-sm);
-    box-shadow: var(--shadow-hard);
-    transition: transform 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease;
-}
-
-.btn-hero-discord:hover {
-    background-color: #4752C4;
-    transform: translate(-2px, -2px);
-    box-shadow: var(--shadow-hard-lg);
-}
-
 .btn-hero-servers {
     display: inline-flex;
     align-items: center;
@@ -278,23 +253,9 @@
 
     .btn-hero-discord,
     .btn-hero-servers {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 9px;
-    padding: 12px 24px;
-    background-color: var(--color-primary);
-    color: #000000 !important;
-    font-size: 0.95rem;
-    font-weight: 800;
-    text-transform: uppercase;
-    letter-spacing: 0.3px;
-    text-decoration: none;
-    border: 2px solid #000;
-    border-radius: var(--radius-sm);
-    box-shadow: var(--shadow-hard);
-    transition: transform 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease;
-}
+        width: 100%;
+        box-sizing: border-box;
+    }
 
     .hero-badges-row {
         gap: 6px;
@@ -430,60 +391,44 @@
     display: flex;
     flex-wrap: wrap;
     justify-content: center;
-    align-items: stretch;
-    gap: 25px;
+    align-items: center;
+    gap: 30px;
     width: 100%;
-    max-width: 1200px;
+    max-width: 800px;
     padding: 10px 0;
-    align-self: stretch;
     margin: 0 auto;
+    box-sizing: border-box;
 }
 
 .server-card {
     display: flex;
     flex-direction: column;
     text-decoration: none;
-    color: white;
-    background-color: #0b0f15;
-    border-radius: 14px;
+    color: #FFFFFF;
+    background-color: #0f141d;
+    border-radius: 12px;
     overflow: hidden;
     border: 1px solid rgba(255, 255, 255, 0.08);
-    box-shadow: var(--shadow-hard);
-    transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+    transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
     cursor: pointer;
     position: relative;
-    flex: 1 1 280px;
-    max-width: 380px;
+    width: 360px;
+    height: 400px;
+    box-sizing: border-box;
+    flex-shrink: 0;
 }
 
-/* ----- Cards dinâmicos (montados pelo index.js a partir da API) ----- */
-.server-card[style*="--card-color"] {
-    --card-hover-shadow: var(--card-shadow);
-}
-.server-card[style*="--card-color"]:hover {
-    box-shadow: var(--shadow-hard-lg);
-    border-color: var(--card-color);
-}
-.server-card[style*="--card-color"] .server-card-link {
-    color: var(--card-color);
-}
-.server-card[style*="--card-color"] .server-card-banner {
-    background: var(--card-gradient);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 42px;
-    color: rgba(255, 255, 255, 0.9);
+.server-card:hover {
+    transform: translateY(-5px);
+    border-color: var(--card-color, #7DB9DF);
+    box-shadow: 0 16px 36px rgba(0, 0, 0, 0.5), 0 0 24px var(--card-hover-shadow, rgba(125, 185, 223, 0.25));
 }
 
-/* Fallback estático */
+/* Fallback estático de cores */
 .server-card-1 {
     --card-color: #B971DA;
     --card-hover-shadow: rgba(185, 113, 218, 0.35);
-}
-.server-card-1:hover {
-    box-shadow: var(--shadow-hard-lg);
-    border-color: var(--card-color);
 }
 .server-card-1 .server-card-link { color: #B971DA; }
 .server-card-1 .banner-1 { background: var(--color-primary); }
@@ -492,10 +437,6 @@
     --card-color: #7DB9DF;
     --card-hover-shadow: rgba(125, 185, 223, 0.35);
 }
-.server-card-2:hover {
-    box-shadow: var(--shadow-hard-lg);
-    border-color: var(--card-color);
-}
 .server-card-2 .server-card-link { color: #7DB9DF; }
 .server-card-2 .banner-2 { background: var(--color-accent); }
 
@@ -503,66 +444,90 @@
     --card-color: #E85D5D;
     --card-hover-shadow: rgba(232, 93, 93, 0.35);
 }
-.server-card-3:hover {
-    box-shadow: var(--shadow-hard-lg);
-    border-color: var(--card-color);
-}
 .server-card-3 .server-card-link { color: #E85D5D; }
 .server-card-3 .banner-3 { background: var(--color-danger-alt); }
 
-/* Banner com transição suave */
+/* Banner de tamanho fixo com a imagem 100% contida */
 .server-card-banner {
     position: relative;
-    aspect-ratio: 16 / 9;
     width: 100%;
+    height: 190px;
+    flex-shrink: 0;
     overflow: hidden;
-    background-color: #0b0f15;
+    background: linear-gradient(180deg, var(--card-color, #7DB9DF) 0%, rgba(15, 20, 29, 0.4) 60%, #0f141d 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+    box-sizing: border-box;
 }
 
 .server-card-banner img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
+    max-width: 100%;
+    max-height: 100%;
+    width: auto;
+    height: auto;
+    object-fit: contain;
     display: block;
+    position: relative;
+    z-index: 2;
+    transition: transform 0.25s ease;
+}
+
+.server-card:hover .server-card-banner img {
+    transform: scale(1.06);
+}
+
+.server-card-banner i {
+    font-size: 52px;
+    color: #FFFFFF;
+    position: relative;
+    z-index: 2;
 }
 
 .server-card-banner::after {
     content: '';
     position: absolute;
     inset: 0;
-    background: linear-gradient(to bottom, transparent 55%, #0b0f15 100%);
+    background: linear-gradient(180deg, transparent 40%, rgba(15, 20, 29, 0.5) 75%, #0f141d 100%);
     pointer-events: none;
+    z-index: 1;
 }
 
-/* Conteúdo do Card */
+/* Conteúdo do Card de tamanho fixo */
 .server-card-content {
-    padding: 18px 22px 22px;
+    padding: 24px;
     display: flex;
     flex-direction: column;
-    gap: 10px;
-    flex: 1;
+    height: 290px;
+    box-sizing: border-box;
     position: relative;
     z-index: 1;
 }
 
 .server-card-content h3 {
-    font-size: 20px;
-    font-weight: 700;
-    color: #ffffff;
-    margin: 0;
+    font-family: 'Poppins', sans-serif;
+    font-size: 22px;
+    font-weight: 800;
+    color: #FFFFFF;
+    margin: 0 0 10px 0;
+    line-height: 1.25;
+    letter-spacing: -0.3px;
 }
 
 .server-card-content p {
     margin: 0;
-    color: #c5c5c5;
+    color: #94A3B8;
     font-size: 14px;
     line-height: 1.6;
-    flex: 1;
+    height: 90px;
+    max-height: 90px;
     text-align: left;
     display: -webkit-box;
-    -webkit-line-clamp: 3;
+    -webkit-line-clamp: 4;
     -webkit-box-orient: vertical;
     overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 /* Texto interativo de ação */
@@ -570,15 +535,19 @@
     display: inline-flex;
     align-items: center;
     gap: 8px;
-    margin-top: 6px;
-    font-weight: 600;
-    font-size: 14px;
-    transition: gap 0.3s ease;
+    margin-top: auto;
+    font-family: 'Poppins', sans-serif;
+    font-weight: 800;
+    font-size: 13.5px;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    color: var(--card-color, #7DB9DF);
+    transition: gap 0.25s ease;
 }
 
 .server-card-link i {
     font-size: 12px;
-    transition: transform 0.3s ease;
+    transition: transform 0.25s ease;
 }
 
 .server-card:hover .server-card-link {
@@ -586,35 +555,19 @@
 }
 
 .server-card:hover .server-card-link i {
-    transform: translateX(2px);
+    transform: translateX(3px);
 }
 
 /* ----- Responsivo ----- */
-@media (max-width: 700px) {
+@media (max-width: 768px) {
     .servers-grid {
-        max-width: 360px;
+        max-width: 380px;
     }
 
     .server-card {
-        flex: 1 1 100%;
-        max-width: 100%;
-    }
-
-    .server-card-banner {
-        aspect-ratio: 16 / 9;
-    }
-
-    .server-card-content {
-        padding: 14px;
-        gap: 8px;
-    }
-
-    .server-card-content h3 {
-        font-size: 18px;
-    }
-
-    .server-card-content p {
-        font-size: 13px;
+        width: 100%;
+        max-width: 360px;
+        height: 480px;
     }
 }
 
@@ -1022,102 +975,4 @@
     .discord-text h3 {
         font-size: 1.75rem;
     }
-}
-
-
-/* ======================================================== */
-/* GRID ASSIMÉTRICO DE SERVIDORES (Gamer / Editorial)       */
-/* ======================================================== */
-.servers-grid {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: 1.5rem;
-    width: 100%;
-    margin-top: 1.5rem;
-}
-
-@media (min-width: 900px) {
-    .servers-grid {
-        grid-template-columns: 1.35fr 1fr;
-        align-items: stretch;
-    }
-
-    .server-card:first-child,
-    .server-card.server-card-featured {
-        grid-row: span 2;
-        min-height: 440px;
-    }
-}
-
-.server-card {
-    background-color: var(--color-surface-card);
-    border: var(--border-width-sm) solid var(--color-border);
-    border-radius: var(--radius-md);
-    box-shadow: var(--shadow-hard);
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
-    text-decoration: none;
-    color: inherit;
-    transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
-}
-
-.server-card:hover {
-    transform: translate(-3px, -3px);
-    box-shadow: var(--shadow-hard-lg);
-    border-color: var(--card-color, var(--color-primary));
-}
-
-.server-card-banner {
-    height: 160px;
-    background-color: var(--card-color, #1e293b);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-bottom: var(--border-width-sm) solid var(--color-border);
-}
-
-.server-card:first-child .server-card-banner,
-.server-card.server-card-featured .server-card-banner {
-    height: 220px;
-}
-
-.server-card-banner img {
-    max-height: 120px;
-    max-width: 85%;
-    object-fit: contain;
-}
-
-.server-card-content {
-    padding: 1.5rem;
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-}
-
-.server-card-content h3 {
-    font-size: 1.35rem;
-    font-weight: 800;
-    margin: 0 0 0.5rem 0;
-    color: var(--color-text-main);
-    letter-spacing: -0.3px;
-}
-
-.server-card-content p {
-    color: var(--color-text-muted);
-    font-size: 0.92rem;
-    line-height: 1.55;
-    margin: 0 0 1.25rem 0;
-}
-
-.server-card-link {
-    font-weight: 700;
-    font-size: 0.88rem;
-    text-transform: uppercase;
-    letter-spacing: 0.4px;
-    color: var(--card-color, var(--color-primary));
-    display: inline-flex;
-    align-items: center;
-    gap: 0.4rem;
 }

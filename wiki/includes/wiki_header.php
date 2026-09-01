@@ -49,7 +49,7 @@ if ($servidorAtual && !empty($servidorAtual['servername'])) {
     <link rel="stylesheet" href="/shared/tokens.css?v=1">
 
     <!-- CSS DA WIKI (Compatível tanto em /wiki/ quanto em root) -->
-    <link rel="stylesheet" href="wiki.css?v=4">
+    <link rel="stylesheet" href="wiki.css?v=5">
 </head>
 <body>
     <!-- NAVBAR MINIMALISTA -->
@@ -57,7 +57,7 @@ if ($servidorAtual && !empty($servidorAtual['servername'])) {
         <div class="wiki-nav-container">
             <!-- LADO ESQUERDO: BRAND + DROPDOWN LADO A LADO -->
             <div class="wiki-nav-left d-flex align-items-center gap-3">
-                <a href="index.php" class="wiki-brand">
+                <a href="https://redenerds.com.br/" class="wiki-brand">
                     <img src="/assets/images/logo.webp" alt="Rede Nerds" onerror="this.src='../assets/images/logo.webp'">
                     <span>Rede Nerds</span>
                     <span class="wiki-brand-tag">Wiki</span>
