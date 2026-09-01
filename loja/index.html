@@ -25,7 +25,7 @@
     <link rel="stylesheet" href="/shared/shared.css?v=2">
     <link rel="stylesheet" href="/shared/navbar.css?v=2">
     <link rel="stylesheet" href="/shared/footer.css?v=2">
-    <link rel="stylesheet" href="loja.css?v=3">
+    <link rel="stylesheet" href="loja.css?v=4">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
     <!-- MERCADO PAGO SDK & SECURITY DEVICE ID -->
     <script src="https://www.mercadopago.com/v2/security.js" view="checkout"></script>
@@ -186,6 +186,37 @@
                     <div class="summary-price-col">
                         <span class="summary-caption">Total à vista</span>
                         <strong id="summary-price-display" class="summary-amount">R$ 0,00</strong>
+                    </div>
+                </div>
+
+                <!-- CUPOM DE DESCONTO -->
+                <div class="coupon-input-container" id="coupon-input-container">
+                    <div class="coupon-input-row" id="coupon-input-row">
+                        <div class="coupon-field-wrap">
+                            <i class="fa-solid fa-tags coupon-icon-inside"></i>
+                            <input type="text" id="input-coupon-code" placeholder="Possui cupom de desconto?" maxlength="30" spellcheck="false" autocomplete="off">
+                        </div>
+                        <button type="button" id="btn-apply-coupon" class="btn-coupon-apply">
+                            <span id="btn-apply-coupon-text">Aplicar</span>
+                            <span id="btn-apply-coupon-spinner" class="btn-spinner-sm" hidden></span>
+                        </button>
+                    </div>
+                    
+                    <!-- Feedback de Cupom Aplicado -->
+                    <div id="coupon-success-pill" class="coupon-success-pill" hidden>
+                        <div class="coupon-applied-info">
+                            <i class="fa-solid fa-circle-check"></i>
+                            <span>Cupom <strong id="applied-coupon-tag">NERD10</strong> (<span id="applied-discount-percent">10%</span> OFF)</span>
+                        </div>
+                        <button type="button" id="btn-remove-coupon" class="btn-coupon-remove" title="Remover cupom">
+                            <i class="fa-solid fa-xmark"></i>
+                        </button>
+                    </div>
+
+                    <!-- Feedback de Erro do Cupom -->
+                    <div id="coupon-error-msg" class="coupon-error-text" hidden>
+                        <i class="fa-solid fa-triangle-exclamation"></i>
+                        <span id="coupon-error-label">Cupom inválido ou expirado.</span>
                     </div>
                 </div>
 
@@ -385,6 +416,6 @@
 
     <div id="footer"></div>
     <script src="/shared/navbar.js?v=2"></script>
-    <script src="loja.js?v=3"></script>
+    <script src="loja.js?v=4"></script>
 </body>
 </html>

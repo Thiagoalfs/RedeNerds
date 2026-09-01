@@ -18,6 +18,7 @@
     mpPublicKey: '',
     mpInstance: null,
     activePaymentMethod: 'pix', // 'pix' | 'card' (arquitetura modular extensível)
+    appliedCoupon: null, // { cupom, porcentagem, desconto, preco_original, preco_final }
     currentOrder: {
       txid: null,
       vipData: null,
@@ -33,6 +34,7 @@
   document.addEventListener('DOMContentLoaded', () => {
     setupEventListeners();
     setupCardFormHandlers();
+    setupCouponHandlers();
     carregarCatalogoVips();
 
     if (STATE.nick) {
@@ -450,6 +452,7 @@
   function abrirCheckoutModal(vipData) {
     STATE.currentOrder.vipData = vipData;
     STATE.currentOrder.txid = null;
+    removerCupom(false); // Reset limpo do cupom
 
     const dialog = document.getElementById('modal-pix-overlay');
     const headerTitle = document.getElementById('pix-modal-header-title');
@@ -457,8 +460,8 @@
     const summaryAvatar = document.getElementById('summary-avatar-img');
     const summaryNick = document.getElementById('summary-nick-display');
     const summaryServerVip = document.getElementById('summary-server-vip');
-    const summaryPrice = document.getElementById('summary-price-display');
     const methodsNav = document.getElementById('checkout-methods-nav');
+    const couponBox = document.getElementById('coupon-input-container');
 
     const stateSuccess = document.getElementById('pix-success-state');
     const stateError = document.getElementById('pix-error-state');
@@ -469,23 +472,20 @@
 
     if (headerTitle) headerTitle.textContent = 'Finalizar Compra';
     if (orderSummaryBox) orderSummaryBox.hidden = false;
+    if (couponBox) couponBox.hidden = false;
     if (methodsNav) methodsNav.hidden = false;
     if (summaryAvatar) summaryAvatar.src = `https://mc-heads.net/avatar/${encodeURIComponent(STATE.nick)}/64`;
     if (summaryNick) summaryNick.textContent = STATE.nick;
     if (summaryServerVip) summaryServerVip.textContent = `${vipData.serverInfo.nome} • ${vipData.nome}`;
-    if (summaryPrice) summaryPrice.textContent = `R$ ${Number(vipData.preco).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`;
+    
+    atualizarPrecoSumario();
 
     if (stateSuccess) stateSuccess.hidden = true;
     if (stateError) stateError.hidden = true;
 
-    // Atualiza label do botão de cartão
-    const btnCardLabel = document.getElementById('btn-card-label');
-    if (btnCardLabel) {
-      btnCardLabel.textContent = `Pagar R$ ${Number(vipData.preco).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`;
-    }
-
     // Reset do form de cartão
-    resetCardForm(vipData.preco);
+    const precoBase = obterPrecoAtualVip();
+    resetCardForm(precoBase);
 
     // Abre o modal
     dialog.hidden = false;
@@ -493,6 +493,38 @@
 
     // Inicia no método ativo (PIX por padrão)
     switchPaymentMethod(STATE.activePaymentMethod || 'pix');
+  }
+
+  function obterPrecoAtualVip() {
+    if (!STATE.currentOrder.vipData) return 0;
+    if (STATE.appliedCoupon && STATE.appliedCoupon.preco_final) {
+      return Number(STATE.appliedCoupon.preco_final);
+    }
+    return Number(STATE.currentOrder.vipData.preco);
+  }
+
+  function atualizarPrecoSumario() {
+    const summaryPrice = document.getElementById('summary-price-display');
+    if (!summaryPrice || !STATE.currentOrder.vipData) return;
+
+    const precoOriginal = Number(STATE.currentOrder.vipData.preco);
+
+    if (STATE.appliedCoupon && STATE.appliedCoupon.preco_final < precoOriginal) {
+      const precoFinal = Number(STATE.appliedCoupon.preco_final);
+      summaryPrice.innerHTML = `
+        <span class="summary-amount-original">R$ ${precoOriginal.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</span>
+        <span class="summary-amount-discounted">R$ ${precoFinal.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</span>
+      `;
+    } else {
+      summaryPrice.innerHTML = `R$ ${precoOriginal.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`;
+    }
+
+    // Atualiza label do botão de cartão
+    const precoAtual = obterPrecoAtualVip();
+    const btnCardLabel = document.getElementById('btn-card-label');
+    if (btnCardLabel) {
+      btnCardLabel.textContent = `Pagar R$ ${precoAtual.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`;
+    }
   }
 
   // 8.1 TROCA MODULAR DE MÉTODO DE PAGAMENTO
@@ -516,6 +548,139 @@
     if (methodName === 'pix') {
       if (!STATE.currentOrder.txid && STATE.currentOrder.vipData) {
         gerarCobrancaPix(STATE.currentOrder.vipData);
+      }
+    } else if (methodName === 'card') {
+      const inputCardNum = document.getElementById('card-number');
+      if (inputCardNum && inputCardNum.value) {
+        onCardNumberInput(inputCardNum.value);
+      }
+    }
+  }
+
+  // 8.2 GERENCIAMENTO DE CUPOM DE DESCONTO
+  function setupCouponHandlers() {
+    const btnApply = document.getElementById('btn-apply-coupon');
+    const inputCode = document.getElementById('input-coupon-code');
+    const btnRemove = document.getElementById('btn-remove-coupon');
+
+    if (btnApply) {
+      btnApply.addEventListener('click', () => {
+        const code = inputCode ? inputCode.value.trim() : '';
+        if (code) aplicarCupom(code);
+      });
+    }
+
+    if (inputCode) {
+      inputCode.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          const code = inputCode.value.trim();
+          if (code) aplicarCupom(code);
+        }
+      });
+    }
+
+    if (btnRemove) {
+      btnRemove.addEventListener('click', () => removerCupom(true));
+    }
+  }
+
+  async function aplicarCupom(cupomCodigo) {
+    const inputRow = document.getElementById('coupon-input-row');
+    const successPill = document.getElementById('coupon-success-pill');
+    const tagDisplay = document.getElementById('applied-coupon-tag');
+    const percentDisplay = document.getElementById('applied-discount-percent');
+    const errorMsg = document.getElementById('coupon-error-msg');
+    const errorLabel = document.getElementById('coupon-error-label');
+    const btnApplyText = document.getElementById('btn-apply-coupon-text');
+    const btnApplySpinner = document.getElementById('btn-apply-coupon-spinner');
+    const btnApply = document.getElementById('btn-apply-coupon');
+
+    if (!STATE.currentOrder.vipData) return;
+
+    if (errorMsg) errorMsg.hidden = true;
+    if (btnApply) btnApply.disabled = true;
+    if (btnApplyText) btnApplyText.hidden = true;
+    if (btnApplySpinner) btnApplySpinner.hidden = false;
+
+    try {
+      const res = await fetch('/api/loja/validar_cupom.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          cupom: cupomCodigo,
+          vip_id: STATE.currentOrder.vipData.id
+        })
+      });
+
+      const data = await res.json();
+
+      if (!res.ok || data.erro || !data.success) {
+        throw new Error(data.erro || 'Cupom inválido ou expirado.');
+      }
+
+      // Cupom Válido!
+      STATE.appliedCoupon = data;
+
+      if (inputRow) inputRow.hidden = true;
+      if (successPill) successPill.hidden = false;
+      if (tagDisplay) tagDisplay.textContent = data.cupom;
+      if (percentDisplay) percentDisplay.textContent = `${Number(data.porcentagem).toLocaleString('pt-BR')}%`;
+
+      atualizarPrecoSumario();
+
+      // Recalcula PIX ou Cartão
+      if (STATE.activePaymentMethod === 'pix') {
+        STATE.currentOrder.txid = null;
+        gerarCobrancaPix(STATE.currentOrder.vipData);
+      } else if (STATE.activePaymentMethod === 'card') {
+        const inputCardNum = document.getElementById('card-number');
+        if (inputCardNum && inputCardNum.value) {
+          onCardNumberInput(inputCardNum.value);
+        } else {
+          resetInstallmentsSelect(data.preco_final);
+        }
+      }
+
+    } catch (err) {
+      console.warn('Erro ao aplicar cupom:', err);
+      if (errorMsg && errorLabel) {
+        errorLabel.textContent = err.message || 'Cupom inválido ou expirado.';
+        errorMsg.hidden = false;
+      }
+    } finally {
+      if (btnApply) btnApply.disabled = false;
+      if (btnApplyText) btnApplyText.hidden = false;
+      if (btnApplySpinner) btnApplySpinner.hidden = true;
+    }
+  }
+
+  function removerCupom(recriarPagamento = true) {
+    STATE.appliedCoupon = null;
+
+    const inputRow = document.getElementById('coupon-input-row');
+    const inputCode = document.getElementById('input-coupon-code');
+    const successPill = document.getElementById('coupon-success-pill');
+    const errorMsg = document.getElementById('coupon-error-msg');
+
+    if (inputRow) inputRow.hidden = false;
+    if (inputCode) inputCode.value = '';
+    if (successPill) successPill.hidden = true;
+    if (errorMsg) errorMsg.hidden = true;
+
+    atualizarPrecoSumario();
+
+    if (recriarPagamento && STATE.currentOrder.vipData) {
+      if (STATE.activePaymentMethod === 'pix') {
+        STATE.currentOrder.txid = null;
+        gerarCobrancaPix(STATE.currentOrder.vipData);
+      } else if (STATE.activePaymentMethod === 'card') {
+        const inputCardNum = document.getElementById('card-number');
+        if (inputCardNum && inputCardNum.value) {
+          onCardNumberInput(inputCardNum.value);
+        } else {
+          resetInstallmentsSelect(STATE.currentOrder.vipData.preco);
+        }
       }
     }
   }
@@ -544,7 +709,8 @@
         servidor: vipData.serverInfo.nome,
         vip_id: vipData.id,
         vip_nome: vipData.nome,
-        valor: vipData.preco
+        valor: obterPrecoAtualVip(),
+        cupom: STATE.appliedCoupon ? STATE.appliedCoupon.cupom : ''
       };
 
       const res = await fetch('/api/loja/criar_pix.php', {
@@ -683,7 +849,7 @@
       if (iconContainer) iconContainer.innerHTML = '<i class="fa-solid fa-credit-card"></i>';
       STATE.currentOrder.cardPaymentMethodId = '';
       STATE.currentOrder.cardIssuerId = '';
-      resetInstallmentsSelect(STATE.currentOrder.vipData?.preco || 0);
+      resetInstallmentsSelect(obterPrecoAtualVip());
       return;
     }
 
@@ -709,7 +875,7 @@
       }
 
       // 2. Consulta parcelas com juros calculados pelo Mercado Pago
-      const vipPreco = STATE.currentOrder.vipData ? Number(STATE.currentOrder.vipData.preco) : 0;
+      const vipPreco = obterPrecoAtualVip();
       if (vipPreco > 0) {
         const instRes = await STATE.mpInstance.getInstallments({ amount: String(vipPreco), bin });
         if (instRes && instRes.length > 0) {
@@ -927,7 +1093,8 @@
         tipo_conta: STATE.tipoConta,
         servidor: STATE.currentOrder.vipData.serverInfo.nome,
         vip_id: STATE.currentOrder.vipData.id,
-        vip_nome: STATE.currentOrder.vipData.nome
+        vip_nome: STATE.currentOrder.vipData.nome,
+        cupom: STATE.appliedCoupon ? STATE.appliedCoupon.cupom : ''
       };
 
       const res = await fetch('/api/loja/criar_cartao.php', {

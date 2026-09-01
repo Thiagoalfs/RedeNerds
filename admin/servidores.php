@@ -123,6 +123,8 @@ $nome_usuario = $_SESSION['usuario_nome'] ?? 'Administrador';
                 </span>
                 <a href="dashboard.php" class="btn btn-outline-light btn-sm">📰 Notícias</a>
                 <a href="equipe.php" class="btn btn-outline-light btn-sm">🧑‍🤝‍🧑 Equipe</a>
+                <a href="servidores.php" class="btn btn-light btn-sm text-dark fw-bold">🖥️ Servidores</a>
+                <a href="cupons.php" class="btn btn-outline-light btn-sm">🏷️ Cupons</a>
                 <a href="logout.php" class="btn btn-outline-light btn-sm">Sair</a>
             </div>
         </div>

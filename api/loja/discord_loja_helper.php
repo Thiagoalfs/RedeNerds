@@ -20,7 +20,7 @@ if (!defined('DISCORD_WEBHOOKS')) {
  * @param string|null $corHex Cor do embed em hexadecimal (ex: '#7DB9DF')
  * @return bool Sucesso no envio
  */
-function enviarNotificacaoCompraDiscord($nick, $tipoConta, $servidor, $vipNome, $valor, $txid, $corHex = '#7DB9DF', $metodo = 'pix', $parcelas = 1, $valorTotal = null) {
+function enviarNotificacaoCompraDiscord($nick, $tipoConta, $servidor, $vipNome, $valor, $txid, $corHex = '#7DB9DF', $metodo = 'pix', $parcelas = 1, $valorTotal = null, $cupomCodigo = null, $descontoAplicado = 0.00) {
     $urlWebhook = DISCORD_WEBHOOKS['Loja'] ?? (DISCORD_WEBHOOKS['Atualizações'] ?? null);
 
     if (empty($urlWebhook)) {
@@ -57,6 +57,48 @@ function enviarNotificacaoCompraDiscord($nick, $tipoConta, $servidor, $vipNome, 
         $valorDisplay .= " (Total: R$ {$totalFormatado})";
     }
 
+    $fields = [
+        [
+            "name" => "👤 Jogador",
+            "value" => "**`{$nick}`** ({$tipoContaFormatada})",
+            "inline" => true
+        ],
+        [
+            "name" => "🌍 Servidor",
+            "value" => "**{$servidor}**",
+            "inline" => true
+        ],
+        [
+            "name" => "💎 Pacote VIP",
+            "value" => "**{$vipNome}**",
+            "inline" => true
+        ],
+        [
+            "name" => "💰 Valor Pago",
+            "value" => $valorDisplay,
+            "inline" => true
+        ],
+        [
+            "name" => "🧾 Transação (ID)",
+            "value" => "`{$txid}`",
+            "inline" => true
+        ],
+        [
+            "name" => "📋 Pagamento",
+            "value" => $metodoLabel,
+            "inline" => true
+        ]
+    ];
+
+    if (!empty($cupomCodigo)) {
+        $descFormatado = number_format((float)$descontoAplicado, 2, ',', '.');
+        $fields[] = [
+            "name" => "🏷️ Cupom Aplicado",
+            "value" => "**`{$cupomCodigo}`** (-R$ {$descFormatado})",
+            "inline" => true
+        ];
+    }
+
     $embed = [
         "title" => "💎 Nova Compra Aprovada!",
         "description" => "Um jogador acabou de adquirir um pacote VIP via **{$metodoLabel}**!",
@@ -64,38 +106,7 @@ function enviarNotificacaoCompraDiscord($nick, $tipoConta, $servidor, $vipNome, 
         "thumbnail" => [
             "url" => $avatarUrl
         ],
-        "fields" => [
-            [
-                "name" => "👤 Jogador",
-                "value" => "**`{$nick}`** ({$tipoContaFormatada})",
-                "inline" => true
-            ],
-            [
-                "name" => "🌍 Servidor",
-                "value" => "**{$servidor}**",
-                "inline" => true
-            ],
-            [
-                "name" => "💎 Pacote VIP",
-                "value" => "**{$vipNome}**",
-                "inline" => true
-            ],
-            [
-                "name" => "💰 Valor Pago",
-                "value" => $valorDisplay,
-                "inline" => true
-            ],
-            [
-                "name" => "🧾 Transação (ID)",
-                "value" => "`{$txid}`",
-                "inline" => true
-            ],
-            [
-                "name" => "📋 Pagamento",
-                "value" => $metodoLabel,
-                "inline" => true
-            ]
-        ],
+        "fields" => $fields,
         "footer" => [
             "text" => "Rede Nerds • Loja Oficial",
             "icon_url" => "https://redenerds.com.br/assets/images/logo.webp"

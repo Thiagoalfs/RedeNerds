@@ -73,14 +73,64 @@ if (empty($servidor)) {
     exit;
 }
 
-if ($valor <= 0) {
-    http_response_code(400);
-    echo json_encode(["erro" => "Valor do VIP inválido."], JSON_UNESCAPED_UNICODE);
-    exit;
-}
+$cupomEnviado = strtoupper(trim($data['cupom'] ?? ''));
+$cupomCodigo = null;
+$valorOriginal = $valor;
+$descontoAplicado = 0.00;
 
-if (empty($vipNome)) {
-    $vipNome = "VIP " . ucfirst($servidor);
+// Revalidação de preço do VIP e aplicação de Cupom no banco de dados
+try {
+    if (isset($pdo) && $pdo instanceof PDO) {
+        if ($vipId > 0) {
+            $stmtVip = $pdo->prepare("SELECT nome, preco FROM vips WHERE id = :id AND (ativo = 1 OR ativo IS NULL) LIMIT 1");
+            $stmtVip->execute([':id' => $vipId]);
+            $vipRow = $stmtVip->fetch(PDO::FETCH_ASSOC);
+            if ($vipRow) {
+                $valorOriginal = (float)$vipRow['preco'];
+                $vipNome = $vipRow['nome'];
+                $valor = $valorOriginal;
+            }
+        }
+
+        // Valida Cupom de Desconto se fornecido
+        if (!empty($cupomEnviado)) {
+            $stmtCupom = $pdo->prepare("SELECT * FROM cupons WHERE codigo = :codigo LIMIT 1");
+            $stmtCupom->execute([':codigo' => $cupomEnviado]);
+            $cupomRow = $stmtCupom->fetch(PDO::FETCH_ASSOC);
+
+            if ($cupomRow) {
+                $now = time();
+                $expiraTs = strtotime($cupomRow['expira_em']);
+                $isExpirado = ($expiraTs && $expiraTs < $now);
+
+                if (!$cupomRow['ativo']) {
+                    http_response_code(400);
+                    echo json_encode(["erro" => "O cupom '{$cupomEnviado}' está desativado."], JSON_UNESCAPED_UNICODE);
+                    exit;
+                }
+
+                if ($isExpirado) {
+                    http_response_code(400);
+                    echo json_encode(["erro" => "O cupom '{$cupomEnviado}' expirou em " . date('d/m/Y H:i', $expiraTs) . "."], JSON_UNESCAPED_UNICODE);
+                    exit;
+                }
+
+                $porcentagem = (float)$cupomRow['porcentagem_desconto'];
+                $descontoAplicado = round($valorOriginal * ($porcentagem / 100), 2);
+                $valor = max(0.01, round($valorOriginal - $descontoAplicado, 2));
+                $cupomCodigo = $cupomRow['codigo'];
+
+                // Incrementa contador de usos
+                $pdo->prepare("UPDATE cupons SET usos_total = usos_total + 1 WHERE id = :id")->execute([':id' => $cupomRow['id']]);
+            } else {
+                http_response_code(404);
+                echo json_encode(["erro" => "Cupom '{$cupomEnviado}' não encontrado."], JSON_UNESCAPED_UNICODE);
+                exit;
+            }
+        }
+    }
+} catch (Exception $e) {
+    error_log("Erro ao revalidar VIP/Cupom no criar_pix: " . $e->getMessage());
 }
 
 // Valida se o servidor está habilitado (enabled = 1) no banco de dados
@@ -204,8 +254,15 @@ if ($isLiveMpToken) {
 try {
     if (isset($pdo) && $pdo instanceof PDO) {
         $stmt = $pdo->prepare("
-            INSERT INTO pedidos_vip (txid, nick, tipo_conta, servidor, vip_id, vip_nome, valor, status, pix_copia_cola, pix_qr_base64, criado_em)
-            VALUES (:txid, :nick, :tipo_conta, :servidor, :vip_id, :vip_nome, :valor, 'pendente', :pix_copia_cola, :pix_qr_base64, NOW())
+            INSERT INTO pedidos_vip (
+                txid, nick, tipo_conta, servidor, vip_id, vip_nome, cupom_codigo, 
+                valor, valor_original, desconto_aplicado, status, metodo_pagamento, 
+                pix_copia_cola, pix_qr_base64, criado_em
+            ) VALUES (
+                :txid, :nick, :tipo_conta, :servidor, :vip_id, :vip_nome, :cupom_codigo, 
+                :valor, :valor_original, :desconto_aplicado, 'pendente', 'pix', 
+                :pix_copia_cola, :pix_qr_base64, NOW()
+            )
         ");
         $stmt->execute([
             ':txid' => $txid,
@@ -214,22 +271,15 @@ try {
             ':servidor' => $servidor,
             ':vip_id' => $vipId,
             ':vip_nome' => $vipNome,
+            ':cupom_codigo' => $cupomCodigo,
             ':valor' => $valor,
+            ':valor_original' => $valorOriginal,
+            ':desconto_aplicado' => $descontoAplicado,
             ':pix_copia_cola' => $pixCopiaCola,
             ':pix_qr_base64' => $pixQrBase64
         ]);
-    } elseif (isset($conn) && $conn instanceof mysqli) {
-        $stmt = $conn->prepare("
-            INSERT INTO pedidos_vip (txid, nick, tipo_conta, servidor, vip_id, vip_nome, valor, status, pix_copia_cola, pix_qr_base64, criado_em)
-            VALUES (?, ?, ?, ?, ?, ?, ?, 'pendente', ?, ?, NOW())
-        ");
-        if ($stmt) {
-            $stmt->bind_param("ssssidsss", $txid, $nick, $tipoConta, $servidor, $vipId, $vipNome, $valor, $pixCopiaCola, $pixQrBase64);
-            $stmt->execute();
-        }
     }
 } catch (Exception $e) {
-    // Se a tabela ainda não tiver sido criada ou falhar inserção, prossegue sem travar o usuário
     error_log("Erro ao salvar pedido no MySQL: " . $e->getMessage());
 }
 
@@ -244,6 +294,9 @@ echo json_encode([
     "servidor" => $servidor,
     "vip_nome" => $vipNome,
     "valor" => $valor,
+    "valor_original" => $valorOriginal,
+    "desconto_aplicado" => $descontoAplicado,
+    "cupom" => $cupomCodigo,
     "pix_copia_cola" => $pixCopiaCola,
     "pix_qr_base64" => $pixQrBase64,
     "qr_code" => $pixCopiaCola,
