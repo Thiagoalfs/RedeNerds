@@ -29,7 +29,7 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
         echo json_encode(["success" => false, "erro" => "Método inválido."]);
         exit;
     }
-    header("Location: ../../wiki_categorias.php");
+    header("Location: /admin/wiki_categorias.php");
     exit;
 }
 
@@ -41,7 +41,7 @@ if (!validarCsrfToken($tokenRecebido)) {
         echo json_encode(["success" => false, "erro" => "Token de segurança CSRF inválido ou expirado."]);
         exit;
     }
-    header("Location: ../../wiki_categorias.php?erro=" . urlencode("Token CSRF inválido."));
+    header("Location: /admin/wiki_categorias.php?erro=" . urlencode("Token CSRF inválido."));
     exit;
 }
 
@@ -56,7 +56,7 @@ if ($servidorId <= 0 || empty($nome)) {
         echo json_encode(["success" => false, "erro" => "Preencha o nome da categoria e selecione o servidor."]);
         exit;
     }
-    header("Location: ../../wiki_categorias.php?servidor_id=$servidorId&erro=" . urlencode("Nome da categoria é obrigatório."));
+    header("Location: /admin/wiki_categorias.php?servidor_id=$servidorId&erro=" . urlencode("Nome da categoria é obrigatório."));
     exit;
 }
 
@@ -110,7 +110,7 @@ try {
         exit;
     }
 
-    header("Location: ../../wiki_categorias.php?servidor_id=$servidorId&sucesso=criado");
+    header("Location: /admin/wiki_categorias.php?servidor_id=$servidorId&sucesso=criado");
     exit;
 
 } catch (Exception $e) {
@@ -119,6 +119,6 @@ try {
         echo json_encode(["success" => false, "erro" => "Erro no banco de dados: " . $e->getMessage()]);
         exit;
     }
-    header("Location: ../../wiki_categorias.php?servidor_id=$servidorId&erro=" . urlencode("Erro ao cadastrar categoria."));
+    header("Location: /admin/wiki_categorias.php?servidor_id=$servidorId&erro=" . urlencode("Erro ao cadastrar categoria."));
     exit;
 }
