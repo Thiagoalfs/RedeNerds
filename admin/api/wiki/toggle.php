@@ -42,5 +42,5 @@ if ($id > 0 && isset($pdo) && $pdo instanceof PDO) {
         error_log("Erro ao alternar status artigo wiki: " . $e->getMessage());
     }
 }
-header("Location: ../../wiki.php");
+header("Location: /admin/wiki.php");
 exit;

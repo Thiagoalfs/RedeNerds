@@ -19,14 +19,14 @@ if ($configPath) {
 }
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-    header("Location: ../../wiki_categorias.php");
+    header("Location: /admin/wiki_categorias.php");
     exit;
 }
 
 // CSRF
 $tokenRecebido = $_POST['csrf_token'] ?? '';
 if (!validarCsrfToken($tokenRecebido)) {
-    header("Location: ../../wiki_categorias.php?erro=" . urlencode("Token CSRF inválido ou expirado."));
+    header("Location: /admin/wiki_categorias.php?erro=" . urlencode("Token CSRF inválido ou expirado."));
     exit;
 }
 
@@ -36,7 +36,7 @@ $icone = trim($_POST['icone'] ?? 'fa-solid fa-folder');
 $ordem = (int)($_POST['ordem'] ?? 0);
 
 if ($id <= 0 || empty($nome)) {
-    header("Location: ../../wiki_categorias.php?erro=" . urlencode("Dados inválidos para edição."));
+    header("Location: /admin/wiki_categorias.php?erro=" . urlencode("Dados inválidos para edição."));
     exit;
 }
 
@@ -49,7 +49,7 @@ try {
     $stmtFind->execute([':id' => $id]);
     $catAtual = $stmtFind->fetch(PDO::FETCH_ASSOC);
     if (!$catAtual) {
-        header("Location: ../../wiki_categorias.php?erro=" . urlencode("Categoria não encontrada."));
+        header("Location: /admin/wiki_categorias.php?erro=" . urlencode("Categoria não encontrada."));
         exit;
     }
 
@@ -67,10 +67,10 @@ try {
         ':id'    => $id
     ]);
 
-    header("Location: ../../wiki_categorias.php?servidor_id=$servidorId&sucesso=editado");
+    header("Location: /admin/wiki_categorias.php?servidor_id=$servidorId&sucesso=editado");
     exit;
 
 } catch (Exception $e) {
-    header("Location: ../../wiki_categorias.php?erro=" . urlencode("Erro ao atualizar categoria: " . $e->getMessage()));
+    header("Location: /admin/wiki_categorias.php?erro=" . urlencode("Erro ao atualizar categoria: " . $e->getMessage()));
     exit;
 }

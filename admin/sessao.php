@@ -34,6 +34,13 @@ $csrfToken = $_SESSION['csrf_token'];
  * Valida o token CSRF de requisições POST.
  * Retorna true se válido, ou encerra com 403 Forbidden caso inválido.
  */
+if (!function_exists('validarCsrfToken')) {
+    function validarCsrfToken(?string $tokenRecebido): bool {
+        $tokenSessao = $_SESSION['csrf_token'] ?? '';
+        return !empty($tokenRecebido) && !empty($tokenSessao) && hash_equals($tokenSessao, $tokenRecebido);
+    }
+}
+
 if (!function_exists('exigirCSRF')) {
     function exigirCSRF() {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
@@ -44,9 +51,8 @@ if (!function_exists('exigirCSRF')) {
         }
 
         $tokenRecebido = $_POST['csrf_token'] ?? ($_SERVER['HTTP_X_CSRF_TOKEN'] ?? '');
-        $tokenSessao = $_SESSION['csrf_token'] ?? '';
 
-        if (empty($tokenRecebido) || empty($tokenSessao) || !hash_equals($tokenSessao, $tokenRecebido)) {
+        if (!validarCsrfToken($tokenRecebido)) {
             http_response_code(403);
             header('Content-Type: application/json; charset=utf-8');
             echo json_encode(["erro" => "Token CSRF inválido ou expirado."], JSON_UNESCAPED_UNICODE);
