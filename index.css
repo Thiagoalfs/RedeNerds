@@ -447,51 +447,49 @@
 .server-card-3 .server-card-link { color: #E85D5D; }
 .server-card-3 .banner-3 { background: var(--color-danger-alt); }
 
-/* Banner de tamanho fixo com a imagem 100% contida */
+/* Banner de tamanho fixo com a imagem ocupando 100% da div */
 .server-card-banner {
     position: relative;
     width: 100%;
     height: 190px;
     flex-shrink: 0;
     overflow: hidden;
-    background: linear-gradient(180deg, var(--card-color, #7DB9DF) 0%, rgba(15, 20, 29, 0.4) 60%, #0f141d 100%);
+    background-color: #0f141d;
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 16px;
+    padding: 0;
     box-sizing: border-box;
 }
 
 .server-card-banner img {
-    max-width: 100%;
-    max-height: 100%;
-    width: auto;
-    height: auto;
-    object-fit: contain;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
     display: block;
     position: relative;
-    z-index: 2;
-    transition: transform 0.25s ease;
+    z-index: 1;
+    transition: transform 0.3s ease;
 }
 
 .server-card:hover .server-card-banner img {
-    transform: scale(1.06);
+    transform: scale(1.05);
 }
 
 .server-card-banner i {
     font-size: 52px;
-    color: #FFFFFF;
+    color: var(--card-color, rgba(255, 255, 255, 0.9));
     position: relative;
-    z-index: 2;
+    z-index: 1;
 }
 
 .server-card-banner::after {
     content: '';
     position: absolute;
     inset: 0;
-    background: linear-gradient(180deg, transparent 40%, rgba(15, 20, 29, 0.5) 75%, #0f141d 100%);
+    background: linear-gradient(180deg, transparent 40%, rgba(15, 20, 29, 0.6) 80%, #0f141d 100%);
     pointer-events: none;
-    z-index: 1;
+    z-index: 2;
 }
 
 /* Conteúdo do Card de tamanho fixo */
