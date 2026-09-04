@@ -1,3 +1,5 @@
+<?php
+
 define('ICON_UPLOAD_DIR_PUBLICA', '/assets/servidores/icons/');
 
 /**
