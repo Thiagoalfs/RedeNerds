@@ -34,16 +34,30 @@ if (!$vip) {
 }
 
 $servidores = [];
+$servidoresMap = [];
 try {
     $stmtSrv = $pdo->query("SELECT id, servername, nome FROM servidores ORDER BY servername ASC");
     $servidores = $stmtSrv->fetchAll(PDO::FETCH_ASSOC);
+    foreach ($servidores as $s) {
+        $servidoresMap[$s['id']] = $s;
+        $servidoresMap[$s['servername']] = $s;
+        if (!empty($s['nome'])) {
+            $servidoresMap[$s['nome']] = $s;
+        }
+    }
 } catch (PDOException $e) {
     $servidores = [];
 }
 
 $mensagem_erro = "";
 
-$servidor_selecionado = $vip['servidor'];
+$servidor_id_selecionado = (int)($vip['servidor_id'] ?? 0);
+if ($servidor_id_selecionado <= 0 && !empty($vip['servidor'])) {
+    if (isset($servidoresMap[$vip['servidor']])) {
+        $servidor_id_selecionado = (int)$servidoresMap[$vip['servidor']]['id'];
+    }
+}
+
 $nome = $vip['nome'];
 $preco = number_format((float)$vip['preco'], 2, '.', '');
 $duracao_dias = (int)($vip['duracao_dias'] ?? 30);
@@ -67,19 +81,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (!validarCsrfToken($_POST['csrf_token'] ?? '')) {
         $mensagem_erro = "Token CSRF inválido ou expirado. Recarregue a página e tente novamente.";
     } else {
-        $servidor_selecionado = trim($_POST['servidor'] ?? '');
-        $nome                 = trim($_POST['nome'] ?? '');
-        $precoRaw             = str_replace(',', '.', trim($_POST['preco'] ?? '0'));
-        $preco                = (float)$precoRaw;
-        $duracao_dias         = (int)($_POST['duracao_dias'] ?? 30);
-        $destaque             = isset($_POST['destaque']) ? 1 : 0;
-        $ativo                = isset($_POST['ativo']) ? 1 : 0;
+        $servidor_id_selecionado = (int)($_POST['servidor_id'] ?? ($_POST['servidor'] ?? 0));
+        $servidorObj             = $servidoresMap[$servidor_id_selecionado] ?? null;
+        $nome                    = trim($_POST['nome'] ?? '');
+        $precoRaw                = str_replace(',', '.', trim($_POST['preco'] ?? '0'));
+        $preco                   = (float)$precoRaw;
+        $duracao_dias            = (int)($_POST['duracao_dias'] ?? 30);
+        $destaque                = isset($_POST['destaque']) ? 1 : 0;
+        $ativo                   = isset($_POST['ativo']) ? 1 : 0;
 
         $vantagensPost = $_POST['vantagens'] ?? [];
         $vantagens = array_values(array_filter(array_map('trim', $vantagensPost), fn($v) => $v !== ''));
 
-        if ($servidor_selecionado === '') {
-            $mensagem_erro = "Selecione o servidor para este pacote VIP.";
+        if (!$servidorObj || $servidor_id_selecionado <= 0) {
+            $mensagem_erro = "Selecione um servidor válido para este pacote VIP.";
         } elseif ($nome === '' || strlen($nome) < 2) {
             $mensagem_erro = "Informe um nome válido para o pacote VIP (ex: VIP Ouro).";
         } elseif ($preco <= 0) {
@@ -88,17 +103,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $mensagem_erro = "Adicione ao menos um benefício (bullet point) para o pacote VIP.";
         } else {
             $vantagensJson = json_encode($vantagens, JSON_UNESCAPED_UNICODE);
+            $servidorNome = $servidorObj['servername'];
 
             try {
                 $stmt = $pdo->prepare("
                     UPDATE vips 
-                    SET servidor = :servidor, nome = :nome, preco = :preco, 
+                    SET servidor_id = :servidor_id, servidor = :servidor, nome = :nome, preco = :preco, 
                         duracao_dias = :duracao_dias, destaque = :destaque, 
                         vantagens = :vantagens, ativo = :ativo
                     WHERE id = :id
                 ");
                 $stmt->execute([
-                    ':servidor'     => $servidor_selecionado,
+                    ':servidor_id'  => $servidor_id_selecionado,
+                    ':servidor'     => $servidorNome,
                     ':nome'         => $nome,
                     ':preco'        => $preco,
                     ':duracao_dias' => $duracao_dias > 0 ? $duracao_dias : 30,
@@ -140,11 +157,11 @@ require_once __DIR__ . "/../includes/admin_header.php";
 
                     <div class="row g-3 mb-3">
                         <div class="col-md-6 admin-form-group">
-                            <label for="servidor">Servidor *</label>
-                            <select class="admin-form-control" id="servidor" name="servidor" required autofocus>
+                            <label for="servidor_id">Servidor *</label>
+                            <select class="admin-form-control" id="servidor_id" name="servidor_id" required autofocus>
                                 <option value="">Selecione o servidor...</option>
                                 <?php foreach ($servidores as $s): ?>
-                                    <option value="<?php echo htmlspecialchars($s['servername'], ENT_QUOTES, 'UTF-8'); ?>" <?php echo ($servidor_selecionado === $s['servername'] || $servidor_selecionado === $s['nome']) ? 'selected' : ''; ?>>
+                                    <option value="<?php echo (int)$s['id']; ?>" <?php echo ($servidor_id_selecionado === (int)$s['id']) ? 'selected' : ''; ?>>
                                         <?php echo htmlspecialchars($s['servername'], ENT_QUOTES, 'UTF-8'); ?>
                                     </option>
                                 <?php endforeach; ?>

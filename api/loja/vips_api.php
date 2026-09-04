@@ -199,16 +199,16 @@ if (!empty($servidoresDoBanco) && !empty($vipsDoBanco)) {
         $vipsDoServidor = [];
 
         foreach ($vipsDoBanco as $v) {
-            $vipSrvRaw = trim($v['servidor']);
+            $vipSrvRaw = trim($v['servidor'] ?? '');
             $vipSrvLimpo = strtolower(preg_replace('/[^a-zA-Z0-9]/', '', $vipSrvRaw));
+            $vipServidorId = (int)($v['servidor_id'] ?? 0);
 
-            // Correspondência flexível: confere servername, slug ou correspondência parcial
+            // Correspondência direta por ID do servidor, com fallback por nome/slug
             $pertenceAoServidor = (
+                ($vipServidorId > 0 && $vipServidorId === (int)$srv['id']) ||
                 strcasecmp($vipSrvRaw, $srv['servername']) === 0 ||
                 strcasecmp($vipSrvRaw, $srvSlug) === 0 ||
-                $vipSrvLimpo === $srvNomeLimpo ||
-                (strlen($vipSrvLimpo) >= 4 && strpos($srvNomeLimpo, $vipSrvLimpo) !== false) ||
-                (strlen($srvNomeLimpo) >= 4 && strpos($vipSrvLimpo, $srvNomeLimpo) !== false)
+                ($vipSrvLimpo !== '' && $vipSrvLimpo === $srvNomeLimpo)
             );
 
             if ($pertenceAoServidor) {
@@ -225,6 +225,7 @@ if (!empty($servidoresDoBanco) && !empty($vipsDoBanco)) {
 
                 $vipsDoServidor[] = [
                     "id" => (int)$v['id'],
+                    "servidor_id" => (int)$srv['id'],
                     "servidor" => $srv['servername'], // Puxa exatamente o servername da tabela servidores!
                     "nome" => $v['nome'],
                     "preco" => (float)$v['preco'],
@@ -239,6 +240,7 @@ if (!empty($servidoresDoBanco) && !empty($vipsDoBanco)) {
         if (!empty($vipsDoServidor)) {
             $servidoresFormatados[] = [
                 "id" => $srvSlug ?: $srvNomeLimpo,
+                "servidor_id" => (int)$srv['id'],
                 "nome" => $srv['servername'], // Nome oficial do servidor
                 "badge" => !empty($srv['descricao']) ? mb_strimwidth(strip_tags($srv['descricao']), 0, 45, '...') : 'Servidor Oficial',
                 "cor" => $srv['themecolor'] ?: '#7DB9DF',
