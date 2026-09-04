@@ -26,12 +26,12 @@ $params = [];
 
 if ($filtroServidor !== '') {
     if (is_numeric($filtroServidor)) {
-        $where[] = "(v.servidor_id = :servidor_id OR v.servidor = :servidor_nome)";
+        $where[] = "(v.servidor_id = :servidor_id OR v.servidor COLLATE utf8mb4_unicode_ci = :servidor_nome COLLATE utf8mb4_unicode_ci)";
         $params[':servidor_id'] = (int)$filtroServidor;
         $srvObj = $servidoresMap[$filtroServidor] ?? null;
         $params[':servidor_nome'] = $srvObj ? $srvObj['servername'] : $filtroServidor;
     } else {
-        $where[] = "(v.servidor = :servidor_nome OR v.servidor = :servidor_slug)";
+        $where[] = "(v.servidor COLLATE utf8mb4_unicode_ci = :servidor_nome COLLATE utf8mb4_unicode_ci OR v.servidor COLLATE utf8mb4_unicode_ci = :servidor_slug COLLATE utf8mb4_unicode_ci)";
         $params[':servidor_nome'] = $filtroServidor;
         $params[':servidor_slug'] = $filtroServidor;
     }
@@ -44,13 +44,18 @@ try {
     $stmt = $pdo->prepare("
         SELECT v.*, s.servername as servidor_nome_oficial, s.themecolor as servidor_cor, s.icon as servidor_icone
         FROM vips v
-        LEFT JOIN servidores s ON (s.id = v.servidor_id OR s.servername = v.servidor OR s.nome = v.servidor)
+        LEFT JOIN servidores s ON (
+            (v.servidor_id IS NOT NULL AND v.servidor_id > 0 AND s.id = v.servidor_id)
+            OR (s.servername COLLATE utf8mb4_unicode_ci = v.servidor COLLATE utf8mb4_unicode_ci)
+            OR (s.nome COLLATE utf8mb4_unicode_ci = v.servidor COLLATE utf8mb4_unicode_ci)
+        )
         $whereSql
-        ORDER BY COALESCE(s.servername, v.servidor) ASC, v.preco ASC
+        ORDER BY COALESCE(s.servername COLLATE utf8mb4_unicode_ci, v.servidor) ASC, v.preco ASC
     ");
     $stmt->execute($params);
     $vips = $stmt->fetchAll(PDO::FETCH_ASSOC);
 } catch (PDOException $e) {
+    error_log("Erro ao buscar lista de VIPs: " . $e->getMessage());
     $vips = [];
 }
 ?>
