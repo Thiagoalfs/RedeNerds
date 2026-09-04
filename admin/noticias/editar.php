@@ -2,13 +2,13 @@
 $paginaAtiva = 'noticias';
 $tituloPagina = 'Editar Novidade';
 
-require_once __DIR__ . "/includes/admin_header.php";
-require_once "capa_upload.php";
-require_once "webhook_helper.php";
+require_once __DIR__ . "/../includes/admin_header.php";
+require_once __DIR__ . "/capa_upload.php";
+require_once __DIR__ . "/webhook_helper.php";
 
 $id = isset($_GET['id']) ? (int)$_GET['id'] : (isset($_POST['id']) ? (int)$_POST['id'] : 0);
 if ($id <= 0) {
-    header("Location: noticias.php");
+    header("Location: index.php");
     exit;
 }
 
@@ -17,7 +17,7 @@ $stmt->execute([':id' => $id]);
 $noticia = $stmt->fetch(PDO::FETCH_ASSOC);
 
 if (!$noticia) {
-    header("Location: noticias.php");
+    header("Location: index.php");
     exit;
 }
 
@@ -68,7 +68,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 ':id'              => $id
             ]);
 
-            header("Location: noticias.php");
+            header("Location: index.php");
             exit;
         } catch (PDOException $e) {
             $mensagem_erro = "Erro ao atualizar novidade: " . $e->getMessage();
@@ -82,14 +82,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <div class="admin-card">
             <div class="admin-card-header">
                 <h5 class="admin-card-title"><i class="fa-solid fa-pen text-primary"></i> Editar Novidade</h5>
-                <a href="noticias.php" class="btn btn-outline-secondary btn-sm">← Voltar para Novidades</a>
+                <a href="index.php" class="btn btn-outline-secondary btn-sm">← Voltar para Novidades</a>
             </div>
             <div class="p-4">
                 <?php if ($mensagem_erro): ?>
                     <div class="alert alert-danger"><?php echo htmlspecialchars($mensagem_erro, ENT_QUOTES, 'UTF-8'); ?></div>
                 <?php endif; ?>
 
-                <form method="POST" enctype="multipart/form-data">
+                <form method="POST" action="editar.php?id=<?php echo (int)$id; ?>" enctype="multipart/form-data">
                     <input type="hidden" name="id" value="<?php echo (int)$id; ?>">
 
                     <div class="admin-form-group">
@@ -151,7 +151,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     </div>
 
                     <div class="d-flex justify-content-end gap-2">
-                        <a href="noticias.php" class="btn btn-outline-secondary">Cancelar</a>
+                        <a href="index.php" class="btn btn-outline-secondary">Cancelar</a>
                         <button type="submit" class="btn btn-primary fw-bold px-4">Salvar Alterações</button>
                     </div>
                 </form>
@@ -160,4 +160,4 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     </div>
 </div>
 
-<?php require_once __DIR__ . "/includes/admin_footer.php"; ?>
+<?php require_once __DIR__ . "/../includes/admin_footer.php"; ?>

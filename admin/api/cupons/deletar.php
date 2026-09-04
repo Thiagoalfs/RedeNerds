@@ -31,7 +31,7 @@ if ($id <= 0) {
         echo json_encode(["success" => false, "erro" => "ID inválido."]);
         exit;
     }
-    header("Location: /admin/cupons.php?erro=" . urlencode("ID inválido."));
+    header("Location: /admin/cupons/?erro=" . urlencode("ID inválido."));
     exit;
 }
 
@@ -46,7 +46,7 @@ if (isset($pdo) && $pdo instanceof PDO) {
             exit;
         }
 
-        header("Location: /admin/cupons.php?msg=" . urlencode("Cupom deletado com sucesso!"));
+        header("Location: /admin/cupons/?msg=" . urlencode("Cupom deletado com sucesso!"));
         exit;
     } catch (Exception $e) {
         error_log("Erro ao deletar cupom: " . $e->getMessage());
@@ -56,10 +56,10 @@ if (isset($pdo) && $pdo instanceof PDO) {
             echo json_encode(["success" => false, "erro" => "Erro ao deletar cupom."]);
             exit;
         }
-        header("Location: /admin/cupons.php?erro=" . urlencode("Erro ao deletar cupom."));
+        header("Location: /admin/cupons/?erro=" . urlencode("Erro ao deletar cupom."));
         exit;
     }
 }
 
-header("Location: /admin/cupons.php");
+header("Location: /admin/cupons/");
 exit;

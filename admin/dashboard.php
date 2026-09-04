@@ -49,9 +49,9 @@ try {
         <p class="text-muted small mb-0">Aqui está o resumo em tempo real da saúde da Rede Nerds.</p>
     </div>
     <div class="d-flex gap-2 flex-wrap">
-        <a href="criar.php" class="btn btn-primary btn-sm"><i class="fa-solid fa-plus me-1"></i> Nova Novidade</a>
-        <a href="cupom_criar.php" class="btn btn-success btn-sm"><i class="fa-solid fa-tags me-1"></i> Novo Cupom</a>
-        <a href="servidor_criar.php" class="btn btn-outline-secondary btn-sm"><i class="fa-solid fa-server me-1"></i> Novo Servidor</a>
+        <a href="/admin/noticias/criar.php" class="btn btn-primary btn-sm"><i class="fa-solid fa-plus me-1"></i> Nova Novidade</a>
+        <a href="/admin/cupons/criar.php" class="btn btn-success btn-sm"><i class="fa-solid fa-tags me-1"></i> Novo Cupom</a>
+        <a href="/admin/servidores/criar.php" class="btn btn-outline-secondary btn-sm"><i class="fa-solid fa-server me-1"></i> Novo Servidor</a>
     </div>
 </div>
 
@@ -113,7 +113,7 @@ try {
             <i class="fa-solid fa-clock-rotate-left text-primary"></i>
             Últimos Pedidos da Loja
         </h5>
-        <a href="pedidos.php" class="btn btn-outline-primary btn-sm">Ver todos os pedidos →</a>
+        <a href="/admin/pedidos/" class="btn btn-outline-primary btn-sm">Ver todos os pedidos →</a>
     </div>
     <div class="card-body p-0">
         <div class="table-responsive">

@@ -1,7 +1,31 @@
 <?php
 
-define('CAPA_UPLOAD_DIR_FISICA', realpath(__DIR__ . '/../../') . '/public_html/assets/novidades/');
 define('CAPA_UPLOAD_DIR_PUBLICA', '/assets/novidades/');
+
+/**
+ * Retorna o caminho físico do diretório de assets/novidades.
+ */
+function getCapaUploadDirFisica(): string
+{
+    $candidatos = [
+        realpath(__DIR__ . '/../../') . '/assets/novidades/',
+        realpath(__DIR__ . '/../') . '/assets/novidades/',
+        realpath(__DIR__ . '/../../../') . '/public_html/assets/novidades/',
+        ($_SERVER['DOCUMENT_ROOT'] ?? '') . '/assets/novidades/'
+    ];
+
+    foreach ($candidatos as $dir) {
+        if (!empty($dir) && is_dir($dir)) {
+            return $dir;
+        }
+    }
+
+    $fallback = realpath(__DIR__ . '/../../') . '/assets/novidades/';
+    if (!is_dir($fallback)) {
+        @mkdir($fallback, 0755, true);
+    }
+    return $fallback;
+}
 
 /**
  * Ponto de entrada único do formulário.
@@ -11,10 +35,15 @@ define('CAPA_UPLOAD_DIR_PUBLICA', '/assets/novidades/');
  */
 function processarCapa(?string $capaAtual = null): array
 {
-    $temArquivo = isset($_FILES['capa']) && $_FILES['capa']['error'] !== UPLOAD_ERR_NO_FILE;
+    $temArquivo = isset($_FILES['capa_upload']) && $_FILES['capa_upload']['error'] !== UPLOAD_ERR_NO_FILE;
+    $urlDigitada = trim($_POST['capa_url'] ?? '');
 
     if ($temArquivo) {
         return processarUploadCapa($capaAtual);
+    }
+
+    if (!empty($urlDigitada)) {
+        return validarUrlCapa($urlDigitada, $capaAtual);
     }
 
     return [$capaAtual, null];
@@ -40,11 +69,11 @@ function validarUrlCapa(string $url, ?string $capaAtual): array
 }
 
 /**
- * Processa o upload de $_FILES['capa'] e converte para WebP.
+ * Processa o upload de $_FILES['capa_upload'] e converte para WebP.
  */
 function processarUploadCapa(?string $capaAtual = null): array
 {
-    $arquivo = $_FILES['capa'];
+    $arquivo = $_FILES['capa_upload'];
 
     if ($arquivo['error'] !== UPLOAD_ERR_OK) {
         return [$capaAtual, "Erro ao enviar o arquivo (código {$arquivo['error']})."];
@@ -72,14 +101,15 @@ function processarUploadCapa(?string $capaAtual = null): array
         return [$capaAtual, "Formato de imagem inválido. Use JPG, PNG, WEBP ou GIF."];
     }
 
-    if (!is_dir(CAPA_UPLOAD_DIR_FISICA)) {
-        mkdir(CAPA_UPLOAD_DIR_FISICA, 0755, true);
+    $uploadDir = getCapaUploadDirFisica();
+    if (!is_dir($uploadDir)) {
+        @mkdir($uploadDir, 0755, true);
     }
 
     // Gera o arquivo com extensão .webp
     do {
         $nomeArquivo = bin2hex(random_bytes(16)) . '.webp';
-        $caminhoDestino = CAPA_UPLOAD_DIR_FISICA . $nomeArquivo;
+        $caminhoDestino = $uploadDir . $nomeArquivo;
     } while (file_exists($caminhoDestino));
 
     // Converte e salva a imagem para WebP
@@ -144,7 +174,8 @@ function apagarCapaAntigaSeForUpload(?string $capaAtual, string $capaNova): void
         && strpos($capaAtual, CAPA_UPLOAD_DIR_PUBLICA) === 0
         && $capaAtual !== $capaNova
     ) {
-        $antigoCaminhoFisico = CAPA_UPLOAD_DIR_FISICA . basename($capaAtual);
+        $uploadDir = getCapaUploadDirFisica();
+        $antigoCaminhoFisico = $uploadDir . basename($capaAtual);
         if (is_file($antigoCaminhoFisico)) {
             @unlink($antigoCaminhoFisico);
         }

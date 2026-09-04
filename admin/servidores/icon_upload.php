@@ -1,7 +1,29 @@
-<?php
-
-define('ICON_UPLOAD_DIR_FISICA', realpath(__DIR__ . '/../../') . '/public_html/assets/servidores/icons/');
 define('ICON_UPLOAD_DIR_PUBLICA', '/assets/servidores/icons/');
+
+/**
+ * Retorna o caminho físico do diretório de assets/servidores/icons.
+ */
+function getIconUploadDirFisica(): string
+{
+    $candidatos = [
+        realpath(__DIR__ . '/../../') . '/assets/servidores/icons/',
+        realpath(__DIR__ . '/../') . '/assets/servidores/icons/',
+        realpath(__DIR__ . '/../../../') . '/public_html/assets/servidores/icons/',
+        ($_SERVER['DOCUMENT_ROOT'] ?? '') . '/assets/servidores/icons/'
+    ];
+
+    foreach ($candidatos as $dir) {
+        if (!empty($dir) && is_dir($dir)) {
+            return $dir;
+        }
+    }
+
+    $fallback = realpath(__DIR__ . '/../../') . '/assets/servidores/icons/';
+    if (!is_dir($fallback)) {
+        @mkdir($fallback, 0755, true);
+    }
+    return $fallback;
+}
 
 /**
  * Ponto de entrada único do formulário de ícone.
@@ -90,13 +112,14 @@ function processarUploadIcone(?string $iconeAtual = null): array
         return [$iconeAtual, "Formato de imagem inválido. Use JPG, PNG, WEBP ou GIF."];
     }
 
-    if (!is_dir(ICON_UPLOAD_DIR_FISICA)) {
-        mkdir(ICON_UPLOAD_DIR_FISICA, 0755, true);
+    $uploadDir = getIconUploadDirFisica();
+    if (!is_dir($uploadDir)) {
+        @mkdir($uploadDir, 0755, true);
     }
 
     do {
         $nomeArquivo = bin2hex(random_bytes(16)) . '.webp';
-        $caminhoDestino = ICON_UPLOAD_DIR_FISICA . $nomeArquivo;
+        $caminhoDestino = $uploadDir . $nomeArquivo;
     } while (file_exists($caminhoDestino));
 
     if (!converterParaWebpIcone($arquivo['tmp_name'], $caminhoDestino, $mime)) {
@@ -159,7 +182,7 @@ function apagarIconeAntigoSeForUpload(?string $iconeAtual, string $iconeNovo): v
         && strpos($iconeAtual, ICON_UPLOAD_DIR_PUBLICA) === 0
         && $iconeAtual !== $iconeNovo
     ) {
-        $antigoCaminhoFisico = ICON_UPLOAD_DIR_FISICA . basename($iconeAtual);
+        $antigoCaminhoFisico = getIconUploadDirFisica() . basename($iconeAtual);
         if (is_file($antigoCaminhoFisico)) {
             @unlink($antigoCaminhoFisico);
         }

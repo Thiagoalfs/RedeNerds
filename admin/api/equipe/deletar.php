@@ -44,5 +44,5 @@ if ($id > 0 && isset($pdo) && $pdo instanceof PDO) {
     }
 }
 
-header("Location: /admin/equipe.php");
+header("Location: /admin/equipe/");
 exit;

@@ -1,9 +1,10 @@
 <?php
-require_once __DIR__ . "/sessao.php";
+require_once __DIR__ . "/../sessao.php";
 $configPaths = [
     __DIR__ . "/config.php",
     __DIR__ . "/../config.php",
     __DIR__ . "/../../config.php",
+    __DIR__ . "/../../../config.php",
     ($_SERVER['DOCUMENT_ROOT'] ?? '') . "/config.php"
 ];
 $configPath = null;
@@ -16,7 +17,7 @@ foreach ($configPaths as $cp) {
 if ($configPath) {
     require_once $configPath;
 }
-require_once __DIR__ . "/../wiki/wiki_helper.php";
+require_once __DIR__ . "/../../wiki/wiki_helper.php";
 
 $servidores = $pdo->query("SELECT id, servername FROM servidores ORDER BY servername ASC")->fetchAll(PDO::FETCH_ASSOC);
 
@@ -63,13 +64,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     } else {
         $slug = preg_replace('/[^a-z0-9]+/i', '-', strtolower(iconv('UTF-8', 'ASCII//TRANSLIT', $titulo)));
         $slug = trim($slug, '-');
-        if (empty($slug)) $slug = 'artigo-' . time();
+        if (empty($slug)) {
+            $slug = 'artigo-' . time();
+        }
+
+        // Valida unicidade de slug dentro do servidor
+        $slugBase = $slug;
+        $contador = 1;
+        while (true) {
+            $checkSlug = $pdo->prepare("SELECT id FROM wiki_artigos WHERE servidor_id = :servidor_id AND slug = :slug LIMIT 1");
+            $checkSlug->execute([':servidor_id' => $servidor_id, ':slug' => $slug]);
+            if (!$checkSlug->fetch()) {
+                break;
+            }
+            $slug = $slugBase . '-' . (++$contador);
+        }
 
         try {
-            // Garante que a categoria pertença estritamente a este servidor
-            $stmtCatCheck = $pdo->prepare("SELECT id FROM wiki_categorias WHERE id = :cat_id AND servidor_id = :servidor_id LIMIT 1");
-            $stmtCatCheck->execute([':cat_id' => $categoria_id, ':servidor_id' => $servidor_id]);
-            if (!$stmtCatCheck->fetch()) {
+            // Se não forneceu categoria, pega a primeira do servidor
+            if ($categoria_id <= 0) {
                 $stmtFirstCat = $pdo->prepare("SELECT id FROM wiki_categorias WHERE servidor_id = :servidor_id ORDER BY ordem ASC, id ASC LIMIT 1");
                 $stmtFirstCat->execute([':servidor_id' => $servidor_id]);
                 $categoria_id = (int)$stmtFirstCat->fetchColumn();
@@ -79,16 +92,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 throw new Exception("Nenhuma categoria encontrada para o servidor selecionado.");
             }
 
-            // Garante unicidade do slug do artigo
-            $stmtCheck = $pdo->prepare("SELECT id FROM wiki_artigos WHERE slug = :slug AND servidor_id = :servidor_id LIMIT 1");
-            $stmtCheck->execute([':slug' => $slug, ':servidor_id' => $servidor_id]);
-            if ($stmtCheck->fetch()) {
-                $slug .= '-' . time();
-            }
-
             $stmt = $pdo->prepare("
-                INSERT INTO wiki_artigos (servidor_id, categoria_id, titulo, slug, conteudo, autor, publicado, criado_em)
-                VALUES (:servidor_id, :categoria_id, :titulo, :slug, :conteudo, :autor, :publicado, NOW())
+                INSERT INTO wiki_artigos (servidor_id, categoria_id, titulo, slug, conteudo, autor, publicado, criado_em, atualizado_em)
+                VALUES (:servidor_id, :categoria_id, :titulo, :slug, :conteudo, :autor, :publicado, NOW(), NOW())
             ");
             $stmt->execute([
                 ':servidor_id'  => $servidor_id,
@@ -100,7 +106,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 ':publicado'    => $publicado
             ]);
 
-            header("Location: wiki.php");
+            header("Location: index.php");
             exit;
         } catch (PDOException $e) {
             $erro = "Erro ao salvar artigo: " . $e->getMessage();
@@ -110,7 +116,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 $paginaAtiva = 'wiki';
 $tituloPagina = 'Criar Artigo da Wiki';
-require_once __DIR__ . "/includes/admin_header.php";
+require_once __DIR__ . "/../includes/admin_header.php";
 $categoriasDisponiveis = getCategoriasServidorWiki($pdo, $servidor_id);
 ?>
 
@@ -119,14 +125,14 @@ $categoriasDisponiveis = getCategoriasServidorWiki($pdo, $servidor_id);
         <div class="admin-card">
             <div class="admin-card-header">
                 <h5 class="admin-card-title"><i class="fa-solid fa-plus text-success"></i> Criar Artigo para a Wiki</h5>
-                <a href="wiki.php" class="btn btn-outline-secondary btn-sm">← Voltar para a Wiki</a>
+                <a href="index.php" class="btn btn-outline-secondary btn-sm">← Voltar para a Wiki</a>
             </div>
             <div class="p-4">
                 <?php if ($erro): ?>
                     <div class="alert alert-danger"><?php echo htmlspecialchars($erro, ENT_QUOTES, 'UTF-8'); ?></div>
                 <?php endif; ?>
 
-                <form method="POST" action="wiki_artigo_criar.php">
+                <form method="POST" action="artigo_criar.php">
                     <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($csrfToken, ENT_QUOTES, 'UTF-8'); ?>">
                     <div class="row g-3 mb-3">
                         <div class="col-md-6 admin-form-group">
@@ -158,11 +164,11 @@ $categoriasDisponiveis = getCategoriasServidorWiki($pdo, $servidor_id);
 
                     <div class="row g-3 mb-3">
                         <div class="col-md-8 admin-form-group">
-                            <label for="titulo">Título do Artigo / Guia *</label>
-                            <input type="text" class="admin-form-control" id="titulo" name="titulo" value="<?php echo htmlspecialchars($titulo, ENT_QUOTES, 'UTF-8'); ?>" placeholder="Ex: Como proteger seu terreno inicial" required autofocus>
+                            <label for="titulo">Título do Artigo *</label>
+                            <input type="text" class="admin-form-control" id="titulo" name="titulo" value="<?php echo htmlspecialchars($titulo, ENT_QUOTES, 'UTF-8'); ?>" placeholder="Ex: Como criar e proteger seu terreno" required autofocus>
                         </div>
                         <div class="col-md-4 admin-form-group">
-                            <label for="autor">Autor (Membro da Equipe) *</label>
+                            <label for="autor">Autor *</label>
                             <select class="admin-form-control" id="autor" name="autor" required>
                                 <?php foreach ($nicksEquipe as $nk): ?>
                                     <option value="<?php echo htmlspecialchars($nk, ENT_QUOTES, 'UTF-8'); ?>" <?php echo ($autor === $nk) ? 'selected' : ''; ?>>
@@ -174,22 +180,20 @@ $categoriasDisponiveis = getCategoriasServidorWiki($pdo, $servidor_id);
                     </div>
 
                     <div class="admin-form-group mb-3">
-                        <label for="conteudo">Conteúdo do Artigo (Markdown suportado) *</label>
-                        <textarea class="admin-form-control font-monospace" id="conteudo" name="conteudo" rows="12" placeholder="Escreva o artigo em Markdown. Ex:
-## 1. Primeiros Passos
-Utilize o comando `/claim` para proteger sua área.
-
-> [!DICA]
-> Pressione M para abrir o mapa visual de proteção." required><?php echo htmlspecialchars($conteudo, ENT_QUOTES, 'UTF-8'); ?></textarea>
+                        <div class="d-flex align-items-center justify-content-between mb-1">
+                            <label for="conteudo" class="mb-0">Conteúdo do Artigo (Markdown) *</label>
+                            <span class="badge bg-light text-dark border"><i class="fa-brands fa-markdown me-1"></i> Formato Markdown / BBCode suportado</span>
+                        </div>
+                        <textarea class="admin-form-control font-monospace" id="conteudo" name="conteudo" rows="12" placeholder="# Introdução&#10;&#10;Descreva o guia detalhadamente aqui..." required><?php echo htmlspecialchars($conteudo, ENT_QUOTES, 'UTF-8'); ?></textarea>
                     </div>
 
                     <div class="mb-4 form-check form-switch">
                         <input class="form-check-input" type="checkbox" role="switch" id="publicado" name="publicado" value="1" <?php echo $publicado ? 'checked' : ''; ?>>
-                        <label class="form-check-label fw-semibold" for="publicado">Publicar artigo imediatamente na Wiki</label>
+                        <label class="form-check-label fw-semibold" for="publicado">Publicar imediatamente na Wiki pública</label>
                     </div>
 
                     <div class="d-flex justify-content-end gap-2">
-                        <a href="wiki.php" class="btn btn-outline-secondary">Cancelar</a>
+                        <a href="index.php" class="btn btn-outline-secondary">Cancelar</a>
                         <button type="submit" class="btn btn-success fw-bold px-4">Salvar Artigo</button>
                     </div>
                 </form>
@@ -198,33 +202,28 @@ Utilize o comando `/claim` para proteger sua área.
     </div>
 </div>
 
-<!-- MODAL RÁPIDO: NOVA CATEGORIA -->
-<div class="modal fade" id="modalNovaCategoriaRapida" tabindex="-1" aria-labelledby="modalNovaCategoriaRapidaLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
+<!-- MODAL RÁPIDO PARA CRIAR NOVA CATEGORIA -->
+<div class="modal fade" id="modalNovaCategoriaRapida" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-sm">
         <div class="modal-content">
             <form id="form-nova-cat-rapida" onsubmit="criarCategoriaRapida(event)">
                 <div class="modal-header">
-                    <h5 class="modal-title fw-bold" id="modalNovaCategoriaRapidaLabel">
-                        <i class="fa-solid fa-folder-plus text-primary me-2"></i> Criar Nova Categoria
-                    </h5>
+                    <h6 class="modal-title fw-bold"><i class="fa-solid fa-plus-circle text-success me-1"></i> Nova Categoria</h6>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
                 </div>
                 <div class="modal-body">
-                    <div id="feedback-cat-rapida" class="alert alert-danger d-none small"></div>
-                    
-                    <div class="mb-3">
-                        <label class="form-label small fw-bold">Nome da Categoria <span class="text-danger">*</span></label>
-                        <input type="text" id="cat-rapida-nome" class="form-control form-control-sm" placeholder="Ex: Chefões & Dungeons" required>
+                    <div id="feedback-cat-rapida" class="alert alert-danger small d-none py-1 px-2 mb-2"></div>
+                    <div class="mb-2">
+                        <label class="form-label small fw-bold mb-1">Nome da Categoria</label>
+                        <input type="text" id="cat-rapida-nome" class="form-control form-control-sm" placeholder="Ex: Clãs & Guerras" required>
                     </div>
-
-                    <div class="mb-3">
-                        <label class="form-label small fw-bold">Ícone (FontAwesome)</label>
+                    <div class="mb-2">
+                        <label class="form-label small fw-bold mb-1">Ícone (FontAwesome)</label>
                         <input type="text" id="cat-rapida-icone" class="form-control form-control-sm" value="fa-solid fa-folder">
                     </div>
-
-                    <div class="mb-3">
-                        <label class="form-label small fw-bold">Ordem</label>
-                        <input type="number" id="cat-rapida-ordem" class="form-control form-control-sm" value="0">
+                    <div class="mb-1">
+                        <label class="form-label small fw-bold mb-1">Ordem</label>
+                        <input type="number" id="cat-rapida-ordem" class="form-control form-control-sm" value="0" min="0">
                     </div>
                 </div>
                 <div class="modal-footer">
@@ -241,7 +240,7 @@ async function carregarCategorias(servidorId, categoriaIdPreSelecionada = null) 
     const select = document.getElementById('categoria_id');
     select.innerHTML = '<option value="">Carregando categorias...</option>';
     try {
-        const res = await fetch(`api/wiki/categorias.php?servidor_id=${servidorId}`);
+        const res = await fetch(`/admin/api/wiki/categorias.php?servidor_id=${servidorId}`);
         const data = await res.json();
         if (data.categorias && data.categorias.length > 0) {
             select.innerHTML = '';
@@ -285,7 +284,7 @@ async function criarCategoriaRapida(e) {
     formData.append('ordem', ordem);
 
     try {
-        const res = await fetch('api/wiki/categoria_criar.php?ajax=1', {
+        const res = await fetch('/admin/api/wiki/categoria_criar.php?ajax=1', {
             method: 'POST',
             body: formData,
             headers: { 'X-Requested-With': 'XMLHttpRequest' }
@@ -312,4 +311,4 @@ async function criarCategoriaRapida(e) {
 }
 </script>
 
-<?php require_once __DIR__ . "/includes/admin_footer.php"; ?>
+<?php require_once __DIR__ . "/../includes/admin_footer.php"; ?>

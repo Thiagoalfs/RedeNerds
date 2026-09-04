@@ -1,7 +1,7 @@
 <?php
 $paginaAtiva = 'noticias';
 $tituloPagina = 'Novidades';
-require_once __DIR__ . "/includes/admin_header.php";
+require_once __DIR__ . "/../includes/admin_header.php";
 
 const POR_PAGINA = 10;
 $pagina = isset($_GET['page']) ? max(1, (int)$_GET['page']) : 1;
@@ -53,7 +53,7 @@ try {
 <!-- BUSCA -->
 <div class="admin-card mb-3">
     <div class="p-3">
-        <form method="GET" action="noticias.php" class="row g-2 align-items-center">
+        <form method="GET" action="index.php" class="row g-2 align-items-center">
             <div class="col-12 col-md-10">
                 <div class="input-group input-group-sm">
                     <span class="input-group-text bg-light"><i class="fa-solid fa-magnifying-glass"></i></span>
@@ -63,7 +63,7 @@ try {
             <div class="col-12 col-md-2 d-flex gap-2">
                 <button type="submit" class="btn btn-primary btn-sm w-100">Buscar</button>
                 <?php if (!empty($busca)): ?>
-                    <a href="noticias.php" class="btn btn-outline-secondary btn-sm" title="Limpar Busca"><i class="fa-solid fa-xmark"></i></a>
+                    <a href="index.php" class="btn btn-outline-secondary btn-sm" title="Limpar Busca"><i class="fa-solid fa-xmark"></i></a>
                 <?php endif; ?>
             </div>
         </form>
@@ -111,7 +111,7 @@ try {
                                 <td class="text-end text-nowrap">
                                     <div class="d-inline-flex align-items-center justify-content-end gap-1">
                                         <a href="editar.php?id=<?php echo (int)$n['id']; ?>" class="btn btn-sm btn-primary">Editar</a>
-                                        <form method="POST" action="api/noticias/deletar.php" class="d-inline" onsubmit="return confirm('Deletar esta novidade? Essa ação não pode ser desfeita.');">
+                                        <form method="POST" action="/admin/api/noticias/deletar.php" class="d-inline" onsubmit="return confirm('Deletar esta novidade? Essa ação não pode ser desfeita.');">
                                             <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($csrfToken, ENT_QUOTES, 'UTF-8'); ?>">
                                             <input type="hidden" name="id" value="<?php echo (int)$n['id']; ?>">
                                             <button type="submit" class="btn btn-sm btn-danger" title="Deletar">
@@ -148,4 +148,4 @@ try {
     </nav>
 <?php endif; ?>
 
-<?php require_once __DIR__ . "/includes/admin_footer.php"; ?>
+<?php require_once __DIR__ . "/../includes/admin_footer.php"; ?>

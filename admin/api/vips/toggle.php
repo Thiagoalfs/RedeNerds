@@ -31,44 +31,48 @@ if ($id <= 0) {
         echo json_encode(["success" => false, "erro" => "ID inválido."]);
         exit;
     }
-    header("Location: /admin/servidores/?erro=" . urlencode("ID de servidor inválido."));
+    header("Location: /admin/vips/?erro=" . urlencode("ID de VIP inválido."));
     exit;
 }
 
 if (isset($pdo) && $pdo instanceof PDO) {
     try {
-        $stmt = $pdo->prepare("SELECT enabled FROM servidores WHERE id = :id LIMIT 1");
+        $stmt = $pdo->prepare("SELECT ativo, nome FROM vips WHERE id = :id LIMIT 1");
         $stmt->execute([':id' => $id]);
-        $srv = $stmt->fetch(PDO::FETCH_ASSOC);
+        $vip = $stmt->fetch(PDO::FETCH_ASSOC);
 
-        if ($srv) {
-            $novoStatus = $srv['enabled'] ? 0 : 1;
-            $upd = $pdo->prepare("UPDATE servidores SET enabled = :novo WHERE id = :id");
+        if ($vip) {
+            $novoStatus = $vip['ativo'] ? 0 : 1;
+            $upd = $pdo->prepare("UPDATE vips SET ativo = :novo WHERE id = :id");
             $upd->execute([':novo' => $novoStatus, ':id' => $id]);
 
             if ($isAjax) {
                 header('Content-Type: application/json; charset=utf-8');
-                echo json_encode(["success" => true, "enabled" => $novoStatus]);
+                echo json_encode(["success" => true, "ativo" => $novoStatus]);
                 exit;
             }
+
+            $msg = $novoStatus ? "VIP '{$vip['nome']}' ativado com sucesso!" : "VIP '{$vip['nome']}' desativado com sucesso!";
+            header("Location: /admin/vips/?msg=" . urlencode($msg));
+            exit;
         } else {
             if ($isAjax) {
                 http_response_code(404);
                 header('Content-Type: application/json; charset=utf-8');
-                echo json_encode(["success" => false, "erro" => "Servidor não encontrado."]);
+                echo json_encode(["success" => false, "erro" => "VIP não encontrado."]);
                 exit;
             }
         }
     } catch (Exception $e) {
-        error_log("Erro ao alternar status do servidor: " . $e->getMessage());
+        error_log("Erro ao alternar status do VIP: " . $e->getMessage());
         if ($isAjax) {
             http_response_code(500);
             header('Content-Type: application/json; charset=utf-8');
-            echo json_encode(["success" => false, "erro" => "Erro no banco de dados."]);
+            echo json_encode(["success" => false, "erro" => "Erro interno no banco de dados."]);
             exit;
         }
     }
 }
 
-header("Location: /admin/servidores/");
+header("Location: /admin/vips/");
 exit;
