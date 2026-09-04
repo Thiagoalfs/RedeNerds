@@ -163,7 +163,7 @@ require_once __DIR__ . "/../includes/admin_header.php";
                             <label for="preco">Preço (R$) *</label>
                             <div class="input-group">
                                 <span class="input-group-text bg-light fw-bold">R$</span>
-                                <input type="number" step="0.01" min="0.01" class="admin-form-control" id="preco" name="preco"
+                                <input type="number" step="0.01" min="0.01" class="form-control" id="preco" name="preco"
                                        value="<?php echo htmlspecialchars((string)$preco, ENT_QUOTES, 'UTF-8'); ?>"
                                        placeholder="0.00" required>
                             </div>
