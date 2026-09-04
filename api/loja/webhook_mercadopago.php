@@ -158,18 +158,24 @@ if ($status === 'approved' && !empty($externalRef)) {
         }
 
         // Dispara notificação no Discord
-        enviarNotificacaoCompraDiscord(
-            $pedido['nick'],
-            $pedido['tipo_conta'] ?? 'original',
-            $pedido['servidor'],
-            $pedido['vip_nome'],
-            $pedido['valor'],
-            $externalRef,
-            '#7DB9DF',
-            $pedido['metodo_pagamento'] ?? 'pix',
-            (int)($pedido['parcelas'] ?? 1),
-            $pedido['valor_total'] ?? null
-        );
+        try {
+            enviarNotificacaoCompraDiscord(
+                $pedido['nick'],
+                $pedido['tipo_conta'] ?? 'original',
+                $pedido['servidor'],
+                $pedido['vip_nome'],
+                $pedido['valor'],
+                $externalRef,
+                '#7DB9DF',
+                $pedido['metodo_pagamento'] ?? 'pix',
+                (int)($pedido['parcelas'] ?? 1),
+                $pedido['valor_total'] ?? null,
+                $pedido['cupom_codigo'] ?? null,
+                (float)($pedido['desconto_aplicado'] ?? 0.00)
+            );
+        } catch (Exception $e) {
+            error_log("Erro ao disparar webhook Discord no webhook MP: " . $e->getMessage());
+        }
 
         // Dispara entrega do VIP na API de Entregas
         try {
