@@ -1,7 +1,7 @@
 <?php
 $paginaAtiva = 'equipe';
 $tituloPagina = 'Equipe';
-require_once __DIR__ . "/includes/admin_header.php";
+require_once __DIR__ . "/../includes/admin_header.php";
 
 try {
     $stmt = $pdo->query("SELECT id, nick, cargo FROM equipe ORDER BY id ASC");
@@ -21,7 +21,7 @@ foreach ($membros as $m) {
         <h4 class="fw-bold mb-1">Equipe</h4>
         <p class="text-muted small mb-0"><?php echo count($membros); ?> membro(s) em <?php echo count($grupos); ?> categoria(s)</p>
     </div>
-    <a href="equipe_criar.php" class="btn btn-success btn-sm"><i class="fa-solid fa-plus me-1"></i> Novo membro</a>
+    <a href="criar.php" class="btn btn-success btn-sm"><i class="fa-solid fa-plus me-1"></i> Novo membro</a>
 </div>
 
 <?php if (empty($grupos)): ?>
@@ -60,8 +60,8 @@ foreach ($membros as $m) {
                                     </td>
                                     <td class="text-end text-nowrap">
                                         <div class="d-inline-flex align-items-center justify-content-end gap-1">
-                                            <a href="equipe_editar.php?id=<?php echo (int)$m['id']; ?>" class="btn btn-sm btn-primary">Editar</a>
-                                            <form method="POST" action="api/equipe/deletar.php" class="d-inline" onsubmit="return confirm('Remover <?php echo htmlspecialchars(addslashes($m['nick']), ENT_QUOTES, 'UTF-8'); ?> da equipe?');">
+                                            <a href="editar.php?id=<?php echo (int)$m['id']; ?>" class="btn btn-sm btn-primary">Editar</a>
+                                            <form method="POST" action="/admin/api/equipe/deletar.php" class="d-inline" onsubmit="return confirm('Remover <?php echo htmlspecialchars(addslashes($m['nick']), ENT_QUOTES, 'UTF-8'); ?> da equipe?');">
                                                 <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($csrfToken, ENT_QUOTES, 'UTF-8'); ?>">
                                                 <input type="hidden" name="id" value="<?php echo (int)$m['id']; ?>">
                                                 <button type="submit" class="btn btn-sm btn-danger" title="Deletar">
@@ -80,4 +80,4 @@ foreach ($membros as $m) {
     <?php endforeach; ?>
 <?php endif; ?>
 
-<?php require_once __DIR__ . "/includes/admin_footer.php"; ?>
+<?php require_once __DIR__ . "/../includes/admin_footer.php"; ?>

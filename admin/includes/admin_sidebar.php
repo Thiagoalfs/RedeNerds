@@ -22,7 +22,7 @@ if (isset($pdo) && $pdo instanceof PDO) {
     <nav class="sidebar-nav">
         <!-- GERAL -->
         <span class="sidebar-group-title">Geral</span>
-        <a href="dashboard.php" class="nav-item-link <?php echo ($paginaAtiva === 'dashboard') ? 'active' : ''; ?>">
+        <a href="/admin/dashboard.php" class="nav-item-link <?php echo ($paginaAtiva === 'dashboard') ? 'active' : ''; ?>">
             <div class="icon-wrap">
                 <i class="fa-solid fa-chart-pie"></i>
                 <span>Dashboard</span>
@@ -31,7 +31,7 @@ if (isset($pdo) && $pdo instanceof PDO) {
 
         <!-- LOJA & VENDAS -->
         <span class="sidebar-group-title">Loja & Vendas</span>
-        <a href="pedidos.php" class="nav-item-link <?php echo ($paginaAtiva === 'pedidos') ? 'active' : ''; ?>">
+        <a href="/admin/pedidos/" class="nav-item-link <?php echo ($paginaAtiva === 'pedidos') ? 'active' : ''; ?>">
             <div class="icon-wrap">
                 <i class="fa-solid fa-receipt"></i>
                 <span>Pedidos VIP</span>
@@ -40,7 +40,13 @@ if (isset($pdo) && $pdo instanceof PDO) {
                 <span class="badge bg-warning text-dark font-monospace" style="font-size: 0.7rem;"><?php echo $pedidosPendentesCount; ?></span>
             <?php endif; ?>
         </a>
-        <a href="cupons.php" class="nav-item-link <?php echo ($paginaAtiva === 'cupons') ? 'active' : ''; ?>">
+        <a href="/admin/vips/" class="nav-item-link <?php echo in_array($paginaAtiva, ['vips', 'vip_criar', 'vip_editar']) ? 'active' : ''; ?>">
+            <div class="icon-wrap">
+                <i class="fa-solid fa-gem"></i>
+                <span>Pacotes VIP</span>
+            </div>
+        </a>
+        <a href="/admin/cupons/" class="nav-item-link <?php echo in_array($paginaAtiva, ['cupons', 'cupom_criar', 'cupom_editar']) ? 'active' : ''; ?>">
             <div class="icon-wrap">
                 <i class="fa-solid fa-tags"></i>
                 <span>Cupons</span>
@@ -49,20 +55,20 @@ if (isset($pdo) && $pdo instanceof PDO) {
 
         <!-- REDE & CONTEÚDO -->
         <span class="sidebar-group-title">Rede & Comunidade</span>
-        <a href="servidores.php" class="nav-item-link <?php echo ($paginaAtiva === 'servidores') ? 'active' : ''; ?>">
+        <a href="/admin/servidores/" class="nav-item-link <?php echo in_array($paginaAtiva, ['servidores', 'servidor_criar', 'servidor_editar']) ? 'active' : ''; ?>">
             <div class="icon-wrap">
                 <i class="fa-solid fa-server"></i>
                 <span>Servidores</span>
             </div>
         </a>
-        <a href="equipe.php" class="nav-item-link <?php echo ($paginaAtiva === 'equipe') ? 'active' : ''; ?>">
+        <a href="/admin/equipe/" class="nav-item-link <?php echo in_array($paginaAtiva, ['equipe', 'equipe_criar', 'equipe_editar']) ? 'active' : ''; ?>">
             <div class="icon-wrap">
                 <i class="fa-solid fa-users"></i>
                 <span>Equipe</span>
             </div>
         </a>
         <?php $isWikiAtiva = in_array($paginaAtiva, ['wiki', 'wiki_categorias', 'wiki_artigo_criar', 'wiki_artigo_editar']); ?>
-        <a href="wiki.php" class="nav-item-link <?php echo $isWikiAtiva ? 'active' : ''; ?>">
+        <a href="/admin/wiki/" class="nav-item-link <?php echo $isWikiAtiva ? 'active' : ''; ?>">
             <div class="icon-wrap">
                 <i class="fa-solid fa-book-open"></i>
                 <span>Wiki & Guias</span>
@@ -70,15 +76,15 @@ if (isset($pdo) && $pdo instanceof PDO) {
         </a>
         <?php if ($isWikiAtiva): ?>
             <div class="sidebar-subnav ps-4 my-1 d-flex flex-column gap-1">
-                <a href="wiki.php" class="small text-decoration-none py-1 px-2 rounded d-flex align-items-center <?php echo ($paginaAtiva === 'wiki' || $paginaAtiva === 'wiki_artigo_criar' || $paginaAtiva === 'wiki_artigo_editar') ? 'bg-primary text-white fw-semibold' : ''; ?>" style="<?php echo ($paginaAtiva === 'wiki' || $paginaAtiva === 'wiki_artigo_criar' || $paginaAtiva === 'wiki_artigo_editar') ? '' : 'color: rgb(148, 163, 184);'; ?>">
+                <a href="/admin/wiki/" class="small text-decoration-none py-1 px-2 rounded d-flex align-items-center <?php echo ($paginaAtiva === 'wiki' || $paginaAtiva === 'wiki_artigo_criar' || $paginaAtiva === 'wiki_artigo_editar') ? 'bg-primary text-white fw-semibold' : ''; ?>" style="<?php echo ($paginaAtiva === 'wiki' || $paginaAtiva === 'wiki_artigo_criar' || $paginaAtiva === 'wiki_artigo_editar') ? '' : 'color: rgb(148, 163, 184);'; ?>">
                     <i class="fa-regular fa-file-lines me-2"></i> <span>Artigos</span>
                 </a>
-                <a href="wiki_categorias.php" class="small text-decoration-none py-1 px-2 rounded d-flex align-items-center <?php echo ($paginaAtiva === 'wiki_categorias') ? 'bg-primary text-white fw-semibold' : ''; ?>" style="<?php echo ($paginaAtiva === 'wiki_categorias') ? '' : 'color: rgb(148, 163, 184);'; ?>">
+                <a href="/admin/wiki/categorias.php" class="small text-decoration-none py-1 px-2 rounded d-flex align-items-center <?php echo ($paginaAtiva === 'wiki_categorias') ? 'bg-primary text-white fw-semibold' : ''; ?>" style="<?php echo ($paginaAtiva === 'wiki_categorias') ? '' : 'color: rgb(148, 163, 184);'; ?>">
                     <i class="fa-solid fa-folder-tree me-2"></i> <span>Categorias</span>
                 </a>
             </div>
         <?php endif; ?>
-        <a href="noticias.php" class="nav-item-link <?php echo ($paginaAtiva === 'noticias') ? 'active' : ''; ?>">
+        <a href="/admin/noticias/" class="nav-item-link <?php echo in_array($paginaAtiva, ['noticias', 'noticia_criar', 'noticia_editar']) ? 'active' : ''; ?>">
             <div class="icon-wrap">
                 <i class="fa-solid fa-newspaper"></i>
                 <span>Novidades</span>
@@ -94,7 +100,7 @@ if (isset($pdo) && $pdo instanceof PDO) {
                 <p class="user-info-role">Administrador</p>
             </div>
         </div>
-        <a href="logout.php" class="btn-sidebar-logout" title="Sair do Painel">
+        <a href="/admin/logout.php" class="btn-sidebar-logout" title="Sair do Painel">
             <i class="fa-solid fa-right-from-bracket"></i>
         </a>
     </div>

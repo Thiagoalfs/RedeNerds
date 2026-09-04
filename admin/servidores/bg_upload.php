@@ -8,8 +8,9 @@ define('BG_UPLOAD_DIR_PUBLICA', '/assets/servidores/');
 function getBgUploadDirFisica(): string
 {
     $candidatos = [
+        realpath(__DIR__ . '/../../') . '/assets/servidores/',
         realpath(__DIR__ . '/../') . '/assets/servidores/',
-        realpath(__DIR__ . '/../../') . '/public_html/assets/servidores/',
+        realpath(__DIR__ . '/../../../') . '/public_html/assets/servidores/',
         ($_SERVER['DOCUMENT_ROOT'] ?? '') . '/assets/servidores/'
     ];
 
@@ -19,7 +20,7 @@ function getBgUploadDirFisica(): string
         }
     }
 
-    $fallback = realpath(__DIR__ . '/../') . '/assets/servidores/';
+    $fallback = realpath(__DIR__ . '/../../') . '/assets/servidores/';
     if (!is_dir($fallback)) {
         @mkdir($fallback, 0755, true);
     }

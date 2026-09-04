@@ -1,7 +1,7 @@
 <?php
 $paginaAtiva = 'cupons';
 $tituloPagina = 'Cupons de Desconto';
-require_once __DIR__ . "/includes/admin_header.php";
+require_once __DIR__ . "/../includes/admin_header.php";
 
 try {
     $stmt = $pdo->query("SELECT * FROM cupons ORDER BY criado_em DESC");
@@ -30,7 +30,7 @@ function statusDoCupom(array $cupom): array {
         <h4 class="fw-bold mb-1">Cupons de Desconto</h4>
         <p class="text-muted small mb-0"><?php echo count($cupons); ?> cupom(ns) cadastrado(s)</p>
     </div>
-    <a href="cupom_criar.php" class="btn btn-success btn-sm"><i class="fa-solid fa-plus me-1"></i> Novo cupom</a>
+    <a href="criar.php" class="btn btn-success btn-sm"><i class="fa-solid fa-plus me-1"></i> Novo cupom</a>
 </div>
 
 <?php if (isset($_GET['msg'])): ?>
@@ -99,15 +99,15 @@ function statusDoCupom(array $cupom): array {
                                 </td>
                                 <td class="text-end text-nowrap">
                                     <div class="d-inline-flex align-items-center justify-content-end gap-1">
-                                        <a href="cupom_editar.php?id=<?php echo (int)$c['id']; ?>" class="btn btn-sm btn-primary">Editar</a>
-                                        <form method="POST" action="api/cupons/toggle.php" class="d-inline">
+                                        <a href="editar.php?id=<?php echo (int)$c['id']; ?>" class="btn btn-sm btn-primary">Editar</a>
+                                        <form method="POST" action="/admin/api/cupons/toggle.php" class="d-inline">
                                             <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($csrfToken, ENT_QUOTES, 'UTF-8'); ?>">
                                             <input type="hidden" name="id" value="<?php echo (int)$c['id']; ?>">
                                             <button type="submit" class="btn btn-sm btn-outline-secondary" title="<?php echo $c['ativo'] ? 'Desativar cupom' : 'Ativar cupom'; ?>">
                                                 <i class="fa-solid <?php echo $c['ativo'] ? 'fa-eye' : 'fa-eye-slash'; ?>"></i>
                                             </button>
                                         </form>
-                                        <form method="POST" action="api/cupons/deletar.php" class="d-inline" onsubmit="return confirm('Deletar o cupom <?php echo htmlspecialchars(addslashes($c['codigo']), ENT_QUOTES, 'UTF-8'); ?>? Essa ação não pode ser desfeita.');">
+                                        <form method="POST" action="/admin/api/cupons/deletar.php" class="d-inline" onsubmit="return confirm('Deletar o cupom <?php echo htmlspecialchars(addslashes($c['codigo']), ENT_QUOTES, 'UTF-8'); ?>? Essa ação não pode ser desfeita.');">
                                             <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($csrfToken, ENT_QUOTES, 'UTF-8'); ?>">
                                             <input type="hidden" name="id" value="<?php echo (int)$c['id']; ?>">
                                             <button type="submit" class="btn btn-sm btn-danger" title="Deletar">
@@ -125,4 +125,4 @@ function statusDoCupom(array $cupom): array {
     </div>
 </div>
 
-<?php require_once __DIR__ . "/includes/admin_footer.php"; ?>
+<?php require_once __DIR__ . "/../includes/admin_footer.php"; ?>

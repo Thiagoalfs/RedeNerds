@@ -40,5 +40,5 @@ if ($id > 0 && isset($pdo) && $pdo instanceof PDO) {
         }
     }
 }
-header("Location: /admin/wiki.php");
+header("Location: /admin/wiki/");
 exit;

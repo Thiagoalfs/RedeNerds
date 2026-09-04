@@ -1,7 +1,7 @@
 <?php
 $paginaAtiva = 'pedidos';
 $tituloPagina = 'Pedidos VIP & Vendas';
-require_once __DIR__ . "/includes/admin_header.php";
+require_once __DIR__ . "/../includes/admin_header.php";
 
 const POR_PAGINA = 15;
 $pagina = isset($_GET['page']) ? max(1, (int)$_GET['page']) : 1;
@@ -71,7 +71,7 @@ try {
 <!-- FILTROS E BUSCA -->
 <div class="admin-card mb-3">
     <div class="p-3">
-        <form method="GET" action="pedidos.php" class="row g-2 align-items-center">
+        <form method="GET" action="index.php" class="row g-2 align-items-center">
             <div class="col-12 col-md-4">
                 <div class="input-group input-group-sm">
                     <span class="input-group-text bg-light"><i class="fa-solid fa-magnifying-glass"></i></span>
@@ -96,7 +96,7 @@ try {
             <div class="col-12 col-md-2 d-flex gap-2">
                 <button type="submit" class="btn btn-primary btn-sm w-100">Filtrar</button>
                 <?php if (!empty($busca) || !empty($filtroStatus) || !empty($filtroMetodo)): ?>
-                    <a href="pedidos.php" class="btn btn-outline-secondary btn-sm" title="Limpar Filtros"><i class="fa-solid fa-xmark"></i></a>
+                    <a href="index.php" class="btn btn-outline-secondary btn-sm" title="Limpar Filtros"><i class="fa-solid fa-xmark"></i></a>
                 <?php endif; ?>
             </div>
         </form>
@@ -139,49 +139,65 @@ try {
                                              class="rounded border" width="32" height="32" alt="Skin"
                                              onerror="this.src='https://mc-heads.net/avatar/MHF_Steve/32'">
                                         <div>
-                                            <strong class="text-dark"><?php echo htmlspecialchars($p['nick'], ENT_QUOTES, 'UTF-8'); ?></strong>
-                                            <span class="badge bg-light text-muted border font-monospace d-block" style="font-size: 0.68rem;"><?php echo htmlspecialchars($p['txid'], ENT_QUOTES, 'UTF-8'); ?></span>
+                                            <strong class="text-dark d-block"><?php echo htmlspecialchars($p['nick'], ENT_QUOTES, 'UTF-8'); ?></strong>
+                                            <small class="text-muted font-monospace" style="font-size: 0.72rem;">
+                                                <?php echo htmlspecialchars(mb_strimwidth($p['txid'] ?? '', 0, 18, '...'), ENT_QUOTES, 'UTF-8'); ?>
+                                            </small>
                                         </div>
                                     </div>
                                 </td>
-                                <td><strong class="text-primary"><?php echo htmlspecialchars($p['vip_nome'], ENT_QUOTES, 'UTF-8'); ?></strong></td>
-                                <td><span class="badge bg-secondary"><?php echo htmlspecialchars($p['servidor'], ENT_QUOTES, 'UTF-8'); ?></span></td>
+                                <td>
+                                    <span class="badge bg-light text-dark border font-monospace">
+                                        <i class="fa-solid fa-crown text-warning me-1"></i>
+                                        <?php echo htmlspecialchars($p['vip_nome'] ?? 'VIP', ENT_QUOTES, 'UTF-8'); ?>
+                                    </span>
+                                </td>
+                                <td>
+                                    <span class="badge bg-secondary">
+                                        <?php echo htmlspecialchars($p['servidor_nome'] ?? 'Geral', ENT_QUOTES, 'UTF-8'); ?>
+                                    </span>
+                                </td>
                                 <td>
                                     <?php if ($metodo === 'cartao'): ?>
-                                        <span class="badge bg-info text-dark"><i class="fa-solid fa-credit-card me-1"></i> Cartão <?php echo ($parcelas > 1) ? "({$parcelas}x)" : ""; ?></span>
+                                        <span class="badge bg-info text-dark">
+                                            <i class="fa-regular fa-credit-card me-1"></i> Cartão (<?php echo $parcelas; ?>x)
+                                        </span>
                                     <?php else: ?>
-                                        <span class="badge bg-success">PIX</span>
+                                        <span class="badge bg-success">
+                                            <i class="fa-brands fa-pix me-1"></i> PIX
+                                        </span>
                                     <?php endif; ?>
                                 </td>
                                 <td>
-                                    <strong class="text-dark">R$ <?php echo number_format((float)$p['valor'], 2, ',', '.'); ?></strong>
-                                    <?php if (isset($p['valor_original']) && (float)$p['valor_original'] > (float)$p['valor']): ?>
-                                        <small class="text-muted d-block text-decoration-line-through">R$ <?php echo number_format((float)$p['valor_original'], 2, ',', '.'); ?></small>
-                                    <?php endif; ?>
+                                    <strong class="text-dark">R$ <?php echo number_format((float)($p['valor_pago'] ?? 0), 2, ',', '.'); ?></strong>
                                 </td>
                                 <td>
                                     <?php if (!empty($p['cupom_codigo'])): ?>
-                                        <span class="badge bg-light text-dark border"><i class="fa-solid fa-tag me-1"></i><?php echo htmlspecialchars($p['cupom_codigo'], ENT_QUOTES, 'UTF-8'); ?></span>
+                                        <span class="badge bg-light text-dark border">
+                                            <i class="fa-solid fa-tag text-primary me-1"></i>
+                                            <?php echo htmlspecialchars($p['cupom_codigo'], ENT_QUOTES, 'UTF-8'); ?>
+                                        </span>
                                     <?php else: ?>
                                         <span class="text-muted">—</span>
                                     <?php endif; ?>
                                 </td>
                                 <td>
                                     <?php if ($status === 'pago'): ?>
-                                        <span class="badge-status pago">Aprovado</span>
+                                        <span class="badge-status ativo"><i class="fa-solid fa-check me-1"></i> Aprovado</span>
                                     <?php elseif ($status === 'pendente'): ?>
-                                        <span class="badge-status pendente">Pendente</span>
+                                        <span class="badge-status pendente"><i class="fa-solid fa-clock me-1"></i> Pendente</span>
                                     <?php else: ?>
-                                        <span class="badge-status recusado">Recusado</span>
+                                        <span class="badge-status inativo"><i class="fa-solid fa-xmark me-1"></i> <?php echo htmlspecialchars(ucfirst($status), ENT_QUOTES, 'UTF-8'); ?></span>
                                     <?php endif; ?>
                                 </td>
                                 <td class="text-muted small">
                                     <?php echo date('d/m/Y H:i', strtotime($p['criado_em'])); ?>
                                 </td>
                                 <td class="text-end">
-                                    <button type="button" class="btn btn-sm btn-outline-primary btn-ver-detalhes" 
+                                    <button type="button" 
+                                            class="btn btn-sm btn-outline-primary btn-ver-detalhes" 
                                             data-id="<?php echo (int)$p['id']; ?>"
-                                            data-pedido='<?php echo htmlspecialchars(json_encode($p, JSON_UNESCAPED_UNICODE), ENT_QUOTES, 'UTF-8'); ?>'
+                                            data-pedido="<?php echo htmlspecialchars(json_encode($p), ENT_QUOTES, 'UTF-8'); ?>"
                                             title="Ver Detalhes do Pedido">
                                         <i class="fa-solid fa-eye"></i>
                                     </button>
@@ -200,29 +216,29 @@ try {
     <nav class="d-flex justify-content-center mt-3">
         <ul class="pagination pagination-sm">
             <li class="page-item <?php echo ($pagina <= 1) ? 'disabled' : ''; ?>">
-                <a class="page-link" href="?page=<?php echo max(1, $pagina - 1); ?>&busca=<?php echo urlencode($busca); ?>&status=<?php echo urlencode($filtroStatus); ?>&metodo=<?php echo urlencode($filtroMetodo); ?>">‹ Anterior</a>
+                <a class="page-link" href="?page=<?php echo max(1, $pagina - 1); ?>&status=<?php echo urlencode($filtroStatus); ?>&metodo=<?php echo urlencode($filtroMetodo); ?>&busca=<?php echo urlencode($busca); ?>">‹ Anterior</a>
             </li>
             <?php for ($i = 1; $i <= $totalPaginas; $i++): ?>
                 <li class="page-item <?php echo ($i === $pagina) ? 'active' : ''; ?>">
-                    <a class="page-link" href="?page=<?php echo $i; ?>&busca=<?php echo urlencode($busca); ?>&status=<?php echo urlencode($filtroStatus); ?>&metodo=<?php echo urlencode($filtroMetodo); ?>"><?php echo $i; ?></a>
+                    <a class="page-link" href="?page=<?php echo $i; ?>&status=<?php echo urlencode($filtroStatus); ?>&metodo=<?php echo urlencode($filtroMetodo); ?>&busca=<?php echo urlencode($busca); ?>"><?php echo $i; ?></a>
                 </li>
             <?php endfor; ?>
             <li class="page-item <?php echo ($pagina >= $totalPaginas) ? 'disabled' : ''; ?>">
-                <a class="page-link" href="?page=<?php echo min($totalPaginas, $pagina + 1); ?>&busca=<?php echo urlencode($busca); ?>&status=<?php echo urlencode($filtroStatus); ?>&metodo=<?php echo urlencode($filtroMetodo); ?>">Próxima ›</a>
+                <a class="page-link" href="?page=<?php echo min($totalPaginas, $pagina + 1); ?>&status=<?php echo urlencode($filtroStatus); ?>&metodo=<?php echo urlencode($filtroMetodo); ?>&busca=<?php echo urlencode($busca); ?>">Próxima ›</a>
             </li>
         </ul>
     </nav>
 <?php endif; ?>
 
-<!-- MODAL DE DETALHES DO PEDIDO -->
-<div class="modal fade" id="modal-detalhes-pedido" tabindex="-1" aria-hidden="true">
+<!-- MODAL DETALHES DO PEDIDO -->
+<div class="modal fade" id="modalDetalhesPedido" tabindex="-1" aria-labelledby="modalDetalhesPedidoLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title fw-bold" id="detalhe-title">Detalhes da Transação</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+                <h5 class="modal-title fw-bold" id="modalDetalhesPedidoLabel"><i class="fa-solid fa-receipt text-primary me-2"></i> Detalhes do Pedido</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <div class="modal-body" id="detalhes-conteudo">
+            <div class="modal-body p-0" id="modalDetalhesBody">
                 <div class="text-center py-4">
                     <div class="spinner-border text-primary" role="status"></div>
                 </div>
@@ -236,47 +252,52 @@ try {
 
 <script>
 document.addEventListener('DOMContentLoaded', () => {
-    const modalEl = document.getElementById('modal-detalhes-pedido');
+    const modalEl = document.getElementById('modalDetalhesPedido');
     const modalInstance = new bootstrap.Modal(modalEl);
-    const bodyContent = document.getElementById('detalhes-conteudo');
+    const bodyContent = document.getElementById('modalDetalhesBody');
 
     function renderDetalhesHtml(p) {
-        const statusBadge = (p.status === 'pago') 
-            ? '<span class="badge bg-success">Aprovado</span>' 
-            : (p.status === 'pendente' ? '<span class="badge bg-warning text-dark">Pendente</span>' : '<span class="badge bg-danger">Recusado / Cancelado</span>');
+        const statusMap = {
+            'pago': '<span class="badge-status ativo"><i class="fa-solid fa-check me-1"></i> Aprovado</span>',
+            'pendente': '<span class="badge-status pendente"><i class="fa-solid fa-clock me-1"></i> Pendente</span>',
+            'recusado': '<span class="badge-status inativo"><i class="fa-solid fa-xmark me-1"></i> Recusado</span>'
+        };
+        const statusBadge = statusMap[p.status?.toLowerCase()] || `<span class="badge-status inativo">${p.status || 'Desconhecido'}</span>`;
+        const metodoBadge = (p.metodo_pagamento === 'cartao') 
+            ? `<span class="badge bg-info text-dark"><i class="fa-regular fa-credit-card me-1"></i> Cartão (${p.parcelas || 1}x)</span>`
+            : `<span class="badge bg-success"><i class="fa-brands fa-pix me-1"></i> PIX</span>`;
 
-        const metodoBadge = (p.metodo_pagamento === 'cartao')
-            ? `<i class="fa-solid fa-credit-card me-1"></i> Cartão de Crédito ${(p.parcelas && p.parcelas > 1) ? `(${p.parcelas}x)` : ''}`
-            : '<i class="fa-brands fa-pix me-1"></i> PIX';
-
-        const valorFormatado = Number(p.valor || 0).toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2});
-        const descontoFormatado = Number(p.desconto_aplicado || 0).toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2});
-        const valorOrigFormatado = Number(p.valor_original || p.valor || 0).toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+        const valorFormatado = parseFloat(p.valor_pago || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        const descontoFormatado = parseFloat(p.cupom_desconto || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
         return `
-            <div class="d-flex align-items-center gap-3 p-3 bg-light rounded mb-3 border">
-                <img src="https://mc-heads.net/avatar/${encodeURIComponent(p.nick)}/48" class="rounded border" width="48" height="48" onerror="this.src='https://mc-heads.net/avatar/MHF_Steve/48'">
+            <div class="p-3 bg-light border-bottom d-flex align-items-center gap-3">
+                <img src="https://mc-heads.net/avatar/${encodeURIComponent(p.nick)}/48" class="rounded border" width="48" height="48" alt="Skin" onerror="this.src='https://mc-heads.net/avatar/MHF_Steve/48'">
                 <div>
-                    <h6 class="fw-bold mb-0">${p.nick}</h6>
-                    <small class="text-muted">${p.servidor || 'Servidor'} • <span class="text-primary fw-semibold">${p.vip_nome || 'VIP'}</span></small>
+                    <h5 class="fw-bold mb-0 text-dark">${p.nick}</h5>
+                    <small class="text-muted font-monospace">ID do Pedido: #${p.id}</small>
                 </div>
             </div>
             <ul class="list-group list-group-flush small">
                 <li class="list-group-item d-flex justify-content-between align-items-center">
                     <span class="text-muted">Status:</span>
-                    <div>${statusBadge}</div>
+                    <span>${statusBadge}</span>
                 </li>
                 <li class="list-group-item d-flex justify-content-between align-items-center">
-                    <span class="text-muted">Identificador (TXID):</span>
-                    <strong class="font-monospace text-dark">${p.txid || '—'}</strong>
+                    <span class="text-muted">TXID / Transação:</span>
+                    <span class="font-monospace text-break" style="font-size: 0.78rem;">${p.txid || '—'}</span>
                 </li>
                 <li class="list-group-item d-flex justify-content-between align-items-center">
-                    <span class="text-muted">Mercado Pago ID:</span>
-                    <span class="font-monospace">${p.mp_payment_id || '—'}</span>
+                    <span class="text-muted">Servidor:</span>
+                    <span class="fw-semibold">${p.servidor_nome || '—'}</span>
                 </li>
                 <li class="list-group-item d-flex justify-content-between align-items-center">
-                    <span class="text-muted">Método:</span>
-                    <strong>${metodoBadge}</strong>
+                    <span class="text-muted">Pacote VIP:</span>
+                    <span class="badge bg-light text-dark border font-monospace fs-6"><i class="fa-solid fa-crown text-warning me-1"></i>${p.vip_nome || '—'}</span>
+                </li>
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    <span class="text-muted">Método de Pagamento:</span>
+                    <span>${metodoBadge}</span>
                 </li>
                 ${p.payer_email ? `
                 <li class="list-group-item d-flex justify-content-between align-items-center">
@@ -334,7 +355,7 @@ document.addEventListener('DOMContentLoaded', () => {
             modalInstance.show();
 
             try {
-                const res = await fetch(`api/pedidos/detalhes.php?id=${id}`, {
+                const res = await fetch(`/admin/api/pedidos/detalhes.php?id=${id}`, {
                     headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' }
                 });
                 const text = await res.text();
@@ -356,4 +377,4 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 </script>
 
-<?php require_once __DIR__ . "/includes/admin_footer.php"; ?>
+<?php require_once __DIR__ . "/../includes/admin_footer.php"; ?>

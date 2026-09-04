@@ -31,7 +31,7 @@ if ($id <= 0) {
         echo json_encode(["success" => false, "erro" => "ID inválido."]);
         exit;
     }
-    header("Location: /admin/cupons.php?erro=" . urlencode("ID inválido."));
+    header("Location: /admin/cupons/?erro=" . urlencode("ID inválido."));
     exit;
 }
 
@@ -48,7 +48,7 @@ if (isset($pdo) && $pdo instanceof PDO) {
                 echo json_encode(["success" => false, "erro" => "Cupom não encontrado."]);
                 exit;
             }
-            header("Location: /admin/cupons.php?erro=" . urlencode("Cupom não encontrado."));
+            header("Location: /admin/cupons/?erro=" . urlencode("Cupom não encontrado."));
             exit;
         }
 
@@ -63,7 +63,7 @@ if (isset($pdo) && $pdo instanceof PDO) {
         }
 
         $msg = $novoStatus ? "Cupom '{$cupom['codigo']}' ativado com sucesso!" : "Cupom '{$cupom['codigo']}' desativado com sucesso!";
-        header("Location: /admin/cupons.php?msg=" . urlencode($msg));
+        header("Location: /admin/cupons/?msg=" . urlencode($msg));
         exit;
     } catch (Exception $e) {
         error_log("Erro ao alternar cupom: " . $e->getMessage());
@@ -73,10 +73,10 @@ if (isset($pdo) && $pdo instanceof PDO) {
             echo json_encode(["success" => false, "erro" => "Erro ao atualizar status."]);
             exit;
         }
-        header("Location: /admin/cupons.php?erro=" . urlencode("Erro ao atualizar status."));
+        header("Location: /admin/cupons/?erro=" . urlencode("Erro ao atualizar status."));
         exit;
     }
 }
 
-header("Location: /admin/cupons.php");
+header("Location: /admin/cupons/");
 exit;

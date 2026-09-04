@@ -44,5 +44,5 @@ if ($id > 0 && isset($pdo) && $pdo instanceof PDO) {
     }
 }
 
-header("Location: /admin/servidores.php");
+header("Location: /admin/servidores/");
 exit;

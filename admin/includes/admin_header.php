@@ -41,7 +41,7 @@ $tituloPagina = $tituloPagina ?? 'Painel Administrativo';
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     
     <!-- FOLHA DE ESTILOS CENTRALIZADA -->
-    <link rel="stylesheet" href="admin.css?v=2">
+    <link rel="stylesheet" href="/admin/admin.css?v=2">
 </head>
 <body>
     <div class="admin-layout">
@@ -57,7 +57,7 @@ $tituloPagina = $tituloPagina ?? 'Painel Administrativo';
                         <i class="fa-solid fa-bars"></i>
                     </button>
                     <div class="topbar-breadcrumbs d-none d-sm-flex">
-                        <a href="dashboard.php"><i class="fa-solid fa-house"></i> Painel</a>
+                        <a href="/admin/dashboard.php"><i class="fa-solid fa-house"></i> Painel</a>
                         <i class="fa-solid fa-chevron-right small text-muted"></i>
                         <span class="current"><?php echo htmlspecialchars($tituloPagina, ENT_QUOTES, 'UTF-8'); ?></span>
                     </div>

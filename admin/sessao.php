@@ -1,4 +1,9 @@
 <?php
+// Garante buffer de saída ativo para redirecionamentos seguros
+if (ob_get_level() === 0) {
+    ob_start();
+}
+
 // Arquivo responsável por verificar a sessão em todas as páginas protegidas
 if (session_status() === PHP_SESSION_NONE) {
     session_start();

@@ -19,20 +19,20 @@ if ($configPath) {
 }
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-    header("Location: /admin/wiki_categorias.php");
+    header("Location: /admin/wiki/categorias.php");
     exit;
 }
 
 // CSRF
 $tokenRecebido = $_POST['csrf_token'] ?? '';
 if (!validarCsrfToken($tokenRecebido)) {
-    header("Location: /admin/wiki_categorias.php?erro=" . urlencode("Token CSRF inválido ou expirado."));
+    header("Location: /admin/wiki/categorias.php?erro=" . urlencode("Token CSRF inválido ou expirado."));
     exit;
 }
 
 $id = (int)($_POST['id'] ?? 0);
 if ($id <= 0) {
-    header("Location: /admin/wiki_categorias.php?erro=" . urlencode("ID de categoria inválido."));
+    header("Location: /admin/wiki/categorias.php?erro=" . urlencode("ID de categoria inválido."));
     exit;
 }
 
@@ -41,7 +41,7 @@ try {
     $stmtFind->execute([':id' => $id]);
     $catAtual = $stmtFind->fetch(PDO::FETCH_ASSOC);
     if (!$catAtual) {
-        header("Location: /admin/wiki_categorias.php?erro=" . urlencode("Categoria não encontrada."));
+        header("Location: /admin/wiki/categorias.php?erro=" . urlencode("Categoria não encontrada."));
         exit;
     }
 
@@ -53,7 +53,7 @@ try {
     $totalArtigos = (int)$stmtCount->fetchColumn();
 
     if ($totalArtigos > 0) {
-        header("Location: /admin/wiki_categorias.php?servidor_id=$servidorId&erro=" . urlencode("Não é possível excluir esta categoria porque existem {$totalArtigos} artigo(s) vinculados a ela. Mova ou exclua os artigos primeiro."));
+        header("Location: /admin/wiki/categorias.php?servidor_id=$servidorId&erro=" . urlencode("Não é possível excluir esta categoria porque existem {$totalArtigos} artigo(s) vinculados a ela. Mova ou exclua os artigos primeiro."));
         exit;
     }
 
@@ -61,10 +61,10 @@ try {
     $stmtDelete = $pdo->prepare("DELETE FROM wiki_categorias WHERE id = :id");
     $stmtDelete->execute([':id' => $id]);
 
-    header("Location: /admin/wiki_categorias.php?servidor_id=$servidorId&sucesso=deletado");
+    header("Location: /admin/wiki/categorias.php?servidor_id=$servidorId&sucesso=deletado");
     exit;
 
 } catch (Exception $e) {
-    header("Location: /admin/wiki_categorias.php?erro=" . urlencode("Erro ao excluir categoria: " . $e->getMessage()));
+    header("Location: /admin/wiki/categorias.php?erro=" . urlencode("Erro ao excluir categoria: " . $e->getMessage()));
     exit;
 }
