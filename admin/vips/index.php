@@ -45,42 +45,7 @@ try {
     $vips = [];
 }
 
-function renderBeneficiosBulletPoints(?string $vantagensRaw): string {
-    if (empty($vantagensRaw)) {
-        return '<span class="text-muted small fst-italic">Nenhum benefício cadastrado</span>';
-    }
 
-    $itens = [];
-    $json = json_decode($vantagensRaw, true);
-    if (is_array($json)) {
-        $itens = $json;
-    } else {
-        $itens = array_values(array_filter(array_map('trim', explode("\n", $vantagensRaw))));
-    }
-
-    if (empty($itens)) {
-        return '<span class="text-muted small fst-italic">Nenhum benefício cadastrado</span>';
-    }
-
-    $total = count($itens);
-    $limite = 3;
-    $html = '<ul class="list-unstyled mb-0 small text-start">';
-    
-    foreach (array_slice($itens, 0, $limite) as $item) {
-        $html .= '<li class="d-flex align-items-start gap-1 mb-1">';
-        $html .= '<i class="fa-solid fa-check text-success mt-1" style="font-size: 0.75rem;"></i>';
-        $html .= '<span class="text-secondary">' . htmlspecialchars($item, ENT_QUOTES, 'UTF-8') . '</span>';
-        $html .= '</li>';
-    }
-
-    if ($total > $limite) {
-        $restantes = $total - $limite;
-        $html .= '<li class="text-muted small fst-italic ps-3">+ ' . $restantes . ' outro(s) benefício(s)</li>';
-    }
-
-    $html .= '</ul>';
-    return $html;
-}
 ?>
 
 <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-3">
@@ -138,20 +103,19 @@ function renderBeneficiosBulletPoints(?string $vantagensRaw): string {
             <table class="table table-admin align-middle mb-0">
                 <thead>
                     <tr>
-                        <th style="width: 140px;">Servidor</th>
-                        <th style="width: 180px;">Pacote VIP</th>
-                        <th style="width: 140px;">Package ID</th>
-                        <th style="width: 120px;">Preço</th>
-                        <th style="width: 100px;">Duração</th>
-                        <th>Benefícios (Bullet Points)</th>
-                        <th style="width: 100px;">Status</th>
+                        <th style="width: 160px;">Servidor</th>
+                        <th>Pacote VIP</th>
+                        <th style="width: 160px;">Package ID</th>
+                        <th style="width: 140px;">Preço</th>
+                        <th style="width: 120px;">Duração</th>
+                        <th style="width: 110px;">Status</th>
                         <th class="text-end" style="width: 150px;">Ações</th>
                     </tr>
                 </thead>
                 <tbody>
                     <?php if (empty($vips)): ?>
                         <tr>
-                            <td colspan="8" class="text-center py-4 text-muted">
+                            <td colspan="7" class="text-center py-4 text-muted">
                                 Nenhum pacote VIP encontrado<?php echo $filtroServidor ? ' para o servidor selecionado' : ''; ?>. Clique em "+ Novo Pacote VIP" para cadastrar.
                             </td>
                         </tr>
@@ -193,9 +157,6 @@ function renderBeneficiosBulletPoints(?string $vantagensRaw): string {
                                     <span class="text-muted small">
                                         <?php echo (int)($v['duracao_dias'] ?? 30); ?> dias
                                     </span>
-                                </td>
-                                <td>
-                                    <?php echo renderBeneficiosBulletPoints($v['vantagens']); ?>
                                 </td>
                                 <td>
                                     <?php if (!empty($v['ativo'])): ?>
