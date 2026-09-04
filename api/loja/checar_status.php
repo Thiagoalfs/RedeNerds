@@ -36,6 +36,7 @@ if (!$configPath) {
 require_once $configPath;
 require_once __DIR__ . "/../auth_api.php";
 require_once __DIR__ . "/discord_loja_helper.php";
+require_once __DIR__ . "/delivery_helper.php";
 verificarAcessoApi();
 
 // Auto-limpeza de pedidos pendentes com mais de 15 minutos
@@ -202,6 +203,13 @@ if ($isLiveMpToken) {
                     $pedido['valor'],
                     $txid
                 );
+
+                // Dispara entrega do VIP na API de Entregas
+                try {
+                    enviarEntregaVip($pedido, $pdo);
+                } catch (Exception $e) {
+                    error_log("Erro ao disparar entrega VIP no checar_status: " . $e->getMessage());
+                }
 
                 echo json_encode([
                     "success" => true,

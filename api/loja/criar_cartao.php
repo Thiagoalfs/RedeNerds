@@ -41,6 +41,7 @@ if (!$configPath) {
 require_once $configPath;
 require_once __DIR__ . "/../auth_api.php";
 require_once __DIR__ . "/discord_loja_helper.php";
+require_once __DIR__ . "/delivery_helper.php";
 verificarAcessoApi();
 
 // Lê os dados recebidos via JSON (ou POST)
@@ -430,6 +431,22 @@ if ($statusBd === 'pago') {
         );
     } catch (Exception $e) {
         error_log("Erro ao disparar webhook Discord: " . $e->getMessage());
+    }
+
+    // Dispara entrega do VIP na API de Entregas
+    try {
+        $pedidoIdCriado = (isset($pdo) && $pdo instanceof PDO) ? (int)$pdo->lastInsertId() : $txid;
+        $pedidoCriado = [
+            'id'        => $pedidoIdCriado,
+            'nick'      => $nick,
+            'servidor'  => $servidor,
+            'vip_id'    => $vipId,
+            'vip_nome'  => $vipNome,
+            'txid'      => $txid
+        ];
+        enviarEntregaVip($pedidoCriado, $pdo);
+    } catch (Exception $e) {
+        error_log("Erro ao disparar entrega VIP no criar_cartao: " . $e->getMessage());
     }
 }
 

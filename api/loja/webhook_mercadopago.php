@@ -33,6 +33,7 @@ if (!$configPath) {
 
 require_once $configPath;
 require_once __DIR__ . "/discord_loja_helper.php";
+require_once __DIR__ . "/delivery_helper.php";
 
 // Lê payload JSON ou parâmetros GET
 $rawInput = file_get_contents('php://input');
@@ -169,6 +170,13 @@ if ($status === 'approved' && !empty($externalRef)) {
             (int)($pedido['parcelas'] ?? 1),
             $pedido['valor_total'] ?? null
         );
+
+        // Dispara entrega do VIP na API de Entregas
+        try {
+            enviarEntregaVip($pedido, $pdo);
+        } catch (Exception $e) {
+            error_log("Erro ao disparar entrega VIP no webhook: " . $e->getMessage());
+        }
     }
 }
 
