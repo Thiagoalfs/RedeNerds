@@ -11,6 +11,7 @@ try {
     $stmtSrv = $pdo->query("SELECT id, servername, nome, themecolor, icon FROM servidores ORDER BY servername ASC");
     $servidores = $stmtSrv->fetchAll(PDO::FETCH_ASSOC);
     foreach ($servidores as $s) {
+        $servidoresMap[$s['id']] = $s;
         $servidoresMap[$s['servername']] = $s;
         if (!empty($s['nome'])) {
             $servidoresMap[$s['nome']] = $s;
@@ -24,9 +25,16 @@ $where = [];
 $params = [];
 
 if ($filtroServidor !== '') {
-    $where[] = "(v.servidor = :servidor_nome OR v.servidor = :servidor_slug)";
-    $params[':servidor_nome'] = $filtroServidor;
-    $params[':servidor_slug'] = $filtroServidor;
+    if (is_numeric($filtroServidor)) {
+        $where[] = "(v.servidor_id = :servidor_id OR v.servidor = :servidor_nome)";
+        $params[':servidor_id'] = (int)$filtroServidor;
+        $srvObj = $servidoresMap[$filtroServidor] ?? null;
+        $params[':servidor_nome'] = $srvObj ? $srvObj['servername'] : $filtroServidor;
+    } else {
+        $where[] = "(v.servidor = :servidor_nome OR v.servidor = :servidor_slug)";
+        $params[':servidor_nome'] = $filtroServidor;
+        $params[':servidor_slug'] = $filtroServidor;
+    }
 }
 
 $whereSql = !empty($where) ? "WHERE " . implode(" AND ", $where) : "";
@@ -34,18 +42,17 @@ $whereSql = !empty($where) ? "WHERE " . implode(" AND ", $where) : "";
 $vips = [];
 try {
     $stmt = $pdo->prepare("
-        SELECT v.* 
+        SELECT v.*, s.servername as servidor_nome_oficial, s.themecolor as servidor_cor, s.icon as servidor_icone
         FROM vips v
+        LEFT JOIN servidores s ON (s.id = v.servidor_id OR s.servername = v.servidor OR s.nome = v.servidor)
         $whereSql
-        ORDER BY v.servidor ASC, v.preco ASC
+        ORDER BY COALESCE(s.servername, v.servidor) ASC, v.preco ASC
     ");
     $stmt->execute($params);
     $vips = $stmt->fetchAll(PDO::FETCH_ASSOC);
 } catch (PDOException $e) {
     $vips = [];
 }
-
-
 ?>
 
 <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-3">
@@ -81,7 +88,7 @@ try {
                 <select name="servidor" class="form-select form-select-sm" onchange="this.form.submit()">
                     <option value="">Filtrar por Servidor: Todos os Servidores</option>
                     <?php foreach ($servidores as $s): ?>
-                        <option value="<?php echo htmlspecialchars($s['servername'], ENT_QUOTES, 'UTF-8'); ?>" <?php echo ($filtroServidor === $s['servername'] || $filtroServidor === $s['nome']) ? 'selected' : ''; ?>>
+                        <option value="<?php echo (int)$s['id']; ?>" <?php echo ((string)$filtroServidor === (string)$s['id'] || $filtroServidor === $s['servername'] || $filtroServidor === $s['nome']) ? 'selected' : ''; ?>>
                             <?php echo htmlspecialchars($s['servername'], ENT_QUOTES, 'UTF-8'); ?>
                         </option>
                     <?php endforeach; ?>
@@ -121,14 +128,14 @@ try {
                         </tr>
                     <?php else: ?>
                         <?php foreach ($vips as $v): 
-                            $srvInfo = $servidoresMap[$v['servidor']] ?? null;
-                            $srvCor = $srvInfo['themecolor'] ?? '#B971DA';
+                            $srvNome = $v['servidor_nome_oficial'] ?: ($v['servidor'] ?: 'Servidor');
+                            $srvCor = $v['servidor_cor'] ?: ($servidoresMap[$v['servidor_id'] ?? $v['servidor']]['themecolor'] ?? '#B971DA');
                         ?>
                             <tr>
                                 <td>
                                     <span class="badge" style="background-color: <?php echo htmlspecialchars($srvCor, ENT_QUOTES, 'UTF-8'); ?>; color: #fff; font-weight: 600;">
                                         <i class="fa-solid fa-server me-1"></i>
-                                        <?php echo htmlspecialchars($v['servidor'], ENT_QUOTES, 'UTF-8'); ?>
+                                        <?php echo htmlspecialchars($srvNome, ENT_QUOTES, 'UTF-8'); ?>
                                     </span>
                                 </td>
                                 <td>
