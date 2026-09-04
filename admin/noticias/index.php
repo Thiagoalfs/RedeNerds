@@ -13,9 +13,19 @@ $params = !empty($busca) ? [':busca' => "%{$busca}%"] : [];
 
 $totalNoticias = 0;
 $noticias = [];
+$servidoresMap = [];
 
 try {
     if (isset($pdo) && $pdo instanceof PDO) {
+        $stmtSrv = $pdo->query("SELECT id, servername, nome, themecolor, icon FROM servidores ORDER BY servername ASC");
+        $servidoresList = $stmtSrv->fetchAll(PDO::FETCH_ASSOC);
+        foreach ($servidoresList as $s) {
+            $servidoresMap[$s['servername']] = $s;
+            if (!empty($s['nome'])) {
+                $servidoresMap[$s['nome']] = $s;
+            }
+        }
+
         $stmtCount = $pdo->prepare("SELECT COUNT(*) FROM novidades $whereSql");
         $stmtCount->execute($params);
         $totalNoticias = (int)$stmtCount->fetchColumn();
@@ -104,7 +114,17 @@ try {
                                 <td>
                                     <strong class="text-dark"><?php echo htmlspecialchars($n['titulo'], ENT_QUOTES, 'UTF-8'); ?></strong>
                                 </td>
-                                <td><span class="badge bg-secondary"><?php echo htmlspecialchars($n['category'] ?? 'Geral', ENT_QUOTES, 'UTF-8'); ?></span></td>
+                                <td>
+                                    <?php 
+                                        $srvKey = $n['category'] ?? '';
+                                        $srvInfo = $servidoresMap[$srvKey] ?? null;
+                                        $srvCor = $srvInfo['themecolor'] ?? '#64748b';
+                                    ?>
+                                    <span class="badge" style="background-color: <?php echo htmlspecialchars($srvCor, ENT_QUOTES, 'UTF-8'); ?>; color: #fff; font-weight: 600;">
+                                        <i class="fa-solid fa-server me-1"></i>
+                                        <?php echo htmlspecialchars($srvKey ?: 'Geral', ENT_QUOTES, 'UTF-8'); ?>
+                                    </span>
+                                </td>
                                 <td><span class="badge bg-light text-dark border"><?php echo htmlspecialchars($n['categoria_envio'] ?? 'Atualização', ENT_QUOTES, 'UTF-8'); ?></span></td>
                                 <td><small><?php echo htmlspecialchars($n['autor'] ?? 'Admin', ENT_QUOTES, 'UTF-8'); ?></small></td>
                                 <td class="text-muted small"><?php echo date('d/m/Y H:i', strtotime($n['criado_em'])); ?></td>

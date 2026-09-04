@@ -13,9 +13,19 @@ $totalUsosCupons = 0;
 $totalServidores = 0;
 $totalNoticias = 0;
 $ultimosPedidos = [];
+$servidoresMap = [];
 
 try {
     if (isset($pdo) && $pdo instanceof PDO) {
+        $stmtSrv = $pdo->query("SELECT id, servername, nome, themecolor, icon FROM servidores ORDER BY servername ASC");
+        $servidoresList = $stmtSrv->fetchAll(PDO::FETCH_ASSOC);
+        foreach ($servidoresList as $s) {
+            $servidoresMap[$s['servername']] = $s;
+            if (!empty($s['nome'])) {
+                $servidoresMap[$s['nome']] = $s;
+            }
+        }
+
         // Faturamento Total
         $totalFaturamento = (float)$pdo->query("SELECT COALESCE(SUM(valor), 0) FROM pedidos_vip WHERE status = 'pago'")->fetchColumn();
 
@@ -158,7 +168,17 @@ try {
                                         <span class="badge bg-light text-dark border ms-1" style="font-size: 0.68rem;"><i class="fa-solid fa-tag me-1"></i><?php echo htmlspecialchars($ped['cupom_codigo'], ENT_QUOTES, 'UTF-8'); ?></span>
                                     <?php endif; ?>
                                 </td>
-                                <td><span class="badge bg-secondary"><?php echo htmlspecialchars($ped['servidor'], ENT_QUOTES, 'UTF-8'); ?></span></td>
+                                <td>
+                                    <?php 
+                                        $srvKey = $ped['servidor'] ?? $ped['servidor_nome'] ?? '';
+                                        $srvInfo = $servidoresMap[$srvKey] ?? null;
+                                        $srvCor = $srvInfo['themecolor'] ?? '#64748b';
+                                    ?>
+                                    <span class="badge" style="background-color: <?php echo htmlspecialchars($srvCor, ENT_QUOTES, 'UTF-8'); ?>; color: #fff; font-weight: 600;">
+                                        <i class="fa-solid fa-server me-1"></i>
+                                        <?php echo htmlspecialchars($srvKey ?: 'Geral', ENT_QUOTES, 'UTF-8'); ?>
+                                    </span>
+                                </td>
                                 <td>
                                     <?php if ($metodo === 'cartao'): ?>
                                         <span class="badge bg-info text-dark"><i class="fa-solid fa-credit-card me-1"></i> Cartão <?php echo ($parcelas > 1) ? "({$parcelas}x)" : ""; ?></span>
