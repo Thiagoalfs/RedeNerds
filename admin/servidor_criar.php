@@ -54,13 +54,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         try {
             $stmt = $pdo->prepare("
-                INSERT INTO servidores (servername, nome, title, icon, bg_image, descricao, features, modpackurl, ip, themecolor, enabled)
-                VALUES (:servername, :nome, :title, :icon, :bg_image, :descricao, :features, :modpackurl, :ip, :themecolor, :enabled)
+                INSERT INTO servidores (servername, icon, bg_image, descricao, features, modpackurl, ip, themecolor, enabled)
+                VALUES (:servername, :icon, :bg_image, :descricao, :features, :modpackurl, :ip, :themecolor, :enabled)
             ");
             $stmt->execute([
                 ':servername' => $servername,
-                ':nome'       => $slugCalculado,
-                ':title'      => $servername,
                 ':icon'       => $icon,
                 ':bg_image'   => $bg_image,
                 ':descricao'  => $descricao,
@@ -72,8 +70,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             ]);
 
             $novoServidorId = (int)$pdo->lastInsertId();
-garantirCategoriasPadraoWiki($pdo, $novoServidorId);
-header("Location: servidores.php");
+            garantirCategoriasPadraoWiki($pdo, $novoServidorId);
+            header("Location: servidores.php");
             exit;
         } catch (PDOException $e) {
             $mensagem_erro = "Erro ao cadastrar servidor: " . $e->getMessage();

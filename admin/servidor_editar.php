@@ -60,15 +60,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         try {
             $stmt = $pdo->prepare("
                 UPDATE servidores 
-                SET servername = :servername, nome = :nome, title = :title, icon = :icon, 
+                SET servername = :servername, icon = :icon, 
                     descricao = :descricao, features = :features, modpackurl = :modpackurl, 
                     ip = :ip, themecolor = :themecolor, enabled = :enabled
                 WHERE id = :id
             ");
             $stmt->execute([
                 ':servername' => $servername,
-                ':nome'       => $slugCalculado,
-                ':title'      => $servername,
                 ':icon'       => $icon,
                 ':descricao'  => $descricao,
                 ':features'   => $featuresJson,
