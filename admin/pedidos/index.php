@@ -25,7 +25,7 @@ if (!empty($filtroMetodo)) {
 }
 
 if (!empty($busca)) {
-    $where[] = "(nick LIKE :busca OR txid LIKE :busca OR payer_email LIKE :busca OR payer_cpf LIKE :busca)";
+    $where[] = "(nick LIKE :busca OR txid LIKE :busca OR payer_email LIKE :busca OR payer_cpf LIKE :busca OR servidor LIKE :busca OR vip_nome LIKE :busca)";
     $params[':busca'] = "%{$busca}%";
 }
 
@@ -154,7 +154,7 @@ try {
                                 </td>
                                 <td>
                                     <span class="badge bg-secondary">
-                                        <?php echo htmlspecialchars($p['servidor_nome'] ?? 'Geral', ENT_QUOTES, 'UTF-8'); ?>
+                                        <?php echo htmlspecialchars($p['servidor'] ?? $p['servidor_nome'] ?? 'Geral', ENT_QUOTES, 'UTF-8'); ?>
                                     </span>
                                 </td>
                                 <td>
@@ -169,7 +169,7 @@ try {
                                     <?php endif; ?>
                                 </td>
                                 <td>
-                                    <strong class="text-dark">R$ <?php echo number_format((float)($p['valor_pago'] ?? 0), 2, ',', '.'); ?></strong>
+                                    <strong class="text-dark">R$ <?php echo number_format((float)($p['valor'] ?? $p['valor_pago'] ?? 0), 2, ',', '.'); ?></strong>
                                 </td>
                                 <td>
                                     <?php if (!empty($p['cupom_codigo'])): ?>
@@ -267,8 +267,8 @@ document.addEventListener('DOMContentLoaded', () => {
             ? `<span class="badge bg-info text-dark"><i class="fa-regular fa-credit-card me-1"></i> Cartão (${p.parcelas || 1}x)</span>`
             : `<span class="badge bg-success"><i class="fa-brands fa-pix me-1"></i> PIX</span>`;
 
-        const valorFormatado = parseFloat(p.valor_pago || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-        const descontoFormatado = parseFloat(p.cupom_desconto || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        const valorFormatado = parseFloat(p.valor || p.valor_pago || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        const descontoFormatado = parseFloat(p.desconto_aplicado || p.cupom_desconto || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
         return `
             <div class="p-3 bg-light border-bottom d-flex align-items-center gap-3">
@@ -289,7 +289,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 </li>
                 <li class="list-group-item d-flex justify-content-between align-items-center">
                     <span class="text-muted">Servidor:</span>
-                    <span class="fw-semibold">${p.servidor_nome || '—'}</span>
+                    <span class="fw-semibold">${p.servidor || p.servidor_nome || '—'}</span>
                 </li>
                 <li class="list-group-item d-flex justify-content-between align-items-center">
                     <span class="text-muted">Pacote VIP:</span>
