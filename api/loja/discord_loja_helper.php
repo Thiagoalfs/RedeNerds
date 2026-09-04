@@ -4,6 +4,21 @@
  * Helper para envio de notificações de compras de VIP para o Discord.
  */
 
+$configPaths = [
+    __DIR__ . "/../../../config.php",
+    __DIR__ . "/../../config.php",
+    __DIR__ . "/../config.php",
+    __DIR__ . "/config.php",
+    ($_SERVER['DOCUMENT_ROOT'] ?? '') . "/../config.php",
+    ($_SERVER['DOCUMENT_ROOT'] ?? '') . "/config.php"
+];
+foreach ($configPaths as $cp) {
+    if (!empty($cp) && file_exists($cp)) {
+        require_once $cp;
+        break;
+    }
+}
+
 if (!defined('DISCORD_WEBHOOKS')) {
     define('DISCORD_WEBHOOKS', []);
 }
