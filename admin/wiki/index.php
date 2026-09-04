@@ -20,7 +20,7 @@ $artigos = [];
 try {
     $stmt = $pdo->prepare("
         SELECT a.id, a.titulo, a.slug, a.publicado, a.visualizacoes, a.autor, a.criado_em,
-               s.servername, s.nome as servidor_slug, c.nome as categoria_nome
+               s.servername, s.nome as servidor_slug, s.themecolor, c.nome as categoria_nome
         FROM wiki_artigos a
         JOIN servidores s ON s.id = a.servidor_id
         JOIN wiki_categorias c ON c.id = a.categoria_id
@@ -104,7 +104,12 @@ try {
                                     <strong class="text-dark"><?php echo htmlspecialchars($art['titulo'], ENT_QUOTES, 'UTF-8'); ?></strong>
                                     <small class="text-muted d-block font-monospace" style="font-size: 0.7rem;">/wiki/artigo.php?s=<?php echo urlencode($art['servidor_slug']); ?>&slug=<?php echo urlencode($art['slug']); ?></small>
                                 </td>
-                                <td><span class="badge bg-secondary"><?php echo htmlspecialchars($art['servername'], ENT_QUOTES, 'UTF-8'); ?></span></td>
+                                <td>
+                                    <span class="badge" style="background-color: <?php echo htmlspecialchars($art['themecolor'] ?? '#64748b', ENT_QUOTES, 'UTF-8'); ?>; color: #fff; font-weight: 600;">
+                                        <i class="fa-solid fa-server me-1"></i>
+                                        <?php echo htmlspecialchars($art['servername'], ENT_QUOTES, 'UTF-8'); ?>
+                                    </span>
+                                </td>
                                 <td><span class="badge bg-light text-dark border"><?php echo htmlspecialchars($art['categoria_nome'], ENT_QUOTES, 'UTF-8'); ?></span></td>
                                 <td><span class="badge bg-light text-dark border font-monospace"><?php echo (int)$art['visualizacoes']; ?></span></td>
                                 <td>

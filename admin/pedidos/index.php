@@ -33,9 +33,19 @@ $whereSql = !empty($where) ? "WHERE " . implode(" AND ", $where) : "";
 
 $totalPedidos = 0;
 $pedidos = [];
+$servidoresMap = [];
 
 try {
     if (isset($pdo) && $pdo instanceof PDO) {
+        $stmtSrv = $pdo->query("SELECT id, servername, nome, themecolor, icon FROM servidores ORDER BY servername ASC");
+        $servidoresList = $stmtSrv->fetchAll(PDO::FETCH_ASSOC);
+        foreach ($servidoresList as $s) {
+            $servidoresMap[$s['servername']] = $s;
+            if (!empty($s['nome'])) {
+                $servidoresMap[$s['nome']] = $s;
+            }
+        }
+
         $stmtCount = $pdo->prepare("SELECT COUNT(*) FROM pedidos_vip $whereSql");
         $stmtCount->execute($params);
         $totalPedidos = (int)$stmtCount->fetchColumn();
@@ -153,8 +163,14 @@ try {
                                     </span>
                                 </td>
                                 <td>
-                                    <span class="badge bg-secondary">
-                                        <?php echo htmlspecialchars($p['servidor'] ?? $p['servidor_nome'] ?? 'Geral', ENT_QUOTES, 'UTF-8'); ?>
+                                    <?php 
+                                        $srvKey = $p['servidor'] ?? $p['servidor_nome'] ?? '';
+                                        $srvInfo = $servidoresMap[$srvKey] ?? null;
+                                        $srvCor = $srvInfo['themecolor'] ?? '#64748b';
+                                    ?>
+                                    <span class="badge" style="background-color: <?php echo htmlspecialchars($srvCor, ENT_QUOTES, 'UTF-8'); ?>; color: #fff; font-weight: 600;">
+                                        <i class="fa-solid fa-server me-1"></i>
+                                        <?php echo htmlspecialchars($srvKey ?: 'Geral', ENT_QUOTES, 'UTF-8'); ?>
                                     </span>
                                 </td>
                                 <td>
