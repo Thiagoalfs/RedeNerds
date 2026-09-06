@@ -26,12 +26,10 @@ $params = [];
 
 if ($filtroServidor !== '') {
     if (is_numeric($filtroServidor)) {
-        $where[] = "(v.servidor_id = :servidor_id OR v.servidor COLLATE utf8mb4_unicode_ci = :servidor_nome COLLATE utf8mb4_unicode_ci)";
+        $where[] = "v.servidor_id = :servidor_id";
         $params[':servidor_id'] = (int)$filtroServidor;
-        $srvObj = $servidoresMap[$filtroServidor] ?? null;
-        $params[':servidor_nome'] = $srvObj ? $srvObj['servername'] : $filtroServidor;
     } else {
-        $where[] = "(v.servidor COLLATE utf8mb4_unicode_ci = :servidor_nome COLLATE utf8mb4_unicode_ci OR v.servidor COLLATE utf8mb4_unicode_ci = :servidor_slug COLLATE utf8mb4_unicode_ci)";
+        $where[] = "(s.servername = :servidor_nome OR s.nome = :servidor_slug)";
         $params[':servidor_nome'] = $filtroServidor;
         $params[':servidor_slug'] = $filtroServidor;
     }
@@ -44,13 +42,9 @@ try {
     $stmt = $pdo->prepare("
         SELECT v.*, s.servername as servidor_nome_oficial, s.themecolor as servidor_cor, s.icon as servidor_icone
         FROM vips v
-        LEFT JOIN servidores s ON (
-            (v.servidor_id IS NOT NULL AND v.servidor_id > 0 AND s.id = v.servidor_id)
-            OR (s.servername COLLATE utf8mb4_unicode_ci = v.servidor COLLATE utf8mb4_unicode_ci)
-            OR (s.nome COLLATE utf8mb4_unicode_ci = v.servidor COLLATE utf8mb4_unicode_ci)
-        )
+        INNER JOIN servidores s ON s.id = v.servidor_id
         $whereSql
-        ORDER BY COALESCE(s.servername COLLATE utf8mb4_unicode_ci, v.servidor) ASC, v.preco ASC
+        ORDER BY s.servername ASC, v.preco ASC
     ");
     $stmt->execute($params);
     $vips = $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -133,8 +127,8 @@ try {
                         </tr>
                     <?php else: ?>
                         <?php foreach ($vips as $v): 
-                            $srvNome = $v['servidor_nome_oficial'] ?: ($v['servidor'] ?: 'Servidor');
-                            $srvCor = $v['servidor_cor'] ?: ($servidoresMap[$v['servidor_id'] ?? $v['servidor']]['themecolor'] ?? '#B971DA');
+                            $srvNome = $v['servidor_nome_oficial'] ?: ($servidoresMap[$v['servidor_id']]['servername'] ?? 'Servidor');
+                            $srvCor = $v['servidor_cor'] ?: ($servidoresMap[$v['servidor_id']]['themecolor'] ?? '#B971DA');
                         ?>
                             <tr>
                                 <td>
@@ -189,7 +183,7 @@ try {
                                                 <i class="fa-solid <?php echo !empty($v['ativo']) ? 'fa-eye' : 'fa-eye-slash'; ?>"></i>
                                             </button>
                                         </form>
-                                        <form method="POST" action="/admin/api/vips/deletar.php" class="d-inline" onsubmit="return confirm('Tem certeza que deseja excluir o pacote <?php echo htmlspecialchars(addslashes($v['nome']), ENT_QUOTES, 'UTF-8'); ?> do servidor <?php echo htmlspecialchars(addslashes($v['servidor']), ENT_QUOTES, 'UTF-8'); ?>?');">
+                                        <form method="POST" action="/admin/api/vips/deletar.php" class="d-inline" onsubmit="return confirm('Tem certeza que deseja excluir o pacote <?php echo htmlspecialchars(addslashes($v['nome']), ENT_QUOTES, 'UTF-8'); ?> do servidor <?php echo htmlspecialchars(addslashes($srvNome), ENT_QUOTES, 'UTF-8'); ?>?');">
                                             <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($csrfToken, ENT_QUOTES, 'UTF-8'); ?>">
                                             <input type="hidden" name="id" value="<?php echo (int)$v['id']; ?>">
                                             <button type="submit" class="btn btn-sm btn-danger" title="Deletar VIP">

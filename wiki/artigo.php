@@ -34,7 +34,7 @@ $stmt = $pdo->prepare("
     SELECT a.*, c.nome AS categoria_nome, c.slug AS categoria_slug 
     FROM wiki_artigos a 
     JOIN wiki_categorias c ON c.id = a.categoria_id 
-    WHERE a.servidor_id = :servidor_id AND a.slug = :slug AND a.publicado = 1 
+    WHERE c.servidor_id = :servidor_id AND a.slug = :slug AND a.publicado = 1 
     LIMIT 1
 ");
 $stmt->execute([
@@ -58,10 +58,11 @@ $categorias = getCategoriasServidorWiki($pdo, (int)$servidorAtual['id']);
 $artigosPorCategoria = [];
 try {
     $stmtArtigos = $pdo->prepare("
-        SELECT id, categoria_id, titulo, slug, resumo, visualizacoes, criado_em 
-        FROM wiki_artigos 
-        WHERE servidor_id = :servidor_id AND publicado = 1 
-        ORDER BY ordem ASC, id ASC
+        SELECT a.id, a.categoria_id, a.titulo, a.slug, a.resumo, a.visualizacoes, a.criado_em 
+        FROM wiki_artigos a 
+        JOIN wiki_categorias c ON c.id = a.categoria_id 
+        WHERE c.servidor_id = :servidor_id AND a.publicado = 1 
+        ORDER BY a.ordem ASC, a.id ASC
     ");
     $stmtArtigos->execute([':servidor_id' => $servidorAtual['id']]);
     $artigosDb = $stmtArtigos->fetchAll(PDO::FETCH_ASSOC);

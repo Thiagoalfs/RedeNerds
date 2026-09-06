@@ -10,7 +10,7 @@ $where = [];
 $params = [];
 
 if ($filtroServidor > 0) {
-    $where[] = "a.servidor_id = :servidor_id";
+    $where[] = "c.servidor_id = :servidor_id";
     $params[':servidor_id'] = $filtroServidor;
 }
 
@@ -22,14 +22,16 @@ try {
         SELECT a.id, a.titulo, a.slug, a.publicado, a.visualizacoes, a.autor, a.criado_em,
                s.servername, s.nome as servidor_slug, s.themecolor, c.nome as categoria_nome
         FROM wiki_artigos a
-        JOIN servidores s ON s.id = a.servidor_id
         JOIN wiki_categorias c ON c.id = a.categoria_id
+        JOIN servidores s ON s.id = c.servidor_id
         $whereSql
         ORDER BY a.id DESC
     ");
     $stmt->execute($params);
     $artigos = $stmt->fetchAll(PDO::FETCH_ASSOC);
-} catch (Exception $e) {}
+} catch (Exception $e) {
+    error_log("Erro ao buscar artigos wiki: " . $e->getMessage());
+}
 ?>
 
 <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-3">

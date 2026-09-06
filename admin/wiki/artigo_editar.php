@@ -25,7 +25,13 @@ if ($id <= 0) {
     exit;
 }
 
-$stmt = $pdo->prepare("SELECT * FROM wiki_artigos WHERE id = :id LIMIT 1");
+$stmt = $pdo->prepare("
+    SELECT a.*, c.servidor_id 
+    FROM wiki_artigos a 
+    JOIN wiki_categorias c ON c.id = a.categoria_id 
+    WHERE a.id = :id 
+    LIMIT 1
+");
 $stmt->execute([':id' => $id]);
 $artigo = $stmt->fetch(PDO::FETCH_ASSOC);
 
@@ -65,8 +71,8 @@ if (empty($nicksEquipe)) {
 }
 
 $erro = null;
-$servidor_id = (int)($_POST['servidor_id'] ?? $artigo['servidor_id']);
-$categoria_id = (int)($_POST['categoria_id'] ?? $artigo['categoria_id']);
+$servidor_id = (int)($_POST['servidor_id'] ?? ($artigo['servidor_id'] ?? 0));
+$categoria_id = (int)($_POST['categoria_id'] ?? ($artigo['categoria_id'] ?? 0));
 $titulo = trim($_POST['titulo'] ?? $artigo['titulo']);
 $conteudo = trim($_POST['conteudo'] ?? $artigo['conteudo']);
 $autor = trim($_POST['autor'] ?? $artigo['autor']);
@@ -94,11 +100,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             $upd = $pdo->prepare("
                 UPDATE wiki_artigos 
-                SET servidor_id = :servidor_id, categoria_id = :categoria_id, titulo = :titulo, conteudo = :conteudo, autor = :autor, publicado = :publicado
+                SET categoria_id = :categoria_id, titulo = :titulo, conteudo = :conteudo, autor = :autor, publicado = :publicado, atualizado_em = NOW()
                 WHERE id = :id
             ");
             $upd->execute([
-                ':servidor_id'  => $servidor_id,
                 ':categoria_id' => $categoria_id,
                 ':titulo'       => $titulo,
                 ':conteudo'     => $conteudo,
