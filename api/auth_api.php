@@ -64,8 +64,7 @@ function verificarAcessoApi(bool $exigirApiKeyApenas = false): void {
         'redenerds.com.br',
         'www.redenerds.com.br',
         'localhost',
-        '127.0.0.1',
-        '162.35.97.76'
+        '127.0.0.1'
     ];
 
     // Adiciona dinamicamente os hosts locais/atuais do servidor
