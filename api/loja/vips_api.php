@@ -199,17 +199,8 @@ if (!empty($servidoresDoBanco) && !empty($vipsDoBanco)) {
         $vipsDoServidor = [];
 
         foreach ($vipsDoBanco as $v) {
-            $vipSrvRaw = trim($v['servidor'] ?? '');
-            $vipSrvLimpo = strtolower(preg_replace('/[^a-zA-Z0-9]/', '', $vipSrvRaw));
             $vipServidorId = (int)($v['servidor_id'] ?? 0);
-
-            // Correspondência direta por ID do servidor, com fallback por nome/slug
-            $pertenceAoServidor = (
-                ($vipServidorId > 0 && $vipServidorId === (int)$srv['id']) ||
-                strcasecmp($vipSrvRaw, $srv['servername']) === 0 ||
-                strcasecmp($vipSrvRaw, $srvSlug) === 0 ||
-                ($vipSrvLimpo !== '' && $vipSrvLimpo === $srvNomeLimpo)
-            );
+            $pertenceAoServidor = ($vipServidorId > 0 && $vipServidorId === (int)$srv['id']);
 
             if ($pertenceAoServidor) {
                 // Processa as vantagens (JSON ou quebras de linha)

@@ -72,7 +72,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $slugBase = $slug;
         $contador = 1;
         while (true) {
-            $checkSlug = $pdo->prepare("SELECT id FROM wiki_artigos WHERE servidor_id = :servidor_id AND slug = :slug LIMIT 1");
+            $checkSlug = $pdo->prepare("
+                SELECT a.id 
+                FROM wiki_artigos a 
+                JOIN wiki_categorias c ON c.id = a.categoria_id 
+                WHERE c.servidor_id = :servidor_id AND a.slug = :slug 
+                LIMIT 1
+            ");
             $checkSlug->execute([':servidor_id' => $servidor_id, ':slug' => $slug]);
             if (!$checkSlug->fetch()) {
                 break;
@@ -93,11 +99,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
 
             $stmt = $pdo->prepare("
-                INSERT INTO wiki_artigos (servidor_id, categoria_id, titulo, slug, conteudo, autor, publicado, criado_em, atualizado_em)
-                VALUES (:servidor_id, :categoria_id, :titulo, :slug, :conteudo, :autor, :publicado, NOW(), NOW())
+                INSERT INTO wiki_artigos (categoria_id, titulo, slug, conteudo, autor, publicado, criado_em, atualizado_em)
+                VALUES (:categoria_id, :titulo, :slug, :conteudo, :autor, :publicado, NOW(), NOW())
             ");
             $stmt->execute([
-                ':servidor_id'  => $servidor_id,
                 ':categoria_id' => $categoria_id,
                 ':titulo'       => $titulo,
                 ':slug'         => $slug,

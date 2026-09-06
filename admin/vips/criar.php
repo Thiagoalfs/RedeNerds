@@ -79,16 +79,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $mensagem_erro = "Adicione ao menos um benefício (bullet point) para o pacote VIP.";
         } else {
             $vantagensJson = json_encode($vantagens, JSON_UNESCAPED_UNICODE);
-            $servidorNome = $servidorObj['servername'];
 
             try {
                 $stmt = $pdo->prepare("
-                    INSERT INTO vips (servidor_id, servidor, nome, preco, duracao_dias, destaque, vantagens, ativo)
-                    VALUES (:servidor_id, :servidor, :nome, :preco, :duracao_dias, :destaque, :vantagens, :ativo)
+                    INSERT INTO vips (servidor_id, nome, preco, duracao_dias, destaque, vantagens, ativo)
+                    VALUES (:servidor_id, :nome, :preco, :duracao_dias, :destaque, :vantagens, :ativo)
                 ");
                 $stmt->execute([
                     ':servidor_id'  => $servidor_id_selecionado,
-                    ':servidor'     => $servidorNome,
                     ':nome'         => $nome,
                     ':preco'        => $preco,
                     ':duracao_dias' => $duracao_dias > 0 ? $duracao_dias : 30,
