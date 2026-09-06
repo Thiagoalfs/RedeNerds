@@ -64,7 +64,6 @@ function verificarAcessoApi(bool $exigirApiKeyApenas = false): void {
         'redenerds.com.br',
         'www.redenerds.com.br',
         'localhost',
-        '127.0.0.1',
         '127.0.0.1'
     ];
 
