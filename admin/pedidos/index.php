@@ -201,7 +201,7 @@ try {
                             Todo o período
                         </label>
                         <div class="text-muted mt-1" style="font-size: 0.76rem;">
-                            Ao marcar, os campos de data acima serão desativados e todos os registros de VIPs serão exportados.
+                            Ao marcar, todos os registros de VIPs serão exportados.
                         </div>
                     </div>
 
