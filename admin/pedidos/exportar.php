@@ -37,6 +37,7 @@ $todoPeriodo = !empty($_GET['todo_periodo']) && ($_GET['todo_periodo'] === '1' |
 $dataInicio = trim($_GET['data_inicio'] ?? '');
 $dataFim = trim($_GET['data_fim'] ?? '');
 $filtroServidor = trim($_GET['servidor'] ?? '');
+$apenasAprovados = !empty($_GET['apenas_aprovados']) && ($_GET['apenas_aprovados'] === '1' || $_GET['apenas_aprovados'] === 'on');
 $filtroStatus = trim($_GET['status'] ?? '');
 $filtroMetodo = trim($_GET['metodo'] ?? '');
 $busca = trim($_GET['busca'] ?? '');
@@ -57,7 +58,9 @@ if (!$todoPeriodo) {
 }
 
 // Filtro por status
-if (!empty($filtroStatus)) {
+if ($apenasAprovados) {
+    $where[] = "status = 'pago'";
+} elseif (!empty($filtroStatus)) {
     $where[] = "status = :status";
     $params[':status'] = $filtroStatus;
 }

@@ -195,13 +195,24 @@ try {
                     </div>
 
                     <!-- CHECKBOX TODO O PERÍODO -->
-                    <div class="form-check p-2 bg-light rounded border mb-3">
+                    <div class="form-check p-2 bg-light rounded border mb-2">
                         <input class="form-check-input ms-0 me-2" type="checkbox" id="exportTodoPeriodo" name="todo_periodo" value="1">
                         <label class="form-check-label small fw-bold text-dark" for="exportTodoPeriodo" style="cursor: pointer;">
                             Todo o período
                         </label>
                         <div class="text-muted mt-1" style="font-size: 0.76rem;">
                             Ao marcar, todos os registros de VIPs serão exportados.
+                        </div>
+                    </div>
+
+                    <!-- CHECKBOX APENAS APROVADOS -->
+                    <div class="form-check p-2 bg-light rounded border mb-3">
+                        <input class="form-check-input ms-0 me-2" type="checkbox" id="exportApenasAprovados" name="apenas_aprovados" value="1" checked>
+                        <label class="form-check-label small fw-bold text-dark" for="exportApenasAprovados" style="cursor: pointer;">
+                            Apenas aprovados
+                        </label>
+                        <div class="text-muted mt-1" style="font-size: 0.76rem;">
+                            Exporta somente os pedidos confirmados e pagos com sucesso.
                         </div>
                     </div>
 
@@ -248,6 +259,8 @@ document.addEventListener('DOMContentLoaded', function() {
     const checkTodoPeriodo = document.getElementById('exportTodoPeriodo');
     const inputDataInicio = document.getElementById('exportDataInicio');
     const inputDataFim = document.getElementById('exportDataFim');
+    const checkApenasAprovados = document.getElementById('exportApenasAprovados');
+    const selectStatus = document.getElementById('exportStatus');
 
     if (checkTodoPeriodo && inputDataInicio && inputDataFim) {
         function toggleDatas() {
@@ -265,6 +278,21 @@ document.addEventListener('DOMContentLoaded', function() {
 
         checkTodoPeriodo.addEventListener('change', toggleDatas);
         toggleDatas();
+    }
+
+    if (checkApenasAprovados && selectStatus) {
+        function toggleStatus() {
+            const apenasAprovados = checkApenasAprovados.checked;
+            selectStatus.disabled = apenasAprovados;
+            if (apenasAprovados) {
+                selectStatus.classList.add('bg-light');
+            } else {
+                selectStatus.classList.remove('bg-light');
+            }
+        }
+
+        checkApenasAprovados.addEventListener('change', toggleStatus);
+        toggleStatus();
     }
 });
 </script>
