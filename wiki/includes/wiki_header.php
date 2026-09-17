@@ -27,6 +27,12 @@ $dropdownLabel = "Selecione o servidor";
 if ($servidorAtual && !empty($servidorAtual['servername'])) {
     $dropdownLabel = $servidorAtual['servername'];
 }
+
+$ogTitle = $ogTitle ?? ($tituloPagina . " - Wiki Rede Nerds");
+$ogDescription = $ogDescription ?? "Central de documentação, guias de modpacks, tutoriais e comandos dos servidores da Rede Nerds.";
+$ogImage = $ogImage ?? (!empty($servidorAtual['icon']) && strpos($servidorAtual['icon'], 'http') === 0 ? $servidorAtual['icon'] : "https://redenerds.com.br/assets/images/logo.webp");
+$ogUrl = $ogUrl ?? ("https://redenerds.com.br" . ($_SERVER['REQUEST_URI'] ?? '/wiki/'));
+$themeColor = $themeColor ?? ($servidorAtual['themecolor'] ?? '#6366f1');
 ?>
 <!DOCTYPE html>
 <html lang="pt-BR">
@@ -36,6 +42,19 @@ if ($servidorAtual && !empty($servidorAtual['servername'])) {
     <title><?php echo htmlspecialchars($tituloPagina, ENT_QUOTES, 'UTF-8'); ?> - Wiki Rede Nerds</title>
     <link rel="icon" type="image/x-icon" href="/assets/images/logo.webp">
     
+    <!-- OPEN GRAPH / DISCORD EMBEDS -->
+    <meta name="theme-color" content="<?php echo htmlspecialchars($themeColor, ENT_QUOTES, 'UTF-8'); ?>">
+    <meta property="og:site_name" content="Rede Nerds • Wiki Oficial">
+    <meta property="og:type" content="<?php echo !empty($isArticle) ? 'article' : 'website'; ?>">
+    <meta property="og:title" content="<?php echo htmlspecialchars($ogTitle, ENT_QUOTES, 'UTF-8'); ?>">
+    <meta property="og:description" content="<?php echo htmlspecialchars($ogDescription, ENT_QUOTES, 'UTF-8'); ?>">
+    <meta property="og:image" content="<?php echo htmlspecialchars($ogImage, ENT_QUOTES, 'UTF-8'); ?>">
+    <meta property="og:url" content="<?php echo htmlspecialchars($ogUrl, ENT_QUOTES, 'UTF-8'); ?>">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="<?php echo htmlspecialchars($ogTitle, ENT_QUOTES, 'UTF-8'); ?>">
+    <meta name="twitter:description" content="<?php echo htmlspecialchars($ogDescription, ENT_QUOTES, 'UTF-8'); ?>">
+    <meta name="twitter:image" content="<?php echo htmlspecialchars($ogImage, ENT_QUOTES, 'UTF-8'); ?>">
+
     <!-- FONTS -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -49,7 +68,7 @@ if ($servidorAtual && !empty($servidorAtual['servername'])) {
     <link rel="stylesheet" href="/shared/tokens.css?v=1">
 
     <!-- CSS DA WIKI (Compatível tanto em /wiki/ quanto em root) -->
-    <link rel="stylesheet" href="wiki.css?v=5">
+    <link rel="stylesheet" href="wiki.css?v=6">
 </head>
 <body>
     <!-- NAVBAR MINIMALISTA -->

@@ -190,9 +190,10 @@ $categoriasDisponiveis = getCategoriasServidorWiki($pdo, $servidor_id);
                     <div class="admin-form-group mb-3">
                         <div class="d-flex align-items-center justify-content-between mb-1">
                             <label for="conteudo" class="mb-0">Conteúdo do Artigo (Markdown) *</label>
-                            <span class="badge bg-light text-dark border"><i class="fa-brands fa-markdown me-1"></i> Markdown / BBCode suportado</span>
+                            <span class="badge bg-light text-dark border"><i class="fa-brands fa-markdown me-1"></i> Formato Markdown suportado</span>
                         </div>
-                        <textarea class="admin-form-control font-monospace" id="conteudo" name="conteudo" rows="12" required><?php echo htmlspecialchars($conteudo, ENT_QUOTES, 'UTF-8'); ?></textarea>
+                        <?php require __DIR__ . "/../includes/wiki_editor_toolbar.php"; ?>
+                        <textarea class="admin-form-control font-monospace" id="conteudo" name="conteudo" rows="14" required><?php echo htmlspecialchars($conteudo, ENT_QUOTES, 'UTF-8'); ?></textarea>
                     </div>
 
                     <div class="mb-4 form-check form-switch">

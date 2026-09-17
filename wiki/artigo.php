@@ -74,7 +74,29 @@ try {
 $categoriaAtivaId = (int)$artigo['categoria_id'];
 $artigoAtivoId = (int)$artigo['id'];
 
+// Configuração de OpenGraph / Discord Embed
+$isArticle = true;
 $tituloPagina = $artigo['titulo'] . " - Wiki " . $servidorAtual['servername'];
+$ogTitle = $artigo['titulo'] . " • Wiki " . $servidorAtual['servername'];
+$ogDescription = !empty($artigo['resumo']) ? $artigo['resumo'] : mb_strimwidth(strip_tags($artigo['conteudo']), 0, 160, '...');
+$themeColor = $servidorAtual['themecolor'] ?? '#6366f1';
+
+// Cálculo de Navegação Contínua (Artigo Anterior e Próximo)
+$artigosDaCategoria = $artigosPorCategoria[$categoriaAtivaId] ?? [];
+$artigoAnterior = null;
+$artigoProximo = null;
+foreach ($artigosDaCategoria as $idx => $artItem) {
+    if ((int)$artItem['id'] === (int)$artigo['id']) {
+        if ($idx > 0) {
+            $artigoAnterior = $artigosDaCategoria[$idx - 1];
+        }
+        if ($idx < count($artigosDaCategoria) - 1) {
+            $artigoProximo = $artigosDaCategoria[$idx + 1];
+        }
+        break;
+    }
+}
+
 require_once __DIR__ . "/includes/wiki_header.php";
 
 $headings = [];
@@ -105,7 +127,7 @@ $conteudoHtml = parseMarkdownWiki($artigo['conteudo'], $headings);
                     <div class="wiki-article-meta">
                         <span><i class="fa-solid fa-user me-1"></i> <?php echo htmlspecialchars($artigo['autor'], ENT_QUOTES, 'UTF-8'); ?></span>
                         <span>•</span>
-                        <span><i class="fa-regular fa-clock me-1"></i> <?php echo date('d/m/Y', strtotime($artigo['atualizado_em'])); ?></span>
+                        <span><i class="fa-regular fa-clock me-1"></i> Atualizado em <?php echo date('d/m/Y', strtotime($artigo['atualizado_em'])); ?></span>
                         <span>•</span>
                         <span><i class="fa-regular fa-eye me-1"></i> <?php echo (int)$artigo['visualizacoes']; ?> visualizações</span>
                     </div>
@@ -114,9 +136,31 @@ $conteudoHtml = parseMarkdownWiki($artigo['conteudo'], $headings);
                         <?php echo $conteudoHtml; ?>
                     </div>
 
+                    <!-- NAVEGAÇÃO CONTÍNUA: ANTERIOR & PRÓXIMO -->
+                    <div class="wiki-article-nav-container mt-5 pt-4 border-top">
+                        <div class="row g-3">
+                            <div class="col-12 col-sm-6">
+                                <?php if ($artigoAnterior): ?>
+                                    <a href="artigo.php?s=<?php echo urlencode($servidorAtual['nome']); ?>&slug=<?php echo urlencode($artigoAnterior['slug']); ?>" class="wiki-nav-card wiki-nav-prev">
+                                        <span class="wiki-nav-sub"><i class="fa-solid fa-arrow-left me-1"></i> Artigo Anterior</span>
+                                        <span class="wiki-nav-title"><?php echo htmlspecialchars($artigoAnterior['titulo'], ENT_QUOTES, 'UTF-8'); ?></span>
+                                    </a>
+                                <?php endif; ?>
+                            </div>
+                            <div class="col-12 col-sm-6">
+                                <?php if ($artigoProximo): ?>
+                                    <a href="artigo.php?s=<?php echo urlencode($servidorAtual['nome']); ?>&slug=<?php echo urlencode($artigoProximo['slug']); ?>" class="wiki-nav-card wiki-nav-next text-sm-end ms-auto">
+                                        <span class="wiki-nav-sub">Próximo Artigo <i class="fa-solid fa-arrow-right ms-1"></i></span>
+                                        <span class="wiki-nav-title"><?php echo htmlspecialchars($artigoProximo['titulo'], ENT_QUOTES, 'UTF-8'); ?></span>
+                                    </a>
+                                <?php endif; ?>
+                            </div>
+                        </div>
+                    </div>
+
                     <div class="border-top pt-3 mt-4 text-start">
                         <a href="servidor.php?s=<?php echo urlencode($servidorAtual['nome']); ?>&cat=<?php echo urlencode($artigo['categoria_slug']); ?>" class="btn btn-outline-secondary btn-sm">
-                            <i class="fa-solid fa-arrow-left me-1"></i> Voltar para <?php echo htmlspecialchars($artigo['categoria_nome'], ENT_QUOTES, 'UTF-8'); ?>
+                            <i class="fa-solid fa-list-ul me-1"></i> Ver todos de <?php echo htmlspecialchars($artigo['categoria_nome'], ENT_QUOTES, 'UTF-8'); ?>
                         </a>
                     </div>
                 </article>
@@ -142,5 +186,82 @@ $conteudoHtml = parseMarkdownWiki($artigo['conteudo'], $headings);
         </div>
     </main>
 </div>
+
+<!-- MODAL LIGHTBOX PARA ZOOM DE IMAGENS -->
+<div id="wikiLightbox" class="wiki-lightbox" onclick="fecharLightboxWiki()">
+    <div class="wiki-lightbox-content" onclick="event.stopPropagation()">
+        <button type="button" class="wiki-lightbox-close" onclick="fecharLightboxWiki()" title="Fechar (Esc)">&times;</button>
+        <img id="wikiLightboxImg" src="" alt="">
+        <div id="wikiLightboxCaption" class="wiki-lightbox-caption"></div>
+    </div>
+</div>
+
+<script>
+function abrirLightboxWiki(src, caption) {
+    const lb = document.getElementById('wikiLightbox');
+    const img = document.getElementById('wikiLightboxImg');
+    const cap = document.getElementById('wikiLightboxCaption');
+    if (!lb || !img) return;
+    img.src = src;
+    img.alt = caption || '';
+    cap.textContent = caption || '';
+    lb.classList.add('active');
+    document.body.style.overflow = 'hidden';
+}
+
+function fecharLightboxWiki() {
+    const lb = document.getElementById('wikiLightbox');
+    if (!lb) return;
+    lb.classList.remove('active');
+    document.body.style.overflow = '';
+}
+
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+        fecharLightboxWiki();
+    }
+});
+
+function copiarCodigoWiki(btn) {
+    const codeBlock = btn.closest('.wiki-code-block');
+    if (!codeBlock) return;
+    const codeElem = codeBlock.querySelector('code');
+    if (!codeElem) return;
+    copiarTextoComFeedback(btn, codeElem.innerText);
+}
+
+function copiarTextoDireto(btn, texto) {
+    copiarTextoComFeedback(btn, texto);
+}
+
+function copiarTextoComFeedback(btn, texto) {
+    if (!navigator.clipboard) {
+        // Fallback antigo
+        const temp = document.createElement('textarea');
+        temp.value = texto;
+        document.body.appendChild(temp);
+        temp.select();
+        document.execCommand('copy');
+        document.body.removeChild(temp);
+        mostrarCopiado(btn);
+        return;
+    }
+    navigator.clipboard.writeText(texto).then(() => {
+        mostrarCopiado(btn);
+    }).catch(err => {
+        console.error('Erro ao copiar:', err);
+    });
+}
+
+function mostrarCopiado(btn) {
+    const originalHtml = btn.innerHTML;
+    btn.innerHTML = '<i class="fa-solid fa-check text-success"></i> Copiado!';
+    btn.classList.add('copied');
+    setTimeout(() => {
+        btn.innerHTML = originalHtml;
+        btn.classList.remove('copied');
+    }, 2000);
+}
+</script>
 
 <?php require_once __DIR__ . "/includes/wiki_footer.php"; ?>
