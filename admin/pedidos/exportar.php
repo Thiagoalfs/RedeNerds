@@ -4,13 +4,34 @@
  * Endpoint de exportação de pedidos VIP para formato CSV compatível com Excel.
  */
 
-// Buffer para garantir envio de headers e evitar poluição da saída
+// Inicia buffer para garantir envio limpo de cabeçalhos e arquivo
 if (ob_get_level() === 0) {
     ob_start();
 }
 
 require_once __DIR__ . "/../sessao.php";
-require_once __DIR__ . "/../../config.php";
+
+$configPaths = [
+    __DIR__ . "/../../../config.php",
+    __DIR__ . "/../../config.php",
+    __DIR__ . "/../config.php",
+    ($_SERVER['DOCUMENT_ROOT'] ?? '') . "/config.php"
+];
+$configPath = null;
+foreach ($configPaths as $cp) {
+    if (!empty($cp) && file_exists($cp)) {
+        $configPath = $cp;
+        break;
+    }
+}
+if ($configPath) {
+    require_once $configPath;
+}
+
+if (!isset($pdo) || !($pdo instanceof PDO)) {
+    http_response_code(500);
+    die("Erro: Conexão com banco de dados não disponível.");
+}
 
 $todoPeriodo = !empty($_GET['todo_periodo']) && ($_GET['todo_periodo'] === '1' || $_GET['todo_periodo'] === 'on');
 $dataInicio = trim($_GET['data_inicio'] ?? '');
@@ -86,8 +107,10 @@ try {
     // Mapa de servidores para preenchimento de nomes caso necessário
     $servidoresMap = [];
     $stmtSrvAll = $pdo->query("SELECT id, servername, nome FROM servidores");
-    while ($s = $stmtSrvAll->fetch(PDO::FETCH_ASSOC)) {
-        $servidoresMap[$s['id']] = $s;
+    if ($stmtSrvAll) {
+        while ($s = $stmtSrvAll->fetch(PDO::FETCH_ASSOC)) {
+            $servidoresMap[$s['id']] = $s;
+        }
     }
 
     $stmt = $pdo->prepare("SELECT * FROM pedidos_vip $whereSql ORDER BY id DESC");
@@ -135,23 +158,34 @@ try {
         'MP Payment ID'
     ];
 
-    fputcsv($output, $cabecalhos, ';', '"', "\\");
+    fputcsv($output, $cabecalhos, ';');
 
     while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-        $statusFormatado = match(strtolower($row['status'] ?? '')) {
-            'pago' => 'Aprovado',
-            'pendente' => 'Pendente',
-            'cancelado' => 'Cancelado',
-            'recusado' => 'Recusado',
-            'expirado' => 'Expirado',
-            default => ucfirst($row['status'] ?? 'Desconhecido')
-        };
+        $st = strtolower($row['status'] ?? '');
+        $statusFormatado = 'Desconhecido';
+        if ($st === 'pago') {
+            $statusFormatado = 'Aprovado';
+        } elseif ($st === 'pendente') {
+            $statusFormatado = 'Pendente';
+        } elseif ($st === 'cancelado') {
+            $statusFormatado = 'Cancelado';
+        } elseif ($st === 'recusado') {
+            $statusFormatado = 'Recusado';
+        } elseif ($st === 'expirado') {
+            $statusFormatado = 'Expirado';
+        } elseif (!empty($row['status'])) {
+            $statusFormatado = ucfirst($row['status']);
+        }
 
-        $metodoFormatado = match(strtolower($row['metodo_pagamento'] ?? '')) {
-            'pix' => 'PIX',
-            'cartao' => 'Cartão de Crédito',
-            default => strtoupper($row['metodo_pagamento'] ?? 'PIX')
-        };
+        $mp = strtolower($row['metodo_pagamento'] ?? '');
+        $metodoFormatado = 'PIX';
+        if ($mp === 'cartao') {
+            $metodoFormatado = 'Cartão de Crédito';
+        } elseif ($mp === 'pix') {
+            $metodoFormatado = 'PIX';
+        } elseif (!empty($row['metodo_pagamento'])) {
+            $metodoFormatado = strtoupper($row['metodo_pagamento']);
+        }
 
         $entregueFormatado = (!empty($row['entregue']) && $row['entregue'] == 1) ? 'Sim' : 'Não';
         $dataCriado = !empty($row['criado_em']) ? date('d/m/Y H:i:s', strtotime($row['criado_em'])) : '';
@@ -163,7 +197,7 @@ try {
         }
 
         $linha = [
-            $row['id'],
+            $row['id'] ?? '',
             $row['txid'] ?? '',
             $dataCriado,
             $dataPago,
@@ -185,7 +219,7 @@ try {
             $row['mp_payment_id'] ?? ''
         ];
 
-        fputcsv($output, $linha, ';', '"', "\\");
+        fputcsv($output, $linha, ';');
     }
 
     fclose($output);
