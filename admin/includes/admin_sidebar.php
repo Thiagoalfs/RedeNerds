@@ -1,11 +1,5 @@
 <?php
-// Conta pendências rápidas se o PDO estiver disponível
-$pedidosPendentesCount = 0;
-if (isset($pdo) && $pdo instanceof PDO) {
-    try {
-        $pedidosPendentesCount = (int)$pdo->query("SELECT COUNT(*) FROM pedidos_vip WHERE status = 'pendente'")->fetchColumn();
-    } catch (Exception $e) {}
-}
+// Sidebar de navegação do painel administrativo
 ?>
 <!-- OVERLAY PARA MOBILE -->
 <div class="sidebar-overlay" id="sidebar-overlay"></div>
@@ -36,9 +30,6 @@ if (isset($pdo) && $pdo instanceof PDO) {
                 <i class="fa-solid fa-receipt"></i>
                 <span>Pedidos VIP</span>
             </div>
-            <?php if ($pedidosPendentesCount > 0): ?>
-                <span class="badge bg-warning text-dark font-monospace" style="font-size: 0.7rem;"><?php echo $pedidosPendentesCount; ?></span>
-            <?php endif; ?>
         </a>
         <a href="/admin/vips/" class="nav-item-link <?php echo in_array($paginaAtiva, ['vips', 'vip_criar', 'vip_editar']) ? 'active' : ''; ?>">
             <div class="icon-wrap">
@@ -60,6 +51,7 @@ if (isset($pdo) && $pdo instanceof PDO) {
                 <i class="fa-solid fa-server"></i>
                 <span>Servidores</span>
             </div>
+        </a>
         <a href="/admin/equipe/" class="nav-item-link <?php echo in_array($paginaAtiva, ['equipe', 'equipe_criar', 'equipe_editar', 'equipe_manage']) ? 'active' : ''; ?>">
             <div class="icon-wrap">
                 <i class="fa-solid fa-users"></i>
