@@ -49,6 +49,7 @@ if (!validarCsrfToken($tokenRecebido)) {
 
 $id = isset($_POST['id']) ? (int)$_POST['id'] : 0;
 $nome = trim($_POST['nome'] ?? '');
+$cor = trim($_POST['cor'] ?? '#27acff');
 $ordem = isset($_POST['ordem']) ? (int)$_POST['ordem'] : 0;
 
 if ($id <= 0 || empty($nome)) {
@@ -73,8 +74,13 @@ if (mb_strlen($nome) > 100) {
     exit;
 }
 
+// Validação da cor Hex
+if (!preg_match('/^#[0-9a-fA-F]{6}$/', $cor)) {
+    $cor = '#27acff';
+}
+
 try {
-    $stmtCargo = $pdo->prepare("SELECT id, nome, ordem FROM equipe_cargos WHERE id = :id LIMIT 1");
+    $stmtCargo = $pdo->prepare("SELECT id, nome, cor, ordem FROM equipe_cargos WHERE id = :id LIMIT 1");
     $stmtCargo->execute([':id' => $id]);
     $cargoAtual = $stmtCargo->fetch(PDO::FETCH_ASSOC);
 
@@ -107,9 +113,9 @@ try {
 
     $pdo->beginTransaction();
 
-    // Atualiza cargo
-    $stmtUpd = $pdo->prepare("UPDATE equipe_cargos SET nome = :nome, ordem = :ordem WHERE id = :id");
-    $stmtUpd->execute([':nome' => $nome, ':ordem' => $ordem, ':id' => $id]);
+    // Atualiza cargo incluindo cor
+    $stmtUpd = $pdo->prepare("UPDATE equipe_cargos SET nome = :nome, cor = :cor, ordem = :ordem WHERE id = :id");
+    $stmtUpd->execute([':nome' => $nome, ':cor' => $cor, ':ordem' => $ordem, ':id' => $id]);
 
     // Se o nome do cargo mudou, atualiza os membros vinculados na tabela equipe
     if ($nomeAntigo !== $nome) {
@@ -126,6 +132,7 @@ try {
             "cargo" => [
                 "id" => $id,
                 "nome" => $nome,
+                "cor" => $cor,
                 "ordem" => $ordem
             ]
         ], JSON_UNESCAPED_UNICODE);

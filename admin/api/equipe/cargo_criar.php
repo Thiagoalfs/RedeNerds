@@ -48,6 +48,7 @@ if (!validarCsrfToken($tokenRecebido)) {
 }
 
 $nome = trim($_POST['nome'] ?? '');
+$cor = trim($_POST['cor'] ?? '#27acff');
 $ordem = isset($_POST['ordem']) ? (int)$_POST['ordem'] : 0;
 
 if (empty($nome)) {
@@ -72,14 +73,25 @@ if (mb_strlen($nome) > 100) {
     exit;
 }
 
+// Validação da cor Hex
+if (!preg_match('/^#[0-9a-fA-F]{6}$/', $cor)) {
+    $cor = '#27acff';
+}
+
 try {
     // Garante que a tabela existe
     $pdo->exec("CREATE TABLE IF NOT EXISTS `equipe_cargos` (
         `id` INT AUTO_INCREMENT PRIMARY KEY,
         `nome` VARCHAR(100) NOT NULL UNIQUE,
+        `cor` VARCHAR(20) NOT NULL DEFAULT '#27acff',
         `ordem` INT NOT NULL DEFAULT 0,
         `criado_em` TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;");
+
+    // Garante que a coluna cor existe
+    try {
+        $pdo->exec("ALTER TABLE `equipe_cargos` ADD COLUMN `cor` VARCHAR(20) NOT NULL DEFAULT '#27acff' AFTER `nome`");
+    } catch (Exception $ignored) {}
 
     // Verifica se já existe um cargo com esse nome
     $stmtCheck = $pdo->prepare("SELECT id FROM equipe_cargos WHERE LOWER(nome) = LOWER(:nome) LIMIT 1");
@@ -101,8 +113,8 @@ try {
         $ordem = $maxOrdem + 1;
     }
 
-    $stmt = $pdo->prepare("INSERT INTO equipe_cargos (nome, ordem) VALUES (:nome, :ordem)");
-    $stmt->execute([':nome' => $nome, ':ordem' => $ordem]);
+    $stmt = $pdo->prepare("INSERT INTO equipe_cargos (nome, cor, ordem) VALUES (:nome, :cor, :ordem)");
+    $stmt->execute([':nome' => $nome, ':cor' => $cor, ':ordem' => $ordem]);
     $newId = (int)$pdo->lastInsertId();
 
     if ($isAjax) {
@@ -112,6 +124,7 @@ try {
             "cargo" => [
                 "id" => $newId,
                 "nome" => $nome,
+                "cor" => $cor,
                 "ordem" => $ordem
             ]
         ], JSON_UNESCAPED_UNICODE);
