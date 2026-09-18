@@ -37,7 +37,7 @@ if (empty($cargosBanco)) {
 
 $erro = null;
 $nick = '';
-$cargo = '';
+$cargo = trim($_GET['cargo'] ?? '');
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (!validarCsrfToken($_POST['csrf_token'] ?? '')) {

@@ -78,7 +78,12 @@ foreach ($gruposBrutos as $cNome => $lista) {
                     <span class="rounded-circle shadow-sm" style="display:inline-block; width: 14px; height: 14px; background-color: <?php echo htmlspecialchars($cargoCor, ENT_QUOTES, 'UTF-8'); ?>;"></span>
                     <h6 class="fw-bold mb-0"><?php echo htmlspecialchars($cargo, ENT_QUOTES, 'UTF-8'); ?></h6>
                 </div>
-                <span class="badge bg-light text-dark border"><?php echo count($lista); ?> membro(s)</span>
+                <div class="d-flex align-items-center gap-2">
+                    <span class="badge bg-light text-dark border"><?php echo count($lista); ?> membro(s)</span>
+                    <a href="criar.php?cargo=<?php echo urlencode($cargo); ?>" class="btn btn-sm btn-outline-success d-inline-flex align-items-center gap-1 py-1 px-2" style="font-size: 0.78rem;" title="Adicionar membro neste cargo">
+                        <i class="fa-solid fa-plus"></i> Adicionar
+                    </a>
+                </div>
             </div>
             <div class="card-body p-0">
                 <div class="table-responsive">
