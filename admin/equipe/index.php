@@ -10,18 +10,53 @@ try {
     $membros = [];
 }
 
-$grupos = [];
+// Busca a ordem definida na tabela equipe_cargos
+$cargosOrdem = [];
+try {
+    $stmtCargos = $pdo->query("SELECT nome FROM equipe_cargos ORDER BY ordem ASC, id ASC");
+    $cargosOrdem = $stmtCargos->fetchAll(PDO::FETCH_COLUMN);
+} catch (Exception $e) {
+    $cargosOrdem = [];
+}
+
+$gruposBrutos = [];
 foreach ($membros as $m) {
-    $grupos[$m['cargo']][] = $m;
+    $gruposBrutos[$m['cargo']][] = $m;
+}
+
+// Ordena os grupos conforme a hierarquia de equipe_cargos
+$grupos = [];
+foreach ($cargosOrdem as $cNome) {
+    if (isset($gruposBrutos[$cNome])) {
+        $grupos[$cNome] = $gruposBrutos[$cNome];
+        unset($gruposBrutos[$cNome]);
+    }
+}
+// Adiciona eventuais cargos restantes que não estejam cadastrados na tabela
+foreach ($gruposBrutos as $cNome => $lista) {
+    $grupos[$cNome] = $lista;
 }
 ?>
 
 <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-3">
     <div>
-        <h4 class="fw-bold mb-1">Equipe</h4>
+        <h4 class="fw-bold mb-1"><i class="fa-solid fa-users text-primary me-2"></i> Equipe</h4>
         <p class="text-muted small mb-0"><?php echo count($membros); ?> membro(s) em <?php echo count($grupos); ?> categoria(s)</p>
     </div>
-    <a href="criar.php" class="btn btn-success btn-sm"><i class="fa-solid fa-plus me-1"></i> Novo membro</a>
+    <div class="d-flex gap-2">
+        <a href="manage.php" class="btn btn-outline-primary btn-sm"><i class="fa-solid fa-layer-group me-1"></i> Gerenciar Cargos</a>
+        <a href="criar.php" class="btn btn-success btn-sm"><i class="fa-solid fa-plus me-1"></i> Novo Membro</a>
+    </div>
+</div>
+
+<!-- NAVEGAÇÃO DE SUB-ABAS -->
+<div class="d-flex gap-2 mb-3">
+    <a href="index.php" class="btn btn-primary btn-sm">
+        <i class="fa-solid fa-users me-1"></i> Membros da Equipe
+    </a>
+    <a href="manage.php" class="btn btn-outline-secondary btn-sm">
+        <i class="fa-solid fa-layer-group me-1"></i> Hierarquia de Cargos
+    </a>
 </div>
 
 <?php if (empty($grupos)): ?>
