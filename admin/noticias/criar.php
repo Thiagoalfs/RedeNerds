@@ -1,8 +1,23 @@
 <?php
-$paginaAtiva = 'noticias';
-$tituloPagina = 'Nova Novidade';
+require_once __DIR__ . "/../sessao.php";
 
-require_once __DIR__ . "/../includes/admin_header.php";
+$configPaths = [
+    __DIR__ . "/../../../config.php",
+    __DIR__ . "/../../config.php",
+    __DIR__ . "/../config.php",
+    ($_SERVER['DOCUMENT_ROOT'] ?? '') . "/config.php"
+];
+$configPath = null;
+foreach ($configPaths as $cp) {
+    if (!empty($cp) && file_exists($cp)) {
+        $configPath = $cp;
+        break;
+    }
+}
+if ($configPath) {
+    require_once $configPath;
+}
+
 require_once __DIR__ . "/capa_upload.php";
 require_once __DIR__ . "/webhook_helper.php";
 
@@ -49,49 +64,57 @@ try {
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $titulo          = trim($_POST['titulo'] ?? '');
-    $conteudo        = trim($_POST['conteudo'] ?? '');
-    $autor           = trim($_POST['autor'] ?? '');
-    $category        = trim($_POST['category'] ?? 'NerdSky');
-    $categoria_envio = trim($_POST['categoria_envio'] ?? 'Anúncios');
-    
-    $enviar_webhook  = isset($_POST['enviar_webhook']);
-    $marcar_everyone = isset($_POST['marcar_everyone']);
-
-    [$capa, $erro_upload] = processarCapa();
-
-    if ($erro_upload) {
-        $mensagem_erro = $erro_upload;
-    } elseif (empty($titulo) || empty($conteudo) || empty($autor)) {
-        $mensagem_erro = "Preencha todos os campos obrigatórios.";
+    if (!validarCsrfToken($_POST['csrf_token'] ?? '')) {
+        $mensagem_erro = "Token CSRF inválido ou expirado. Recarregue a página e tente novamente.";
     } else {
-        try {
-            $stmt = $pdo->prepare("
-                INSERT INTO novidades (titulo, conteudo, autor, capa, category, categoria_envio) 
-                VALUES (:titulo, :conteudo, :autor, :capa, :category, :categoria_envio)
-            ");
-            $stmt->execute([
-                ':titulo'          => $titulo,
-                ':conteudo'        => $conteudo,
-                ':autor'           => $autor,
-                ':capa'            => $capa,
-                ':category'        => $category,
-                ':categoria_envio' => $categoria_envio
-            ]);
+        $titulo          = trim($_POST['titulo'] ?? '');
+        $conteudo        = trim($_POST['conteudo'] ?? '');
+        $autor           = trim($_POST['autor'] ?? '');
+        $category        = trim($_POST['category'] ?? 'NerdSky');
+        $categoria_envio = trim($_POST['categoria_envio'] ?? 'Anúncios');
+        
+        $enviar_webhook  = isset($_POST['enviar_webhook']);
+        $marcar_everyone = isset($_POST['marcar_everyone']);
 
-            $noticia_id = (int)$pdo->lastInsertId();
+        [$capa, $erro_upload] = processarCapa();
 
-            if ($enviar_webhook) {
-                enviarWebhookDiscord($categoria_envio, $titulo, $conteudo, $autor, $capa, $category, $marcar_everyone);
+        if ($erro_upload) {
+            $mensagem_erro = $erro_upload;
+        } elseif (empty($titulo) || empty($conteudo) || empty($autor)) {
+            $mensagem_erro = "Preencha todos os campos obrigatórios.";
+        } else {
+            try {
+                $stmt = $pdo->prepare("
+                    INSERT INTO novidades (titulo, conteudo, autor, capa, category, categoria_envio) 
+                    VALUES (:titulo, :conteudo, :autor, :capa, :category, :categoria_envio)
+                ");
+                $stmt->execute([
+                    ':titulo'          => $titulo,
+                    ':conteudo'        => $conteudo,
+                    ':autor'           => $autor,
+                    ':capa'            => $capa,
+                    ':category'        => $category,
+                    ':categoria_envio' => $categoria_envio
+                ]);
+
+                $noticia_id = (int)$pdo->lastInsertId();
+
+                if ($enviar_webhook) {
+                    enviarWebhookDiscord($categoria_envio, $titulo, $conteudo, $autor, $capa, $category, $marcar_everyone);
+                }
+
+                header("Location: index.php");
+                exit;
+            } catch (PDOException $e) {
+                $mensagem_erro = "Erro ao salvar novidade: " . $e->getMessage();
             }
-
-            header("Location: index.php");
-            exit;
-        } catch (PDOException $e) {
-            $mensagem_erro = "Erro ao salvar novidade: " . $e->getMessage();
         }
     }
 }
+
+$paginaAtiva = 'noticias';
+$tituloPagina = 'Nova Novidade';
+require_once __DIR__ . "/../includes/admin_header.php";
 ?>
 
 <div class="row justify-content-center">
@@ -107,6 +130,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <?php endif; ?>
 
                 <form method="POST" action="criar.php" enctype="multipart/form-data">
+                    <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($csrfToken, ENT_QUOTES, 'UTF-8'); ?>">
                     <div class="admin-form-group">
                         <label for="titulo">Título da Novidade *</label>
                         <input type="text" class="admin-form-control" id="titulo" name="titulo" value="<?php echo htmlspecialchars($titulo, ENT_QUOTES, 'UTF-8'); ?>" placeholder="Ex: Inauguração do Novo Servidor" required autofocus>

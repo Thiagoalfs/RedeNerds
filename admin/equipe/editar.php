@@ -1,7 +1,22 @@
 <?php
-$paginaAtiva = 'equipe';
-$tituloPagina = 'Editar Membro';
-require_once __DIR__ . "/../includes/admin_header.php";
+require_once __DIR__ . "/../sessao.php";
+
+$configPaths = [
+    __DIR__ . "/../../../config.php",
+    __DIR__ . "/../../config.php",
+    __DIR__ . "/../config.php",
+    ($_SERVER['DOCUMENT_ROOT'] ?? '') . "/config.php"
+];
+$configPath = null;
+foreach ($configPaths as $cp) {
+    if (!empty($cp) && file_exists($cp)) {
+        $configPath = $cp;
+        break;
+    }
+}
+if ($configPath) {
+    require_once $configPath;
+}
 
 $id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
 if ($id <= 0) {
@@ -67,6 +82,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     }
 }
+
+$paginaAtiva = 'equipe';
+$tituloPagina = 'Editar Membro';
+require_once __DIR__ . "/../includes/admin_header.php";
 ?>
 
 <div class="row justify-content-center">
