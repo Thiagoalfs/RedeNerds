@@ -102,7 +102,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         } elseif (empty($vantagens)) {
             $mensagem_erro = "Adicione ao menos um benefício (bullet point) para o pacote VIP.";
         } else {
-            $vantagensJson = json_encode($vantagens, JSON_UNESCAPED_UNICODE);
             $servidorNome = $servidorObj['servername'];
 
             try {

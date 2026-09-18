@@ -654,3 +654,19 @@ body {
     padding: 1rem;
   }
 }
+
+/* ======================================================== */
+/* 10. TOOLBAR DO EDITOR MARKDOWN DA WIKI                   */
+/* ======================================================== */
+.wiki-editor-toolbar {
+  background-color: #f8fafc;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+}
+
+.wiki-editor-toolbar .editor-btn {
+  font-size: 0.78rem;
+  padding: 0.25rem 0.6rem;
+  font-weight: 500;
+  border-radius: 4px;
+}

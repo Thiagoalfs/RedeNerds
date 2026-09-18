@@ -72,7 +72,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $slugBase = $slug;
         $contador = 1;
         while (true) {
-            $checkSlug = $pdo->prepare("SELECT id FROM wiki_artigos WHERE servidor_id = :servidor_id AND slug = :slug LIMIT 1");
+            $checkSlug = $pdo->prepare("
+                SELECT a.id 
+                FROM wiki_artigos a 
+                JOIN wiki_categorias c ON c.id = a.categoria_id 
+                WHERE c.servidor_id = :servidor_id AND a.slug = :slug 
+                LIMIT 1
+            ");
             $checkSlug->execute([':servidor_id' => $servidor_id, ':slug' => $slug]);
             if (!$checkSlug->fetch()) {
                 break;
@@ -93,11 +99,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
 
             $stmt = $pdo->prepare("
-                INSERT INTO wiki_artigos (servidor_id, categoria_id, titulo, slug, conteudo, autor, publicado, criado_em, atualizado_em)
-                VALUES (:servidor_id, :categoria_id, :titulo, :slug, :conteudo, :autor, :publicado, NOW(), NOW())
+                INSERT INTO wiki_artigos (categoria_id, titulo, slug, conteudo, autor, publicado, criado_em, atualizado_em)
+                VALUES (:categoria_id, :titulo, :slug, :conteudo, :autor, :publicado, NOW(), NOW())
             ");
             $stmt->execute([
-                ':servidor_id'  => $servidor_id,
                 ':categoria_id' => $categoria_id,
                 ':titulo'       => $titulo,
                 ':slug'         => $slug,
@@ -182,9 +187,10 @@ $categoriasDisponiveis = getCategoriasServidorWiki($pdo, $servidor_id);
                     <div class="admin-form-group mb-3">
                         <div class="d-flex align-items-center justify-content-between mb-1">
                             <label for="conteudo" class="mb-0">Conteúdo do Artigo (Markdown) *</label>
-                            <span class="badge bg-light text-dark border"><i class="fa-brands fa-markdown me-1"></i> Formato Markdown / BBCode suportado</span>
+                            <span class="badge bg-light text-dark border"><i class="fa-brands fa-markdown me-1"></i> Formato Markdown suportado</span>
                         </div>
-                        <textarea class="admin-form-control font-monospace" id="conteudo" name="conteudo" rows="12" placeholder="# Introdução&#10;&#10;Descreva o guia detalhadamente aqui..." required><?php echo htmlspecialchars($conteudo, ENT_QUOTES, 'UTF-8'); ?></textarea>
+                        <?php require __DIR__ . "/../includes/wiki_editor_toolbar.php"; ?>
+                        <textarea class="admin-form-control font-monospace" id="conteudo" name="conteudo" rows="14" placeholder="# Introdução&#10;&#10;Descreva o guia detalhadamente aqui..." required><?php echo htmlspecialchars($conteudo, ENT_QUOTES, 'UTF-8'); ?></textarea>
                     </div>
 
                     <div class="mb-4 form-check form-switch">

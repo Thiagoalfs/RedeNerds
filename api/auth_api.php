@@ -50,10 +50,15 @@ function verificarAcessoApi(bool $exigirApiKeyApenas = false): void {
         exit;
     }
 
-    // 3. Valida se a requisição é um fetch/AJAX interno legítimo do site (com Referer ou Origin obrigatórios)
+    // 3. Valida se a requisição é um fetch/AJAX interno legítimo do site
     $referer = $_SERVER['HTTP_REFERER'] ?? '';
     $origin = $_SERVER['HTTP_ORIGIN'] ?? '';
     $secFetchSite = $_SERVER['HTTP_SEC_FETCH_SITE'] ?? '';
+
+    // Se tiver Sec-Fetch-Site com same-origin ou same-site, é garantidamente requisição do próprio site
+    if (!empty($secFetchSite) && in_array($secFetchSite, ['same-origin', 'same-site'], true)) {
+        return;
+    }
 
     $dominiosAutorizados = [
         'redenerds.com.br',
@@ -62,8 +67,24 @@ function verificarAcessoApi(bool $exigirApiKeyApenas = false): void {
         '127.0.0.1'
     ];
 
-    // Se tiver Sec-Fetch-Site, deve ser same-origin ou same-site
-    if (!empty($secFetchSite) && !in_array($secFetchSite, ['same-origin', 'same-site'], true)) {
+    // Adiciona dinamicamente os hosts locais/atuais do servidor
+    if (!empty($_SERVER['HTTP_HOST'])) {
+        $hostLimpo = parse_url('http://' . $_SERVER['HTTP_HOST'], PHP_URL_HOST);
+        if ($hostLimpo) {
+            $dominiosAutorizados[] = strtolower($hostLimpo);
+        }
+    }
+    if (!empty($_SERVER['SERVER_NAME'])) {
+        $dominiosAutorizados[] = strtolower($_SERVER['SERVER_NAME']);
+    }
+    if (!empty($_SERVER['SERVER_ADDR'])) {
+        $dominiosAutorizados[] = strtolower($_SERVER['SERVER_ADDR']);
+    }
+
+    $dominiosAutorizados = array_unique(array_filter($dominiosAutorizados));
+
+    // Se tiver Sec-Fetch-Site externo não autorizado, bloqueia
+    if (!empty($secFetchSite) && !in_array($secFetchSite, ['same-origin', 'same-site', 'none'], true)) {
         http_response_code(403);
         echo json_encode([
             "erro" => "Acesso negado: Origem não permitida."
@@ -85,6 +106,12 @@ function verificarAcessoApi(bool $exigirApiKeyApenas = false): void {
         if ($refererHost && in_array(strtolower($refererHost), $dominiosAutorizados, true)) {
             $ehFetchInternoValido = true;
         }
+    }
+
+    // Requisições AJAX legítimas
+    $isAjax = (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest');
+    if ($isAjax) {
+        $ehFetchInternoValido = true;
     }
 
     if ($ehFetchInternoValido) {

@@ -1,4 +1,4 @@
-document.addEventListener("DOMContentLoaded", () => {
+function initNovidades() {
     // Views
     const viewLanding = document.getElementById("view-landing") || document.getElementById("view-novidades");
     const viewMais = document.getElementById("view-mais");
@@ -107,15 +107,18 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
         fetch("/api/novidades_api.php?limit=3")
-            .then(res => res.json())
+            .then(res => {
+                if (!res.ok) throw new Error("HTTP error " + res.status);
+                return res.json();
+            })
             .then(data => {
                 if (data && data.erro) {
-                    console.error("Erro retornado do PHP:", data.erro);
+                    console.error("Erro retornado do backend:", data.erro);
                     if (atualizacoesSec) atualizacoesSec.hidden = true;
                     return;
                 }
 
-                const entries = Array.isArray(data) ? data : [];
+                const entries = Array.isArray(data) ? data : (data && data.data && Array.isArray(data.data) ? data.data : []);
 
                 if (entries.length === 0) {
                     if (atualizacoesSec) atualizacoesSec.hidden = true;
@@ -127,6 +130,8 @@ document.addEventListener("DOMContentLoaded", () => {
                     const categoryLabel = categoryLabels[categoryKey] || news.category || "";
                     const rawDesc = String(news.conteudo || "").replace(/<[^>]+>/g, "").replace(/\\n/g, " ").trim();
                     const descSnippet = rawDesc || "Clique para ver todos os detalhes e informações desta atualização.";
+                    const dataObj = news.criado_em ? new Date(String(news.criado_em).replace(" ", "T")) : new Date();
+                    const dataFormatada = !isNaN(dataObj.getTime()) ? dataObj.toLocaleDateString("pt-BR") : "";
 
                     return `
                     <a class="news-div" href="/novidades/novidade-page/?id=${news.id}" data-category="${categoryKey}">
@@ -135,7 +140,7 @@ document.addEventListener("DOMContentLoaded", () => {
                         </div>
                         <div class="news-div-content">
                             <div class="news-div-meta">
-                                <span class="news-div-date">${new Date(news.criado_em).toLocaleDateString("pt-BR")}</span>
+                                <span class="news-div-date">${dataFormatada}</span>
                                 ${categoryLabel ? `<span class="news-div-tag" data-category="${categoryKey}">${escapeHTML(categoryLabel)}</span>` : ""}
                             </div>
                             <h3 class="news-div-title">${escapeHTML(news.titulo)}</h3>
@@ -153,6 +158,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
                 // Revela a seção completa somente agora após carregar as notícias com sucesso
                 if (atualizacoesSec) {
+                    atualizacoesSec.removeAttribute("hidden");
                     atualizacoesSec.hidden = false;
                 }
             })
@@ -422,4 +428,10 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     loadTopNews();
-});
+}
+
+if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", initNovidades);
+} else {
+    initNovidades();
+}

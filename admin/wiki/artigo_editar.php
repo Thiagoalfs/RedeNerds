@@ -25,7 +25,13 @@ if ($id <= 0) {
     exit;
 }
 
-$stmt = $pdo->prepare("SELECT * FROM wiki_artigos WHERE id = :id LIMIT 1");
+$stmt = $pdo->prepare("
+    SELECT a.*, c.servidor_id 
+    FROM wiki_artigos a 
+    JOIN wiki_categorias c ON c.id = a.categoria_id 
+    WHERE a.id = :id 
+    LIMIT 1
+");
 $stmt->execute([':id' => $id]);
 $artigo = $stmt->fetch(PDO::FETCH_ASSOC);
 
@@ -65,8 +71,8 @@ if (empty($nicksEquipe)) {
 }
 
 $erro = null;
-$servidor_id = (int)($_POST['servidor_id'] ?? $artigo['servidor_id']);
-$categoria_id = (int)($_POST['categoria_id'] ?? $artigo['categoria_id']);
+$servidor_id = (int)($_POST['servidor_id'] ?? ($artigo['servidor_id'] ?? 0));
+$categoria_id = (int)($_POST['categoria_id'] ?? ($artigo['categoria_id'] ?? 0));
 $titulo = trim($_POST['titulo'] ?? $artigo['titulo']);
 $conteudo = trim($_POST['conteudo'] ?? $artigo['conteudo']);
 $autor = trim($_POST['autor'] ?? $artigo['autor']);
@@ -94,11 +100,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             $upd = $pdo->prepare("
                 UPDATE wiki_artigos 
-                SET servidor_id = :servidor_id, categoria_id = :categoria_id, titulo = :titulo, conteudo = :conteudo, autor = :autor, publicado = :publicado
+                SET categoria_id = :categoria_id, titulo = :titulo, conteudo = :conteudo, autor = :autor, publicado = :publicado, atualizado_em = NOW()
                 WHERE id = :id
             ");
             $upd->execute([
-                ':servidor_id'  => $servidor_id,
                 ':categoria_id' => $categoria_id,
                 ':titulo'       => $titulo,
                 ':conteudo'     => $conteudo,
@@ -185,9 +190,10 @@ $categoriasDisponiveis = getCategoriasServidorWiki($pdo, $servidor_id);
                     <div class="admin-form-group mb-3">
                         <div class="d-flex align-items-center justify-content-between mb-1">
                             <label for="conteudo" class="mb-0">Conteúdo do Artigo (Markdown) *</label>
-                            <span class="badge bg-light text-dark border"><i class="fa-brands fa-markdown me-1"></i> Markdown / BBCode suportado</span>
+                            <span class="badge bg-light text-dark border"><i class="fa-brands fa-markdown me-1"></i> Formato Markdown suportado</span>
                         </div>
-                        <textarea class="admin-form-control font-monospace" id="conteudo" name="conteudo" rows="12" required><?php echo htmlspecialchars($conteudo, ENT_QUOTES, 'UTF-8'); ?></textarea>
+                        <?php require __DIR__ . "/../includes/wiki_editor_toolbar.php"; ?>
+                        <textarea class="admin-form-control font-monospace" id="conteudo" name="conteudo" rows="14" required><?php echo htmlspecialchars($conteudo, ENT_QUOTES, 'UTF-8'); ?></textarea>
                     </div>
 
                     <div class="mb-4 form-check form-switch">

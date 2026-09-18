@@ -42,7 +42,7 @@ try {
                c.nome AS categoria_nome, c.slug AS categoria_slug, c.icone AS categoria_icone
         FROM wiki_artigos a 
         JOIN wiki_categorias c ON c.id = a.categoria_id 
-        WHERE a.servidor_id = :servidor_id AND a.publicado = 1 
+        WHERE c.servidor_id = :servidor_id AND a.publicado = 1 
         ORDER BY c.ordem ASC, a.ordem ASC, a.id ASC
     ");
     $stmtArtigos->execute([':servidor_id' => $servidorAtual['id']]);

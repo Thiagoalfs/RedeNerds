@@ -60,7 +60,6 @@ if (isset($pdo) && $pdo instanceof PDO) {
                 <i class="fa-solid fa-server"></i>
                 <span>Servidores</span>
             </div>
-        </a>
         <a href="/admin/equipe/" class="nav-item-link <?php echo in_array($paginaAtiva, ['equipe', 'equipe_criar', 'equipe_editar', 'equipe_manage']) ? 'active' : ''; ?>">
             <div class="icon-wrap">
                 <i class="fa-solid fa-users"></i>

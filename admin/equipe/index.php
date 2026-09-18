@@ -10,13 +10,19 @@ try {
     $membros = [];
 }
 
-// Busca a ordem definida na tabela equipe_cargos
+// Busca a ordem e cores definidas na tabela equipe_cargos
 $cargosOrdem = [];
+$cargosCores = [];
 try {
-    $stmtCargos = $pdo->query("SELECT nome FROM equipe_cargos ORDER BY ordem ASC, id ASC");
-    $cargosOrdem = $stmtCargos->fetchAll(PDO::FETCH_COLUMN);
+    $stmtCargos = $pdo->query("SELECT nome, cor FROM equipe_cargos ORDER BY ordem ASC, id ASC");
+    $rowsCargos = $stmtCargos->fetchAll(PDO::FETCH_ASSOC);
+    foreach ($rowsCargos as $rc) {
+        $cargosOrdem[] = $rc['nome'];
+        $cargosCores[$rc['nome']] = $rc['cor'] ?? '#27acff';
+    }
 } catch (Exception $e) {
     $cargosOrdem = [];
+    $cargosCores = [];
 }
 
 $gruposBrutos = [];
@@ -65,9 +71,13 @@ foreach ($gruposBrutos as $cNome => $lista) {
     </div>
 <?php else: ?>
     <?php foreach ($grupos as $cargo => $lista): ?>
+        <?php $cargoCor = $cargosCores[$cargo] ?? '#27acff'; ?>
         <div class="admin-card mb-3">
-            <div class="admin-card-header">
-                <h6 class="fw-bold mb-0"><i class="fa-solid fa-users me-1 text-primary"></i> <?php echo htmlspecialchars($cargo, ENT_QUOTES, 'UTF-8'); ?></h6>
+            <div class="admin-card-header d-flex justify-content-between align-items-center">
+                <div class="d-flex align-items-center gap-2">
+                    <span class="rounded-circle shadow-sm" style="display:inline-block; width: 14px; height: 14px; background-color: <?php echo htmlspecialchars($cargoCor, ENT_QUOTES, 'UTF-8'); ?>;"></span>
+                    <h6 class="fw-bold mb-0"><?php echo htmlspecialchars($cargo, ENT_QUOTES, 'UTF-8'); ?></h6>
+                </div>
                 <span class="badge bg-light text-dark border"><?php echo count($lista); ?> membro(s)</span>
             </div>
             <div class="card-body p-0">
@@ -77,7 +87,7 @@ foreach ($gruposBrutos as $cNome => $lista) {
                             <tr>
                                 <th style="width: 60px;">Avatar</th>
                                 <th>Nick</th>
-                                <th style="width: 180px;">Cargo</th>
+                                <th style="width: 200px;">Cargo</th>
                                 <th class="text-end" style="width: 130px;">Ações</th>
                             </tr>
                         </thead>
@@ -91,7 +101,9 @@ foreach ($gruposBrutos as $cNome => $lista) {
                                         <strong class="text-dark"><?php echo htmlspecialchars($m['nick'], ENT_QUOTES, 'UTF-8'); ?></strong>
                                     </td>
                                     <td>
-                                        <span class="badge bg-primary"><?php echo htmlspecialchars($m['cargo'], ENT_QUOTES, 'UTF-8'); ?></span>
+                                        <span class="badge text-white" style="background-color: <?php echo htmlspecialchars($cargoCor, ENT_QUOTES, 'UTF-8'); ?>; text-shadow: 0 1px 2px rgba(0,0,0,0.3);">
+                                            <?php echo htmlspecialchars($m['cargo'], ENT_QUOTES, 'UTF-8'); ?>
+                                        </span>
                                     </td>
                                     <td class="text-end text-nowrap">
                                         <div class="d-inline-flex align-items-center justify-content-end gap-1">

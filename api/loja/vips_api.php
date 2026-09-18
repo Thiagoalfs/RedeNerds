@@ -206,9 +206,11 @@ if (!empty($servidoresDoBanco) && !empty($vipsDoBanco)) {
             // Correspondência direta por ID do servidor, com fallback por nome/slug
             $pertenceAoServidor = (
                 ($vipServidorId > 0 && $vipServidorId === (int)$srv['id']) ||
-                strcasecmp($vipSrvRaw, $srv['servername']) === 0 ||
-                strcasecmp($vipSrvRaw, $srvSlug) === 0 ||
-                ($vipSrvLimpo !== '' && $vipSrvLimpo === $srvNomeLimpo)
+                ($vipServidorId === 0 && (
+                    strcasecmp($vipSrvRaw, $srv['servername']) === 0 ||
+                    strcasecmp($vipSrvRaw, $srvSlug) === 0 ||
+                    ($vipSrvLimpo !== '' && $vipSrvLimpo === $srvNomeLimpo)
+                ))
             );
 
             if ($pertenceAoServidor) {

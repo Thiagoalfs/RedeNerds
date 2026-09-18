@@ -1,7 +1,7 @@
 <?php
 /**
  * equipe_api.php
- * Retorna os membros da equipe agrupados por cargo no formato esperado pelo equipe.js.
+ * Retorna os membros da equipe agrupados por cargo e com cores dinâmicas no formato esperado pelo equipe.js.
  */
 
 ini_set('display_errors', 0);
@@ -39,13 +39,19 @@ $resultado = [];
 
 try {
     if (isset($pdo) && $pdo instanceof PDO) {
-        // 1) Busca os cargos da tabela equipe_cargos na ordem definida
+        // 1) Busca os cargos da tabela equipe_cargos na ordem definida com suas cores
         $cargosHierarquia = [];
+        $cargosCores = [];
         try {
-            $stmtCargosDef = $pdo->query("SELECT nome FROM equipe_cargos ORDER BY ordem ASC, id ASC");
-            $cargosHierarquia = $stmtCargosDef->fetchAll(PDO::FETCH_COLUMN, 0);
+            $stmtCargosDef = $pdo->query("SELECT nome, cor FROM equipe_cargos ORDER BY ordem ASC, id ASC");
+            $rowsDef = $stmtCargosDef->fetchAll(PDO::FETCH_ASSOC);
+            foreach ($rowsDef as $rd) {
+                $cargosHierarquia[] = $rd['nome'];
+                $cargosCores[$rd['nome']] = $rd['cor'] ?? '#27acff';
+            }
         } catch (Exception $e) {
             $cargosHierarquia = [];
+            $cargosCores = [];
         }
 
         // Descobre todos os cargos existentes na tabela equipe
@@ -74,16 +80,19 @@ try {
             if (!empty($membros)) {
                 $resultado[] = [
                     'categoryTitle' => $cargo,
+                    'cor'           => $cargosCores[$cargo] ?? null,
                     'members'       => $membros,
                 ];
             }
         }
     } elseif (isset($conn) && $conn instanceof mysqli) {
         $cargos = [];
-        $resDef = $conn->query("SELECT nome FROM equipe_cargos ORDER BY ordem ASC, id ASC");
+        $cargosCores = [];
+        $resDef = $conn->query("SELECT nome, cor FROM equipe_cargos ORDER BY ordem ASC, id ASC");
         if ($resDef) {
-            while ($row = $resDef->fetch_row()) {
-                $cargos[] = $row[0];
+            while ($row = $resDef->fetch_assoc()) {
+                $cargos[] = $row['nome'];
+                $cargosCores[$row['nome']] = $row['cor'] ?? '#27acff';
             }
         }
 
@@ -120,6 +129,7 @@ try {
             if (!empty($membros)) {
                 $resultado[] = [
                     'categoryTitle' => $cargo,
+                    'cor'           => $cargosCores[$cargo] ?? null,
                     'members'       => $membros,
                 ];
             }

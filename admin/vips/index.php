@@ -31,7 +31,7 @@ if ($filtroServidor !== '') {
         $srvObj = $servidoresMap[$filtroServidor] ?? null;
         $params[':servidor_nome'] = $srvObj ? $srvObj['servername'] : $filtroServidor;
     } else {
-        $where[] = "(v.servidor = :servidor_nome OR v.servidor = :servidor_slug)";
+        $where[] = "(v.servidor = :servidor_nome OR s.servername = :servidor_nome OR s.nome = :servidor_slug)";
         $params[':servidor_nome'] = $filtroServidor;
         $params[':servidor_slug'] = $filtroServidor;
     }
@@ -51,6 +51,7 @@ try {
     $stmt->execute($params);
     $vips = $stmt->fetchAll(PDO::FETCH_ASSOC);
 } catch (PDOException $e) {
+    error_log("Erro ao buscar lista de VIPs: " . $e->getMessage());
     $vips = [];
 }
 ?>
@@ -128,7 +129,7 @@ try {
                         </tr>
                     <?php else: ?>
                         <?php foreach ($vips as $v): 
-                            $srvNome = $v['servidor_nome_oficial'] ?: ($v['servidor'] ?: 'Servidor');
+                            $srvNome = $v['servidor_nome_oficial'] ?: ($servidoresMap[$v['servidor_id']]['servername'] ?? ($v['servidor'] ?: 'Servidor'));
                             $srvCor = $v['servidor_cor'] ?: ($servidoresMap[$v['servidor_id'] ?? $v['servidor']]['themecolor'] ?? '#B971DA');
                         ?>
                             <tr>
@@ -184,7 +185,7 @@ try {
                                                 <i class="fa-solid <?php echo !empty($v['ativo']) ? 'fa-eye' : 'fa-eye-slash'; ?>"></i>
                                             </button>
                                         </form>
-                                        <form method="POST" action="/admin/api/vips/deletar.php" class="d-inline" onsubmit="return confirm('Tem certeza que deseja excluir o pacote <?php echo htmlspecialchars(addslashes($v['nome']), ENT_QUOTES, 'UTF-8'); ?> do servidor <?php echo htmlspecialchars(addslashes($v['servidor']), ENT_QUOTES, 'UTF-8'); ?>?');">
+                                        <form method="POST" action="/admin/api/vips/deletar.php" class="d-inline" onsubmit="return confirm('Tem certeza que deseja excluir o pacote <?php echo htmlspecialchars(addslashes($v['nome']), ENT_QUOTES, 'UTF-8'); ?> do servidor <?php echo htmlspecialchars(addslashes($srvNome), ENT_QUOTES, 'UTF-8'); ?>?');">
                                             <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($csrfToken, ENT_QUOTES, 'UTF-8'); ?>">
                                             <input type="hidden" name="id" value="<?php echo (int)$v['id']; ?>">
                                             <button type="submit" class="btn btn-sm btn-danger" title="Deletar VIP">

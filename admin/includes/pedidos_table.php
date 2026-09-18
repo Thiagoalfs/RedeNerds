@@ -8,7 +8,7 @@
  * - array $servidoresMap: mapa de servidores (por nome/id)
  * - string $emptyMessage (opcional): mensagem caso a lista esteja vazia
  * - bool $mostrarPaginacao (opcional): se deve exibir a paginação abaixo da tabela
- * - int $totalPaginas, $pagina, string $filtroStatus, $filtroMetodo, $busca (para paginação)
+ * - int $totalPaginas, $pagina, string $filtroStatus, $filtroMetodo, $filtroServidor, $busca (para paginação)
  */
 
 $pedidos = $pedidos ?? [];
@@ -129,15 +129,15 @@ $mostrarPaginacao = $mostrarPaginacao ?? false;
     <nav class="d-flex justify-content-center mt-3">
         <ul class="pagination pagination-sm">
             <li class="page-item <?php echo ($pagina <= 1) ? 'disabled' : ''; ?>">
-                <a class="page-link" href="?page=<?php echo max(1, $pagina - 1); ?>&status=<?php echo urlencode($filtroStatus ?? ''); ?>&metodo=<?php echo urlencode($filtroMetodo ?? ''); ?>&busca=<?php echo urlencode($busca ?? ''); ?>">‹ Anterior</a>
+                <a class="page-link" href="?page=<?php echo max(1, $pagina - 1); ?>&servidor=<?php echo urlencode($filtroServidor ?? ''); ?>&status=<?php echo urlencode($filtroStatus ?? ''); ?>&metodo=<?php echo urlencode($filtroMetodo ?? ''); ?>&busca=<?php echo urlencode($busca ?? ''); ?>">‹ Anterior</a>
             </li>
             <?php for ($i = 1; $i <= $totalPaginas; $i++): ?>
                 <li class="page-item <?php echo ($i === $pagina) ? 'active' : ''; ?>">
-                    <a class="page-link" href="?page=<?php echo $i; ?>&status=<?php echo urlencode($filtroStatus ?? ''); ?>&metodo=<?php echo urlencode($filtroMetodo ?? ''); ?>&busca=<?php echo urlencode($busca ?? ''); ?>"><?php echo $i; ?></a>
+                    <a class="page-link" href="?page=<?php echo $i; ?>&servidor=<?php echo urlencode($filtroServidor ?? ''); ?>&status=<?php echo urlencode($filtroStatus ?? ''); ?>&metodo=<?php echo urlencode($filtroMetodo ?? ''); ?>&busca=<?php echo urlencode($busca ?? ''); ?>"><?php echo $i; ?></a>
                 </li>
             <?php endfor; ?>
             <li class="page-item <?php echo ($pagina >= $totalPaginas) ? 'disabled' : ''; ?>">
-                <a class="page-link" href="?page=<?php echo min($totalPaginas, $pagina + 1); ?>&status=<?php echo urlencode($filtroStatus ?? ''); ?>&metodo=<?php echo urlencode($filtroMetodo ?? ''); ?>&busca=<?php echo urlencode($busca ?? ''); ?>">Próxima ›</a>
+                <a class="page-link" href="?page=<?php echo min($totalPaginas, $pagina + 1); ?>&servidor=<?php echo urlencode($filtroServidor ?? ''); ?>&status=<?php echo urlencode($filtroStatus ?? ''); ?>&metodo=<?php echo urlencode($filtroMetodo ?? ''); ?>&busca=<?php echo urlencode($busca ?? ''); ?>">Próxima ›</a>
             </li>
         </ul>
     </nav>

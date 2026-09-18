@@ -2,7 +2,15 @@ document.addEventListener("DOMContentLoaded", function () {
     carregarEquipe();
 });
 
-function getCargoTheme(cargoTitle) {
+function getCargoTheme(cargoTitle, cargoCor) {
+    if (cargoCor && typeof cargoCor === "string" && cargoCor.trim().startsWith("#")) {
+        const hex = cargoCor.trim();
+        return {
+            gradient: `linear-gradient(to right, ${hex}, ${hex})`,
+            color: hex
+        };
+    }
+
     const title = (cargoTitle || "").toLowerCase().trim();
 
     // Fundador: Azul
@@ -79,7 +87,7 @@ async function carregarEquipe() {
 
         cargos.forEach(cargo => {
             const section = document.createElement("section");
-            const theme = getCargoTheme(cargo.categoryTitle);
+            const theme = getCargoTheme(cargo.categoryTitle, cargo.cor);
             const FALLBACK_SKIN = "https://vzge.me/bust/FreehandCargo95.png";
             const members = Array.isArray(cargo.members) ? cargo.members : [];
             const isCarousel = members.length > 3;
