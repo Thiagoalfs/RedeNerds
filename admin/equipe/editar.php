@@ -109,10 +109,7 @@ require_once __DIR__ . "/../includes/admin_header.php";
                     </div>
 
                     <div class="admin-form-group">
-                        <div class="d-flex justify-content-between align-items-center mb-1">
-                            <label for="cargo" class="mb-0">Cargo / Grupo</label>
-                            <a href="manage.php" class="small text-decoration-none"><i class="fa-solid fa-gear me-1"></i> Gerenciar Cargos</a>
-                        </div>
+                        <label for="cargo">Cargo / Grupo</label>
                         <select class="admin-form-control" id="cargo" name="cargo" required>
                             <option value="">Selecione um cargo...</option>
                             <?php foreach ($cargosBanco as $c): ?>
