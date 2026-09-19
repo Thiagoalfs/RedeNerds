@@ -11,6 +11,7 @@ try {
     $stmtSrv = $pdo->query("SELECT id, servername, nome, themecolor, icon FROM servidores ORDER BY servername ASC");
     $servidores = $stmtSrv->fetchAll(PDO::FETCH_ASSOC);
     foreach ($servidores as $s) {
+        $servidoresMap[$s['id']] = $s;
         $servidoresMap[$s['servername']] = $s;
         if (!empty($s['nome'])) {
             $servidoresMap[$s['nome']] = $s;
@@ -24,9 +25,14 @@ $where = [];
 $params = [];
 
 if ($filtroServidor !== '') {
-    $where[] = "(v.servidor = :servidor_nome OR v.servidor = :servidor_slug)";
-    $params[':servidor_nome'] = $filtroServidor;
-    $params[':servidor_slug'] = $filtroServidor;
+    if (is_numeric($filtroServidor)) {
+        $where[] = "v.servidor_id = :servidor_id";
+        $params[':servidor_id'] = (int)$filtroServidor;
+    } else {
+        $where[] = "(s.servername = :servidor_nome OR s.nome = :servidor_slug)";
+        $params[':servidor_nome'] = $filtroServidor;
+        $params[':servidor_slug'] = $filtroServidor;
+    }
 }
 
 $whereSql = !empty($where) ? "WHERE " . implode(" AND ", $where) : "";
@@ -34,52 +40,17 @@ $whereSql = !empty($where) ? "WHERE " . implode(" AND ", $where) : "";
 $vips = [];
 try {
     $stmt = $pdo->prepare("
-        SELECT v.* 
+        SELECT v.*, s.servername as servidor_nome_oficial, s.themecolor as servidor_cor, s.icon as servidor_icone
         FROM vips v
+        INNER JOIN servidores s ON s.id = v.servidor_id
         $whereSql
-        ORDER BY v.servidor ASC, v.preco ASC
+        ORDER BY s.servername ASC, v.preco ASC
     ");
     $stmt->execute($params);
     $vips = $stmt->fetchAll(PDO::FETCH_ASSOC);
 } catch (PDOException $e) {
+    error_log("Erro ao buscar lista de VIPs: " . $e->getMessage());
     $vips = [];
-}
-
-function renderBeneficiosBulletPoints(?string $vantagensRaw): string {
-    if (empty($vantagensRaw)) {
-        return '<span class="text-muted small fst-italic">Nenhum benefício cadastrado</span>';
-    }
-
-    $itens = [];
-    $json = json_decode($vantagensRaw, true);
-    if (is_array($json)) {
-        $itens = $json;
-    } else {
-        $itens = array_values(array_filter(array_map('trim', explode("\n", $vantagensRaw))));
-    }
-
-    if (empty($itens)) {
-        return '<span class="text-muted small fst-italic">Nenhum benefício cadastrado</span>';
-    }
-
-    $total = count($itens);
-    $limite = 3;
-    $html = '<ul class="list-unstyled mb-0 small text-start">';
-    
-    foreach (array_slice($itens, 0, $limite) as $item) {
-        $html .= '<li class="d-flex align-items-start gap-1 mb-1">';
-        $html .= '<i class="fa-solid fa-check text-success mt-1" style="font-size: 0.75rem;"></i>';
-        $html .= '<span class="text-secondary">' . htmlspecialchars($item, ENT_QUOTES, 'UTF-8') . '</span>';
-        $html .= '</li>';
-    }
-
-    if ($total > $limite) {
-        $restantes = $total - $limite;
-        $html .= '<li class="text-muted small fst-italic ps-3">+ ' . $restantes . ' outro(s) benefício(s)</li>';
-    }
-
-    $html .= '</ul>';
-    return $html;
 }
 ?>
 
@@ -116,7 +87,7 @@ function renderBeneficiosBulletPoints(?string $vantagensRaw): string {
                 <select name="servidor" class="form-select form-select-sm" onchange="this.form.submit()">
                     <option value="">Filtrar por Servidor: Todos os Servidores</option>
                     <?php foreach ($servidores as $s): ?>
-                        <option value="<?php echo htmlspecialchars($s['servername'], ENT_QUOTES, 'UTF-8'); ?>" <?php echo ($filtroServidor === $s['servername'] || $filtroServidor === $s['nome']) ? 'selected' : ''; ?>>
+                        <option value="<?php echo (int)$s['id']; ?>" <?php echo ((string)$filtroServidor === (string)$s['id'] || $filtroServidor === $s['servername'] || $filtroServidor === $s['nome']) ? 'selected' : ''; ?>>
                             <?php echo htmlspecialchars($s['servername'], ENT_QUOTES, 'UTF-8'); ?>
                         </option>
                     <?php endforeach; ?>
@@ -138,33 +109,32 @@ function renderBeneficiosBulletPoints(?string $vantagensRaw): string {
             <table class="table table-admin align-middle mb-0">
                 <thead>
                     <tr>
-                        <th style="width: 140px;">Servidor</th>
-                        <th style="width: 180px;">Pacote VIP</th>
-                        <th style="width: 140px;">Package ID</th>
-                        <th style="width: 120px;">Preço</th>
-                        <th style="width: 100px;">Duração</th>
-                        <th>Benefícios (Bullet Points)</th>
-                        <th style="width: 100px;">Status</th>
+                        <th style="width: 160px;">Servidor</th>
+                        <th>Pacote VIP</th>
+                        <th style="width: 160px;">Package ID</th>
+                        <th style="width: 140px;">Preço</th>
+                        <th style="width: 120px;">Duração</th>
+                        <th style="width: 110px;">Status</th>
                         <th class="text-end" style="width: 150px;">Ações</th>
                     </tr>
                 </thead>
                 <tbody>
                     <?php if (empty($vips)): ?>
                         <tr>
-                            <td colspan="8" class="text-center py-4 text-muted">
+                            <td colspan="7" class="text-center py-4 text-muted">
                                 Nenhum pacote VIP encontrado<?php echo $filtroServidor ? ' para o servidor selecionado' : ''; ?>. Clique em "+ Novo Pacote VIP" para cadastrar.
                             </td>
                         </tr>
                     <?php else: ?>
                         <?php foreach ($vips as $v): 
-                            $srvInfo = $servidoresMap[$v['servidor']] ?? null;
-                            $srvCor = $srvInfo['themecolor'] ?? '#B971DA';
+                            $srvNome = $v['servidor_nome_oficial'] ?: ($servidoresMap[$v['servidor_id']]['servername'] ?? 'Servidor');
+                            $srvCor = $v['servidor_cor'] ?: ($servidoresMap[$v['servidor_id']]['themecolor'] ?? '#B971DA');
                         ?>
                             <tr>
                                 <td>
                                     <span class="badge" style="background-color: <?php echo htmlspecialchars($srvCor, ENT_QUOTES, 'UTF-8'); ?>; color: #fff; font-weight: 600;">
                                         <i class="fa-solid fa-server me-1"></i>
-                                        <?php echo htmlspecialchars($v['servidor'], ENT_QUOTES, 'UTF-8'); ?>
+                                        <?php echo htmlspecialchars($srvNome, ENT_QUOTES, 'UTF-8'); ?>
                                     </span>
                                 </td>
                                 <td>
@@ -195,9 +165,6 @@ function renderBeneficiosBulletPoints(?string $vantagensRaw): string {
                                     </span>
                                 </td>
                                 <td>
-                                    <?php echo renderBeneficiosBulletPoints($v['vantagens']); ?>
-                                </td>
-                                <td>
                                     <?php if (!empty($v['ativo'])): ?>
                                         <span class="badge-status ativo">Ativo</span>
                                     <?php else: ?>
@@ -216,7 +183,7 @@ function renderBeneficiosBulletPoints(?string $vantagensRaw): string {
                                                 <i class="fa-solid <?php echo !empty($v['ativo']) ? 'fa-eye' : 'fa-eye-slash'; ?>"></i>
                                             </button>
                                         </form>
-                                        <form method="POST" action="/admin/api/vips/deletar.php" class="d-inline" onsubmit="return confirm('Tem certeza que deseja excluir o pacote <?php echo htmlspecialchars(addslashes($v['nome']), ENT_QUOTES, 'UTF-8'); ?> do servidor <?php echo htmlspecialchars(addslashes($v['servidor']), ENT_QUOTES, 'UTF-8'); ?>?');">
+                                        <form method="POST" action="/admin/api/vips/deletar.php" class="d-inline" onsubmit="return confirm('Tem certeza que deseja excluir o pacote <?php echo htmlspecialchars(addslashes($v['nome']), ENT_QUOTES, 'UTF-8'); ?> do servidor <?php echo htmlspecialchars(addslashes($srvNome), ENT_QUOTES, 'UTF-8'); ?>?');">
                                             <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($csrfToken, ENT_QUOTES, 'UTF-8'); ?>">
                                             <input type="hidden" name="id" value="<?php echo (int)$v['id']; ?>">
                                             <button type="submit" class="btn btn-sm btn-danger" title="Deletar VIP">
