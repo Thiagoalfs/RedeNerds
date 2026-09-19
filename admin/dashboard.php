@@ -13,9 +13,19 @@ $totalUsosCupons = 0;
 $totalServidores = 0;
 $totalNoticias = 0;
 $ultimosPedidos = [];
+$servidoresMap = [];
 
 try {
     if (isset($pdo) && $pdo instanceof PDO) {
+        $stmtSrv = $pdo->query("SELECT id, servername, nome, themecolor, icon FROM servidores ORDER BY servername ASC");
+        $servidoresList = $stmtSrv->fetchAll(PDO::FETCH_ASSOC);
+        foreach ($servidoresList as $s) {
+            $servidoresMap[$s['servername']] = $s;
+            if (!empty($s['nome'])) {
+                $servidoresMap[$s['nome']] = $s;
+            }
+        }
+
         // Faturamento Total
         $totalFaturamento = (float)$pdo->query("SELECT COALESCE(SUM(valor), 0) FROM pedidos_vip WHERE status = 'pago'")->fetchColumn();
 
@@ -116,77 +126,12 @@ try {
         <a href="/admin/pedidos/" class="btn btn-outline-primary btn-sm">Ver todos os pedidos →</a>
     </div>
     <div class="card-body p-0">
-        <div class="table-responsive">
-            <table class="table table-admin align-middle mb-0">
-                <thead>
-                    <tr>
-                        <th style="width: 220px;">Jogador</th>
-                        <th>Pacote VIP</th>
-                        <th>Servidor</th>
-                        <th>Método</th>
-                        <th>Valor</th>
-                        <th>Status</th>
-                        <th>Data</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php if (empty($ultimosPedidos)): ?>
-                        <tr>
-                            <td colspan="7" class="text-center py-4 text-muted">Nenhum pedido registrado ainda.</td>
-                        </tr>
-                    <?php else: ?>
-                        <?php foreach ($ultimosPedidos as $ped): 
-                            $status = strtolower($ped['status'] ?? 'pendente');
-                            $metodo = strtolower($ped['metodo_pagamento'] ?? 'pix');
-                            $parcelas = (int)($ped['parcelas'] ?? 1);
-                        ?>
-                            <tr>
-                                <td>
-                                    <div class="d-flex align-items-center gap-2">
-                                        <img src="https://mc-heads.net/avatar/<?php echo urlencode($ped['nick']); ?>/28" 
-                                             class="rounded border" width="28" height="28" alt="Skin"
-                                             onerror="this.src='https://mc-heads.net/avatar/MHF_Steve/28'">
-                                        <div>
-                                            <strong class="text-dark"><?php echo htmlspecialchars($ped['nick'], ENT_QUOTES, 'UTF-8'); ?></strong>
-                                            <small class="text-muted d-block font-monospace" style="font-size: 0.72rem;"><?php echo htmlspecialchars($ped['txid'], ENT_QUOTES, 'UTF-8'); ?></small>
-                                        </div>
-                                    </div>
-                                </td>
-                                <td>
-                                    <span class="fw-semibold text-primary"><?php echo htmlspecialchars($ped['vip_nome'], ENT_QUOTES, 'UTF-8'); ?></span>
-                                    <?php if (!empty($ped['cupom_codigo'])): ?>
-                                        <span class="badge bg-light text-dark border ms-1" style="font-size: 0.68rem;"><i class="fa-solid fa-tag me-1"></i><?php echo htmlspecialchars($ped['cupom_codigo'], ENT_QUOTES, 'UTF-8'); ?></span>
-                                    <?php endif; ?>
-                                </td>
-                                <td><span class="badge bg-secondary"><?php echo htmlspecialchars($ped['servidor'], ENT_QUOTES, 'UTF-8'); ?></span></td>
-                                <td>
-                                    <?php if ($metodo === 'cartao'): ?>
-                                        <span class="badge bg-info text-dark"><i class="fa-solid fa-credit-card me-1"></i> Cartão <?php echo ($parcelas > 1) ? "({$parcelas}x)" : ""; ?></span>
-                                    <?php else: ?>
-                                        <span class="badge bg-success"><i class="fa-brands fa-pix me-1"></i> PIX</span>
-                                    <?php endif; ?>
-                                </td>
-                                <td>
-                                    <strong class="text-dark">R$ <?php echo number_format((float)$ped['valor'], 2, ',', '.'); ?></strong>
-                                </td>
-                                <td>
-                                    <?php if ($status === 'pago'): ?>
-                                        <span class="badge-status pago">Aprovado</span>
-                                    <?php elseif ($status === 'pendente'): ?>
-                                        <span class="badge-status pendente">Pendente</span>
-                                    <?php else: ?>
-                                        <span class="badge-status recusado">Recusado</span>
-                                    <?php endif; ?>
-                                </td>
-                                <td class="text-muted small">
-                                    <?php echo date('d/m/Y H:i', strtotime($ped['criado_em'])); ?>
-                                </td>
-                            </tr>
-                        <?php endforeach; ?>
-                    <?php endif; ?>
-                </tbody>
-            </table>
-        </div>
+        <?php 
+            $pedidos = $ultimosPedidos;
+            $emptyMessage = 'Nenhum pedido registrado ainda.';
+            $mostrarPaginacao = false;
+            require __DIR__ . "/includes/pedidos_table.php";
+        ?>
     </div>
 </div>
 
