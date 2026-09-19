@@ -210,12 +210,12 @@ function initNovidades() {
                         <div class="all-news-author">
                             <img class="all-news-author-head" src="https://mc-heads.net/avatar/${escapeHTML(news.autor)}" alt="${escapeHTML(news.autor)}">
                             <p>${highlight(news.autor, terms)}</p>
+                            <span class="all-news-date">${new Date(news.criado_em).toLocaleDateString("pt-BR")}</span>
                         </div>
-                        <p class="all-news-date">${new Date(news.criado_em).toLocaleDateString("pt-BR")}</p>
+                        <span class="all-news-link" style="margin-top: 0;">
+                            Ler mais <i class="fa-solid fa-arrow-right"></i>
+                        </span>
                     </div>
-                    <span class="all-news-link">
-                        Ler mais <i class="fa-solid fa-arrow-right"></i>
-                    </span>
                 </div>
             </a>
             `;
