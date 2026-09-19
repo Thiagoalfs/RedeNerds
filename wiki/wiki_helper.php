@@ -108,36 +108,81 @@ if (!function_exists('parseMarkdownWiki')) {
         $markdown = htmlspecialchars($markdown, ENT_QUOTES, 'UTF-8');
         $headings = [];
 
-        // 1. Code blocks
+        // 1. Code blocks com botão de copiar interativo
         $markdown = preg_replace_callback('/```([a-zA-Z0-9_-]*)\n([\s\S]*?)```/m', function ($matches) {
             $lang = htmlspecialchars($matches[1], ENT_QUOTES, 'UTF-8');
             $code = $matches[2];
-            return '<div class="wiki-code-block"><div class="code-header"><span class="code-lang">' . ($lang ?: 'código') . '</span></div><pre><code>' . $code . '</code></pre></div>';
+            $displayLang = $lang ? strtoupper($lang) : 'CÓDIGO';
+            return "\n\n" . '<div class="wiki-code-block">
+                <div class="code-header">
+                    <span class="code-lang"><i class="fa-solid fa-terminal me-1"></i> ' . $displayLang . '</span>
+                    <button type="button" class="btn-copy-code" onclick="copiarCodigoWiki(this)" title="Copiar código">
+                        <i class="fa-regular fa-copy"></i> Copiar
+                    </button>
+                </div>
+                <pre><code class="wiki-code-content">' . $code . '</code></pre>
+            </div>' . "\n\n";
         }, $markdown);
 
         // 2. Inline code
         $markdown = preg_replace('/`([^`]+)`/', '<code class="wiki-inline-code">$1</code>', $markdown);
 
-        // 3. Callouts
+        // 3. Callouts Gamer Avançados
+        // 3.1 DICA / TIP (Verde)
         $markdown = preg_replace_callback('/^&gt; \[!(DICA|TIP)\]\s*\n((?:&gt; .*\n?)+)/m', function ($matches) {
             $text = preg_replace('/^&gt; ?/m', '', trim($matches[2]));
-            return '<div class="wiki-callout wiki-callout-tip"><div class="callout-header"><i class="fa-solid fa-lightbulb"></i> Dica</div><div class="callout-body">' . $text . '</div></div>';
+            return "\n\n" . '<div class="wiki-callout wiki-callout-tip">
+                <div class="callout-header"><i class="fa-solid fa-lightbulb"></i> Dica de Pro</div>
+                <div class="callout-body">' . $text . '</div>
+            </div>' . "\n\n";
         }, $markdown);
 
+        // 3.2 AVISO / WARNING / ATENCAO (Amarelo / Laranja)
         $markdown = preg_replace_callback('/^&gt; \[!(AVISO|WARNING|ATENCAO)\]\s*\n((?:&gt; .*\n?)+)/m', function ($matches) {
             $text = preg_replace('/^&gt; ?/m', '', trim($matches[2]));
-            return '<div class="wiki-callout wiki-callout-warning"><div class="callout-header"><i class="fa-solid fa-triangle-exclamation"></i> Atenção</div><div class="callout-body">' . $text . '</div></div>';
+            return "\n\n" . '<div class="wiki-callout wiki-callout-warning">
+                <div class="callout-header"><i class="fa-solid fa-triangle-exclamation"></i> Atenção</div>
+                <div class="callout-body">' . $text . '</div>
+            </div>' . "\n\n";
         }, $markdown);
 
+        // 3.3 PERIGO / DANGER / BANIDO (Vermelho)
+        $markdown = preg_replace_callback('/^&gt; \[!(PERIGO|DANGER|BANIDO|CAUTION)\]\s*\n((?:&gt; .*\n?)+)/m', function ($matches) {
+            $text = preg_replace('/^&gt; ?/m', '', trim($matches[2]));
+            return "\n\n" . '<div class="wiki-callout wiki-callout-danger">
+                <div class="callout-header"><i class="fa-solid fa-shield-halved"></i> Cuidado / Regra Importante</div>
+                <div class="callout-body">' . $text . '</div>
+            </div>' . "\n\n";
+        }, $markdown);
+
+        // 3.4 COMANDO IN-GAME / COMMAND (Minecraft Terminal com botão de cópia)
+        $markdown = preg_replace_callback('/^&gt; \[!(COMANDO|COMMAND)\]\s*\n((?:&gt; .*\n?)+)/m', function ($matches) {
+            $text = preg_replace('/^&gt; ?/m', '', trim($matches[2]));
+            $cmdClean = trim(strip_tags(str_replace('<br />', '', $text)));
+            return "\n\n" . '<div class="wiki-callout wiki-callout-command">
+                <div class="callout-header">
+                    <span><i class="fa-solid fa-terminal me-1"></i> Comando In-game</span>
+                    <button type="button" class="btn-copy-code" onclick="copiarTextoDireto(this, \'' . htmlspecialchars(addslashes($cmdClean), ENT_QUOTES, 'UTF-8') . '\')">
+                        <i class="fa-regular fa-copy"></i> Copiar
+                    </button>
+                </div>
+                <div class="callout-body font-monospace">' . $text . '</div>
+            </div>' . "\n\n";
+        }, $markdown);
+
+        // 3.5 INFO / NOTE (Azul)
         $markdown = preg_replace_callback('/^&gt; \[!(INFO|NOTE)\]\s*\n((?:&gt; .*\n?)+)/m', function ($matches) {
             $text = preg_replace('/^&gt; ?/m', '', trim($matches[2]));
-            return '<div class="wiki-callout wiki-callout-info"><div class="callout-header"><i class="fa-solid fa-circle-info"></i> Informação</div><div class="callout-body">' . $text . '</div></div>';
+            return "\n\n" . '<div class="wiki-callout wiki-callout-info">
+                <div class="callout-header"><i class="fa-solid fa-circle-info"></i> Informação</div>
+                <div class="callout-body">' . $text . '</div>
+            </div>' . "\n\n";
         }, $markdown);
 
         // Blockquotes normais
-        $markdown = preg_replace('/^&gt; (.*)$/m', '<blockquote class="wiki-quote">$1</blockquote>', $markdown);
+        $markdown = preg_replace('/^&gt; (.*)$/m', "\n\n" . '<blockquote class="wiki-quote">$1</blockquote>' . "\n\n", $markdown);
 
-        // 4. Headers com IDs automáticos
+        // 4. Headers com IDs automáticos para sumário
         $markdown = preg_replace_callback('/^(#{1,4})\s+(.+)$/m', function ($matches) use (&$headings) {
             $level = strlen($matches[1]);
             $title = trim($matches[2]);
@@ -151,24 +196,77 @@ if (!function_exists('parseMarkdownWiki')) {
                     'id'    => $slug
                 ];
             }
-            return "<h{$level} id=\"{$slug}\" class=\"wiki-h{$level}\">{$title}</h{$level}>";
+            return "\n\n<h{$level} id=\"{$slug}\" class=\"wiki-h{$level}\">{$title}</h{$level}>\n\n";
         }, $markdown);
 
-        // 5. Negrito e Itálico
+        // 5. Imagens com suporte a Zoom / Lightbox
+        $markdown = preg_replace_callback('/!\[(.*?)\]\((https?:\/\/[^\s\)]+|\/[^\s\)]+)\)/', function($matches) {
+            $alt = $matches[1];
+            $src = $matches[2];
+            $caption = !empty($alt) ? '<figcaption class="wiki-figcaption">' . $alt . '</figcaption>' : '';
+            return "\n\n" . '<figure class="wiki-figure">
+                <img src="' . $src . '" alt="' . $alt . '" class="wiki-zoomable-img" loading="lazy" onclick="abrirLightboxWiki(this.src, this.alt)" title="Clique para ampliar">
+                ' . $caption . '
+            </figure>' . "\n\n";
+        }, $markdown);
+
+        // 6. Negrito e Itálico
         $markdown = preg_replace('/\*\*(.+?)\*\*/', '<strong>$1</strong>', $markdown);
         $markdown = preg_replace('/\*(.+?)\*/', '<em>$1</em>', $markdown);
 
-        // 6. Links
-        $markdown = preg_replace('/\[(.+?)\]\((https?:\/\/[^\s]+)\)/', '<a href="$2" target="_blank" rel="noopener" class="wiki-link">$1 <i class="fa-solid fa-arrow-up-right-from-square text-xs"></i></a>', $markdown);
+        // 7. Links externos e internos
+        $markdown = preg_replace('/\[(.+?)\]\((https?:\/\/[^\s\)]+)\)/', '<a href="$2" target="_blank" rel="noopener" class="wiki-link">$1 <i class="fa-solid fa-arrow-up-right-from-square text-xs" style="font-size: 0.75rem;"></i></a>', $markdown);
+        $markdown = preg_replace('/\[(.+?)\]\((\/[^\s\)]+)\)/', '<a href="$2" class="wiki-link">$1</a>', $markdown);
 
-        // 7. Parágrafos
+        // 8. Tabelas em Markdown
+        $markdown = preg_replace_callback('/((?:^\|.+\|\r?\n)+)/m', function($matches) {
+            $tableText = trim($matches[1]);
+            $lines = explode("\n", str_replace("\r", "", $tableText));
+            if (count($lines) < 2) return $tableText;
+
+            $htmlTable = '<div class="table-responsive my-3"><table class="table wiki-table align-middle table-hover mb-0">';
+            $isHeader = true;
+
+            foreach ($lines as $i => $line) {
+                $line = trim($line);
+                if (empty($line)) continue;
+
+                // Linha divisória |---|---|
+                if (preg_match('/^\|[\s\-:]+\|\s*$/', $line) || preg_match('/^\|(?:\s*:?-+:?\s*\|)+$/', $line)) {
+                    $isHeader = false;
+                    continue;
+                }
+
+                $cells = array_values(array_filter(array_map('trim', explode('|', $line)), fn($c) => $c !== ''));
+                if (empty($cells)) continue;
+
+                if ($isHeader && $i === 0) {
+                    $htmlTable .= '<thead><tr>';
+                    foreach ($cells as $cell) {
+                        $htmlTable .= '<th>' . $cell . '</th>';
+                    }
+                    $htmlTable .= '</tr></thead><tbody>';
+                } else {
+                    $htmlTable .= '<tr>';
+                    foreach ($cells as $cell) {
+                        $htmlTable .= '<td>' . $cell . '</td>';
+                    }
+                    $htmlTable .= '</tr>';
+                }
+            }
+
+            $htmlTable .= '</tbody></table></div>';
+            return $htmlTable;
+        }, $markdown);
+
+        // 9. Parágrafos
         $paragraphs = explode("\n\n", $markdown);
         $html = '';
         foreach ($paragraphs as $para) {
             $para = trim($para);
             if (empty($para)) continue;
 
-            if (preg_match('/^<(h[1-6]|div|blockquote|table|pre|ul|ol)/', $para)) {
+            if (preg_match('/^<(h[1-6]|div|blockquote|table|pre|ul|ol|figure)/', $para)) {
                 $html .= $para . "\n\n";
             } else {
                 $html .= '<p class="wiki-p">' . nl2br($para) . "</p>\n\n";
