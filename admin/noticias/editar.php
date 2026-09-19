@@ -1,8 +1,23 @@
 <?php
-$paginaAtiva = 'noticias';
-$tituloPagina = 'Editar Novidade';
+require_once __DIR__ . "/../sessao.php";
 
-require_once __DIR__ . "/../includes/admin_header.php";
+$configPaths = [
+    __DIR__ . "/../../../config.php",
+    __DIR__ . "/../../config.php",
+    __DIR__ . "/../config.php",
+    ($_SERVER['DOCUMENT_ROOT'] ?? '') . "/config.php"
+];
+$configPath = null;
+foreach ($configPaths as $cp) {
+    if (!empty($cp) && file_exists($cp)) {
+        $configPath = $cp;
+        break;
+    }
+}
+if ($configPath) {
+    require_once $configPath;
+}
+
 require_once __DIR__ . "/capa_upload.php";
 require_once __DIR__ . "/webhook_helper.php";
 
@@ -39,42 +54,50 @@ $categoria_envio = $noticia['categoria_envio'];
 $capaAtual       = $noticia['capa'];
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $titulo          = trim($_POST['titulo'] ?? '');
-    $conteudo        = trim($_POST['conteudo'] ?? '');
-    $autor           = trim($_POST['autor'] ?? '');
-    $category        = trim($_POST['category'] ?? 'NerdSky');
-    $categoria_envio = trim($_POST['categoria_envio'] ?? 'Anúncios');
-
-    [$capa, $erro_upload] = processarCapa($capaAtual);
-
-    if ($erro_upload) {
-        $mensagem_erro = $erro_upload;
-    } elseif (empty($titulo) || empty($conteudo) || empty($autor)) {
-        $mensagem_erro = "Preencha todos os campos obrigatórios.";
+    if (!validarCsrfToken($_POST['csrf_token'] ?? '')) {
+        $mensagem_erro = "Token CSRF inválido ou expirado. Recarregue a página e tente novamente.";
     } else {
-        try {
-            $upd = $pdo->prepare("
-                UPDATE novidades 
-                SET titulo = :titulo, conteudo = :conteudo, autor = :autor, capa = :capa, category = :category, categoria_envio = :categoria_envio
-                WHERE id = :id
-            ");
-            $upd->execute([
-                ':titulo'          => $titulo,
-                ':conteudo'        => $conteudo,
-                ':autor'           => $autor,
-                ':capa'            => $capa,
-                ':category'        => $category,
-                ':categoria_envio' => $categoria_envio,
-                ':id'              => $id
-            ]);
+        $titulo          = trim($_POST['titulo'] ?? '');
+        $conteudo        = trim($_POST['conteudo'] ?? '');
+        $autor           = trim($_POST['autor'] ?? '');
+        $category        = trim($_POST['category'] ?? 'NerdSky');
+        $categoria_envio = trim($_POST['categoria_envio'] ?? 'Anúncios');
 
-            header("Location: index.php");
-            exit;
-        } catch (PDOException $e) {
-            $mensagem_erro = "Erro ao atualizar novidade: " . $e->getMessage();
+        [$capa, $erro_upload] = processarCapa($capaAtual);
+
+        if ($erro_upload) {
+            $mensagem_erro = $erro_upload;
+        } elseif (empty($titulo) || empty($conteudo) || empty($autor)) {
+            $mensagem_erro = "Preencha todos os campos obrigatórios.";
+        } else {
+            try {
+                $upd = $pdo->prepare("
+                    UPDATE novidades 
+                    SET titulo = :titulo, conteudo = :conteudo, autor = :autor, capa = :capa, category = :category, categoria_envio = :categoria_envio
+                    WHERE id = :id
+                ");
+                $upd->execute([
+                    ':titulo'          => $titulo,
+                    ':conteudo'        => $conteudo,
+                    ':autor'           => $autor,
+                    ':capa'            => $capa,
+                    ':category'        => $category,
+                    ':categoria_envio' => $categoria_envio,
+                    ':id'              => $id
+                ]);
+
+                header("Location: index.php");
+                exit;
+            } catch (PDOException $e) {
+                $mensagem_erro = "Erro ao atualizar novidade: " . $e->getMessage();
+            }
         }
     }
 }
+
+$paginaAtiva = 'noticias';
+$tituloPagina = 'Editar Novidade';
+require_once __DIR__ . "/../includes/admin_header.php";
 ?>
 
 <div class="row justify-content-center">
@@ -90,6 +113,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <?php endif; ?>
 
                 <form method="POST" action="editar.php?id=<?php echo (int)$id; ?>" enctype="multipart/form-data">
+                    <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($csrfToken, ENT_QUOTES, 'UTF-8'); ?>">
                     <input type="hidden" name="id" value="<?php echo (int)$id; ?>">
 
                     <div class="admin-form-group">

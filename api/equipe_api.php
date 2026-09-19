@@ -1,7 +1,7 @@
 <?php
 /**
  * equipe_api.php
- * Retorna os membros da equipe agrupados por cargo no formato esperado pelo equipe.js.
+ * Retorna os membros da equipe agrupados por cargo e com cores dinâmicas no formato esperado pelo equipe.js.
  */
 
 ini_set('display_errors', 0);
@@ -35,39 +35,43 @@ require_once $configPath;
 require_once __DIR__ . "/auth_api.php";
 verificarAcessoApi();
 
-// Ordem fixa dos cargos na página.
-$ordemCargos = [
-    'Fundadores',
-    'Diretores',
-    'Coordenadores',
-    'Administradores',
-    'Moderadores',
-    'Desenvolvedores',
-    'Designers',
-];
-
 $resultado = [];
 
 try {
     if (isset($pdo) && $pdo instanceof PDO) {
-        // 1) Descobre os cargos existentes
-        $stmtCargos = $pdo->query("SELECT DISTINCT cargo FROM equipe");
-        $cargos = $stmtCargos->fetchAll(PDO::FETCH_COLUMN, 0);
-
-        // 2) Ordena pela lista fixa
-        usort($cargos, function ($a, $b) use ($ordemCargos) {
-            $posA = array_search($a, $ordemCargos, true);
-            $posB = array_search($b, $ordemCargos, true);
-            $posA = $posA === false ? PHP_INT_MAX : $posA;
-            $posB = $posB === false ? PHP_INT_MAX : $posB;
-
-            if ($posA === $posB) {
-                return strcasecmp($a, $b);
+        // 1) Busca os cargos da tabela equipe_cargos na ordem definida com suas cores
+        $cargosHierarquia = [];
+        $cargosCores = [];
+        try {
+            $stmtCargosDef = $pdo->query("SELECT nome, cor FROM equipe_cargos ORDER BY ordem ASC, id ASC");
+            $rowsDef = $stmtCargosDef->fetchAll(PDO::FETCH_ASSOC);
+            foreach ($rowsDef as $rd) {
+                $cargosHierarquia[] = $rd['nome'];
+                $cargosCores[$rd['nome']] = $rd['cor'] ?? '#27acff';
             }
-            return $posA <=> $posB;
-        });
+        } catch (Exception $e) {
+            $cargosHierarquia = [];
+            $cargosCores = [];
+        }
 
-        // 3) Busca os nicks de cada cargo
+        // Descobre todos os cargos existentes na tabela equipe
+        $stmtCargos = $pdo->query("SELECT DISTINCT cargo FROM equipe WHERE cargo IS NOT NULL AND cargo != ''");
+        $cargosExistentes = $stmtCargos->fetchAll(PDO::FETCH_COLUMN, 0);
+
+        // Mescla garantindo que a hierarquia definida venha primeiro
+        $cargos = [];
+        foreach ($cargosHierarquia as $ch) {
+            if (in_array($ch, $cargosExistentes, true)) {
+                $cargos[] = $ch;
+            }
+        }
+        foreach ($cargosExistentes as $ce) {
+            if (!in_array($ce, $cargos, true)) {
+                $cargos[] = $ce;
+            }
+        }
+
+        // 2) Busca os nicks de cada cargo
         $stmtMembros = $pdo->prepare("SELECT nick FROM equipe WHERE cargo = :cargo ORDER BY id ASC");
         foreach ($cargos as $cargo) {
             $stmtMembros->execute([':cargo' => $cargo]);
@@ -76,32 +80,43 @@ try {
             if (!empty($membros)) {
                 $resultado[] = [
                     'categoryTitle' => $cargo,
+                    'cor'           => $cargosCores[$cargo] ?? null,
                     'members'       => $membros,
                 ];
             }
         }
     } elseif (isset($conn) && $conn instanceof mysqli) {
-        $resCargos = $conn->query("SELECT DISTINCT cargo FROM equipe");
         $cargos = [];
-        if ($resCargos) {
-            while ($row = $resCargos->fetch_row()) {
-                $cargos[] = $row[0];
+        $cargosCores = [];
+        $resDef = $conn->query("SELECT nome, cor FROM equipe_cargos ORDER BY ordem ASC, id ASC");
+        if ($resDef) {
+            while ($row = $resDef->fetch_assoc()) {
+                $cargos[] = $row['nome'];
+                $cargosCores[$row['nome']] = $row['cor'] ?? '#27acff';
             }
         }
 
-        usort($cargos, function ($a, $b) use ($ordemCargos) {
-            $posA = array_search($a, $ordemCargos, true);
-            $posB = array_search($b, $ordemCargos, true);
-            $posA = $posA === false ? PHP_INT_MAX : $posA;
-            $posB = $posB === false ? PHP_INT_MAX : $posB;
-
-            if ($posA === $posB) {
-                return strcasecmp($a, $b);
+        $resExist = $conn->query("SELECT DISTINCT cargo FROM equipe WHERE cargo IS NOT NULL AND cargo != ''");
+        $cargosExist = [];
+        if ($resExist) {
+            while ($rowE = $resExist->fetch_row()) {
+                $cargosExist[] = $rowE[0];
             }
-            return $posA <=> $posB;
-        });
+        }
 
-        foreach ($cargos as $cargo) {
+        $cargosFinal = [];
+        foreach ($cargos as $ch) {
+            if (in_array($ch, $cargosExist, true)) {
+                $cargosFinal[] = $ch;
+            }
+        }
+        foreach ($cargosExist as $ce) {
+            if (!in_array($ce, $cargosFinal, true)) {
+                $cargosFinal[] = $ce;
+            }
+        }
+
+        foreach ($cargosFinal as $cargo) {
             $cargoEscaped = $conn->real_escape_string($cargo);
             $resM = $conn->query("SELECT nick FROM equipe WHERE cargo = '{$cargoEscaped}' ORDER BY id ASC");
             $membros = [];
@@ -114,6 +129,7 @@ try {
             if (!empty($membros)) {
                 $resultado[] = [
                     'categoryTitle' => $cargo,
+                    'cor'           => $cargosCores[$cargo] ?? null,
                     'members'       => $membros,
                 ];
             }

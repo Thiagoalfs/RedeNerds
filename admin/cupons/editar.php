@@ -1,7 +1,22 @@
 <?php
-$paginaAtiva = 'cupons';
-$tituloPagina = 'Editar Cupom';
-require_once __DIR__ . "/../includes/admin_header.php";
+require_once __DIR__ . "/../sessao.php";
+
+$configPaths = [
+    __DIR__ . "/../../../config.php",
+    __DIR__ . "/../../config.php",
+    __DIR__ . "/../config.php",
+    ($_SERVER['DOCUMENT_ROOT'] ?? '') . "/config.php"
+];
+$configPath = null;
+foreach ($configPaths as $cp) {
+    if (!empty($cp) && file_exists($cp)) {
+        $configPath = $cp;
+        break;
+    }
+}
+if ($configPath) {
+    require_once $configPath;
+}
 
 $id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
 if ($id <= 0) {
@@ -29,49 +44,57 @@ $expira_em = date('Y-m-d\TH:i', strtotime($cupom['expira_em']));
 $ativo = (int)$cupom['ativo'];
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $codigo = strtoupper(trim($_POST['codigo'] ?? ''));
-    $porcentagem = (float)str_replace(',', '.', $_POST['porcentagem'] ?? '0');
-    $expira_em = trim($_POST['expira_em'] ?? '');
-    $ativo = isset($_POST['ativo']) ? 1 : 0;
-
-    $codigo = preg_replace('/[^A-Z0-9_-]/', '', $codigo);
-
-    if (empty($codigo) || strlen($codigo) < 2 || strlen($codigo) > 50) {
-        $erro = "O código do cupom deve ter entre 2 e 50 caracteres.";
-    } elseif ($porcentagem <= 0 || $porcentagem > 100) {
-        $erro = "A porcentagem de desconto deve ser entre 0.1% e 100%.";
-    } elseif (empty($expira_em)) {
-        $erro = "Informe a data e hora de expiração do cupom.";
+    if (!validarCsrfToken($_POST['csrf_token'] ?? '')) {
+        $erro = "Token CSRF inválido ou expirado. Recarregue a página e tente novamente.";
     } else {
-        $expiraSql = date('Y-m-d H:i:s', strtotime($expira_em));
+        $codigo = strtoupper(trim($_POST['codigo'] ?? ''));
+        $porcentagem = (float)str_replace(',', '.', $_POST['porcentagem'] ?? '0');
+        $expira_em = trim($_POST['expira_em'] ?? '');
+        $ativo = isset($_POST['ativo']) ? 1 : 0;
 
-        try {
-            $check = $pdo->prepare("SELECT id FROM cupons WHERE codigo = :codigo AND id != :id LIMIT 1");
-            $check->execute([':codigo' => $codigo, ':id' => $id]);
-            if ($check->fetch()) {
-                $erro = "Já existe outro cupom cadastrado com o código '{$codigo}'.";
-            } else {
-                $upd = $pdo->prepare("
-                    UPDATE cupons 
-                    SET codigo = :codigo, porcentagem_desconto = :porcentagem, expira_em = :expira_em, ativo = :ativo
-                    WHERE id = :id
-                ");
-                $upd->execute([
-                    ':codigo' => $codigo,
-                    ':porcentagem' => $porcentagem,
-                    ':expira_em' => $expiraSql,
-                    ':ativo' => $ativo,
-                    ':id' => $id
-                ]);
+        $codigo = preg_replace('/[^A-Z0-9_-]/', '', $codigo);
 
-                header("Location: index.php?msg=" . urlencode("Cupom '{$codigo}' atualizado com sucesso!"));
-                exit;
+        if (empty($codigo) || strlen($codigo) < 2 || strlen($codigo) > 50) {
+            $erro = "O código do cupom deve ter entre 2 e 50 caracteres.";
+        } elseif ($porcentagem <= 0 || $porcentagem > 100) {
+            $erro = "A porcentagem de desconto deve ser entre 0.1% e 100%.";
+        } elseif (empty($expira_em)) {
+            $erro = "Informe a data e hora de expiração do cupom.";
+        } else {
+            $expiraSql = date('Y-m-d H:i:s', strtotime($expira_em));
+
+            try {
+                $check = $pdo->prepare("SELECT id FROM cupons WHERE codigo = :codigo AND id != :id LIMIT 1");
+                $check->execute([':codigo' => $codigo, ':id' => $id]);
+                if ($check->fetch()) {
+                    $erro = "Já existe outro cupom cadastrado com o código '{$codigo}'.";
+                } else {
+                    $upd = $pdo->prepare("
+                        UPDATE cupons 
+                        SET codigo = :codigo, porcentagem_desconto = :porcentagem, expira_em = :expira_em, ativo = :ativo
+                        WHERE id = :id
+                    ");
+                    $upd->execute([
+                        ':codigo' => $codigo,
+                        ':porcentagem' => $porcentagem,
+                        ':expira_em' => $expiraSql,
+                        ':ativo' => $ativo,
+                        ':id' => $id
+                    ]);
+
+                    header("Location: index.php?msg=" . urlencode("Cupom '{$codigo}' atualizado com sucesso!"));
+                    exit;
+                }
+            } catch (PDOException $e) {
+                $erro = "Erro ao atualizar cupom: " . $e->getMessage();
             }
-        } catch (PDOException $e) {
-            $erro = "Erro ao atualizar cupom: " . $e->getMessage();
         }
     }
 }
+
+$paginaAtiva = 'cupons';
+$tituloPagina = 'Editar Cupom';
+require_once __DIR__ . "/../includes/admin_header.php";
 ?>
 
 <div class="row justify-content-center">
@@ -90,6 +113,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <?php endif; ?>
 
                 <form method="POST" action="editar.php?id=<?php echo (int)$id; ?>">
+                    <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($csrfToken, ENT_QUOTES, 'UTF-8'); ?>">
                     <div class="admin-form-group">
                         <label for="codigo">Código do Cupom</label>
                         <input type="text" class="admin-form-control text-uppercase fw-bold" id="codigo" name="codigo" 
