@@ -39,9 +39,12 @@
         0 0 0 1px rgba(255, 255, 255, 0.04);
 }
 
-.novidade-article[data-category="NerdSky"]    { border-top-color: #B971DA; }
-.novidade-article[data-category="Potato Nerd"]   { border-top-color: #7DB9DF; }
-.novidade-article[data-category="NerdDead"] { border-top-color: #E85D5D; }
+.novidade-article[data-category="NerdSky" i]    { border-top-color: #B971DA; }
+.novidade-article[data-category="Potato Nerd" i] { border-top-color: #7DB9DF; }
+.novidade-article[data-category="NerdDead" i]    { border-top-color: #E85D5D; }
+.novidade-article[data-category="CobbleNerd" i]  { border-top-color: #FF5252; }
+.novidade-article[data-category="Sistemas" i]    { border-top-color: #1be4a7; }
+.novidade-article[data-category="Potato Sky" i]  { border-top-color: #2986ff; }
 
 /* Banner / hero */
 .novidade-banner {
@@ -81,21 +84,55 @@
 
 /* Tag de categoria */
 .novidade-tag {
-    display: inline-block;
+    display: inline-flex;
+    align-items: center;
     align-self: flex-start;
-    padding: 4px 12px;
+    padding: 4px 14px;
     border-radius: 999px;
-    background-color: transparent;
-    color: white;
+    background: rgba(56, 189, 248, 0.12);
+    color: #38BDF8;
+    border: 1px solid rgba(56, 189, 248, 0.35);
     font-size: 0.78rem;
     font-weight: 600;
     letter-spacing: 0.4px;
     text-transform: uppercase;
 }
 
-.novidade-tag[data-category="NerdSky"]    { background-color: #B971DA; }
-.novidade-tag[data-category="Potato Nerd"]   { background-color: #7DB9DF; }
-.novidade-tag[data-category="NerdDead"] { background-color: #E85D5D; }
+.novidade-tag[data-category="NerdSky" i] {
+    background: rgba(185, 113, 218, 0.12);
+    color: #D89BF0;
+    border: 1px solid rgba(185, 113, 218, 0.4);
+}
+
+.novidade-tag[data-category="Potato Nerd" i] {
+    background: rgba(125, 185, 223, 0.12);
+    color: #7DB9DF;
+    border: 1px solid rgba(125, 185, 223, 0.4);
+}
+
+.novidade-tag[data-category="NerdDead" i] {
+    background: rgba(232, 93, 93, 0.12);
+    color: #F08080;
+    border: 1px solid rgba(232, 93, 93, 0.4);
+}
+
+.novidade-tag[data-category="CobbleNerd" i] {
+    background: rgba(255, 41, 41, 0.12);
+    color: #FF5252;
+    border: 1px solid rgba(255, 41, 41, 0.4);
+}
+
+.novidade-tag[data-category="Sistemas" i] {
+    background: rgba(27, 228, 167, 0.12);
+    color: #1be4a7;
+    border: 1px solid rgba(27, 228, 167, 0.4);
+}
+
+.novidade-tag[data-category="Potato Sky" i] {
+    background: rgba(41, 134, 255, 0.12);
+    color: #60a5fa;
+    border: 1px solid rgba(41, 134, 255, 0.4);
+}
 
 .novidade-meta h1 {
     margin: 0;

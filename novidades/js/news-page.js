@@ -46,10 +46,13 @@ document.addEventListener("DOMContentLoaded", () => {
         return;
     }
 
-        const categoryLabels = {
+    const categoryLabels = {
         "NerdSky": "NerdSky",
         "Potato Nerd": "Potato Nerd",
-        "NerdDead": "Nerd Dead"
+        "NerdDead": "Nerd Dead",
+        "CobbleNerd": "CobbleNerd",
+        "Sistemas": "Sistemas",
+        "Potato Sky": "Potato Sky"
     };
 
     const toCategoryKey = value => String(value || "").trim();

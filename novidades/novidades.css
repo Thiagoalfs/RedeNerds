@@ -325,58 +325,112 @@
     font-weight: 600;
     letter-spacing: 0.3px;
     text-transform: uppercase;
+    background: rgba(56, 189, 248, 0.12);
+    color: #38BDF8;
+    border: 1px solid rgba(56, 189, 248, 0.3);
 }
 
-.news-div-tag[data-category="NerdSky"],
-.all-news-tag[data-category="NerdSky"] {
+.news-div-tag[data-category="NerdSky" i],
+.all-news-tag[data-category="NerdSky" i] {
     background: rgba(185, 113, 218, 0.12);
     color: #D89BF0;
     border: 1px solid rgba(185, 113, 218, 0.3);
 }
 
-.news-div-tag[data-category="Potato Nerd"],
-.all-news-tag[data-category="Potato Nerd"] {
+.news-div-tag[data-category="Potato Nerd" i],
+.all-news-tag[data-category="Potato Nerd" i] {
     background: rgba(125, 185, 223, 0.12);
     color: #7DB9DF;
     border: 1px solid rgba(125, 185, 223, 0.3);
 }
 
-.news-div-tag[data-category="NerdDead"],
-.all-news-tag[data-category="NerdDead"] {
+.news-div-tag[data-category="NerdDead" i],
+.all-news-tag[data-category="NerdDead" i] {
     background: rgba(232, 93, 93, 0.12);
     color: #F08080;
     border: 1px solid rgba(232, 93, 93, 0.3);
 }
 
+.news-div-tag[data-category="CobbleNerd" i],
+.all-news-tag[data-category="CobbleNerd" i] {
+    background: rgba(255, 41, 41, 0.12);
+    color: #FF5252;
+    border: 1px solid rgba(255, 41, 41, 0.35);
+}
+
+.news-div-tag[data-category="Sistemas" i],
+.all-news-tag[data-category="Sistemas" i] {
+    background: rgba(27, 228, 167, 0.12);
+    color: #1be4a7;
+    border: 1px solid rgba(27, 228, 167, 0.35);
+}
+
+.news-div-tag[data-category="Potato Sky" i],
+.all-news-tag[data-category="Potato Sky" i] {
+    background: rgba(41, 134, 255, 0.12);
+    color: #60a5fa;
+    border: 1px solid rgba(41, 134, 255, 0.35);
+}
+
 /* Paleta de Cores e Destaques por Categoria */
 /* NerdSky */
-.news-div[data-category="NerdSky"]:hover,
-.all-news-card[data-category="NerdSky"]:hover {
+.news-div[data-category="NerdSky" i]:hover,
+.all-news-card[data-category="NerdSky" i]:hover {
     border-color: rgba(185, 113, 218, 0.4);
 }
-.news-div[data-category="NerdSky"]:hover .news-div-title,
-.all-news-card[data-category="NerdSky"] .all-news-link {
+.news-div[data-category="NerdSky" i]:hover .news-div-title,
+.all-news-card[data-category="NerdSky" i] .all-news-link {
     color: #D89BF0;
 }
 
 /* Potato Nerd */
-.news-div[data-category="Potato Nerd"]:hover,
-.all-news-card[data-category="Potato Nerd"]:hover {
+.news-div[data-category="Potato Nerd" i]:hover,
+.all-news-card[data-category="Potato Nerd" i]:hover {
     border-color: rgba(125, 185, 223, 0.4);
 }
-.news-div[data-category="Potato Nerd"]:hover .news-div-title,
-.all-news-card[data-category="Potato Nerd"] .all-news-link {
+.news-div[data-category="Potato Nerd" i]:hover .news-div-title,
+.all-news-card[data-category="Potato Nerd" i] .all-news-link {
     color: #7DB9DF;
 }
 
 /* NerdDead */
-.news-div[data-category="NerdDead"]:hover,
-.all-news-card[data-category="NerdDead"]:hover {
+.news-div[data-category="NerdDead" i]:hover,
+.all-news-card[data-category="NerdDead" i]:hover {
     border-color: rgba(232, 93, 93, 0.4);
 }
-.news-div[data-category="NerdDead"]:hover .news-div-title,
-.all-news-card[data-category="NerdDead"] .all-news-link {
+.news-div[data-category="NerdDead" i]:hover .news-div-title,
+.all-news-card[data-category="NerdDead" i] .all-news-link {
     color: #F08080;
+}
+
+/* CobbleNerd */
+.news-div[data-category="CobbleNerd" i]:hover,
+.all-news-card[data-category="CobbleNerd" i]:hover {
+    border-color: rgba(255, 41, 41, 0.4);
+}
+.news-div[data-category="CobbleNerd" i]:hover .news-div-title,
+.all-news-card[data-category="CobbleNerd" i] .all-news-link {
+    color: #FF5252;
+}
+
+/* Sistemas */
+.news-div[data-category="Sistemas" i]:hover,
+.all-news-card[data-category="Sistemas" i]:hover {
+    border-color: rgba(27, 228, 167, 0.4);
+}
+.news-div[data-category="Sistemas" i]:hover .news-div-title,
+.all-news-card[data-category="Sistemas" i] .all-news-link {
+    color: #1be4a7;
+}
+
+/* Potato Sky */
+.news-div[data-category="Potato Sky" i]:hover,
+.all-news-card[data-category="Potato Sky" i]:hover {
+    border-color: rgba(41, 134, 255, 0.4);
+}
+.news-div[data-category="Potato Sky" i]:hover .news-div-title,
+.all-news-card[data-category="Potato Sky" i] .all-news-link {
+    color: #60a5fa;
 }
 
 /* Marcação de termo de pesquisa */
@@ -645,9 +699,12 @@
 }
 
 .filter-dot-all { background-color: #ffffff; }
-.filter-dot-nerdsky { background-color: var(--color-primary); }
-.filter-dot-potato { background-color: var(--color-accent); }
-.filter-dot-nerddead { background-color: var(--color-danger-alt); }
+.filter-dot-nerdsky { background-color: #B971DA; }
+.filter-dot-potato { background-color: #7DB9DF; }
+.filter-dot-nerddead { background-color: #E85D5D; }
+.filter-dot-cobblenerd { background-color: #FF5252; }
+.filter-dot-sistemas { background-color: #1be4a7; }
+.filter-dot-potatosky { background-color: #2986ff; }
 
 /* Informações de Resultado / Estados Vazios */
 .news-results-info {

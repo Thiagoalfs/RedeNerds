@@ -26,7 +26,10 @@ function initNovidades() {
     const categoryLabels = {
         "NerdSky": "NerdSky",
         "Potato Nerd": "Potato Nerd",
-        "NerdDead": "Nerd Dead"
+        "NerdDead": "Nerd Dead",
+        "CobbleNerd": "CobbleNerd",
+        "Sistemas": "Sistemas",
+        "Potato Sky": "Potato Sky"
     };
 
     const toCategoryKey = value => String(value || "").trim();
@@ -101,6 +104,11 @@ function initNovidades() {
         const atualizacoesSec = document.getElementById("atualizacoes-section") || document.getElementById("novidades-section");
         if (!newsContainer) return;
 
+        // Mantém a seção inteira oculta inicialmente (sem piscar nem mostrar 'carregando...')
+        if (atualizacoesSec) {
+            atualizacoesSec.hidden = true;
+        }
+
         fetch("/api/novidades_api.php?limit=3")
             .then(res => {
                 if (!res.ok) throw new Error("HTTP error " + res.status);
@@ -109,12 +117,14 @@ function initNovidades() {
             .then(data => {
                 if (data && data.erro) {
                     console.error("Erro retornado do backend:", data.erro);
+                    if (atualizacoesSec) atualizacoesSec.hidden = true;
                     return;
                 }
 
                 const entries = Array.isArray(data) ? data : (data && data.data && Array.isArray(data.data) ? data.data : []);
 
                 if (entries.length === 0) {
+                    if (atualizacoesSec) atualizacoesSec.hidden = true;
                     return;
                 }
 
@@ -149,7 +159,7 @@ function initNovidades() {
                     `;
                 }).join("");
 
-                // Revela a seção completa após carregar as notícias com sucesso
+                // Revela a seção completa somente agora após carregar as notícias com sucesso
                 if (atualizacoesSec) {
                     atualizacoesSec.removeAttribute("hidden");
                     atualizacoesSec.hidden = false;
@@ -157,6 +167,7 @@ function initNovidades() {
             })
             .catch(err => {
                 console.error("Erro ao carregar atualizações:", err);
+                if (atualizacoesSec) atualizacoesSec.hidden = true;
             });
     };
 
