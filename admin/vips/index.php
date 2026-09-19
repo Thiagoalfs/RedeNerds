@@ -26,10 +26,12 @@ $params = [];
 
 if ($filtroServidor !== '') {
     if (is_numeric($filtroServidor)) {
-        $where[] = "v.servidor_id = :servidor_id";
+        $where[] = "(v.servidor_id = :servidor_id OR v.servidor = :servidor_nome)";
         $params[':servidor_id'] = (int)$filtroServidor;
+        $srvObj = $servidoresMap[$filtroServidor] ?? null;
+        $params[':servidor_nome'] = $srvObj ? $srvObj['servername'] : $filtroServidor;
     } else {
-        $where[] = "(s.servername = :servidor_nome OR s.nome = :servidor_slug)";
+        $where[] = "(v.servidor = :servidor_nome OR s.servername = :servidor_nome OR s.nome = :servidor_slug)";
         $params[':servidor_nome'] = $filtroServidor;
         $params[':servidor_slug'] = $filtroServidor;
     }
@@ -42,9 +44,9 @@ try {
     $stmt = $pdo->prepare("
         SELECT v.*, s.servername as servidor_nome_oficial, s.themecolor as servidor_cor, s.icon as servidor_icone
         FROM vips v
-        INNER JOIN servidores s ON s.id = v.servidor_id
+        LEFT JOIN servidores s ON (s.id = v.servidor_id OR s.servername = v.servidor OR s.nome = v.servidor)
         $whereSql
-        ORDER BY s.servername ASC, v.preco ASC
+        ORDER BY COALESCE(s.servername, v.servidor) ASC, v.preco ASC
     ");
     $stmt->execute($params);
     $vips = $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -127,8 +129,8 @@ try {
                         </tr>
                     <?php else: ?>
                         <?php foreach ($vips as $v): 
-                            $srvNome = $v['servidor_nome_oficial'] ?: ($servidoresMap[$v['servidor_id']]['servername'] ?? 'Servidor');
-                            $srvCor = $v['servidor_cor'] ?: ($servidoresMap[$v['servidor_id']]['themecolor'] ?? '#B971DA');
+                            $srvNome = $v['servidor_nome_oficial'] ?: ($servidoresMap[$v['servidor_id']]['servername'] ?? ($v['servidor'] ?: 'Servidor'));
+                            $srvCor = $v['servidor_cor'] ?: ($servidoresMap[$v['servidor_id'] ?? $v['servidor']]['themecolor'] ?? '#B971DA');
                         ?>
                             <tr>
                                 <td>

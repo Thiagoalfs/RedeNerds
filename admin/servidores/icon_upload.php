@@ -16,15 +16,50 @@ function getIconUploadDirFisica(): string
 
     foreach ($candidatos as $dir) {
         if (!empty($dir) && is_dir($dir)) {
-            return $dir;
+            return rtrim($dir, '/\\') . '/';
         }
     }
 
-    $fallback = realpath(__DIR__ . '/../../') . '/assets/servidores/icons/';
+    $fallback = (realpath(__DIR__ . '/../../') ?: dirname(__DIR__, 2)) . '/assets/servidores/icons/';
     if (!is_dir($fallback)) {
         @mkdir($fallback, 0755, true);
     }
-    return $fallback;
+    return rtrim($fallback, '/\\') . '/';
+}
+
+/**
+ * Obtém o MIME Type de forma segura sem quebrar se extensões estiverem ausentes.
+ */
+function obterMimeIcone(string $caminho, ?string $fallbackMime = null): string
+{
+    if (function_exists('finfo_open')) {
+        $finfo = @finfo_open(FILEINFO_MIME_TYPE);
+        if ($finfo) {
+            $mime = @finfo_file($finfo, $caminho);
+            if (PHP_VERSION_ID < 80500) {
+                @finfo_close($finfo);
+            }
+            if (!empty($mime)) {
+                return strtolower($mime);
+            }
+        }
+    }
+
+    if (function_exists('mime_content_type')) {
+        $mime = @mime_content_type($caminho);
+        if (!empty($mime)) {
+            return strtolower($mime);
+        }
+    }
+
+    if (function_exists('getimagesize')) {
+        $info = @getimagesize($caminho);
+        if (!empty($info['mime'])) {
+            return strtolower($info['mime']);
+        }
+    }
+
+    return $fallbackMime ? strtolower($fallbackMime) : 'application/octet-stream';
 }
 
 /**
@@ -40,27 +75,32 @@ function getIconUploadDirFisica(): string
  */
 function processarIcone(?string $iconeAtual = null): array
 {
-    $fa = trim($_POST['icon_fa'] ?? '');
-    if ($fa !== '') {
-        if (strlen($fa) > 100) {
-            return [$iconeAtual, "A classe do ícone é muito longa (máx. 100 caracteres)."];
+    try {
+        $fa = trim($_POST['icon_fa'] ?? '');
+        if ($fa !== '') {
+            if (strlen($fa) > 100) {
+                return [$iconeAtual, "A classe do ícone é muito longa (máx. 100 caracteres)."];
+            }
+            apagarIconeAntigoSeForUpload($iconeAtual, $fa);
+            return [$fa, null];
         }
-        apagarIconeAntigoSeForUpload($iconeAtual, $fa);
-        return [$fa, null];
-    }
 
-    $temArquivo = isset($_FILES['icon_upload']) && $_FILES['icon_upload']['error'] !== UPLOAD_ERR_NO_FILE;
-    if ($temArquivo) {
-        return processarUploadIcone($iconeAtual);
-    }
+        $temArquivo = isset($_FILES['icon_upload']) && is_array($_FILES['icon_upload']) && ($_FILES['icon_upload']['error'] !== UPLOAD_ERR_NO_FILE);
+        if ($temArquivo) {
+            return processarUploadIcone($iconeAtual);
+        }
 
-    $url = trim($_POST['icon_url'] ?? '');
-    if ($url !== '') {
-        return validarUrlIcone($url, $iconeAtual);
-    }
+        $url = trim($_POST['icon_url'] ?? '');
+        if ($url !== '') {
+            return validarUrlIcone($url, $iconeAtual);
+        }
 
-    // Nada foi enviado: mantém o valor atual (usado na edição)
-    return [$iconeAtual, null];
+        // Nada foi enviado: mantém o valor atual (usado na edição)
+        return [$iconeAtual, null];
+    } catch (\Throwable $e) {
+        error_log("Erro em processarIcone: " . $e->getMessage());
+        return [$iconeAtual, "Erro ao processar ícone: " . $e->getMessage()];
+    }
 }
 
 /**
@@ -73,8 +113,8 @@ function validarUrlIcone(string $url, ?string $iconeAtual): array
         return [$iconeAtual, "O link do ícone é muito longo (máx. 500 caracteres)."];
     }
 
-    if (!filter_var($url, FILTER_VALIDATE_URL) || !preg_match('#^https?://#i', $url)) {
-        return [$iconeAtual, "Link do ícone inválido. Use uma URL começando com http:// ou https://."];
+    if (!filter_var($url, FILTER_VALIDATE_URL) && !preg_match('#^/assets/#i', $url)) {
+        return [$iconeAtual, "Link do ícone inválido."];
     }
 
     apagarIconeAntigoSeForUpload($iconeAtual, $url);
@@ -90,28 +130,37 @@ function processarUploadIcone(?string $iconeAtual = null): array
     $arquivo = $_FILES['icon_upload'];
 
     if ($arquivo['error'] !== UPLOAD_ERR_OK) {
-        return [$iconeAtual, "Erro ao enviar o arquivo (código {$arquivo['error']})."];
+        $erros = [
+            UPLOAD_ERR_INI_SIZE   => "O ícone excede o limite permitido pelo servidor (upload_max_filesize).",
+            UPLOAD_ERR_FORM_SIZE  => "O ícone excede o limite do formulário.",
+            UPLOAD_ERR_PARTIAL    => "O upload do ícone foi feito parcialmente.",
+            UPLOAD_ERR_NO_TMP_DIR => "Pasta temporária ausente no servidor.",
+            UPLOAD_ERR_CANT_WRITE => "Falha ao gravar ícone em disco.",
+            UPLOAD_ERR_EXTENSION  => "Upload interrompido por extensão do PHP."
+        ];
+        return [$iconeAtual, $erros[$arquivo['error']] ?? "Erro ao enviar o ícone (código {$arquivo['error']})."];
     }
 
-    // Limite de tamanho: 2MB (ícone não precisa ser grande)
-    $tamanhoMaximo = 2 * 1024 * 1024;
+    // Limite de tamanho: 5MB
+    $tamanhoMaximo = 5 * 1024 * 1024;
     if ($arquivo['size'] > $tamanhoMaximo) {
-        return [$iconeAtual, "A imagem do ícone deve ter no máximo 2MB."];
+        return [$iconeAtual, "A imagem do ícone deve ter no máximo 5MB."];
     }
 
     $tiposPermitidos = [
         'image/jpeg',
+        'image/pjpeg',
         'image/png',
+        'image/x-png',
         'image/webp',
         'image/gif',
+        'image/avif'
     ];
 
-    $finfo = finfo_open(FILEINFO_MIME_TYPE);
-    $mime = finfo_file($finfo, $arquivo['tmp_name']);
-    finfo_close($finfo);
+    $mime = obterMimeIcone($arquivo['tmp_name'], $arquivo['type'] ?? null);
 
-    if (!in_array($mime, $tiposPermitidos)) {
-        return [$iconeAtual, "Formato de imagem inválido. Use JPG, PNG, WEBP ou GIF."];
+    if (!in_array($mime, $tiposPermitidos, true)) {
+        return [$iconeAtual, "Formato de imagem inválido ({$mime}). Use JPG, PNG, WEBP ou GIF."];
     }
 
     $uploadDir = getIconUploadDirFisica();
@@ -119,20 +168,38 @@ function processarUploadIcone(?string $iconeAtual = null): array
         @mkdir($uploadDir, 0755, true);
     }
 
+    // Tenta conversão para WebP se GD estiver disponível
+    if (function_exists('imagewebp')) {
+        do {
+            $nomeArquivo = md5(uniqid((string)mt_rand(), true)) . '.webp';
+            $caminhoDestino = $uploadDir . $nomeArquivo;
+        } while (file_exists($caminhoDestino));
+
+        if (converterParaWebpIcone($arquivo['tmp_name'], $caminhoDestino, $mime)) {
+            $caminhoPublico = ICON_UPLOAD_DIR_PUBLICA . $nomeArquivo;
+            apagarIconeAntigoSeForUpload($iconeAtual, $caminhoPublico);
+            return [$caminhoPublico, null];
+        }
+    }
+
+    // Fallback caso GD WebP não esteja disponível ou conversão falhe
+    $extOriginal = strtolower(pathinfo($arquivo['name'] ?? '', PATHINFO_EXTENSION) ?: 'webp');
+    if (!in_array($extOriginal, ['jpg', 'jpeg', 'png', 'webp', 'gif'], true)) {
+        $extOriginal = 'webp';
+    }
+
     do {
-        $nomeArquivo = bin2hex(random_bytes(16)) . '.webp';
+        $nomeArquivo = md5(uniqid((string)mt_rand(), true)) . '.' . $extOriginal;
         $caminhoDestino = $uploadDir . $nomeArquivo;
     } while (file_exists($caminhoDestino));
 
-    if (!converterParaWebpIcone($arquivo['tmp_name'], $caminhoDestino, $mime)) {
-        return [$iconeAtual, "Erro ao processar e converter a imagem para WebP."];
+    if (@move_uploaded_file($arquivo['tmp_name'], $caminhoDestino) || @copy($arquivo['tmp_name'], $caminhoDestino)) {
+        $caminhoPublico = ICON_UPLOAD_DIR_PUBLICA . $nomeArquivo;
+        apagarIconeAntigoSeForUpload($iconeAtual, $caminhoPublico);
+        return [$caminhoPublico, null];
     }
 
-    $caminhoPublico = ICON_UPLOAD_DIR_PUBLICA . $nomeArquivo;
-
-    apagarIconeAntigoSeForUpload($iconeAtual, $caminhoPublico);
-
-    return [$caminhoPublico, null];
+    return [$iconeAtual, "Não foi possível gravar a imagem do ícone no diretório do servidor."];
 }
 
 /**
@@ -140,36 +207,75 @@ function processarUploadIcone(?string $iconeAtual = null): array
  */
 function converterParaWebpIcone(string $caminhoOrigem, string $caminhoDestino, string $mime, int $qualidade = 85): bool
 {
-    switch ($mime) {
-        case 'image/jpeg':
-            $imagem = @imagecreatefromjpeg($caminhoOrigem);
-            break;
-        case 'image/png':
-            $imagem = @imagecreatefrompng($caminhoOrigem);
-            if ($imagem) {
-                imagepalettetotruecolor($imagem);
-                imagealphablending($imagem, true);
-                imagesavealpha($imagem, true);
-            }
-            break;
-        case 'image/webp':
-            $imagem = @imagecreatefromwebp($caminhoOrigem);
-            break;
-        case 'image/gif':
-            $imagem = @imagecreatefromgif($caminhoOrigem);
-            break;
-        default:
-            return false;
-    }
+    @ini_set('memory_limit', '256M');
 
-    if (!$imagem) {
+    $imagem = null;
+
+    try {
+        switch ($mime) {
+            case 'image/jpeg':
+            case 'image/pjpeg':
+                if (function_exists('imagecreatefromjpeg')) {
+                    $imagem = @imagecreatefromjpeg($caminhoOrigem);
+                }
+                break;
+            case 'image/png':
+            case 'image/x-png':
+                if (function_exists('imagecreatefrompng')) {
+                    $imagem = @imagecreatefrompng($caminhoOrigem);
+                }
+                break;
+            case 'image/webp':
+                if (function_exists('imagecreatefromwebp')) {
+                    $imagem = @imagecreatefromwebp($caminhoOrigem);
+                }
+                break;
+            case 'image/gif':
+                if (function_exists('imagecreatefromgif')) {
+                    $imagem = @imagecreatefromgif($caminhoOrigem);
+                }
+                break;
+            case 'image/avif':
+                if (function_exists('imagecreatefromavif')) {
+                    $imagem = @imagecreatefromavif($caminhoOrigem);
+                }
+                break;
+        }
+
+        if (!$imagem && function_exists('imagecreatefromstring')) {
+            $conteudo = @file_get_contents($caminhoOrigem);
+            if ($conteudo !== false) {
+                $imagem = @imagecreatefromstring($conteudo);
+            }
+        }
+
+        if (!$imagem) {
+            return false;
+        }
+
+        if (function_exists('imageistruecolor') && !imageistruecolor($imagem)) {
+            if (function_exists('imagepalettetotruecolor')) {
+                @imagepalettetotruecolor($imagem);
+            }
+        }
+        if (function_exists('imagealphablending')) {
+            @imagealphablending($imagem, true);
+        }
+        if (function_exists('imagesavealpha')) {
+            @imagesavealpha($imagem, true);
+        }
+
+        $sucesso = @imagewebp($imagem, $caminhoDestino, $qualidade);
+
+        if (PHP_VERSION_ID < 80000 && is_resource($imagem)) {
+            @imagedestroy($imagem);
+        }
+
+        return (bool)$sucesso;
+    } catch (\Throwable $e) {
+        error_log("Erro em converterParaWebpIcone: " . $e->getMessage());
         return false;
     }
-
-    $sucesso = imagewebp($imagem, $caminhoDestino, $qualidade);
-    imagedestroy($imagem);
-
-    return $sucesso;
 }
 
 /**
@@ -206,3 +312,4 @@ function tipoDoIcone(?string $icone): string
     }
     return 'fa';
 }
+

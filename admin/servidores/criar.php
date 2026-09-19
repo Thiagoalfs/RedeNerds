@@ -35,42 +35,42 @@ $enabled     = true;
 $bg_image    = "";
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    if (!validarCsrfToken($_POST['csrf_token'] ?? '')) {
-        $mensagem_erro = "Token CSRF inválido ou expirado. Recarregue a página e tente novamente.";
-    } else {
-        $servername = trim($_POST['servername'] ?? '');
-        $descricao  = trim($_POST['descricao'] ?? '');
-        $modpackurl = trim($_POST['modpackurl'] ?? '');
-        $ip         = trim($_POST['ip'] ?? '');
-        $themecolor = trim($_POST['themecolor'] ?? '#B971DA');
-        $enabled    = isset($_POST['enabled']);
-
-        $slugCalculado = preg_replace('/[^a-z0-9]/', '', strtolower($servername));
-
-        $featuresPost = $_POST['features'] ?? [];
-        $features = array_values(array_filter(array_map('trim', $featuresPost), fn($f) => $f !== ''));
-
-        [$icon, $erro_icone] = processarIcone(null);
-        if (empty($icon)) {
-            $icon = '/assets/images/logo.webp';
-        }
-
-        [$bg_image, $erro_bg] = processarBgServidor($slugCalculado, null);
-
-        if ($servername === '' || $descricao === '' || $modpackurl === '' || $ip === '') {
-            $mensagem_erro = "Preencha todos os campos obrigatórios.";
-        } elseif (!preg_match('/^#[0-9A-Fa-f]{6}$/', $themecolor)) {
-            $mensagem_erro = "A cor do tema deve estar no formato hexadecimal, ex: #B971DA.";
-        } elseif (empty($features)) {
-            $mensagem_erro = "Adicione ao menos uma feature.";
-        } elseif ($erro_icone) {
-            $mensagem_erro = $erro_icone;
-        } elseif ($erro_bg) {
-            $mensagem_erro = $erro_bg;
+    try {
+        if (!validarCsrfToken($_POST['csrf_token'] ?? '')) {
+            $mensagem_erro = "Token CSRF inválido ou expirado. Recarregue a página e tente novamente.";
         } else {
-            $featuresJson = json_encode($features, JSON_UNESCAPED_UNICODE);
+            $servername = trim($_POST['servername'] ?? '');
+            $descricao  = trim($_POST['descricao'] ?? '');
+            $modpackurl = trim($_POST['modpackurl'] ?? '');
+            $ip         = trim($_POST['ip'] ?? '');
+            $themecolor = trim($_POST['themecolor'] ?? '#B971DA');
+            $enabled    = isset($_POST['enabled']);
 
-            try {
+            $slugCalculado = preg_replace('/[^a-z0-9]/', '', strtolower($servername));
+
+            $featuresPost = $_POST['features'] ?? [];
+            $features = array_values(array_filter(array_map('trim', $featuresPost), fn($f) => $f !== ''));
+
+            [$icon, $erro_icone] = processarIcone(null);
+            if (empty($icon)) {
+                $icon = '/assets/images/logo.webp';
+            }
+
+            [$bg_image, $erro_bg] = processarBgServidor(null);
+
+            if ($servername === '' || $descricao === '' || $modpackurl === '' || $ip === '') {
+                $mensagem_erro = "Preencha todos os campos obrigatórios.";
+            } elseif (!preg_match('/^#[0-9A-Fa-f]{6}$/', $themecolor)) {
+                $mensagem_erro = "A cor do tema deve estar no formato hexadecimal, ex: #B971DA.";
+            } elseif (empty($features)) {
+                $mensagem_erro = "Adicione ao menos uma feature.";
+            } elseif ($erro_icone) {
+                $mensagem_erro = $erro_icone;
+            } elseif ($erro_bg) {
+                $mensagem_erro = $erro_bg;
+            } else {
+                $featuresJson = json_encode($features, JSON_UNESCAPED_UNICODE);
+
                 $stmt = $pdo->prepare("
                     INSERT INTO servidores (servername, icon, bg_image, descricao, features, modpackurl, ip, themecolor, enabled)
                     VALUES (:servername, :icon, :bg_image, :descricao, :features, :modpackurl, :ip, :themecolor, :enabled)
@@ -91,10 +91,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 garantirCategoriasPadraoWiki($pdo, $novoServidorId);
                 header("Location: index.php");
                 exit;
-            } catch (PDOException $e) {
-                $mensagem_erro = "Erro ao cadastrar servidor: " . $e->getMessage();
             }
         }
+    } catch (\Throwable $e) {
+        error_log("Erro ao cadastrar servidor: " . $e->getMessage());
+        $mensagem_erro = "Erro ao cadastrar servidor: " . $e->getMessage();
     }
 }
 
