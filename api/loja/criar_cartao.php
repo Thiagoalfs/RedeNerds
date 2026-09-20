@@ -205,9 +205,33 @@ try {
             $cupomServidorId = (int)($cupomRow['servidor_id'] ?? 0);
             if ($cupomServidorId > 0) {
                 $vipServidorId = (int)($vipRow['servidor_id'] ?? 0);
-                if ($vipServidorId > 0 && $vipServidorId !== $cupomServidorId) {
+                $servidorValido = false;
+
+                if ($vipServidorId > 0) {
+                    $servidorValido = ($vipServidorId === $cupomServidorId);
+                } else {
+                    $stmtSrvCheck = $pdo->prepare("SELECT id, servername, nome FROM servidores WHERE id = :id LIMIT 1");
+                    $stmtSrvCheck->execute([':id' => $cupomServidorId]);
+                    $srvInfo = $stmtSrvCheck->fetch(PDO::FETCH_ASSOC);
+                    if ($srvInfo) {
+                        $vipSrvRaw = trim((string)($vipRow['servidor'] ?? ''));
+                        if (
+                            strcasecmp($vipSrvRaw, (string)$srvInfo['servername']) === 0 ||
+                            strcasecmp($vipSrvRaw, (string)$srvInfo['nome']) === 0 ||
+                            strtolower(preg_replace('/[^a-zA-Z0-9]/', '', $vipSrvRaw)) === strtolower(preg_replace('/[^a-zA-Z0-9]/', '', (string)$srvInfo['servername']))
+                        ) {
+                            $servidorValido = true;
+                        }
+                    }
+                }
+
+                if (!$servidorValido) {
+                    $stmtSrvNome = $pdo->prepare("SELECT servername FROM servidores WHERE id = :id LIMIT 1");
+                    $stmtSrvNome->execute([':id' => $cupomServidorId]);
+                    $srvNome = $stmtSrvNome->fetchColumn() ?: 'outro servidor';
+
                     http_response_code(400);
-                    echo json_encode(["erro" => "O cupom '{$cupomEnviado}' não é válido para o servidor selecionado."], JSON_UNESCAPED_UNICODE);
+                    echo json_encode(["erro" => "O cupom '{$cupomEnviado}' é válido exclusivamente para compras no servidor {$srvNome}."], JSON_UNESCAPED_UNICODE);
                     exit;
                 }
             }
