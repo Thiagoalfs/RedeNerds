@@ -60,7 +60,7 @@
                     <i class="fa-solid fa-globe" style="color: #7DB9DF; font-size: 1.25rem;"></i>
                     <span style="font-size: 0.88rem; color: #e0e6ed;">Visiting from abroad? You can purchase VIP packages using our <strong>International Checkout</strong> (No CPF required).</span>
                 </div>
-                <button type="button" id="btn-switch-international" style="background: #7DB9DF; color: #0b0f19; font-weight: 600; font-size: 0.82rem; padding: 7px 15px; border: none; border-radius: 8px; cursor: pointer; white-space: nowrap;">Pay in USD / Int'l</button>
+                <button type="button" id="btn-switch-international" style="background: #7DB9DF; color: #0b0f19; font-weight: 600; font-size: 0.82rem; padding: 7px 15px; border: none; border-radius: 8px; cursor: pointer; white-space: nowrap;">International Checkout</button>
             </aside>
 
             <!-- AVISO DE IDENTIFICAÇÃO (QUANDO NÃO IDENTIFICADO) -->
@@ -242,7 +242,7 @@
                     </button>
                     <button type="button" class="method-nav-btn" data-method="international" id="nav-btn-international">
                         <i class="fa-solid fa-globe"></i>
-                        <span>Internacional (USD/Cards)</span>
+                        <span>Internacional (Cartão / BRL)</span>
                     </button>
                 </div>
 
@@ -364,7 +364,7 @@
                 <!-- PAINEL MÉTODO 3: CHECKOUT PRO INTERNACIONAL -->
                 <div id="panel-method-international" class="method-tab-panel" hidden>
                     <div style="margin-bottom: 16px; padding: 14px; background: rgba(125, 185, 223, 0.08); border: 1px solid rgba(125, 185, 223, 0.2); border-radius: 10px; font-size: 0.85rem; color: #cbd5e1; line-height: 1.5;">
-                        <p style="margin: 0;"><i class="fa-solid fa-shield-halved" style="color: #7DB9DF; margin-right: 8px;"></i> <strong>International Players:</strong> Pay securely using your local credit or debit card without needing a Brazilian CPF. You will be redirected to Mercado Pago Checkout Pro with automatic currency conversion.</p>
+                        <p style="margin: 0;"><i class="fa-solid fa-shield-halved" style="color: #7DB9DF; margin-right: 8px;"></i> <strong>International Players:</strong> Pay securely using your local credit or debit card without needing a Brazilian CPF. All transactions are charged in BRL (R$) and automatically converted by your bank at the current exchange rate.</p>
                     </div>
 
                     <form id="form-international-checkout" onsubmit="return false;" autocomplete="on">
@@ -385,7 +385,7 @@
                         <button type="submit" id="btn-submit-intl" class="btn-solid-primary btn-block btn-pay-card" style="margin-top: 14px;">
                             <span id="btn-intl-spinner" class="btn-spinner" hidden></span>
                             <i class="fa-solid fa-arrow-up-right-from-square" id="btn-intl-icon"></i>
-                            <span id="btn-intl-label">Continue to International Checkout</span>
+                            <span id="btn-intl-label">Proceed to Checkout</span>
                         </button>
 
                         <div class="card-security-badges" style="margin-top: 14px;">
@@ -399,7 +399,10 @@
                         <div class="ui-spinner"></div>
                         <p class="pix-status-title" style="margin-top: 10px;">Awaiting payment confirmation...</p>
                         <p style="font-size: 0.85rem; color: #94a3b8; margin-top: 4px;">Once your payment is approved in the checkout window, activation happens automatically.</p>
-                        <div style="margin-top: 14px;">
+                        <div style="margin-top: 14px; display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;">
+                            <a id="btn-reopen-checkout-pro" href="#" target="_blank" rel="noopener noreferrer" class="btn-solid-primary" style="padding: 6px 14px; font-size: 0.82rem; text-decoration: none; display: inline-flex; align-items: center; gap: 6px;">
+                                <i class="fa-solid fa-arrow-up-right-from-square"></i> Open Checkout Pro
+                            </a>
                             <button type="button" id="btn-check-intl-status" class="btn-outline-action" style="padding: 6px 14px; font-size: 0.82rem;">
                                 <i class="fa-solid fa-arrows-rotate"></i> Check Status Now
                             </button>
