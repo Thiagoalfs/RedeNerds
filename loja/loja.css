@@ -1238,8 +1238,8 @@
 
 .checkout-methods-nav {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 8px;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 6px;
   background: #0A0D14;
   padding: 5px;
   border-radius: var(--radius-sm);
@@ -1248,19 +1248,25 @@
   margin-bottom: 0.25rem;
 }
 
+@media (max-width: 480px) {
+  .checkout-methods-nav {
+    grid-template-columns: 1fr;
+  }
+}
+
 .method-nav-btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
+  gap: 6px;
   min-height: 42px;
-  padding: 0.5rem 0.75rem;
+  padding: 0.5rem 0.4rem;
   background: transparent;
   border: 1px solid transparent;
   border-radius: 6px;
   color: var(--color-text-muted);
   font-family: var(--font-main);
-  font-size: 0.85rem;
+  font-size: 0.82rem;
   font-weight: 700;
   cursor: pointer;
   transition: all 0.15s ease;

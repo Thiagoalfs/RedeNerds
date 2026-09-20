@@ -1372,7 +1372,7 @@
             if (STATE.currentOrder.vipData) {
               switchPaymentMethod('international');
             } else {
-              const firstVip = document.querySelector('.btn-open-vip-checkout');
+              const firstVip = document.querySelector('.btn-purchase-card');
               if (firstVip) firstVip.click();
             }
           });
@@ -1519,6 +1519,7 @@
     const methodsNav = document.getElementById('checkout-methods-nav');
     const panelPix = document.getElementById('panel-method-pix');
     const panelCard = document.getElementById('panel-method-card');
+    const panelIntl = document.getElementById('panel-method-international');
     const stateSuccess = document.getElementById('pix-success-state');
     const stateError = document.getElementById('pix-error-state');
     const headerTitle = document.getElementById('pix-modal-header-title');
@@ -1527,6 +1528,7 @@
     if (methodsNav) methodsNav.hidden = true;
     if (panelPix) panelPix.hidden = true;
     if (panelCard) panelCard.hidden = true;
+    if (panelIntl) panelIntl.hidden = true;
     if (stateSuccess) stateSuccess.hidden = true;
     if (headerTitle) headerTitle.textContent = 'Pagamento Não Efetivado';
 
@@ -1546,6 +1548,7 @@
     const methodsNav = document.getElementById('checkout-methods-nav');
     const panelPix = document.getElementById('panel-method-pix');
     const panelCard = document.getElementById('panel-method-card');
+    const panelIntl = document.getElementById('panel-method-international');
     const stateError = document.getElementById('pix-error-state');
     const stateSuccess = document.getElementById('pix-success-state');
 
@@ -1553,6 +1556,7 @@
     if (methodsNav) methodsNav.hidden = true;
     if (panelPix) panelPix.hidden = true;
     if (panelCard) panelCard.hidden = true;
+    if (panelIntl) panelIntl.hidden = true;
     if (stateError) stateError.hidden = true;
 
     if (headerTitle) headerTitle.textContent = 'Confirmação de Pagamento';
