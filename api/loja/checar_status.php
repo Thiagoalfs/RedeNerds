@@ -44,7 +44,46 @@ require_once __DIR__ . "/../auth_api.php";
 require_once __DIR__ . "/discord_loja_helper.php";
 require_once __DIR__ . "/delivery_helper.php";
 require_once __DIR__ . "/cupom_helper.php";
+require_once __DIR__ . "/ip_helper.php";
 verificarAcessoApi();
+
+$txid = trim((string)($_GET['txid'] ?? ''));
+
+if (empty($txid)) {
+    http_response_code(400);
+    echo json_encode(["erro" => "Identificador de transação (txid) não informado."], JSON_UNESCAPED_UNICODE);
+    exit;
+}
+
+// Rate Limiting anti-abuso / anti-spam para polling de status (máx 60 requisições por IP por minuto)
+$clientIp = obterIpRealCliente();
+try {
+    if (isset($pdo) && $pdo instanceof PDO) {
+        $pdo->exec("DELETE FROM rate_limits_loja WHERE tentativa_em < (NOW() - INTERVAL 10 MINUTE)");
+
+        $stmtRl = $pdo->prepare("
+            SELECT COUNT(*) FROM rate_limits_loja 
+            WHERE ip = :ip 
+              AND endpoint = 'checar_status' 
+              AND tentativa_em >= (NOW() - INTERVAL 1 MINUTE)
+        ");
+        $stmtRl->execute([':ip' => $clientIp]);
+        $tentativasRecentes = (int)$stmtRl->fetchColumn();
+
+        if ($tentativasRecentes >= 60) {
+            http_response_code(429);
+            echo json_encode([
+                "erro" => "Muitas requisições de status. Por favor, aguarde alguns segundos antes de verificar novamente."
+            ], JSON_UNESCAPED_UNICODE);
+            exit;
+        }
+
+        $stmtLog = $pdo->prepare("INSERT INTO rate_limits_loja (ip, endpoint, tentativa_em) VALUES (:ip, 'checar_status', NOW())");
+        $stmtLog->execute([':ip' => $clientIp]);
+    }
+} catch (Exception $e) {
+    error_log("Erro no rate limiting de status: " . $e->getMessage());
+}
 
 // Auto-limpeza de pedidos expirados (15 min para PIX/Cartão, 2 horas para Checkout Pro)
 try {
@@ -66,14 +105,6 @@ try {
     }
 } catch (Exception $e) {
     // Ignora erro de limpeza silenciosamente
-}
-
-$txid = trim((string)($_GET['txid'] ?? ''));
-
-if (empty($txid)) {
-    http_response_code(400);
-    echo json_encode(["erro" => "Identificador de transação (txid) não informado."], JSON_UNESCAPED_UNICODE);
-    exit;
 }
 
 $pedido = null;

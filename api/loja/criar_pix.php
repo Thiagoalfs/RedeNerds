@@ -95,6 +95,34 @@ if (!isset($pdo) || !($pdo instanceof PDO)) {
     exit;
 }
 
+// Rate Limiting anti-abuso / anti-spam para geração de PIX (máx 10 tentativas por IP em 10 minutos)
+$clientIp = obterIpRealCliente();
+try {
+    $pdo->exec("DELETE FROM rate_limits_loja WHERE tentativa_em < (NOW() - INTERVAL 1 HOUR)");
+
+    $stmtRl = $pdo->prepare("
+        SELECT COUNT(*) FROM rate_limits_loja 
+        WHERE ip = :ip 
+          AND endpoint = 'criar_pix' 
+          AND tentativa_em >= (NOW() - INTERVAL 10 MINUTE)
+    ");
+    $stmtRl->execute([':ip' => $clientIp]);
+    $tentativasRecentes = (int)$stmtRl->fetchColumn();
+
+    if ($tentativasRecentes >= 10) {
+        http_response_code(429);
+        echo json_encode([
+            "erro" => "Muitas cobranças PIX geradas recentemente. Por favor, conclua o pagamento pendente ou aguarde 10 minutos."
+        ], JSON_UNESCAPED_UNICODE);
+        exit;
+    }
+
+    $stmtLog = $pdo->prepare("INSERT INTO rate_limits_loja (ip, endpoint, tentativa_em) VALUES (:ip, 'criar_pix', NOW())");
+    $stmtLog->execute([':ip' => $clientIp]);
+} catch (Exception $e) {
+    error_log("Erro no rate limiting de PIX: " . $e->getMessage());
+}
+
 $stmtVip = $pdo->prepare("SELECT id, nome, preco, servidor_id FROM vips WHERE id = :id AND (ativo = 1 OR ativo IS NULL) LIMIT 1");
 $stmtVip->execute([':id' => $vipId]);
 $vipRow = $stmtVip->fetch(PDO::FETCH_ASSOC);
