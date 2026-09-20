@@ -54,6 +54,15 @@
                 </button>
             </header>
 
+            <!-- BANNER DE SUGESTÃO DE LOCALIDADE (INTERNACIONAL) -->
+            <aside id="loja-locality-banner" class="loja-locality-banner" hidden style="background: rgba(125, 185, 223, 0.12); border: 1px solid rgba(125, 185, 223, 0.3); border-radius: 12px; padding: 14px 18px; margin-bottom: 20px; display: none; align-items: center; justify-content: space-between; gap: 14px;">
+                <div style="display: flex; align-items: center; gap: 12px;">
+                    <i class="fa-solid fa-globe" style="color: #7DB9DF; font-size: 1.25rem;"></i>
+                    <span style="font-size: 0.88rem; color: #e0e6ed;">Visiting from abroad? You can purchase VIP packages using our <strong>International Checkout</strong> (No CPF required).</span>
+                </div>
+                <button type="button" id="btn-switch-international" style="background: #7DB9DF; color: #0b0f19; font-weight: 600; font-size: 0.82rem; padding: 7px 15px; border: none; border-radius: 8px; cursor: pointer; white-space: nowrap;">International Checkout</button>
+            </aside>
+
             <!-- AVISO DE IDENTIFICAÇÃO (QUANDO NÃO IDENTIFICADO) -->
             <section id="loja-locked-banner" class="loja-locked-banner" hidden>
                 <div class="locked-card-body">
@@ -229,7 +238,11 @@
                     </button>
                     <button type="button" class="method-nav-btn" data-method="card" id="nav-btn-card">
                         <i class="fa-solid fa-credit-card"></i>
-                        <span>Cartão de Crédito</span>
+                        <span>Cartão (Brasil)</span>
+                    </button>
+                    <button type="button" class="method-nav-btn" data-method="international" id="nav-btn-international">
+                        <i class="fa-solid fa-globe"></i>
+                        <span>Internacional (Cartão / BRL)</span>
                     </button>
                 </div>
 
@@ -346,6 +359,55 @@
                             <span><i class="fa-solid fa-check"></i> Antifraude Mercado Pago</span>
                         </div>
                     </form>
+                </div>
+
+                <!-- PAINEL MÉTODO 3: CHECKOUT PRO INTERNACIONAL -->
+                <div id="panel-method-international" class="method-tab-panel" hidden>
+                    <div style="margin-bottom: 16px; padding: 14px; background: rgba(125, 185, 223, 0.08); border: 1px solid rgba(125, 185, 223, 0.2); border-radius: 10px; font-size: 0.85rem; color: #cbd5e1; line-height: 1.5;">
+                        <p style="margin: 0;"><i class="fa-solid fa-shield-halved" style="color: #7DB9DF; margin-right: 8px;"></i> <strong>International Players:</strong> Pay securely using your local credit or debit card without needing a Brazilian CPF. All transactions are charged in BRL (R$) and automatically converted by your bank at the current exchange rate.</p>
+                    </div>
+
+                    <form id="form-international-checkout" onsubmit="return false;" autocomplete="on">
+                        <div class="card-form-grid">
+                            <div class="form-field full-width">
+                                <label for="intl-email">Your Email (for receipt and instant delivery tracking)</label>
+                                <input type="email" id="intl-email" placeholder="your.email@example.com" required autocomplete="email">
+                            </div>
+                        </div>
+
+                        <!-- Feedback de Erro Internacional -->
+                        <div id="intl-error-box" class="card-error-alert" hidden style="margin-top: 10px;">
+                            <i class="fa-solid fa-triangle-exclamation"></i>
+                            <span id="intl-error-msg">Error creating checkout preference.</span>
+                        </div>
+
+                        <!-- Botão de Checkout Internacional -->
+                        <button type="submit" id="btn-submit-intl" class="btn-solid-primary btn-block btn-pay-card" style="margin-top: 14px;">
+                            <span id="btn-intl-spinner" class="btn-spinner" hidden></span>
+                            <i class="fa-solid fa-arrow-up-right-from-square" id="btn-intl-icon"></i>
+                            <span id="btn-intl-label">Proceed to Checkout</span>
+                        </button>
+
+                        <div class="card-security-badges" style="margin-top: 14px;">
+                            <span><i class="fa-solid fa-shield-halved"></i> 256-bit Encrypted</span>
+                            <span><i class="fa-solid fa-earth-americas"></i> Worldwide Cards Accepted</span>
+                        </div>
+                    </form>
+
+                    <!-- Estado Aguardando Retorno Internacional -->
+                    <div id="intl-waiting-state" class="pix-view-state" hidden style="margin-top: 20px;">
+                        <div class="ui-spinner"></div>
+                        <p class="pix-status-title" style="margin-top: 10px;">Awaiting payment confirmation...</p>
+                        <p style="font-size: 0.85rem; color: #94a3b8; margin-top: 4px;">Once your payment is approved in the checkout window, activation happens automatically.</p>
+                        <div style="margin-top: 14px; display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;">
+                            <a id="btn-reopen-checkout-pro" href="#" target="_blank" rel="noopener noreferrer" class="btn-solid-primary" style="padding: 6px 14px; font-size: 0.82rem; text-decoration: none; display: inline-flex; align-items: center; gap: 6px;">
+                                <i class="fa-solid fa-arrow-up-right-from-square"></i> Open Checkout Pro
+                            </a>
+                            <button type="button" id="btn-check-intl-status" class="btn-outline-action" style="padding: 6px 14px; font-size: 0.82rem;">
+                                <i class="fa-solid fa-arrows-rotate"></i> Check Status Now
+                            </button>
+                        </div>
+                    </div>
                 </div>
 
                 <!-- Estado 3: CONFIRMAÇÃO DE PAGAMENTO APROVADO -->

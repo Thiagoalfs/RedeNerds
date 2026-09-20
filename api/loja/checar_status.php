@@ -2,15 +2,21 @@
 /**
  * checar_status.php
  * Verifica o status de pagamento do pedido (usado no polling pelo modal).
- * Atualiza automaticamente pedidos pendentes com mais de 15 minutos para 'expirado'.
+ * - PIX e Cartão Nacional: janela de 15 minutos.
+ * - Checkout Pro Internacional: janela de 2 horas.
+ * - Itera por todos os pagamentos da busca no Mercado Pago e realiza transição atômica se algum estiver 'approved'.
  */
 
+declare(strict_types=1);
+
 date_default_timezone_set('America/Sao_Paulo');
-ini_set('display_errors', 0);
+ini_set('display_errors', '0');
 error_reporting(E_ALL);
 
 header("Content-Type: application/json; charset=utf-8");
-header("Access-Control-Allow-Origin: *");
+
+require_once __DIR__ . "/config_loja.php";
+aplicarCorsLoja();
 
 $configPaths = [
     __DIR__ . "/../../../config.php",
@@ -37,20 +43,32 @@ require_once $configPath;
 require_once __DIR__ . "/../auth_api.php";
 require_once __DIR__ . "/discord_loja_helper.php";
 require_once __DIR__ . "/delivery_helper.php";
+require_once __DIR__ . "/cupom_helper.php";
 verificarAcessoApi();
 
-// Auto-limpeza de pedidos pendentes com mais de 15 minutos
+// Auto-limpeza de pedidos expirados (15 min para PIX/Cartão, 2 horas para Checkout Pro)
 try {
     if (isset($pdo) && $pdo instanceof PDO) {
-        $pdo->query("UPDATE pedidos_vip SET status = 'expirado' WHERE status = 'pendente' AND TIMESTAMPDIFF(MINUTE, criado_em, NOW()) >= 15");
-    } elseif (isset($conn) && $conn instanceof mysqli) {
-        $conn->query("UPDATE pedidos_vip SET status = 'expirado' WHERE status = 'pendente' AND TIMESTAMPDIFF(MINUTE, criado_em, NOW()) >= 15");
+        $pdo->exec("
+            UPDATE pedidos_vip 
+            SET status = 'expirado' 
+            WHERE status = 'pendente' 
+              AND (metodo_pagamento IS NULL OR metodo_pagamento <> 'checkout_pro')
+              AND TIMESTAMPDIFF(MINUTE, criado_em, NOW()) >= 15
+        ");
+        $pdo->exec("
+            UPDATE pedidos_vip 
+            SET status = 'expirado' 
+            WHERE status = 'pendente' 
+              AND metodo_pagamento = 'checkout_pro'
+              AND TIMESTAMPDIFF(HOUR, criado_em, NOW()) >= 2
+        ");
     }
 } catch (Exception $e) {
     // Ignora erro de limpeza silenciosamente
 }
 
-$txid = trim($_GET['txid'] ?? '');
+$txid = trim((string)($_GET['txid'] ?? ''));
 
 if (empty($txid)) {
     http_response_code(400);
@@ -60,22 +78,17 @@ if (empty($txid)) {
 
 $pedido = null;
 
-// 1. Busca o pedido no banco de dados local com cálculo exato de segundos decorridos
+// 1. Busca o pedido no banco de dados local
 try {
     if (isset($pdo) && $pdo instanceof PDO) {
-        $stmt = $pdo->prepare("SELECT *, TIMESTAMPDIFF(SECOND, criado_em, NOW()) as segundos_desde_criacao FROM pedidos_vip WHERE txid = :txid LIMIT 1");
+        $stmt = $pdo->prepare("
+            SELECT *, TIMESTAMPDIFF(SECOND, criado_em, NOW()) as segundos_desde_criacao 
+            FROM pedidos_vip 
+            WHERE txid = :txid 
+            LIMIT 1
+        ");
         $stmt->execute([':txid' => $txid]);
         $pedido = $stmt->fetch(PDO::FETCH_ASSOC);
-    } elseif (isset($conn) && $conn instanceof mysqli) {
-        $stmt = $conn->prepare("SELECT *, TIMESTAMPDIFF(SECOND, criado_em, NOW()) as segundos_desde_criacao FROM pedidos_vip WHERE txid = ? LIMIT 1");
-        if ($stmt) {
-            $stmt->bind_param("s", $txid);
-            $stmt->execute();
-            $res = $stmt->get_result();
-            if ($res) {
-                $pedido = $res->fetch_assoc();
-            }
-        }
     }
 } catch (Exception $e) {
     error_log("Erro ao buscar status do pedido: " . $e->getMessage());
@@ -91,7 +104,9 @@ if (!$pedido) {
     exit;
 }
 
-$statusAtual = strtolower($pedido['status'] ?? 'pendente');
+$statusAtual = strtolower((string)($pedido['status'] ?? 'pendente'));
+$metodo = strtolower((string)($pedido['metodo_pagamento'] ?? 'pix'));
+$limiteSegundos = ($metodo === 'checkout_pro') ? 7200 : 900; // 2 horas vs 15 minutos
 
 // 2. Se já estiver marcado como 'pago' no banco
 if ($statusAtual === 'pago') {
@@ -108,32 +123,26 @@ if ($statusAtual === 'pago') {
     exit;
 }
 
-// 3. Se estiver marcado como 'cancelado' ou 'expirado'
-if (in_array($statusAtual, ['cancelado', 'expirado'])) {
+// 3. Se estiver marcado como 'cancelado', 'expirado' ou 'recusado'
+if (in_array($statusAtual, ['cancelado', 'expirado', 'recusado'], true)) {
     echo json_encode([
         "success" => true,
         "txid" => $txid,
         "status" => $statusAtual,
         "aprovado" => false,
-        "expirado" => true,
-        "mensagem" => "O tempo limite de 15 minutos para este PIX se esgotou."
+        "expirado" => ($statusAtual === 'expirado'),
+        "mensagem" => ($statusAtual === 'expirado' ? "Tempo limite esgotado para este pagamento." : "Cobrança cancelada ou recusada.")
     ], JSON_UNESCAPED_UNICODE);
     exit;
 }
 
-// 4. Se o pedido foi criado há mais de 15 minutos (900 segundos calculados pelo banco)
+// 4. Verificação de expiração por tempo decorrido
 $segundosDecorridos = isset($pedido['segundos_desde_criacao']) ? (int)$pedido['segundos_desde_criacao'] : 0;
-if ($segundosDecorridos >= 900) {
+if ($segundosDecorridos >= $limiteSegundos) {
     try {
         if (isset($pdo) && $pdo instanceof PDO) {
             $upStmt = $pdo->prepare("UPDATE pedidos_vip SET status = 'expirado' WHERE txid = :txid AND status = 'pendente'");
             $upStmt->execute([':txid' => $txid]);
-        } elseif (isset($conn) && $conn instanceof mysqli) {
-            $upStmt = $conn->prepare("UPDATE pedidos_vip SET status = 'expirado' WHERE txid = ? AND status = 'pendente'");
-            if ($upStmt) {
-                $upStmt->bind_param("s", $txid);
-                $upStmt->execute();
-            }
         }
     } catch (Exception $e) {}
 
@@ -143,17 +152,16 @@ if ($segundosDecorridos >= 900) {
         "status" => "expirado",
         "aprovado" => false,
         "expirado" => true,
-        "mensagem" => "Tempo limite de 15 minutos esgotado."
+        "mensagem" => "Tempo limite esgotado para este pagamento."
     ], JSON_UNESCAPED_UNICODE);
     exit;
 }
 
-// 5. Se ainda estiver dentro dos 15 minutos, consulta o Mercado Pago em tempo real
-$mpAccessToken = defined('MERCADO_PAGO_ACCESS_TOKEN') ? trim(MERCADO_PAGO_ACCESS_TOKEN) : '';
-$isLiveMpToken = (!empty($mpAccessToken) && strpos($mpAccessToken, 'APP_USR-SEU-ACCESS-TOKEN') === false);
+// 5. Consulta ao Mercado Pago para pedidos pendentes
+$mpAccessToken = obterMercadoPagoAccessToken();
 
-if ($isLiveMpToken) {
-    $searchUrl = "https://api.mercadopago.com/v1/payments/search?external_reference=" . urlencode($txid);
+if ($mpAccessToken) {
+    $searchUrl = "https://api.mercadopago.com/v1/payments/search?external_reference=" . urlencode($txid) . "&sort=date_created&criteria=desc";
 
     $ch = curl_init($searchUrl);
     curl_setopt_array($ch, [
@@ -170,55 +178,76 @@ if ($isLiveMpToken) {
     curl_close($ch);
 
     if ($httpCode >= 200 && $httpCode < 300 && $response) {
-        $searchData = json_decode($response, true);
+        $searchData = json_decode((string)$response, true);
         $results = $searchData['results'] ?? [];
 
-        if (!empty($results)) {
-            $paymentInfo = $results[0];
-            $mpStatus = strtolower($paymentInfo['status'] ?? '');
+        if (is_array($results) && !empty($results)) {
+            $encontrouAprovado = false;
+            $approvedPaymentId = null;
+            $ultimoStatus = '';
 
-            if ($mpStatus === 'approved') {
-                // Atualiza no banco para 'pago'
+            // Itera por TODOS os pagamentos vinculados ao external_reference
+            foreach ($results as $paymentInfo) {
+                $st = strtolower((string)($paymentInfo['status'] ?? ''));
+                if ($st === 'approved') {
+                    $encontrouAprovado = true;
+                    $approvedPaymentId = $paymentInfo['id'] ?? null;
+                    break;
+                }
+                if (empty($ultimoStatus)) {
+                    $ultimoStatus = $st;
+                }
+            }
+
+            if ($encontrouAprovado) {
+                $transicaoOcorreu = false;
                 try {
                     if (isset($pdo) && $pdo instanceof PDO) {
-                        $upStmt = $pdo->prepare("UPDATE pedidos_vip SET status = 'pago', pago_em = NOW() WHERE txid = :txid");
-                        $upStmt->execute([':txid' => $txid]);
-                    } elseif (isset($conn) && $conn instanceof mysqli) {
-                        $upStmt = $conn->prepare("UPDATE pedidos_vip SET status = 'pago', pago_em = NOW() WHERE txid = ?");
-                        if ($upStmt) {
-                            $upStmt->bind_param("s", $txid);
-                            $upStmt->execute();
-                        }
+                        $upStmt = $pdo->prepare("
+                            UPDATE pedidos_vip 
+                            SET status = 'pago', pago_em = NOW(), mp_payment_id = COALESCE(:mp_id, mp_payment_id) 
+                            WHERE txid = :txid AND status <> 'pago'
+                        ");
+                        $upStmt->execute([
+                            ':txid' => $txid,
+                            ':mp_id' => $approvedPaymentId ? (string)$approvedPaymentId : null
+                        ]);
+                        $transicaoOcorreu = ($upStmt->rowCount() === 1);
                     }
                 } catch (Exception $e) {
-                    error_log("Erro ao atualizar status pago: " . $e->getMessage());
+                    error_log("Erro ao atualizar status pago no checar_status: " . $e->getMessage());
                 }
 
-                // Dispara o Webhook para o Discord
-                try {
-                    enviarNotificacaoCompraDiscord(
-                        $pedido['nick'],
-                        $pedido['tipo_conta'] ?? 'original',
-                        $pedido['servidor'],
-                        $pedido['vip_nome'],
-                        $pedido['valor'],
-                        $txid,
-                        '#7DB9DF',
-                        $pedido['metodo_pagamento'] ?? 'pix',
-                        (int)($pedido['parcelas'] ?? 1),
-                        $pedido['valor_total'] ?? null,
-                        $pedido['cupom_codigo'] ?? null,
-                        (float)($pedido['desconto_aplicado'] ?? 0.00)
-                    );
-                } catch (Exception $e) {
-                    error_log("Erro ao disparar webhook Discord no checar_status: " . $e->getMessage());
-                }
+                if ($transicaoOcorreu && isset($pdo) && $pdo instanceof PDO) {
+                    // Cômputo do cupom
+                    registrarUsoCupomSePago($pdo, $txid);
 
-                // Dispara entrega do VIP na API de Entregas
-                try {
-                    enviarEntregaVip($pedido, $pdo);
-                } catch (Exception $e) {
-                    error_log("Erro ao disparar entrega VIP no checar_status: " . $e->getMessage());
+                    // Dispara webhook Discord
+                    try {
+                        enviarNotificacaoCompraDiscord(
+                            $pedido['nick'],
+                            $pedido['tipo_conta'] ?? 'original',
+                            $pedido['servidor'],
+                            $pedido['vip_nome'],
+                            (float)$pedido['valor'],
+                            $txid,
+                            '#7DB9DF',
+                            $pedido['metodo_pagamento'] ?? 'pix',
+                            (int)($pedido['parcelas'] ?? 1),
+                            isset($pedido['valor_total']) ? (float)$pedido['valor_total'] : null,
+                            $pedido['cupom_codigo'] ?? null,
+                            (float)($pedido['desconto_aplicado'] ?? 0.00)
+                        );
+                    } catch (Exception $e) {
+                        error_log("Erro ao disparar webhook Discord no checar_status: " . $e->getMessage());
+                    }
+
+                    // Dispara entrega do VIP
+                    try {
+                        enviarEntregaVip($pedido, $pdo);
+                    } catch (Exception $e) {
+                        error_log("Erro ao disparar entrega VIP no checar_status: " . $e->getMessage());
+                    }
                 }
 
                 echo json_encode([
@@ -232,11 +261,11 @@ if ($isLiveMpToken) {
                     "vip_nome" => $pedido['vip_nome']
                 ], JSON_UNESCAPED_UNICODE);
                 exit;
-            } elseif (in_array($mpStatus, ['cancelled', 'rejected'])) {
-                // Marca como cancelado no banco
+            } elseif ($metodo !== 'checkout_pro' && in_array($ultimoStatus, ['cancelled', 'rejected'], true)) {
+                // Apenas para PIX/Cartão transparente rejeitado de forma definitiva
                 try {
                     if (isset($pdo) && $pdo instanceof PDO) {
-                        $upStmt = $pdo->prepare("UPDATE pedidos_vip SET status = 'cancelado' WHERE txid = :txid");
+                        $upStmt = $pdo->prepare("UPDATE pedidos_vip SET status = 'cancelado' WHERE txid = :txid AND status = 'pendente'");
                         $upStmt->execute([':txid' => $txid]);
                     }
                 } catch (Exception $e) {}
@@ -251,6 +280,7 @@ if ($isLiveMpToken) {
                 ], JSON_UNESCAPED_UNICODE);
                 exit;
             }
+            // Para checkout_pro: NUNCA marca cancelado/recusado por pagamentos intermediários rejected; mantém pendente.
         }
     }
 }
@@ -261,5 +291,5 @@ echo json_encode([
     "txid" => $txid,
     "status" => "pendente",
     "aprovado" => false,
-    "segundos_restantes" => max(0, 900 - $segundosDecorridos)
+    "segundos_restantes" => max(0, $limiteSegundos - $segundosDecorridos)
 ], JSON_UNESCAPED_UNICODE);

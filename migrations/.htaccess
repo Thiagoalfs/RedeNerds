@@ -1,0 +1,2 @@
+# Proteção de segurança: impede acesso direto via web aos scripts de migration
+Require all denied
