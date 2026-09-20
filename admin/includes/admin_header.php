@@ -41,7 +41,15 @@ $tituloPagina = $tituloPagina ?? 'Painel Administrativo';
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     
     <!-- FOLHA DE ESTILOS CENTRALIZADA -->
-    <link rel="stylesheet" href="/admin/admin.css?v=2">
+    <link rel="stylesheet" href="/admin/admin.css?v=3">
+
+    <!-- SCRIPT DE TEMA (ANTI-FLICKER - PADRÃO DARK) -->
+    <script>
+    (function() {
+        const savedTheme = localStorage.getItem('admin_theme') || 'dark';
+        document.documentElement.setAttribute('data-theme', savedTheme);
+    })();
+    </script>
 </head>
 <body>
     <div class="admin-layout">
@@ -64,6 +72,13 @@ $tituloPagina = $tituloPagina ?? 'Painel Administrativo';
                 </div>
 
                 <div class="topbar-right">
+                    <!-- BOTÃO ALTERNAR TEMA (DARK / LIGHT) -->
+                    <button type="button" class="btn-theme-toggle" id="btn-theme-toggle" title="Alternar tema (Claro / Escuro)" aria-label="Alternar tema">
+                        <i class="fa-solid fa-moon theme-icon-dark"></i>
+                        <i class="fa-solid fa-sun theme-icon-light"></i>
+                        <span class="theme-label d-none d-xl-inline">Tema</span>
+                    </button>
+
                     <a href="/loja/" target="_blank" class="btn-view-site">
                         <i class="fa-solid fa-cart-shopping"></i>
                         <span>Ver Loja</span>
