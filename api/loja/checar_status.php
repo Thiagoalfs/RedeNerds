@@ -183,6 +183,7 @@ if ($mpAccessToken) {
 
         if (is_array($results) && !empty($results)) {
             $encontrouAprovado = false;
+            $approvedPaymentId = null;
             $ultimoStatus = '';
 
             // Itera por TODOS os pagamentos vinculados ao external_reference
@@ -190,6 +191,7 @@ if ($mpAccessToken) {
                 $st = strtolower((string)($paymentInfo['status'] ?? ''));
                 if ($st === 'approved') {
                     $encontrouAprovado = true;
+                    $approvedPaymentId = $paymentInfo['id'] ?? null;
                     break;
                 }
                 if (empty($ultimoStatus)) {
@@ -203,10 +205,13 @@ if ($mpAccessToken) {
                     if (isset($pdo) && $pdo instanceof PDO) {
                         $upStmt = $pdo->prepare("
                             UPDATE pedidos_vip 
-                            SET status = 'pago', pago_em = NOW() 
+                            SET status = 'pago', pago_em = NOW(), mp_payment_id = COALESCE(:mp_id, mp_payment_id) 
                             WHERE txid = :txid AND status <> 'pago'
                         ");
-                        $upStmt->execute([':txid' => $txid]);
+                        $upStmt->execute([
+                            ':txid' => $txid,
+                            ':mp_id' => $approvedPaymentId ? (string)$approvedPaymentId : null
+                        ]);
                         $transicaoOcorreu = ($upStmt->rowCount() === 1);
                     }
                 } catch (Exception $e) {

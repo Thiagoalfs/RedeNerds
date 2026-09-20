@@ -136,10 +136,13 @@ if ($status === 'approved' && !empty($externalRef)) {
     try {
         $up = $pdo->prepare("
             UPDATE pedidos_vip 
-            SET status = 'pago', pago_em = NOW() 
+            SET status = 'pago', pago_em = NOW(), mp_payment_id = :mp_id 
             WHERE txid = :txid AND status <> 'pago'
         ");
-        $up->execute([':txid' => $externalRef]);
+        $up->execute([
+            ':txid' => $externalRef,
+            ':mp_id' => (string)$paymentId
+        ]);
         $transicaoOcorreu = ($up->rowCount() === 1);
     } catch (Exception $e) {
         error_log("Erro na transição atômica do webhook MP: " . $e->getMessage());
