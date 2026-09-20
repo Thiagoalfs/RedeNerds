@@ -186,24 +186,29 @@ require_once __DIR__ . "/../includes/admin_header.php";
     border: 1px solid rgba(0,0,0,0.15);
 }
 .scratch-swap-btn {
-    background: none;
-    border: none;
+    background: #334155;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 6px;
+    width: 28px;
+    height: 28px;
+    min-width: 28px;
     cursor: pointer;
-    display: flex;
-    flex-direction: column;
+    display: inline-flex;
     align-items: center;
     justify-content: center;
-    padding: 2px 4px;
-    color: #8c52ff;
-    font-size: 0.62rem;
-    font-weight: 700;
-    line-height: 1;
-    gap: 2px;
-    transition: transform 0.15s ease, color 0.15s ease;
+    color: #ffffff;
+    font-size: 0.78rem;
+    padding: 0;
+    transition: transform 0.15s ease, background-color 0.15s ease;
 }
 .scratch-swap-btn:hover {
-    color: #6d28d9;
+    background: #475569;
+    color: #ffffff;
     transform: scale(1.08);
+}
+.scratch-swap-btn i {
+    color: #ffffff !important;
+    line-height: 1;
 }
 .scratch-popover {
     position: absolute;
@@ -266,7 +271,7 @@ require_once __DIR__ . "/../includes/admin_header.php";
                         </div>
                         <div class="col-md-3 admin-form-group">
                             <label class="d-flex align-items-center justify-content-between mb-1">
-                                <span title="Cor aplicada nos termos entre colchetes [TAG] nos benefícios">Cor das Tags [ ]</span>
+                                <span title="Cor aplicada nos termos entre colchetes [TAG] nos benefícios">Cor das Tags</span>
                                 <button type="button" class="btn btn-link btn-sm p-0 text-decoration-none text-muted" style="font-size: 0.72rem;" onclick="resetarCoresPadrao()">Cor padrão</button>
                             </label>
                             
@@ -278,10 +283,9 @@ require_once __DIR__ . "/../includes/admin_header.php";
                                         <span class="scratch-swatch" id="preview-swatch-cor1" style="background-color: <?php echo htmlspecialchars($cor1, ENT_QUOTES, 'UTF-8'); ?>;"></span>
                                     </div>
 
-                                    <!-- Swap Button (Scratch Style) -->
-                                    <button type="button" class="scratch-swap-btn" onclick="trocarCoresGradiente(event)" title="Inverter cores (Swap)">
+                                    <!-- Swap Button -->
+                                    <button type="button" class="scratch-swap-btn" onclick="trocarCoresGradiente(event)" title="Inverter cores">
                                         <i class="fa-solid fa-arrow-right-arrow-left"></i>
-                                        <span>Swap</span>
                                     </button>
 
                                     <!-- Swatch Cor 2 -->
