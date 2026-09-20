@@ -3,7 +3,19 @@ $paginaAtiva = 'cupons';
 $tituloPagina = 'Cupons de Desconto';
 require_once __DIR__ . "/../includes/admin_header.php";
 
+$servidoresMap = [];
 try {
+    $colunasCupons = $pdo->query("SHOW COLUMNS FROM cupons")->fetchAll(PDO::FETCH_COLUMN);
+    if (!in_array('servidor_id', $colunasCupons, true)) {
+        $pdo->exec("ALTER TABLE cupons ADD COLUMN servidor_id INT NULL DEFAULT 0");
+    }
+
+    $stmtSrv = $pdo->query("SELECT id, servername, nome, themecolor FROM servidores ORDER BY servername ASC");
+    $servidoresRows = $stmtSrv->fetchAll(PDO::FETCH_ASSOC);
+    foreach ($servidoresRows as $s) {
+        $servidoresMap[(int)$s['id']] = $s;
+    }
+
     $stmt = $pdo->query("SELECT * FROM cupons ORDER BY criado_em DESC");
     $cupons = $stmt->fetchAll(PDO::FETCH_ASSOC);
 } catch (PDOException $e) {
@@ -53,19 +65,20 @@ function statusDoCupom(array $cupom): array {
             <table class="table table-admin align-middle mb-0">
                 <thead>
                     <tr>
-                        <th style="width: 180px;">Código do Cupom</th>
-                        <th style="width: 140px;">Desconto</th>
-                        <th style="width: 200px;">Validade</th>
-                        <th style="width: 120px;">Status</th>
-                        <th style="width: 100px;">Usos</th>
-                        <th style="width: 150px;">Criado em</th>
-                        <th class="text-end" style="width: 150px;">Ações</th>
+                        <th style="width: 170px;">Código do Cupom</th>
+                        <th style="width: 130px;">Desconto</th>
+                        <th style="width: 180px;">Servidor</th>
+                        <th style="width: 180px;">Validade</th>
+                        <th style="width: 110px;">Status</th>
+                        <th style="width: 90px;">Usos</th>
+                        <th style="width: 140px;">Criado em</th>
+                        <th class="text-end" style="width: 140px;">Ações</th>
                     </tr>
                 </thead>
                 <tbody>
                     <?php if (empty($cupons)): ?>
                         <tr>
-                            <td colspan="7" class="text-center py-4 text-muted">Nenhum cupom cadastrado ainda.</td>
+                            <td colspan="8" class="text-center py-4 text-muted">Nenhum cupom cadastrado ainda.</td>
                         </tr>
                     <?php else: ?>
                         <?php foreach ($cupons as $c): 
@@ -80,6 +93,22 @@ function statusDoCupom(array $cupom): array {
                                 </td>
                                 <td>
                                     <strong class="text-success fw-bold"><?php echo number_format((float)$c['porcentagem_desconto'], 1, ',', '.'); ?>% OFF</strong>
+                                </td>
+                                <td>
+                                    <?php 
+                                    $sId = (int)($c['servidor_id'] ?? 0);
+                                    if ($sId > 0 && isset($servidoresMap[$sId])): 
+                                        $srv = $servidoresMap[$sId];
+                                        $corSrv = !empty($srv['themecolor']) ? $srv['themecolor'] : '#6366f1';
+                                    ?>
+                                        <span class="badge" style="background-color: <?php echo htmlspecialchars($corSrv, ENT_QUOTES, 'UTF-8'); ?>; color: #fff; text-shadow: 0 1px 2px rgba(0,0,0,0.3);">
+                                            <i class="fa-solid fa-server me-1"></i><?php echo htmlspecialchars($srv['servername'], ENT_QUOTES, 'UTF-8'); ?>
+                                        </span>
+                                    <?php else: ?>
+                                        <span class="badge bg-secondary-subtle text-body border">
+                                            <i class="fa-solid fa-globe me-1 text-primary"></i> Todos os Servidores
+                                        </span>
+                                    <?php endif; ?>
                                 </td>
                                 <td>
                                     <i class="fa-regular fa-clock text-muted me-1"></i>

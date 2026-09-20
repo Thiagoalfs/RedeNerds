@@ -59,8 +59,8 @@ if (!isset($pdo) || !($pdo instanceof PDO)) {
 }
 
 try {
-    // 1. Busca o preço oficial do VIP
-    $stmtVip = $pdo->prepare("SELECT id, nome, preco FROM vips WHERE id = :id AND (ativo = 1 OR ativo IS NULL) LIMIT 1");
+    // 1. Busca o preço oficial do VIP e seus dados de servidor
+    $stmtVip = $pdo->prepare("SELECT id, nome, preco, servidor_id, servidor FROM vips WHERE id = :id AND (ativo = 1 OR ativo IS NULL) LIMIT 1");
     $stmtVip->execute([':id' => $vipId]);
     $vipRow = $stmtVip->fetch(PDO::FETCH_ASSOC);
 
@@ -99,6 +99,44 @@ try {
             "erro" => "O cupom '{$cupomCodigo}' expirou em " . date('d/m/Y H:i', $expiraTs) . "."
         ], JSON_UNESCAPED_UNICODE);
         exit;
+    }
+
+    // Verifica restrição de servidor
+    $cupomServidorId = (int)($cupomRow['servidor_id'] ?? 0);
+    if ($cupomServidorId > 0) {
+        $vipServidorId = (int)($vipRow['servidor_id'] ?? 0);
+        $servidorValido = false;
+
+        if ($vipServidorId > 0) {
+            $servidorValido = ($vipServidorId === $cupomServidorId);
+        } else {
+            // Fallback: busca dados do servidor do cupom para comparar com o nome do servidor no VIP
+            $stmtSrvCheck = $pdo->prepare("SELECT id, servername, nome FROM servidores WHERE id = :id LIMIT 1");
+            $stmtSrvCheck->execute([':id' => $cupomServidorId]);
+            $srvInfo = $stmtSrvCheck->fetch(PDO::FETCH_ASSOC);
+            if ($srvInfo) {
+                $vipSrvRaw = trim($vipRow['servidor'] ?? '');
+                if (
+                    strcasecmp($vipSrvRaw, $srvInfo['servername']) === 0 ||
+                    strcasecmp($vipSrvRaw, $srvInfo['nome']) === 0 ||
+                    strtolower(preg_replace('/[^a-zA-Z0-9]/', '', $vipSrvRaw)) === strtolower(preg_replace('/[^a-zA-Z0-9]/', '', $srvInfo['servername']))
+                ) {
+                    $servidorValido = true;
+                }
+            }
+        }
+
+        if (!$servidorValido) {
+            $stmtSrvNome = $pdo->prepare("SELECT servername FROM servidores WHERE id = :id LIMIT 1");
+            $stmtSrvNome->execute([':id' => $cupomServidorId]);
+            $srvNome = $stmtSrvNome->fetchColumn() ?: 'outro servidor';
+
+            http_response_code(400);
+            echo json_encode([
+                "erro" => "O cupom '{$cupomCodigo}' é válido exclusivamente para compras no servidor {$srvNome}."
+            ], JSON_UNESCAPED_UNICODE);
+            exit;
+        }
     }
 
     // 3. Calcula desconto

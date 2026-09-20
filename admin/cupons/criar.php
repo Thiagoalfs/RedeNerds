@@ -21,8 +21,22 @@ if ($configPath) {
 $erro = null;
 $codigo = '';
 $porcentagem = 10.0;
+$servidor_id = 0;
 $expira_em = date('Y-m-d\TH:i', strtotime('+30 days'));
 $ativo = 1;
+
+$servidores = [];
+try {
+    $colunasCupons = $pdo->query("SHOW COLUMNS FROM cupons")->fetchAll(PDO::FETCH_COLUMN);
+    if (!in_array('servidor_id', $colunasCupons, true)) {
+        $pdo->exec("ALTER TABLE cupons ADD COLUMN servidor_id INT NULL DEFAULT 0");
+    }
+
+    $stmtSrv = $pdo->query("SELECT id, servername, nome FROM servidores ORDER BY servername ASC");
+    $servidores = $stmtSrv->fetchAll(PDO::FETCH_ASSOC);
+} catch (Exception $e) {
+    $servidores = [];
+}
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (!validarCsrfToken($_POST['csrf_token'] ?? '')) {
@@ -30,6 +44,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     } else {
         $codigo = strtoupper(trim($_POST['codigo'] ?? ''));
         $porcentagem = (float)str_replace(',', '.', $_POST['porcentagem'] ?? '0');
+        $servidor_id = (int)($_POST['servidor_id'] ?? 0);
         $expira_em = trim($_POST['expira_em'] ?? '');
         $ativo = isset($_POST['ativo']) ? 1 : 0;
 
@@ -51,12 +66,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $erro = "Já existe um cupom cadastrado com o código '{$codigo}'.";
                 } else {
                     $stmt = $pdo->prepare("
-                        INSERT INTO cupons (codigo, porcentagem_desconto, expira_em, ativo, usos_total, criado_em)
-                        VALUES (:codigo, :porcentagem, :expira_em, :ativo, 0, NOW())
+                        INSERT INTO cupons (codigo, porcentagem_desconto, servidor_id, expira_em, ativo, usos_total, criado_em)
+                        VALUES (:codigo, :porcentagem, :servidor_id, :expira_em, :ativo, 0, NOW())
                     ");
                     $stmt->execute([
                         ':codigo' => $codigo,
                         ':porcentagem' => $porcentagem,
+                        ':servidor_id' => $servidor_id > 0 ? $servidor_id : 0,
                         ':expira_em' => $expiraSql,
                         ':ativo' => $ativo
                     ]);
@@ -99,6 +115,19 @@ require_once __DIR__ . "/../includes/admin_header.php";
                                value="<?php echo htmlspecialchars($codigo, ENT_QUOTES, 'UTF-8'); ?>" 
                                placeholder="EX: NERD10" maxlength="50" required autofocus>
                         <small class="text-muted">Será convertido automaticamente em letras maiúsculas.</small>
+                    </div>
+
+                    <div class="admin-form-group">
+                        <label for="servidor_id">Servidor Aplicável</label>
+                        <select class="admin-form-control form-select" id="servidor_id" name="servidor_id">
+                            <option value="0" <?php echo ($servidor_id === 0) ? 'selected' : ''; ?>>🌐 Todos os Servidores (Global)</option>
+                            <?php foreach ($servidores as $srv): ?>
+                                <option value="<?php echo (int)$srv['id']; ?>" <?php echo ($servidor_id === (int)$srv['id']) ? 'selected' : ''; ?>>
+                                    <?php echo htmlspecialchars($srv['servername'], ENT_QUOTES, 'UTF-8'); ?>
+                                </option>
+                            <?php endforeach; ?>
+                        </select>
+                        <small class="text-muted">Escolha se o cupom pode ser usado em qualquer compra ou apenas em um servidor específico.</small>
                     </div>
 
                     <div class="row g-3">

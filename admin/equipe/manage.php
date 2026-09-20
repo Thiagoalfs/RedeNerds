@@ -52,7 +52,7 @@ $coresPredefinidas = [
 
 <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-3">
     <div>
-        <h4 class="fw-bold mb-1"><i class="fa-solid fa-layer-group text-primary me-2"></i> Gerenciar Cargos da Equipe</h4>
+        <h4 class="fw-bold mb-1">Gerenciar Cargos da Equipe</h4>
         <p class="text-muted small mb-0">Crie, edite, exclua e personalize cores e hierarquia de exibição dos cargos no site.</p>
     </div>
     <div class="d-flex gap-2">

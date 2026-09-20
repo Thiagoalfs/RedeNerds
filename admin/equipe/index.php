@@ -46,7 +46,7 @@ foreach ($gruposBrutos as $cNome => $lista) {
 
 <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-3">
     <div>
-        <h4 class="fw-bold mb-1"><i class="fa-solid fa-users text-primary me-2"></i> Equipe</h4>
+        <h4 class="fw-bold mb-1">Equipe</h4>
         <p class="text-muted small mb-0"><?php echo count($membros); ?> membro(s) em <?php echo count($grupos); ?> categoria(s)</p>
     </div>
     <div class="d-flex gap-2">
@@ -88,14 +88,12 @@ foreach ($gruposBrutos as $cNome => $lista) {
             <div class="card-body p-0">
                 <div class="table-responsive">
                     <table class="table table-admin align-middle mb-0">
-                        <thead>
-                            <tr>
-                                <th style="width: 60px;">Avatar</th>
-                                <th>Nick</th>
-                                <th style="width: 200px;">Cargo</th>
-                                <th class="text-end" style="width: 130px;">Ações</th>
-                            </tr>
-                        </thead>
+                        <colgroup>
+                            <col style="width: 50px;">
+                            <col>
+                            <col style="width: 160px;">
+                            <col style="width: 140px;">
+                        </colgroup>
                         <tbody>
                             <?php foreach ($lista as $m): ?>
                                 <tr>
