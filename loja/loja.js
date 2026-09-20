@@ -1285,15 +1285,18 @@
 
       STATE.currentOrder.txid = data.txid;
 
+      const btnReopen = document.getElementById('btn-reopen-checkout-pro');
+      if (btnReopen) btnReopen.href = data.init_point;
+
       if (form) form.hidden = true;
       if (waitingState) waitingState.hidden = false;
-
-      // Abre o Checkout Pro em nova janela
-      window.open(data.init_point, '_blank');
 
       // Inicia contagem regressiva e polling (janela de 2 horas para Checkout Pro)
       iniciarCountdownPix(2 * 3600);
       iniciarPollingPix(data.txid);
+
+      // Redirecionamento na mesma aba para o Checkout Pro
+      window.location.href = data.init_point;
 
     } catch (err) {
       console.error('Erro no checkout internacional:', err);
@@ -1409,38 +1412,57 @@
   }
 
   function iniciarPollingPix(txid) {
-    if (STATE.currentOrder.pollingInterval) {
-      clearInterval(STATE.currentOrder.pollingInterval);
-      STATE.currentOrder.pollingInterval = null;
-    }
+    pararPollingPix();
 
-    STATE.currentOrder.pollingInterval = setInterval(async () => {
-      try {
-        const res = await fetch(`/api/loja/checar_status.php?txid=${encodeURIComponent(txid)}`);
-        if (!res.ok) return;
+    const startTime = Date.now();
+    const MAX_POLLING_MS = 30 * 60 * 1000; // 30 minutos
+    let intervalMs = 5000; // Inicia em 5 segundos
 
-        const data = await res.json();
-        const isPago = (data.status === 'pago' || data.status === 'approved' || data.aprovado === true);
-        const isExpirado = (data.status === 'expirado' || data.status === 'cancelado' || data.expirado === true);
-
-        if (isPago) {
-          pararPollingPix();
-          exibirSucessoCheckout({
-            ...data,
-            metodo: data.metodo || (STATE.activePaymentMethod === 'international' ? 'Checkout Pro Internacional' : (STATE.activePaymentMethod === 'card' ? 'Cartão de Crédito' : 'PIX'))
-          });
-        } else if (isExpirado) {
-          pararPollingPix();
-          exibirExpiradoPix(txid, data.mensagem || 'A cobrança PIX expirou no sistema.');
-        }
-      } catch (e) {
-        // Silencioso
+    const pollTask = async () => {
+      // Se passou de 30 minutos, interrompe o polling automático mantendo botão manual
+      if (Date.now() - startTime > MAX_POLLING_MS) {
+        pararPollingPix();
+        return;
       }
-    }, 3500);
+
+      // Executa apenas se a aba estiver visível para economizar recursos
+      if (document.visibilityState === 'visible') {
+        try {
+          const res = await fetch(`/api/loja/checar_status.php?txid=${encodeURIComponent(txid)}`);
+          if (res.ok) {
+            const data = await res.json();
+            const isPago = (data.status === 'pago' || data.status === 'approved' || data.aprovado === true);
+            const isExpirado = (data.status === 'expirado' || data.status === 'cancelado' || data.expirado === true);
+
+            if (isPago) {
+              pararPollingPix();
+              exibirSucessoCheckout({
+                ...data,
+                metodo: data.metodo || (STATE.activePaymentMethod === 'international' ? 'Checkout Pro Internacional' : (STATE.activePaymentMethod === 'card' ? 'Cartão de Crédito' : 'PIX'))
+              });
+              return;
+            } else if (isExpirado) {
+              pararPollingPix();
+              exibirExpiradoPix(txid, data.mensagem || 'A cobrança expirou no sistema.');
+              return;
+            }
+          }
+        } catch (e) {
+          // Silencioso
+        }
+      }
+
+      // Backoff progressivo até 10s
+      intervalMs = Math.min(10000, intervalMs + 1000);
+      STATE.currentOrder.pollingInterval = setTimeout(pollTask, intervalMs);
+    };
+
+    STATE.currentOrder.pollingInterval = setTimeout(pollTask, intervalMs);
   }
 
   function pararPollingPix() {
     if (STATE.currentOrder.pollingInterval) {
+      clearTimeout(STATE.currentOrder.pollingInterval);
       clearInterval(STATE.currentOrder.pollingInterval);
       STATE.currentOrder.pollingInterval = null;
     }
