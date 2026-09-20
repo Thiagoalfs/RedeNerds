@@ -19,6 +19,47 @@ if ($configPath) {
 
 require_once __DIR__ . "/../wiki_helper.php";
 
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+$isAdmin = !empty($_SESSION['usuario_id']) || !empty($_SESSION['admin_logado']);
+$wikiHabilitada = (isset($pdo) && $pdo instanceof PDO) ? isWikiHabilitada($pdo) : true;
+
+if (!$wikiHabilitada && !$isAdmin) {
+    ?>
+    <!DOCTYPE html>
+    <html lang="pt-BR">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Wiki Indisponível - Rede Nerds</title>
+        <link rel="icon" type="image/x-icon" href="/assets/images/logo.webp">
+        <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+        <style>
+            * { box-sizing: border-box; margin: 0; padding: 0; }
+            body { background: #0b0f19; color: #f1f5f9; font-family: 'Poppins', sans-serif; display: flex; align-items: center; justify-content: center; min-height: 100vh; padding: 20px; text-align: center; }
+            .m-card { background: #131b2e; border: 1px solid rgba(255,255,255,0.1); border-radius: 16px; padding: 40px 24px; max-width: 480px; width: 100%; box-shadow: 0 20px 40px rgba(0,0,0,0.5); }
+            .m-icon { font-size: 3rem; color: #38bdf8; margin-bottom: 16px; }
+            h1 { font-size: 1.4rem; font-weight: 700; margin-bottom: 10px; color: #ffffff; }
+            p { font-size: 0.92rem; color: #94a3b8; line-height: 1.6; margin-bottom: 24px; }
+            .btn-home { display: inline-flex; align-items: center; gap: 8px; background: #2563eb; color: #fff; text-decoration: none; padding: 10px 20px; border-radius: 8px; font-weight: 600; font-size: 0.9rem; transition: background 0.2s ease; }
+            .btn-home:hover { background: #1d4ed8; }
+        </style>
+    </head>
+    <body>
+        <div class="m-card">
+            <i class="fa-solid fa-book-bookmark m-icon"></i>
+            <h1>Wiki Temporariamente Indisponível</h1>
+            <p>A documentação e base de conhecimento da Rede Nerds está passando por atualizações.</p>
+            <a href="/" class="btn-home"><i class="fa-solid fa-house"></i> Voltar ao Início</a>
+        </div>
+    </body>
+    </html>
+    <?php
+    exit;
+}
+
 $servidoresAtivos = (isset($pdo) && $pdo instanceof PDO) ? getServidoresWikiAtivos($pdo) : [];
 $servidorAtual = $servidorAtual ?? null;
 $tituloPagina = $tituloPagina ?? 'Wiki & Guias de Modpacks';
@@ -121,3 +162,8 @@ $themeColor = $themeColor ?? ($servidorAtual['themecolor'] ?? '#6366f1');
             </div>
         </div>
     </nav>
+    <?php if ($isAdmin && !$wikiHabilitada): ?>
+        <div class="bg-warning text-dark text-center py-2 px-3 fw-semibold small shadow-sm" style="font-size: 0.82rem; z-index: 999; position: relative;">
+            <i class="fa-solid fa-triangle-exclamation me-1"></i> <strong>Modo Administrador:</strong> A visualização pública da Wiki está desativada (oculta para visitantes e na barra de navegação).
+        </div>
+    <?php endif; ?>

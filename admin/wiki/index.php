@@ -2,7 +2,9 @@
 $paginaAtiva = 'wiki';
 $tituloPagina = 'Wiki & Tutoriais';
 require_once __DIR__ . "/../includes/admin_header.php";
+require_once __DIR__ . "/../../wiki/wiki_helper.php";
 
+$wikiHabilitada = isWikiHabilitada($pdo);
 $filtroServidor = isset($_GET['servidor_id']) ? (int)$_GET['servidor_id'] : 0;
 $servidores = $pdo->query("SELECT id, servername FROM servidores ORDER BY servername ASC")->fetchAll(PDO::FETCH_ASSOC);
 
@@ -39,11 +41,29 @@ try {
         <h4 class="fw-bold mb-1">Wiki & Base de Conhecimento</h4>
         <p class="text-muted small mb-0"><?php echo count($artigos); ?> artigo(s) cadastrado(s)</p>
     </div>
-    <div class="d-flex gap-2">
+    <div class="d-flex align-items-center flex-wrap gap-2">
+        <!-- TOGGLE GERAL DA WIKI (PÚBLICA / NAVBAR) -->
+        <form method="POST" action="/admin/api/wiki/toggle_geral.php" class="d-inline-flex align-items-center m-0 me-1" id="formToggleWikiGeral">
+            <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($csrfToken, ENT_QUOTES, 'UTF-8'); ?>">
+            <div class="form-check form-switch d-inline-flex align-items-center gap-2 m-0 p-0" title="Ativar ou desativar a visualização pública da Wiki e o link na Navbar do site">
+                <input class="form-check-input ms-0" type="checkbox" role="switch" id="toggleWikiGeralSwitch" name="wiki_habilitada" value="1" <?php echo $wikiHabilitada ? 'checked' : ''; ?> onchange="this.form.submit()" style="cursor: pointer; width: 2.2em; height: 1.15em;">
+                <label class="form-check-label small fw-semibold <?php echo $wikiHabilitada ? 'text-success' : 'text-danger'; ?>" for="toggleWikiGeralSwitch" style="cursor: pointer; user-select: none;">
+                    <?php echo $wikiHabilitada ? '<i class="fa-solid fa-globe me-1"></i>Wiki: Ativa' : '<i class="fa-solid fa-eye-slash me-1"></i>Wiki: Oculta'; ?>
+                </label>
+            </div>
+        </form>
+
         <a href="/wiki/" target="_blank" class="btn btn-outline-secondary btn-sm"><i class="fa-solid fa-arrow-up-right-from-square me-1"></i> Ver Wiki</a>
         <a href="artigo_criar.php" class="btn btn-success btn-sm"><i class="fa-solid fa-plus me-1"></i> Novo Artigo</a>
     </div>
 </div>
+
+<?php if (isset($_GET['msg'])): ?>
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        <i class="fa-solid fa-circle-check me-1"></i> <?php echo htmlspecialchars($_GET['msg'], ENT_QUOTES, 'UTF-8'); ?>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+<?php endif; ?>
 
 <!-- SUB-ABAS DE NAVEGAÇÃO -->
 <div class="d-flex gap-2 mb-3">

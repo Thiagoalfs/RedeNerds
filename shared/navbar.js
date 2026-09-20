@@ -2,7 +2,7 @@ document.addEventListener("DOMContentLoaded", function () {
     // 1. Carrega o Navbar
     const navContainer = document.getElementById("navbar-container");
     if (navContainer) {
-        fetch("/shared/navbar.html?v=1")
+        fetch("/shared/navbar.html?v=2")
             .then(response => {
                 if (!response.ok) throw new Error(`Erro ${response.status} ao buscar ${response.url}`);
                 return response.text();
@@ -11,10 +11,13 @@ document.addEventListener("DOMContentLoaded", function () {
                 navContainer.innerHTML = data;
                 initNavbar();
                 marcarLinkAtivo();
+                verificarStatusWikiNavbar();
             })
             .catch(error => {
                 console.error("Erro ao carregar navbar:", error);
             });
+    } else {
+        verificarStatusWikiNavbar();
     }
 
     // 2. Carrega o Footer
@@ -79,6 +82,23 @@ function marcarLinkAtivo() {
             link.parentElement.classList.add('active');
         }
     });
+}
+
+function verificarStatusWikiNavbar() {
+    fetch("/api/status_wiki.php")
+        .then(res => {
+            if (!res.ok) throw new Error("Erro ao buscar status");
+            return res.json();
+        })
+        .then(data => {
+            if (data && data.wiki_habilitada === false) {
+                document.querySelectorAll(".nav-wiki-item, #navbar a[href*='/wiki/']").forEach(el => {
+                    const li = el.closest('li') || el;
+                    li.style.display = 'none';
+                });
+            }
+        })
+        .catch(() => {});
 }
 
 function initNavbar() {

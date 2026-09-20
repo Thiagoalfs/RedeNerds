@@ -3,6 +3,51 @@
  * wiki_helper.php - Funções e Utilitários da Wiki (Rede Nerds)
  */
 
+if (!function_exists('isWikiHabilitada')) {
+    function isWikiHabilitada(PDO $pdo): bool {
+        try {
+            $pdo->exec("CREATE TABLE IF NOT EXISTS site_config (
+                chave VARCHAR(50) PRIMARY KEY,
+                valor TEXT,
+                atualizado_em DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+            )");
+
+            $stmt = $pdo->prepare("SELECT valor FROM site_config WHERE chave = 'wiki_habilitada' LIMIT 1");
+            $stmt->execute();
+            $val = $stmt->fetchColumn();
+            if ($val === false) {
+                $pdo->exec("INSERT INTO site_config (chave, valor) VALUES ('wiki_habilitada', '1') ON DUPLICATE KEY UPDATE valor = valor");
+                return true;
+            }
+            return ((string)$val === '1' || strtolower((string)$val) === 'true');
+        } catch (Exception $e) {
+            return true;
+        }
+    }
+}
+
+if (!function_exists('setWikiHabilitada')) {
+    function setWikiHabilitada(PDO $pdo, bool $habilitada): bool {
+        try {
+            $pdo->exec("CREATE TABLE IF NOT EXISTS site_config (
+                chave VARCHAR(50) PRIMARY KEY,
+                valor TEXT,
+                atualizado_em DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+            )");
+
+            $valStr = $habilitada ? '1' : '0';
+            $stmt = $pdo->prepare("
+                INSERT INTO site_config (chave, valor) 
+                VALUES ('wiki_habilitada', :val) 
+                ON DUPLICATE KEY UPDATE valor = :val
+            ");
+            return $stmt->execute([':val' => $valStr]);
+        } catch (Exception $e) {
+            return false;
+        }
+    }
+}
+
 if (!function_exists('garantirCategoriasPadraoWiki')) {
     function garantirCategoriasPadraoWiki(PDO $pdo, int $servidorId): void {
         if ($servidorId <= 0) return;
