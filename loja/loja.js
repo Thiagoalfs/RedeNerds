@@ -1293,7 +1293,7 @@
 
       // Inicia contagem regressiva e polling (janela de 2 horas para Checkout Pro)
       iniciarCountdownPix(2 * 3600);
-      iniciarPollingPix(data.txid);
+      iniciarPollingPix(data.txid, 2 * 60 * 60 * 1000);
 
       // Redirecionamento na mesma aba para o Checkout Pro
       window.location.href = data.init_point;
@@ -1378,7 +1378,7 @@
       if (form) form.hidden = true;
       if (waitingState) waitingState.hidden = false;
 
-      iniciarPollingPix(txid);
+      iniciarPollingPix(txid, 2 * 60 * 60 * 1000);
     }
   }
 
@@ -1403,7 +1403,11 @@
       countdownEl.textContent = `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
 
       if (diffSegundos <= 0) {
-        exibirExpiradoPix(STATE.currentOrder.txid, 'Tempo de 15 minutos esgotado.');
+        // Mensagem de expiração calculada dinamicamente com base no tempo total configurado
+        const textoDuracao = segundosTotais >= 3600
+          ? `${Math.round(segundosTotais / 3600)} ${Math.round(segundosTotais / 3600) === 1 ? 'hora' : 'horas'}`
+          : `${Math.round(segundosTotais / 60)} ${Math.round(segundosTotais / 60) === 1 ? 'minuto' : 'minutos'}`;
+        exibirExpiradoPix(STATE.currentOrder.txid, `Tempo de ${textoDuracao} esgotado.`);
       }
     }
 
@@ -1411,15 +1415,15 @@
     STATE.currentOrder.countdownTimer = setInterval(atualizarTimer, 1000);
   }
 
-  function iniciarPollingPix(txid) {
+  function iniciarPollingPix(txid, maxPollingMs = 30 * 60 * 1000) {
     pararPollingPix();
 
     const startTime = Date.now();
-    const MAX_POLLING_MS = 30 * 60 * 1000; // 30 minutos
+    const MAX_POLLING_MS = maxPollingMs;
     let intervalMs = 5000; // Inicia em 5 segundos
 
     const pollTask = async () => {
-      // Se passou de 30 minutos, interrompe o polling automático mantendo botão manual
+      // Se atingiu o tempo limite máximo de polling, interrompe o polling automático mantendo botão manual
       if (Date.now() - startTime > MAX_POLLING_MS) {
         pararPollingPix();
         return;
