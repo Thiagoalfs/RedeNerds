@@ -155,6 +155,8 @@ try {
     echo json_encode([
         "success"              => true,
         "cupom"                => $cupomRow['codigo'],
+        "porcentagem"          => $porcentagem,
+        "desconto"             => $valorDesconto,
         "porcentagem_desconto" => $porcentagem,
         "valor_desconto"       => $valorDesconto,
         "preco_original"       => $precoOriginal,
