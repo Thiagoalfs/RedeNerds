@@ -69,7 +69,7 @@ if (!isset($pdo) || !($pdo instanceof PDO)) {
 
 try {
     // 1. Busca o preço oficial do VIP e seus dados de servidor
-    $stmtVip = $pdo->prepare("SELECT id, nome, preco, servidor_id, servidor FROM vips WHERE id = :id AND (ativo = 1 OR ativo IS NULL) LIMIT 1");
+    $stmtVip = $pdo->prepare("SELECT id, nome, preco, servidor_id FROM vips WHERE id = :id AND (ativo = 1 OR ativo IS NULL) LIMIT 1");
     $stmtVip->execute([':id' => $vipId]);
     $vipRow = $stmtVip->fetch(PDO::FETCH_ASSOC);
 
@@ -114,27 +114,7 @@ try {
     $cupomServidorId = (int)($cupomRow['servidor_id'] ?? 0);
     if ($cupomServidorId > 0) {
         $vipServidorId = (int)($vipRow['servidor_id'] ?? 0);
-        $servidorValido = false;
-
-        if ($vipServidorId > 0) {
-            $servidorValido = ($vipServidorId === $cupomServidorId);
-        } else {
-            $stmtSrv = $pdo->prepare("SELECT id, servername, nome FROM servidores WHERE id = :id LIMIT 1");
-            $stmtSrv->execute([':id' => $cupomServidorId]);
-            $srvInfo = $stmtSrv->fetch(PDO::FETCH_ASSOC);
-            if ($srvInfo) {
-                $vipSrvRaw = trim((string)($vipRow['servidor'] ?? ''));
-                if (
-                    strcasecmp($vipSrvRaw, (string)$srvInfo['servername']) === 0 ||
-                    strcasecmp($vipSrvRaw, (string)$srvInfo['nome']) === 0 ||
-                    strtolower(preg_replace('/[^a-zA-Z0-9]/', '', $vipSrvRaw)) === strtolower(preg_replace('/[^a-zA-Z0-9]/', '', (string)$srvInfo['servername']))
-                ) {
-                    $servidorValido = true;
-                }
-            }
-        }
-
-        if (!$servidorValido) {
+        if ($vipServidorId > 0 && $vipServidorId !== $cupomServidorId) {
             $stmtSrvNome = $pdo->prepare("SELECT servername FROM servidores WHERE id = :id LIMIT 1");
             $stmtSrvNome->execute([':id' => $cupomServidorId]);
             $srvNome = $stmtSrvNome->fetchColumn() ?: 'outro servidor';

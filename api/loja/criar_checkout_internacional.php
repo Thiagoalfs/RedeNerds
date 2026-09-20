@@ -138,7 +138,7 @@ if (!isset($pdo) || !($pdo instanceof PDO)) {
 }
 
 try {
-    $stmtVip = $pdo->prepare("SELECT nome, preco, servidor_id, servidor FROM vips WHERE id = :id AND (ativo = 1 OR ativo IS NULL) LIMIT 1");
+    $stmtVip = $pdo->prepare("SELECT id, nome, preco, servidor_id FROM vips WHERE id = :id AND (ativo = 1 OR ativo IS NULL) LIMIT 1");
     $stmtVip->execute([':id' => $vipId]);
     $vipRow = $stmtVip->fetch(PDO::FETCH_ASSOC);
 

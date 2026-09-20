@@ -95,7 +95,7 @@ if (!isset($pdo) || !($pdo instanceof PDO)) {
     exit;
 }
 
-$stmtVip = $pdo->prepare("SELECT id, nome, preco, servidor_id, servidor FROM vips WHERE id = :id AND (ativo = 1 OR ativo IS NULL) LIMIT 1");
+$stmtVip = $pdo->prepare("SELECT id, nome, preco, servidor_id FROM vips WHERE id = :id AND (ativo = 1 OR ativo IS NULL) LIMIT 1");
 $stmtVip->execute([':id' => $vipId]);
 $vipRow = $stmtVip->fetch(PDO::FETCH_ASSOC);
 
@@ -132,24 +132,10 @@ $servidor = (string)$srvRow['servername'];
 
 // Confere se o servidor do VIP corresponde ao servidor selecionado
 $vipServidorId = (int)($vipRow['servidor_id'] ?? 0);
-$vipSrvRaw = trim((string)($vipRow['servidor'] ?? ''));
-
-if ($vipServidorId > 0) {
-    if ($vipServidorId !== $servidorId) {
-        http_response_code(400);
-        echo json_encode(["erro" => "O pacote VIP selecionado não pertence ao servidor {$servidor}."], JSON_UNESCAPED_UNICODE);
-        exit;
-    }
-} elseif (!empty($vipSrvRaw)) {
-    if (
-        strcasecmp($vipSrvRaw, $srvRow['servername']) !== 0 &&
-        strcasecmp($vipSrvRaw, $srvRow['nome']) !== 0 &&
-        strtolower(preg_replace('/[^a-zA-Z0-9]/', '', $vipSrvRaw)) !== strtolower(preg_replace('/[^a-zA-Z0-9]/', '', $srvRow['servername']))
-    ) {
-        http_response_code(400);
-        echo json_encode(["erro" => "O pacote VIP selecionado não pertence ao servidor {$servidor}."], JSON_UNESCAPED_UNICODE);
-        exit;
-    }
+if ($vipServidorId > 0 && $vipServidorId !== $servidorId) {
+    http_response_code(400);
+    echo json_encode(["erro" => "O pacote VIP selecionado não pertence ao servidor {$servidor}."], JSON_UNESCAPED_UNICODE);
+    exit;
 }
 
 // Validação de Cupom de Desconto se fornecido
@@ -177,34 +163,14 @@ if (!empty($cupomEnviado)) {
 
         // Verifica restrição de servidor do cupom
         $cupomServidorId = (int)($cupomRow['servidor_id'] ?? 0);
-        if ($cupomServidorId > 0) {
-            $servidorValido = false;
-            if ($vipServidorId > 0) {
-                $servidorValido = ($vipServidorId === $cupomServidorId);
-            } else {
-                $stmtSrvCheck = $pdo->prepare("SELECT id, servername, nome FROM servidores WHERE id = :id LIMIT 1");
-                $stmtSrvCheck->execute([':id' => $cupomServidorId]);
-                $srvInfo = $stmtSrvCheck->fetch(PDO::FETCH_ASSOC);
-                if ($srvInfo) {
-                    if (
-                        strcasecmp($vipSrvRaw, (string)$srvInfo['servername']) === 0 ||
-                        strcasecmp($vipSrvRaw, (string)$srvInfo['nome']) === 0 ||
-                        strtolower(preg_replace('/[^a-zA-Z0-9]/', '', $vipSrvRaw)) === strtolower(preg_replace('/[^a-zA-Z0-9]/', '', (string)$srvInfo['servername']))
-                    ) {
-                        $servidorValido = true;
-                    }
-                }
-            }
+        if ($cupomServidorId > 0 && $cupomServidorId !== $servidorId) {
+            $stmtSrvNome = $pdo->prepare("SELECT servername FROM servidores WHERE id = :id LIMIT 1");
+            $stmtSrvNome->execute([':id' => $cupomServidorId]);
+            $srvNome = $stmtSrvNome->fetchColumn() ?: 'outro servidor';
 
-            if (!$servidorValido) {
-                $stmtSrvNome = $pdo->prepare("SELECT servername FROM servidores WHERE id = :id LIMIT 1");
-                $stmtSrvNome->execute([':id' => $cupomServidorId]);
-                $srvNome = $stmtSrvNome->fetchColumn() ?: 'outro servidor';
-
-                http_response_code(400);
-                echo json_encode(["erro" => "O cupom '{$cupomEnviado}' é válido exclusivamente para compras no servidor {$srvNome}."], JSON_UNESCAPED_UNICODE);
-                exit;
-            }
+            http_response_code(400);
+            echo json_encode(["erro" => "O cupom '{$cupomEnviado}' é válido exclusivamente para compras no servidor {$srvNome}."], JSON_UNESCAPED_UNICODE);
+            exit;
         }
 
         $porcentagem = (float)$cupomRow['porcentagem_desconto'];

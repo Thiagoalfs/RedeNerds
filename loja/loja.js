@@ -684,7 +684,12 @@
         })
       });
 
-      const data = await res.json();
+      let data = null;
+      try {
+        data = await res.json();
+      } catch (jsonErr) {
+        throw new Error(`Erro na resposta do servidor (HTTP ${res.status}).`);
+      }
 
       if (!res.ok || data.erro || !data.success) {
         throw new Error(data.erro || 'Cupom inválido ou expirado.');
@@ -790,7 +795,13 @@
         body: JSON.stringify(payload)
       });
 
-      const data = await res.json();
+      let data = null;
+      try {
+        data = await res.json();
+      } catch (jsonErr) {
+        throw new Error(`Erro na resposta do servidor (HTTP ${res.status}).`);
+      }
+
       if (!res.ok || data.erro || !data.txid) {
         throw new Error(data.erro || 'Falha ao criar transação PIX.');
       }
@@ -1172,7 +1183,12 @@
         body: JSON.stringify(payload)
       });
 
-      const data = await res.json();
+      let data = null;
+      try {
+        data = await res.json();
+      } catch (jsonErr) {
+        throw new Error(`Erro na resposta do servidor (HTTP ${res.status}).`);
+      }
 
       if (!res.ok || data.erro || !data.success) {
         throw new Error(data.erro || 'Pagamento recusado pela operadora.');
@@ -1278,7 +1294,13 @@
         body: JSON.stringify(payload)
       });
 
-      const data = await res.json();
+      let data = null;
+      try {
+        data = await res.json();
+      } catch (jsonErr) {
+        throw new Error(`Erro na resposta do servidor (HTTP ${res.status}).`);
+      }
+
       if (!res.ok || data.erro || !data.init_point) {
         throw new Error(data.erro || 'Failed to create international payment preference.');
       }
