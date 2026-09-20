@@ -22,15 +22,6 @@
                 sidebar.classList.remove('open');
                 overlay.classList.remove('active');
             });
-        // Alternar tema Dark/Light
-        const btnThemeToggle = document.getElementById('btn-theme-toggle');
-        if (btnThemeToggle) {
-            btnThemeToggle.addEventListener('click', () => {
-                const currentTheme = document.documentElement.getAttribute('data-theme') || 'dark';
-                const nextTheme = (currentTheme === 'dark') ? 'light' : 'dark';
-                document.documentElement.setAttribute('data-theme', nextTheme);
-                localStorage.setItem('admin_theme', nextTheme);
-            });
         }
     });
     </script>

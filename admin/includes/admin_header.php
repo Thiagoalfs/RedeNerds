@@ -41,7 +41,7 @@ $tituloPagina = $tituloPagina ?? 'Painel Administrativo';
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     
     <!-- FOLHA DE ESTILOS CENTRALIZADA -->
-    <link rel="stylesheet" href="/admin/admin.css?v=3">
+    <link rel="stylesheet" href="/admin/admin.css?v=5">
 
     <!-- SCRIPT DE TEMA (ANTI-FLICKER - PADRÃO DARK) -->
     <script>
@@ -49,6 +49,13 @@ $tituloPagina = $tituloPagina ?? 'Painel Administrativo';
         const savedTheme = localStorage.getItem('admin_theme') || 'dark';
         document.documentElement.setAttribute('data-theme', savedTheme);
     })();
+
+    function alternarTemaAdmin() {
+        const currentTheme = document.documentElement.getAttribute('data-theme') || localStorage.getItem('admin_theme') || 'dark';
+        const nextTheme = (currentTheme === 'dark') ? 'light' : 'dark';
+        document.documentElement.setAttribute('data-theme', nextTheme);
+        localStorage.setItem('admin_theme', nextTheme);
+    }
     </script>
 </head>
 <body>
@@ -73,7 +80,7 @@ $tituloPagina = $tituloPagina ?? 'Painel Administrativo';
 
                 <div class="topbar-right">
                     <!-- BOTÃO ALTERNAR TEMA (DARK / LIGHT) -->
-                    <button type="button" class="btn-theme-toggle" id="btn-theme-toggle" title="Alternar tema (Claro / Escuro)" aria-label="Alternar tema">
+                    <button type="button" class="btn-theme-toggle" id="btn-theme-toggle" onclick="alternarTemaAdmin()" title="Alternar tema (Claro / Escuro)" aria-label="Alternar tema">
                         <i class="fa-solid fa-moon theme-icon-dark"></i>
                         <i class="fa-solid fa-sun theme-icon-light"></i>
                         <span class="theme-label d-none d-xl-inline">Tema</span>

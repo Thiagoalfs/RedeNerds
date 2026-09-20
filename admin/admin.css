@@ -756,19 +756,53 @@ body {
 }
 
 /* Tabelas no Dark Mode */
+[data-theme="dark"] .table,
+[data-theme="dark"] .table-admin {
+  --bs-table-bg: #111827 !important;
+  --bs-table-color: #f8fafc !important;
+  --bs-table-border-color: #1e293b !important;
+  --bs-table-hover-bg: #162032 !important;
+  --bs-table-hover-color: #ffffff !important;
+  --bs-table-striped-bg: #151d2f !important;
+  --bs-table-striped-color: #f8fafc !important;
+  --bs-table-active-bg: #162032 !important;
+  --bs-table-active-color: #ffffff !important;
+  color: #f8fafc !important;
+  background-color: #111827 !important;
+  border-color: #1e293b !important;
+}
+
+[data-theme="dark"] .table > :not(caption) > * > *,
+[data-theme="dark"] .table-admin > :not(caption) > * > * {
+  background-color: #111827 !important;
+  color: #f8fafc !important;
+  border-bottom-color: #1e293b !important;
+  box-shadow: none !important;
+}
+
+[data-theme="dark"] .table thead th,
 [data-theme="dark"] .table-admin thead th {
-  background-color: #0f172a;
-  color: #94a3b8;
-  border-bottom-color: #1e293b;
+  background-color: #0c1220 !important;
+  color: #94a3b8 !important;
+  border-bottom-color: #1e293b !important;
 }
 
+[data-theme="dark"] .table tbody td,
 [data-theme="dark"] .table-admin tbody td {
-  color: #e2e8f0;
-  border-bottom-color: #1e293b;
+  background-color: #111827 !important;
+  color: #f8fafc !important;
+  border-bottom-color: #1e293b !important;
 }
 
+[data-theme="dark"] .table tbody tr:hover td,
 [data-theme="dark"] .table-admin tbody tr:hover td {
-  background-color: #162032;
+  background-color: #162032 !important;
+  color: #ffffff !important;
+}
+
+[data-theme="dark"] .admin-card {
+  background-color: #111827 !important;
+  border-color: #1e293b !important;
 }
 
 /* Formulários e Inputs */
@@ -817,6 +851,17 @@ body {
 
 [data-theme="dark"] .text-dark {
   color: #f8fafc !important;
+}
+
+[data-theme="dark"] .text-muted,
+[data-theme="dark"] .text-secondary {
+  color: #94a3b8 !important;
+}
+
+[data-theme="dark"] small.text-muted,
+[data-theme="dark"] .small.text-muted,
+[data-theme="dark"] p.text-muted {
+  color: #94a3b8 !important;
 }
 
 [data-theme="dark"] .border {
