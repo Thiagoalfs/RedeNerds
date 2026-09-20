@@ -143,12 +143,14 @@
 /* 3. AVISO BLOQUEADO (SEM NICK)                            */
 /* ======================================================== */
 .loja-locked-banner {
-  background: var(--color-surface);
-  border: var(--border-width-sm) solid var(--color-border);
-  border-radius: var(--radius-md);
+  background: linear-gradient(180deg, #111622 0%, #0a0d14 100%);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-top: 2px solid #38bdf8;
+  border-radius: 12px;
   padding: 3rem 1.5rem;
   text-align: center;
   margin-bottom: 2rem;
+  box-shadow: 0 8px 24px -4px rgba(0, 0, 0, 0.5);
 }
 
 .locked-card-body {
@@ -157,57 +159,61 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 1rem;
+  gap: 1.1rem;
 }
 
 .locked-icon-box {
-  width: 46px;
-  height: 46px;
-  border-radius: 10px;
-  background: rgba(56, 189, 248, 0.1);
-  border: 1px solid rgba(56, 189, 248, 0.2);
-  color: var(--color-primary);
+  width: 52px;
+  height: 52px;
+  border-radius: 12px;
+  background: rgba(56, 189, 248, 0.12);
+  border: 1px solid rgba(56, 189, 248, 0.3);
+  color: #38bdf8;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1.3rem;
+  font-size: 1.4rem;
 }
 
 .locked-text-content h2 {
-  font-family: var(--font-main);
-  font-size: 1.3rem;
-  font-weight: 700;
+  font-family: 'Outfit', var(--font-main);
+  font-size: 1.4rem;
+  font-weight: 800;
   color: #FFFFFF;
-  margin: 0 0 0.4rem 0;
+  margin: 0 0 0.45rem 0;
+  letter-spacing: -0.2px;
 }
 
 .locked-text-content p {
-  font-size: 0.88rem;
-  color: var(--color-text-muted);
+  font-size: 0.9rem;
+  color: #94a3b8;
   margin: 0;
   line-height: 1.5;
 }
 
 .btn-solid-primary {
-  background: #E2E8F0;
-  color: #0F172A;
-  font-family: var(--font-main);
-  font-weight: 700;
-  font-size: 0.88rem;
-  padding: 0.65rem 1.4rem;
+  background: #38bdf8;
+  color: #07090e;
+  font-family: 'Outfit', var(--font-main);
+  font-weight: 800;
+  font-size: 0.92rem;
+  padding: 0.75rem 1.4rem;
   border: none;
-  border-radius: var(--radius-sm);
+  border-radius: 6px;
   cursor: pointer;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
-  transition: background-color 0.15s ease;
+  transition: all 0.18s ease;
   text-decoration: none;
+  letter-spacing: 0.3px;
 }
 
 .btn-solid-primary:hover {
-  background: #FFFFFF;
+  background: #7dd3fc;
+  box-shadow: 0 4px 16px rgba(56, 189, 248, 0.35);
+  transform: translateY(-1px);
 }
 
 .btn-block {
@@ -215,24 +221,26 @@
 }
 
 /* ======================================================== */
-/* 4. SELETOR DE SERVIDORES (SEGMENTED TABS)                */
+/* 4. SELETOR DE SERVIDORES                                 */
 /* ======================================================== */
 .server-selector-container {
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: center;
   text-align: center;
-  gap: 0.65rem;
+  gap: 0.75rem;
   margin-bottom: 2.2rem;
+  width: 100%;
 }
 
 .section-label {
-  font-family: var(--font-mono);
-  font-size: 0.75rem;
+  font-family: 'Outfit', var(--font-main);
+  font-size: 0.8rem;
   font-weight: 700;
   color: var(--color-text-dim);
   text-transform: uppercase;
-  letter-spacing: 0.5px;
+  letter-spacing: 0.8px;
   text-align: center;
 }
 
@@ -248,50 +256,36 @@
   width: fit-content;
   max-width: 100%;
   box-sizing: border-box;
+  flex-wrap: wrap;
 }
 
 .server-tab {
   background: transparent;
   border: 1px solid transparent;
   color: var(--color-text-muted);
-  font-family: var(--font-main);
-  font-size: 0.88rem;
-  font-weight: 600;
-  padding: 0.45rem 1rem;
+  font-family: 'Outfit', var(--font-main);
+  font-size: 0.9rem;
+  font-weight: 700;
+  padding: 0.5rem 1.25rem;
   border-radius: 6px;
   cursor: pointer;
   display: inline-flex;
   align-items: center;
-  gap: 0.55rem;
+  justify-content: center;
   transition: all 0.15s ease;
   user-select: none;
 }
 
-.server-color-dot {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  flex-shrink: 0;
-  transition: transform 0.15s ease;
-}
-
 .server-tab:hover {
   color: #FFFFFF;
-  background: rgba(255, 255, 255, 0.04);
-}
-
-.server-tab:hover .server-color-dot {
-  transform: scale(1.25);
+  background: rgba(255, 255, 255, 0.05);
 }
 
 .server-tab.active {
   background: var(--color-surface-subtle);
   border-color: var(--server-color, var(--color-border-strong));
   color: #FFFFFF;
-}
-
-.server-tab.active .server-color-dot {
-  box-shadow: 0 0 6px var(--server-color, transparent);
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
 }
 
 /* ======================================================== */
@@ -305,13 +299,13 @@
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
-  gap: 1.25rem;
+  gap: 1.35rem;
 }
 
 @keyframes slideDownCard {
   0% {
     opacity: 0;
-    transform: translateY(-20px);
+    transform: translateY(-16px);
   }
   100% {
     opacity: 1;
@@ -325,15 +319,19 @@
   max-width: 360px;
   min-width: 280px;
   box-sizing: border-box;
-  background: var(--color-surface);
-  border: var(--border-width-sm) solid var(--color-border);
-  border-radius: var(--radius-md);
-  padding: 1.4rem;
+  background: linear-gradient(180deg, #111622 0%, #0a0d14 100%);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-top: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 12px;
+  padding: 1.5rem 1.4rem;
   display: flex;
   flex-direction: column;
   opacity: 0;
+  position: relative;
+  z-index: 1;
+  box-shadow: 0 8px 24px -4px rgba(0, 0, 0, 0.5);
   animation: slideDownCard 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-  transition: border-color 0.15s ease, background-color 0.15s ease;
+  transition: border-color 0.2s ease, background-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease, z-index 0s;
 }
 
 @media (max-width: 640px) {
@@ -343,85 +341,98 @@
   }
 }
 
-.vip-card:hover {
-  background: var(--color-surface-hover);
-  border-color: var(--color-border-strong);
+.vip-card:hover,
+.vip-card:focus-within {
+  border-color: rgba(255, 255, 255, 0.22);
+  border-top-color: rgba(255, 255, 255, 0.38);
+  box-shadow: 0 16px 36px -4px rgba(0, 0, 0, 0.7);
+  z-index: 30;
 }
 
 .vip-card.is-featured {
-  border-color: rgba(245, 158, 11, 0.4);
-  background: var(--color-surface);
+  border: 1px solid rgba(245, 158, 11, 0.35);
+  border-top: 2px solid #f59e0b;
+  background: linear-gradient(180deg, #161c28 0%, #0c1017 100%);
+  box-shadow: 0 10px 32px -4px rgba(245, 158, 11, 0.12), 0 8px 24px -4px rgba(0, 0, 0, 0.5);
 }
 
 .vip-card.is-featured:hover {
-  border-color: var(--color-warning);
+  border-color: rgba(245, 158, 11, 0.55);
+  border-top-color: #fbbf24;
+  box-shadow: 0 16px 40px -4px rgba(245, 158, 11, 0.22), 0 12px 32px -4px rgba(0, 0, 0, 0.7);
+  z-index: 30;
 }
 
 .vip-card-head {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 0.4rem;
+  margin-bottom: 0.5rem;
 }
 
 .vip-server-label {
-  font-family: var(--font-mono);
+  font-family: 'Outfit', var(--font-main);
   font-size: 0.72rem;
   font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
-  color: var(--color-text-dim);
+  letter-spacing: 0.8px;
+  color: var(--color-accent);
 }
 
 .featured-pill {
-  font-family: var(--font-mono);
+  font-family: 'Outfit', var(--font-main);
   font-size: 0.68rem;
-  font-weight: 700;
+  font-weight: 800;
   text-transform: uppercase;
-  letter-spacing: 0.4px;
-  background: rgba(245, 158, 11, 0.12);
-  color: var(--color-warning);
-  padding: 2px 6px;
+  letter-spacing: 0.6px;
+  background: rgba(245, 158, 11, 0.16);
+  color: #fbbf24;
+  padding: 3px 8px;
   border-radius: 4px;
-  border: 1px solid rgba(245, 158, 11, 0.3);
+  border: 1px solid rgba(245, 158, 11, 0.4);
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
 }
 
 .vip-title {
-  font-family: var(--font-main);
-  font-size: 1.3rem;
-  font-weight: 700;
+  font-family: 'Outfit', var(--font-main);
+  font-size: 1.45rem;
+  font-weight: 800;
   color: #FFFFFF;
+  letter-spacing: -0.2px;
   margin: 0 0 0.5rem 0;
 }
 
 .vip-price-container {
   display: flex;
   align-items: baseline;
-  gap: 0.3rem;
-  padding-bottom: 1rem;
-  margin-bottom: 1.1rem;
-  border-bottom: 1px solid var(--color-border);
+  gap: 0.35rem;
+  padding-bottom: 1.1rem;
+  margin-bottom: 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 .price-currency {
-  font-family: var(--font-mono);
-  font-size: 0.9rem;
-  font-weight: 600;
+  font-family: 'Outfit', var(--font-main);
+  font-size: 0.95rem;
+  font-weight: 700;
   color: var(--color-text-muted);
 }
 
 .price-val {
-  font-family: var(--font-main);
-  font-size: 1.85rem;
-  font-weight: 700;
+  font-family: 'Outfit', var(--font-main);
+  font-size: 2.1rem;
+  font-weight: 800;
   color: #FFFFFF;
   letter-spacing: -0.5px;
 }
 
 .price-period {
   font-family: var(--font-mono);
-  font-size: 0.78rem;
+  font-size: 0.76rem;
   color: var(--color-text-dim);
+  margin-left: 2px;
 }
 
 .vip-benefits {
@@ -430,61 +441,115 @@
   margin: 0 0 1.5rem 0;
   display: flex;
   flex-direction: column;
-  gap: 0.65rem;
+  gap: 0.7rem;
   flex: 1;
 }
 
 .vip-benefits li {
-  font-size: 0.84rem;
-  color: var(--color-text-main);
+  font-size: 0.85rem;
+  color: #cbd5e1;
   display: flex;
-  align-items: flex-start;
-  gap: 0.55rem;
+  align-items: center;
+  gap: 0.65rem;
   line-height: 1.45;
 }
 
+.vip-benefits li.vip-benefit-hero {
+  color: #FFFFFF;
+  font-weight: 700;
+  font-size: 0.88rem;
+  padding: 0.75rem 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  margin-bottom: 0.75rem;
+}
+
+.vip-card.is-featured .vip-benefits li.vip-benefit-hero {
+  border-bottom-color: rgba(245, 158, 11, 0.2);
+}
+
+.vip-tag-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1px 7px;
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.09);
+  font-family: 'Outfit', var(--font-mono);
+  font-size: 0.82rem;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  line-height: 1.2;
+  vertical-align: middle;
+  margin: 0 4px;
+  position: relative;
+  top: -1px;
+}
+
 .vip-benefits li i {
-  color: var(--color-success);
-  font-size: 0.75rem;
-  margin-top: 3px;
+  color: #38bdf8;
+  font-size: 0.8rem;
+  line-height: 1;
   flex-shrink: 0;
+  width: 14px;
+  text-align: center;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.vip-card.is-featured .vip-benefits li i {
+  color: #fbbf24;
 }
 
 .btn-purchase-card {
   width: 100%;
-  background: var(--color-surface-subtle);
-  border: var(--border-width-sm) solid var(--color-border);
-  color: var(--color-text-main);
-  font-family: var(--font-main);
-  font-size: 0.85rem;
-  font-weight: 600;
-  padding: 0.7rem 1rem;
-  border-radius: var(--radius-sm);
+  background: #182234;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: #FFFFFF;
+  font-family: 'Outfit', var(--font-main);
+  font-size: 0.9rem;
+  font-weight: 700;
+  padding: 0.8rem 1.1rem;
+  border-radius: 6px;
   cursor: pointer;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 0.45rem;
-  transition: all 0.15s ease;
+  gap: 0.6rem;
+  transition: all 0.18s ease;
+  letter-spacing: 0.3px;
+}
+
+.btn-purchase-card i {
+  font-size: 0.8rem;
+  transition: transform 0.18s ease;
 }
 
 .btn-purchase-card:hover {
-  background: #E2E8F0;
-  border-color: #E2E8F0;
-  color: #0F172A;
-  font-weight: 700;
+  background: #38bdf8;
+  border-color: #38bdf8;
+  color: #07090e;
+  font-weight: 800;
+  box-shadow: 0 4px 16px rgba(56, 189, 248, 0.35);
+}
+
+.btn-purchase-card:hover i {
+  transform: translateX(3px);
 }
 
 .vip-card.is-featured .btn-purchase-card {
-  background: rgba(245, 158, 11, 0.12);
-  border-color: rgba(245, 158, 11, 0.35);
-  color: #FFFFFF;
+  background: #f59e0b;
+  border-color: #f59e0b;
+  color: #07090e;
+  font-weight: 800;
 }
 
 .vip-card.is-featured .btn-purchase-card:hover {
-  background: var(--color-warning);
-  border-color: var(--color-warning);
-  color: #0F172A;
+  background: #fbbf24;
+  border-color: #fbbf24;
+  color: #07090e;
+  box-shadow: 0 4px 18px rgba(245, 158, 11, 0.4);
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -557,6 +622,7 @@
 /* ======================================================== */
 /* 8. MODAIS DIALOG (OPACO, SÓLIDO, RESPONSIVO & SCROLL)   */
 /* ======================================================== */
+dialog.loja-dialog,
 .loja-dialog {
   position: fixed;
   top: 0;
@@ -578,18 +644,25 @@
   -webkit-overflow-scrolling: touch;
 }
 
+dialog.loja-dialog:not([hidden]),
+.loja-dialog:not([hidden]) {
+  display: flex !important;
+}
+
+dialog.loja-dialog[hidden],
 .loja-dialog[hidden] {
   display: none !important;
 }
 
 .dialog-card {
-  background: #111622;
-  border: 1px solid var(--color-border-strong);
-  border-radius: var(--radius-md);
+  background: linear-gradient(180deg, #111622 0%, #0a0d14 100%);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-top: 2px solid #38bdf8;
+  border-radius: 12px;
   width: 100%;
   max-width: 440px;
   max-height: min(92vh, 760px);
-  box-shadow: var(--shadow-hard);
+  box-shadow: 0 20px 50px -10px rgba(0, 0, 0, 0.8), 0 0 0 1px rgba(255, 255, 255, 0.05);
   display: flex;
   flex-direction: column;
   box-sizing: border-box;
@@ -607,22 +680,23 @@
 }
 
 .dialog-header {
-  padding: 1rem 1.25rem;
-  border-bottom: 1px solid var(--color-border);
+  padding: 1.1rem 1.35rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
   display: flex;
   align-items: center;
   justify-content: space-between;
   flex-shrink: 0;
-  background: #111622;
+  background: transparent;
   z-index: 2;
 }
 
 .dialog-header h3 {
   margin: 0;
-  font-family: var(--font-main);
-  font-size: 1.05rem;
-  font-weight: 700;
+  font-family: 'Outfit', var(--font-main);
+  font-size: 1.15rem;
+  font-weight: 800;
   color: #FFFFFF;
+  letter-spacing: -0.2px;
 }
 
 .dialog-close-btn {
@@ -645,7 +719,7 @@
 }
 
 .dialog-body {
-  padding: 1.15rem 1.35rem 1.35rem 1.35rem;
+  padding: 1.25rem 1.4rem 1.4rem 1.4rem;
   display: flex;
   flex-direction: column;
   gap: 1.1rem;
@@ -679,24 +753,33 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 0.4rem;
-  margin-bottom: 0.25rem;
+  gap: 0.5rem;
+  margin-bottom: 0.4rem;
 }
 
 .avatar-preview-box img {
-  width: 56px;
-  height: 56px;
-  border-radius: 8px;
-  border: var(--border-width-sm) solid var(--color-border);
+  width: 64px;
+  height: 64px;
+  border-radius: 10px;
+  border: 2px solid rgba(56, 189, 248, 0.35);
   background: #000;
   image-rendering: pixelated;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5);
 }
 
 .preview-nick-name {
-  font-family: var(--font-main);
-  font-size: 0.9rem;
-  font-weight: 700;
+  font-family: 'Outfit', var(--font-main);
+  font-size: 1.05rem;
+  font-weight: 800;
   color: #FFFFFF;
+  letter-spacing: 0.2px;
+}
+
+#form-nick-step {
+  display: flex;
+  flex-direction: column;
+  gap: 1.15rem;
+  width: 100%;
 }
 
 .form-field {
@@ -707,27 +790,32 @@
 }
 
 .form-field label {
-  font-size: 0.8rem;
-  font-weight: 600;
-  color: var(--color-text-muted);
+  font-family: 'Outfit', var(--font-main);
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  color: #94a3b8;
 }
 
 .form-field input[type="text"] {
-  background: #0A0D14;
-  border: var(--border-width-sm) solid var(--color-border);
-  border-radius: var(--radius-sm);
-  padding: 0.75rem 0.9rem;
-  font-family: var(--font-main);
-  font-size: 0.9rem;
+  background: rgba(10, 13, 20, 0.85);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 6px;
+  padding: 0.8rem 0.95rem;
+  font-family: 'Outfit', var(--font-main);
+  font-size: 0.95rem;
+  font-weight: 600;
   color: #FFFFFF;
   outline: none;
   box-sizing: border-box;
   width: 100%;
-  transition: border-color 0.15s ease;
+  transition: all 0.15s ease;
 }
 
 .form-field input[type="text"]:focus {
-  border-color: var(--color-primary);
+  border-color: #38bdf8;
+  box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.2);
 }
 
 .field-error {
@@ -822,8 +910,9 @@
 }
 
 .summary-subtext {
-  font-size: 0.75rem;
-  color: var(--color-primary);
+  font-family: 'Outfit', var(--font-main);
+  font-size: 0.8rem;
+  line-height: 1.3;
 }
 
 .summary-price-col {
@@ -1234,6 +1323,22 @@
 /* ======================================================== */
 .checkout-dialog-card {
   max-width: 480px;
+}
+
+.checkout-methods-section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+  width: 100%;
+}
+
+.checkout-methods-label {
+  font-family: 'Outfit', var(--font-main);
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  color: #94a3b8;
 }
 
 .checkout-methods-nav {

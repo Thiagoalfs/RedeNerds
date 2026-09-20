@@ -7,17 +7,16 @@
   'use strict';
 
   const STORAGE_KEY_NICK = 'redenerds_loja_nick';
-  const STORAGE_KEY_TIPO = 'redenerds_loja_tipo_conta';
   const DEFAULT_AVATAR = 'https://mc-heads.net/avatar/MHF_Steve/128';
 
   const STATE = {
     nick: localStorage.getItem(STORAGE_KEY_NICK) || '',
-    tipoConta: localStorage.getItem(STORAGE_KEY_TIPO) || 'original',
+    tipoConta: 'original',
     servidores: [],
     selectedServer: null,
     mpPublicKey: '',
     mpInstance: null,
-    activePaymentMethod: 'pix', // 'pix' | 'card' (arquitetura modular extensível)
+    activePaymentMethod: null, // 'pix' | 'card' | 'international' (selecionado ativamente pelo usuário)
     appliedCoupon: null, // { cupom, porcentagem, desconto, preco_original, preco_final }
     currentOrder: {
       txid: null,
@@ -74,15 +73,6 @@
         debounceTimer = setTimeout(() => atualizarPreviewAvatar(val), 200);
       });
     }
-
-    const accountBtns = document.querySelectorAll('.toggle-btn');
-    accountBtns.forEach(btn => {
-      btn.addEventListener('click', () => {
-        accountBtns.forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-        STATE.tipoConta = btn.dataset.type || 'original';
-      });
-    });
 
     const formNick = document.getElementById('form-nick-step');
     if (formNick) {
@@ -158,6 +148,13 @@
     }
 
     document.addEventListener('click', (e) => {
+      const openNickBtn = e.target.closest('#btn-open-nick-modal, #btn-trocar-nick');
+      if (openNickBtn) {
+        e.preventDefault();
+        abrirModalNick(Boolean(STATE.nick));
+        return;
+      }
+
       const btn = e.target.closest('.benefit-info-btn');
       if (btn) {
         e.preventDefault();
@@ -186,19 +183,25 @@
       atualizarPreviewAvatar(STATE.nick);
     }
 
-    const accountBtns = document.querySelectorAll('.toggle-btn');
-    accountBtns.forEach(btn => {
-      btn.classList.toggle('active', (btn.dataset.type === STATE.tipoConta));
-    });
-
+    dialog.removeAttribute('hidden');
     dialog.hidden = false;
     document.body.style.overflow = 'hidden';
-    if (inputNick) inputNick.focus();
+    if (inputNick) {
+      setTimeout(() => {
+        try {
+          inputNick.focus();
+          inputNick.select();
+        } catch (_) {}
+      }, 50);
+    }
   }
 
   function fecharModalNick() {
     const dialog = document.getElementById('modal-nick-overlay');
-    if (dialog) dialog.hidden = true;
+    if (dialog) {
+      dialog.setAttribute('hidden', '');
+      dialog.hidden = true;
+    }
     document.body.style.overflow = '';
   }
 
@@ -240,7 +243,6 @@
 
     STATE.nick = rawNick;
     localStorage.setItem(STORAGE_KEY_NICK, STATE.nick);
-    localStorage.setItem(STORAGE_KEY_TIPO, STATE.tipoConta);
 
     fecharModalNick();
     liberarPainelLoja();
@@ -254,14 +256,9 @@
 
     const avatar = document.getElementById('profile-avatar-img');
     const nickDisplay = document.getElementById('profile-nick-display');
-    const badge = document.getElementById('profile-account-type-badge');
 
     if (avatar) avatar.src = `https://mc-heads.net/avatar/${encodeURIComponent(STATE.nick)}/64`;
     if (nickDisplay) nickDisplay.textContent = STATE.nick;
-    if (badge) {
-      badge.textContent = STATE.tipoConta === 'original' ? 'Original' : 'Pirata';
-      badge.className = `account-badge badge-${STATE.tipoConta}`;
-    }
 
     if (bar) bar.hidden = false;
     if (banner) banner.hidden = true;
@@ -345,7 +342,6 @@
 
       html += `
         <button type="button" class="server-tab ${isSelected ? 'active' : ''}" data-server-id="${escapeHTML(srv.id)}" style="--server-color: ${escapeHTML(srvColor)};" role="tab" aria-selected="${isSelected ? 'true' : 'false'}">
-          <span class="server-color-dot" style="background-color: ${escapeHTML(srvColor)};"></span>
           <span>${escapeHTML(srv.nome)}</span>
         </button>
       `;
@@ -418,12 +414,12 @@
 
         const cor1 = (vip.cor1 || '#ffffff').trim();
         const cor2 = (vip.cor2 || '#ffffff').trim();
-        const hasCustomGradient = (cor1.toLowerCase() !== '#ffffff' || cor2.toLowerCase() !== '#ffffff');
-        const tagGradientStyle = hasCustomGradient 
-          ? `style="background: linear-gradient(135deg, ${escapeHTML(cor1)}, ${escapeHTML(cor2)}); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; font-weight: 700;"`
-          : 'style="font-weight: 700;"';
+        const hasCustomGradient = cor1 && cor2 && (cor1.toLowerCase() !== cor2.toLowerCase()) && (cor1 !== '#ffffff' || cor2 !== '#ffffff');
+        const tagTextStyle = hasCustomGradient 
+          ? `style="background: linear-gradient(135deg, ${escapeHTML(cor1)}, ${escapeHTML(cor2)}); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; font-weight: 800;"`
+          : `style="color: ${escapeHTML(cor1)}; font-weight: 800;"`;
 
-        const vantagensHtml = (vip.vantagens || []).map(v => {
+        const vantagensHtml = (vip.vantagens || []).map((v, vIndex) => {
           let item = (v || '').trim();
           let infoTexto = '';
 
@@ -434,8 +430,11 @@
             infoTexto = matchInfo[2].trim();
           }
 
+          const iconeCls = obterIconeVantagem(item);
+          const isHero = (vIndex === 0 || item.toLowerCase().includes('tag ['));
+
           let itemHtml = escapeHTML(item);
-          itemHtml = itemHtml.replace(/\[(.*?)\]/g, `<span class="vip-tag-highlight" ${tagGradientStyle}>[$1]</span>`);
+          itemHtml = itemHtml.replace(/\[(.*?)\]/g, `<span class="vip-tag-badge"><strong ${tagTextStyle}>$1</strong></span>`);
 
           let infoHtml = '';
           if (infoTexto) {
@@ -450,7 +449,8 @@
             `;
           }
 
-          return `<li><i class="fa-solid fa-check"></i> <span>${itemHtml}${infoHtml}</span></li>`;
+          const heroClass = isHero ? ' class="vip-benefit-hero"' : '';
+          return `<li${heroClass}><i class="${iconeCls}"></i> <span>${itemHtml}${infoHtml}</span></li>`;
         }).join('');
 
         return `
@@ -473,7 +473,8 @@
             </ul>
 
             <button type="button" class="btn-purchase-card" data-vip-id="${vip.id}" data-server-id="${srv.id}">
-              Adquirir
+              <span>Adquirir ${escapeHTML(vip.nome)}</span>
+              <i class="fa-solid fa-arrow-right"></i>
             </button>
           </div>
         `;
@@ -543,7 +544,21 @@
     if (methodsNav) methodsNav.hidden = false;
     if (summaryAvatar) summaryAvatar.src = `https://mc-heads.net/avatar/${encodeURIComponent(STATE.nick)}/64`;
     if (summaryNick) summaryNick.textContent = STATE.nick;
-    if (summaryServerVip) summaryServerVip.textContent = `${vipData.serverInfo.nome} • ${vipData.nome}`;
+    
+    if (summaryServerVip) {
+      const serverColor = (vipData.serverInfo && vipData.serverInfo.cor ? vipData.serverInfo.cor : '#38bdf8').trim();
+      const cor1 = (vipData.cor1 || '#ffffff').trim();
+      const cor2 = (vipData.cor2 || '#ffffff').trim();
+      const hasCustomGradient = cor1 && cor2 && (cor1.toLowerCase() !== cor2.toLowerCase()) && (cor1 !== '#ffffff' || cor2 !== '#ffffff');
+
+      const serverHtml = `<span style="color: ${escapeHTML(serverColor)}; font-weight: 700;">${escapeHTML(vipData.serverInfo ? vipData.serverInfo.nome : '')}</span>`;
+      const vipTextStyle = hasCustomGradient
+        ? `background: linear-gradient(135deg, ${escapeHTML(cor1)}, ${escapeHTML(cor2)}); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; font-weight: 800;`
+        : `color: ${escapeHTML(cor1)}; font-weight: 800;`;
+      const vipHtml = `<span style="${vipTextStyle}">${escapeHTML(vipData.nome)}</span>`;
+
+      summaryServerVip.innerHTML = `${serverHtml} <span style="color: rgba(255, 255, 255, 0.35); margin: 0 4px;">•</span> ${vipHtml}`;
+    }
     
     atualizarPrecoSumario();
 
@@ -558,8 +573,8 @@
     dialog.hidden = false;
     document.body.style.overflow = 'hidden';
 
-    // Inicia no método ativo (PIX por padrão)
-    switchPaymentMethod(STATE.activePaymentMethod || 'pix');
+    // Inicia sem método pré-selecionado (o usuário deve escolher uma opção)
+    switchPaymentMethod(null);
   }
 
   function obterPrecoAtualVip() {
@@ -596,12 +611,12 @@
 
   // 8.1 TROCA MODULAR DE MÉTODO DE PAGAMENTO
   function switchPaymentMethod(methodName) {
-    STATE.activePaymentMethod = methodName;
+    STATE.activePaymentMethod = methodName || null;
 
     // Atualiza botões da barra de navegação de métodos
     const methodBtns = document.querySelectorAll('.method-nav-btn');
     methodBtns.forEach(btn => {
-      const isTarget = (btn.dataset.method === methodName);
+      const isTarget = Boolean(methodName && btn.dataset.method === methodName);
       btn.classList.toggle('active', isTarget);
     });
 
@@ -1632,6 +1647,29 @@
     if (!url || typeof url !== 'string') return false;
     const cleanUrl = url.split('?')[0].split('#')[0].toLowerCase();
     return /\.(png|jpe?g|webp|gif|svg|bmp|avif)$/i.test(cleanUrl);
+  }
+
+  function obterIconeVantagem(texto) {
+    const t = (texto || '').toLowerCase();
+    if (t.includes('tag') || t.includes('cosmético') || t.includes('efeito') || t.includes('partícula') || t.includes('cor ')) {
+      return 'fa-solid fa-tag';
+    }
+    if (t.includes('home') || t.includes('/') || t.includes('cooldown') || t.includes('comando') || t.includes('fly')) {
+      return 'fa-solid fa-terminal';
+    }
+    if (t.includes('kit') || t.includes('caixa') || t.includes('item') || t.includes('ferramenta') || t.includes('chave') || t.includes('sanduíche') || t.includes('candy') || t.includes('ball') || t.includes('armadura')) {
+      return 'fa-solid fa-box-open';
+    }
+    if (t.includes('chunk') || t.includes('proteg') || t.includes('terreno')) {
+      return 'fa-solid fa-shield-halved';
+    }
+    if (t.includes('coin') || t.includes('dinheiro') || t.includes('comércio') || t.includes('econ')) {
+      return 'fa-solid fa-coins';
+    }
+    if (t.includes('fila') || t.includes('priorit') || t.includes('prioridade') || t.includes('vaga')) {
+      return 'fa-solid fa-star';
+    }
+    return 'fa-solid fa-check';
   }
 
   function renderBenefitInfoHtml(rawText) {

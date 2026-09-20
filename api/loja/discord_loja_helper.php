@@ -50,7 +50,6 @@ function enviarNotificacaoCompraDiscord($nick, $tipoConta, $servidor, $vipNome, 
     $corDecimal = hexdec($corLimpa);
     if ($corDecimal <= 0) $corDecimal = 8239583; // fallback azul #7DB9DF
 
-    $tipoContaFormatada = (strtolower($tipoConta) === 'original') ? '🟢 Original' : '⚪ Pirata/Alternativo';
     $valorFormatado = number_format((float)$valor, 2, ',', '.');
     $avatarUrl = "https://mc-heads.net/avatar/" . urlencode($nick) . "/128";
 
@@ -75,7 +74,7 @@ function enviarNotificacaoCompraDiscord($nick, $tipoConta, $servidor, $vipNome, 
     $fields = [
         [
             "name" => "👤 Jogador",
-            "value" => "**`{$nick}`** ({$tipoContaFormatada})",
+            "value" => "**`{$nick}`**",
             "inline" => true
         ],
         [
