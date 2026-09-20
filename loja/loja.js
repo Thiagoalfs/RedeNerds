@@ -436,12 +436,13 @@
 
           let infoHtml = '';
           if (infoTexto) {
+            const tooltipContent = renderBenefitInfoHtml(infoTexto);
             infoHtml = `
               <span class="benefit-info-trigger-wrap">
                 <button type="button" class="benefit-info-btn" data-title="${escapeHTML(item)}" data-info="${escapeHTML(infoTexto)}" title="Ver detalhes" aria-label="Mais informações">
                   <i class="fa-solid fa-circle-info"></i>
                 </button>
-                <span class="benefit-info-tooltip">${escapeHTML(infoTexto)}</span>
+                <span class="benefit-info-tooltip">${tooltipContent}</span>
               </span>
             `;
           }
@@ -1375,7 +1376,9 @@
     if (!dialog) return;
 
     if (titleEl) titleEl.textContent = title;
-    if (textEl) textEl.textContent = info;
+    if (textEl) {
+      textEl.innerHTML = renderBenefitInfoHtml(info);
+    }
 
     dialog.hidden = false;
     document.body.style.overflow = 'hidden';
@@ -1388,6 +1391,84 @@
   }
 
   // 14. UTILITÁRIOS
+  function isImageUrl(url) {
+    if (!url || typeof url !== 'string') return false;
+    const cleanUrl = url.split('?')[0].split('#')[0].toLowerCase();
+    return /\.(png|jpe?g|webp|gif|svg|bmp|avif)$/i.test(cleanUrl);
+  }
+
+  function renderBenefitInfoHtml(rawText) {
+    if (!rawText) return '';
+    let text = String(rawText).trim();
+
+    // 1. Suporte a sintaxe markdown de imagem ![alt](url)
+    text = text.replace(/!\[(.*?)\]\((https?:\/\/[^\s\)]+)\)/gi, (match, alt, url) => {
+      return `__IMG_TAG__${url}__ALT__${alt || 'Imagem do benefício'}__END__`;
+    });
+
+    // 2. Identifica URLs no texto
+    const urlRegex = /(https?:\/\/[^\s<>"'()]+)/gi;
+    const parts = [];
+    let lastIndex = 0;
+    let match;
+
+    while ((match = urlRegex.exec(text)) !== null) {
+      const pre = text.substring(lastIndex, match.index);
+      if (pre) parts.push({ type: 'text', value: pre });
+
+      const url = match[0];
+      if (url.startsWith('__IMG_TAG__') || isImageUrl(url)) {
+        let finalUrl = url;
+        let alt = 'Imagem do benefício';
+        if (url.startsWith('__IMG_TAG__')) {
+          const parsed = url.replace('__IMG_TAG__', '').split('__ALT__');
+          finalUrl = parsed[0];
+          alt = (parsed[1] || '').replace('__END__', '') || 'Imagem do benefício';
+        }
+        parts.push({ type: 'image', url: finalUrl, alt: alt });
+      } else {
+        parts.push({ type: 'link', url: url });
+      }
+      lastIndex = urlRegex.lastIndex;
+    }
+
+    const post = text.substring(lastIndex);
+    if (post) parts.push({ type: 'text', value: post });
+
+    if (parts.length === 0) {
+      return `<span class="benefit-info-text-part">${escapeHTML(text)}</span>`;
+    }
+
+    return parts.map(p => {
+      if (p.type === 'image') {
+        const safeUrl = escapeHTML(p.url);
+        const safeAlt = escapeHTML(p.alt);
+        return `
+          <div class="benefit-info-img-wrapper">
+            <a href="${safeUrl}" target="_blank" rel="noopener noreferrer" class="benefit-info-img-link" title="Clique para abrir imagem em tela cheia">
+              <img src="${safeUrl}" alt="${safeAlt}" class="benefit-info-img" loading="lazy" onerror="this.onerror=null; this.parentElement.innerHTML='<a href=\\'${safeUrl}\\' target=\\'_blank\\' rel=\\'noopener noreferrer\\' class=\\'benefit-info-link\\'>Ver imagem <i class=\\'fa-solid fa-arrow-up-right-from-square ms-1\\'></i></a>';">
+            </a>
+            <span class="benefit-info-img-hint"><i class="fa-solid fa-magnifying-glass-plus me-1"></i>Clique na imagem para expandir</span>
+          </div>
+        `;
+      } else if (p.type === 'link') {
+        const safeUrl = escapeHTML(p.url);
+        return `<a href="${safeUrl}" target="_blank" rel="noopener noreferrer" class="benefit-info-link">${safeUrl} <i class="fa-solid fa-arrow-up-right-from-square ms-1"></i></a>`;
+      } else {
+        let val = p.value;
+        if (val.includes('__IMG_TAG__')) {
+          val = val.replace(/__IMG_TAG__(.*?)__ALT__(.*?)__END__/g, (m, u, a) => {
+            const safeUrl = escapeHTML(u);
+            const safeAlt = escapeHTML(a || 'Imagem');
+            return `<div class="benefit-info-img-wrapper"><a href="${safeUrl}" target="_blank" rel="noopener noreferrer"><img src="${safeUrl}" alt="${safeAlt}" class="benefit-info-img" loading="lazy"></a></div>`;
+          });
+          return val;
+        }
+        return `<span class="benefit-info-text-part">${escapeHTML(val)}</span>`;
+      }
+    }).join('');
+  }
+
   function escapeHTML(str) {
     return String(str ?? '')
       .replace(/&/g, '&amp;')
