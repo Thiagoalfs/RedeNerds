@@ -31,9 +31,8 @@ if ($filtroServidor !== '') {
         $srvObj = $servidoresMap[$filtroServidor] ?? null;
         $params[':servidor_nome'] = $srvObj ? $srvObj['servername'] : $filtroServidor;
     } else {
-        $where[] = "(v.servidor = :servidor_nome OR s.servername = :servidor_nome OR s.nome = :servidor_slug)";
+        $where[] = "v.servidor = :servidor_nome";
         $params[':servidor_nome'] = $filtroServidor;
-        $params[':servidor_slug'] = $filtroServidor;
     }
 }
 
@@ -41,15 +40,38 @@ $whereSql = !empty($where) ? "WHERE " . implode(" AND ", $where) : "";
 
 $vips = [];
 try {
-    $stmt = $pdo->prepare("
-        SELECT v.*, s.servername as servidor_nome_oficial, s.themecolor as servidor_cor, s.icon as servidor_icone
-        FROM vips v
-        LEFT JOIN servidores s ON (s.id = v.servidor_id OR s.servername = v.servidor OR s.nome = v.servidor)
-        $whereSql
-        ORDER BY COALESCE(s.servername, v.servidor) ASC, v.preco ASC
-    ");
+    $stmt = $pdo->prepare("SELECT v.* FROM vips v $whereSql ORDER BY v.id DESC");
     $stmt->execute($params);
-    $vips = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    $vipsRaw = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+    foreach ($vipsRaw as $v) {
+        $srvObj = null;
+        if (!empty($v['servidor_id']) && isset($servidoresMap[$v['servidor_id']])) {
+            $srvObj = $servidoresMap[$v['servidor_id']];
+        } elseif (!empty($v['servidor'])) {
+            $srvObj = $servidoresMap[$v['servidor']] ?? null;
+            if (!$srvObj) {
+                foreach ($servidores as $s) {
+                    if (strcasecmp($s['servername'], $v['servidor']) === 0 || (!empty($s['nome']) && strcasecmp($s['nome'], $v['servidor']) === 0)) {
+                        $srvObj = $s;
+                        break;
+                    }
+                }
+            }
+        }
+
+        $v['servidor_nome_oficial'] = $srvObj['servername'] ?? ($v['servidor'] ?? 'Servidor');
+        $v['servidor_cor'] = $srvObj['themecolor'] ?? '#B971DA';
+        $v['servidor_icone'] = $srvObj['icon'] ?? null;
+
+        $vips[] = $v;
+    }
+
+    usort($vips, function($a, $b) {
+        $cmpSrv = strcasecmp($a['servidor_nome_oficial'], $b['servidor_nome_oficial']);
+        if ($cmpSrv !== 0) return $cmpSrv;
+        return ((float)($a['preco'] ?? 0)) <=> ((float)($b['preco'] ?? 0));
+    });
 } catch (PDOException $e) {
     error_log("Erro ao buscar lista de VIPs: " . $e->getMessage());
     $vips = [];
