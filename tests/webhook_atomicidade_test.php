@@ -29,14 +29,17 @@ $pdo->prepare("
     ':cupom_computado' => 0
 ]);
 
-// Simulação de 2 workers concorrentes executando a query atômica
-function simularWorkerWebhook(PDO $pdo, string $txid): bool {
+// Simulação de 2 workers concorrentes executando a query atômica do webhook
+function simularWorkerWebhook(PDO $pdo, string $txid, string $mpPaymentId): bool {
     $up = $pdo->prepare("
         UPDATE pedidos_vip 
-        SET status = 'pago', pago_em = datetime('now') 
+        SET status = 'pago', pago_em = NOW(), mp_payment_id = :mp_id 
         WHERE txid = :txid AND status <> 'pago'
     ");
-    $up->execute([':txid' => $txid]);
+    $up->execute([
+        ':txid' => $txid,
+        ':mp_id' => $mpPaymentId
+    ]);
     $transicaoOcorreu = ($up->rowCount() === 1);
 
     if ($transicaoOcorreu) {
@@ -44,9 +47,11 @@ function simularWorkerWebhook(PDO $pdo, string $txid): bool {
         $stmt->execute([':txid' => $txid]);
         $pedido = $stmt->fetch(PDO::FETCH_ASSOC);
 
-        registrarUsoCupomSePago($pdo, $txid);
-        enviarNotificacaoCompraDiscord($pedido['nick'], 'original', $pedido['servidor'], $pedido['vip_nome'], (float)$pedido['valor'], $txid);
-        enviarEntregaVip($pedido, $pdo);
+        if ($pedido) {
+            registrarUsoCupomSePago($pdo, $txid);
+            enviarNotificacaoCompraDiscord($pedido['nick'], 'original', $pedido['servidor'], $pedido['vip_nome'], (float)$pedido['valor'], $txid);
+            enviarEntregaVip($pedido, $pdo);
+        }
         return true;
     }
 
@@ -54,14 +59,15 @@ function simularWorkerWebhook(PDO $pdo, string $txid): bool {
 }
 
 // Worker 1 processa
-$res1 = simularWorkerWebhook($pdo, $txid);
+$res1 = simularWorkerWebhook($pdo, $txid, 'MP-99887766');
 assert($res1 === true, "Falha: Worker 1 deveria ter realizado a transição atômica");
 assert(count(TestSpy::$entregasVip) === 1, "Falha: deve haver exatamente 1 entrega de VIP");
 assert(count(TestSpy::$discordNotificacoes) === 1, "Falha: deve haver exatamente 1 notificação no Discord");
-echo "  [PASS] Worker 1 realizou a transição e disparou entrega e notificação.\n";
+assert($pdo->pedidos_vip[$txid]['mp_payment_id'] === 'MP-99887766', "Falha: mp_payment_id deve ser gravado");
+echo "  [PASS] Worker 1 realizou a transição, gravou mp_payment_id e disparou entrega e notificação.\n";
 
 // Worker 2 tenta processar a mesma notificação duplicada/concorrente
-$res2 = simularWorkerWebhook($pdo, $txid);
+$res2 = simularWorkerWebhook($pdo, $txid, 'MP-99887766');
 assert($res2 === false, "Falha: Worker 2 não deve realizar a transição (rowCount === 0)");
 assert(count(TestSpy::$entregasVip) === 1, "Falha: Worker 2 não pode disparar entrega duplicada");
 assert(count(TestSpy::$discordNotificacoes) === 1, "Falha: Worker 2 não pode disparar notificação duplicada");

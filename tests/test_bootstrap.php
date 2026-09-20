@@ -7,6 +7,11 @@
 
 declare(strict_types=1);
 
+if ((int)ini_get('zend.assertions') !== 1) {
+    fwrite(STDERR, "ERRO: Os testes requerem que zend.assertions esteja ativado (= 1).\n");
+    exit(1);
+}
+
 // Configurações e constantes simuladas para teste
 if (!defined('SITE_URL')) {
     define('SITE_URL', 'https://test.redenerds.com.br');
@@ -227,6 +232,9 @@ class MockPDO extends PDO {
                 if ($this->pedidos_vip[$txid]['status'] !== 'pago') {
                     $this->pedidos_vip[$txid]['status'] = 'pago';
                     $this->pedidos_vip[$txid]['pago_em'] = date('Y-m-d H:i:s');
+                    if (isset($params[':mp_id'])) {
+                        $this->pedidos_vip[$txid]['mp_payment_id'] = $params[':mp_id'];
+                    }
                     return ['rows' => [], 'affected' => 1];
                 }
             }

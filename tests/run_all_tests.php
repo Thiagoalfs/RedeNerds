@@ -26,7 +26,7 @@ foreach ($testFiles as $file) {
     echo "▶ Executando: {$nome}...\n";
     $output = [];
     $retCode = 0;
-    exec("php " . escapeshellarg($file), $output, $retCode);
+    exec("php -d zend.assertions=1 -d assert.exception=1 " . escapeshellarg($file), $output, $retCode);
 
     echo implode("\n", $output) . "\n";
 
