@@ -233,6 +233,8 @@ if (!empty($servidoresDoBanco) && !empty($vipsDoBanco)) {
                     "preco" => (float)$v['preco'],
                     "duracao_dias" => isset($v['duracao_dias']) ? (int)$v['duracao_dias'] : 30,
                     "destaque" => !empty($v['destaque']),
+                    "cor1" => !empty($v['cor1']) ? $v['cor1'] : '#ffffff',
+                    "cor2" => !empty($v['cor2']) ? $v['cor2'] : '#ffffff',
                     "vantagens" => $vantagens
                 ];
             }

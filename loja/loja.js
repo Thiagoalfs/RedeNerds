@@ -133,6 +133,37 @@
         }
       });
     });
+
+    // Modal de Informação de Benefício (Mobile / Clique)
+    const btnCloseBenefitInfo = document.getElementById('btn-close-benefit-info');
+    if (btnCloseBenefitInfo) {
+      btnCloseBenefitInfo.addEventListener('click', fecharModalBenefitInfo);
+    }
+
+    const btnOkBenefitInfo = document.getElementById('btn-ok-benefit-info');
+    if (btnOkBenefitInfo) {
+      btnOkBenefitInfo.addEventListener('click', fecharModalBenefitInfo);
+    }
+
+    const modalBenefitInfo = document.getElementById('modal-benefit-info');
+    if (modalBenefitInfo) {
+      modalBenefitInfo.addEventListener('click', (e) => {
+        if (e.target === modalBenefitInfo) {
+          fecharModalBenefitInfo();
+        }
+      });
+    }
+
+    document.addEventListener('click', (e) => {
+      const btn = e.target.closest('.benefit-info-btn');
+      if (btn) {
+        e.preventDefault();
+        e.stopPropagation();
+        const title = btn.dataset.title || 'Detalhes do Benefício';
+        const info = btn.dataset.info || '';
+        abrirModalBenefitInfo(title, info);
+      }
+    });
   }
 
   // 3. POPUP DE IDENTIFICAÇÃO (NICK)
@@ -382,9 +413,41 @@
         const precoFormatado = Number(vip.preco).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
         const delay = (index * 0.05).toFixed(2);
 
-        const vantagensHtml = (vip.vantagens || []).map(v => `
-          <li><i class="fa-solid fa-check"></i> <span>${escapeHTML(v)}</span></li>
-        `).join('');
+        const cor1 = (vip.cor1 || '#ffffff').trim();
+        const cor2 = (vip.cor2 || '#ffffff').trim();
+        const hasCustomGradient = (cor1.toLowerCase() !== '#ffffff' || cor2.toLowerCase() !== '#ffffff');
+        const tagGradientStyle = hasCustomGradient 
+          ? `style="background: linear-gradient(135deg, ${escapeHTML(cor1)}, ${escapeHTML(cor2)}); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; font-weight: 700;"`
+          : 'style="font-weight: 700;"';
+
+        const vantagensHtml = (vip.vantagens || []).map(v => {
+          let item = (v || '').trim();
+          let infoTexto = '';
+
+          // Captura texto de informação entre parênteses no final: "Nome do item (Info extra...)"
+          const matchInfo = item.match(/^(.*?)\s*\((.+?)\)$/);
+          if (matchInfo) {
+            item = matchInfo[1].trim();
+            infoTexto = matchInfo[2].trim();
+          }
+
+          let itemHtml = escapeHTML(item);
+          itemHtml = itemHtml.replace(/\[(.*?)\]/g, `<span class="vip-tag-highlight" ${tagGradientStyle}>[$1]</span>`);
+
+          let infoHtml = '';
+          if (infoTexto) {
+            infoHtml = `
+              <span class="benefit-info-trigger-wrap">
+                <button type="button" class="benefit-info-btn" data-title="${escapeHTML(item)}" data-info="${escapeHTML(infoTexto)}" title="Ver detalhes" aria-label="Mais informações">
+                  <i class="fa-solid fa-circle-info"></i>
+                </button>
+                <span class="benefit-info-tooltip">${escapeHTML(infoTexto)}</span>
+              </span>
+            `;
+          }
+
+          return `<li><i class="fa-solid fa-check"></i> <span>${itemHtml}${infoHtml}</span></li>`;
+        }).join('');
 
         return `
           <div class="vip-card ${isFeatured ? 'is-featured' : ''}" style="animation-delay: ${delay}s;">
@@ -1301,6 +1364,27 @@
         if (btnText) btnText.textContent = 'Copiar';
       }, 2000);
     });
+  }
+
+  // 13. MODAL DE INFORMAÇÃO DE BENEFÍCIO
+  function abrirModalBenefitInfo(title, info) {
+    const dialog = document.getElementById('modal-benefit-info');
+    const titleEl = document.getElementById('benefit-info-title');
+    const textEl = document.getElementById('benefit-info-text');
+
+    if (!dialog) return;
+
+    if (titleEl) titleEl.textContent = title;
+    if (textEl) textEl.textContent = info;
+
+    dialog.hidden = false;
+    document.body.style.overflow = 'hidden';
+  }
+
+  function fecharModalBenefitInfo() {
+    const dialog = document.getElementById('modal-benefit-info');
+    if (dialog) dialog.hidden = true;
+    document.body.style.overflow = '';
   }
 
   // 14. UTILITÁRIOS

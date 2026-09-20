@@ -414,8 +414,175 @@
         </div>
     </dialog>
 
+    <style>
+    /* Tooltip e Gatilho do Benefício (i) */
+    .benefit-info-trigger-wrap {
+        position: relative;
+        display: inline-flex;
+        align-items: center;
+        margin-left: 6px;
+        vertical-align: middle;
+    }
+    .benefit-info-btn {
+        background: rgba(255, 255, 255, 0.08);
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        color: #94a3b8;
+        width: 18px;
+        height: 18px;
+        border-radius: 50%;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.68rem;
+        cursor: pointer;
+        padding: 0;
+        transition: all 0.2s ease;
+        line-height: 1;
+    }
+    .benefit-info-btn:hover,
+    .benefit-info-btn:focus-visible {
+        color: #38bdf8;
+        background: rgba(56, 189, 248, 0.15);
+        border-color: rgba(56, 189, 248, 0.4);
+        transform: scale(1.15);
+        outline: none;
+    }
+    
+    /* Tooltip no Desktop */
+    .benefit-info-tooltip {
+        display: none;
+        position: absolute;
+        bottom: calc(100% + 8px);
+        left: 50%;
+        transform: translateX(-50%);
+        background: #0f172a;
+        color: #f1f5f9;
+        padding: 8px 12px;
+        border-radius: 8px;
+        font-size: 0.76rem;
+        font-weight: 400;
+        line-height: 1.4;
+        width: max-content;
+        max-width: 240px;
+        white-space: normal;
+        box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(255, 255, 255, 0.12);
+        z-index: 1000;
+        pointer-events: none;
+        text-align: left;
+    }
+    .benefit-info-tooltip::after {
+        content: '';
+        position: absolute;
+        top: 100%;
+        left: 50%;
+        transform: translateX(-50%);
+        border-width: 5px;
+        border-style: solid;
+        border-color: #0f172a transparent transparent transparent;
+    }
+    
+    @media (min-width: 769px) {
+        .benefit-info-trigger-wrap:hover .benefit-info-tooltip {
+            display: block;
+            animation: benefitTooltipIn 0.15s ease-out;
+        }
+    }
+    @keyframes benefitTooltipIn {
+        from { opacity: 0; transform: translate(-50%, 4px); }
+        to { opacity: 1; transform: translate(-50%, 0); }
+    }
+
+    /* Modal Mobile para Benefícios */
+    .benefit-info-overlay {
+        position: fixed;
+        inset: 0;
+        width: 100vw;
+        height: 100vh;
+        max-width: 100vw;
+        max-height: 100vh;
+        margin: 0;
+        padding: 16px;
+        background: rgba(10, 15, 29, 0.75);
+        backdrop-filter: blur(8px);
+        -webkit-backdrop-filter: blur(8px);
+        border: none;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 9999;
+    }
+    .benefit-info-overlay[hidden] {
+        display: none !important;
+    }
+    .benefit-info-modal {
+        background: #131d31;
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        border-radius: 16px;
+        width: 100%;
+        max-width: 380px;
+        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7);
+        padding: 20px;
+        animation: benefitModalPop 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    @keyframes benefitModalPop {
+        from { opacity: 0; transform: scale(0.92) translateY(10px); }
+        to { opacity: 1; transform: scale(1) translateY(0); }
+    }
+    .benefit-info-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 14px;
+        padding-bottom: 12px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    }
+    .benefit-info-title-box {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    .benefit-info-icon {
+        color: #38bdf8;
+        font-size: 1.1rem;
+    }
+    .benefit-info-title {
+        font-size: 1rem;
+        font-weight: 700;
+        color: #ffffff;
+        margin: 0;
+    }
+    .benefit-info-description {
+        font-size: 0.88rem;
+        color: #cbd5e1;
+        line-height: 1.55;
+        margin: 0 0 18px 0;
+    }
+    .benefit-info-footer {
+        display: flex;
+    }
+    </style>
+
+    <!-- MODAL DE DETALHES DO BENEFÍCIO (MOBILE / CLIQUE) -->
+    <dialog id="modal-benefit-info" class="benefit-info-overlay" hidden>
+        <div class="benefit-info-modal" onclick="event.stopPropagation()">
+            <div class="benefit-info-header">
+                <div class="benefit-info-title-box">
+                    <i class="fa-solid fa-circle-info benefit-info-icon"></i>
+                    <h4 id="benefit-info-title" class="benefit-info-title">Detalhes do Benefício</h4>
+                </div>
+                <button type="button" class="btn-close-modal" id="btn-close-benefit-info" aria-label="Fechar">&times;</button>
+            </div>
+            <div class="benefit-info-body">
+                <p id="benefit-info-text" class="benefit-info-description"></p>
+            </div>
+            <div class="benefit-info-footer">
+                <button type="button" class="btn-solid-primary btn-block" id="btn-ok-benefit-info">Entendi</button>
+            </div>
+        </div>
+    </dialog>
+
     <div id="footer"></div>
     <script src="/shared/navbar.js?v=2"></script>
-    <script src="loja.js?v=4"></script>
+    <script src="loja.js?v=5"></script>
 </body>
 </html>
