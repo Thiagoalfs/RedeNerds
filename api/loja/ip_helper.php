@@ -146,7 +146,10 @@ function obterPaisIp(): ?string {
 
     if (isCloudflareIp($remoteAddr) && !empty($_SERVER['HTTP_CF_IPCOUNTRY'])) {
         $country = strtoupper(trim($_SERVER['HTTP_CF_IPCOUNTRY']));
-        if (preg_match('/^[A-Z0-9]{2}$/', $country)) {
+        if (in_array($country, ['XX', 'T1'], true)) {
+            return null;
+        }
+        if (preg_match('/^[A-Z]{2}$/', $country)) {
             return $country;
         }
     }
