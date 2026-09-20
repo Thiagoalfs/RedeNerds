@@ -109,7 +109,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if (!preg_match('/^#[0-9A-Fa-f]{6}$/', $cor2)) $cor2 = '#ffffff';
 
         $vantagensPost = $_POST['vantagens'] ?? [];
-        $vantagens = array_values(array_filter(array_map('trim', fn($v) => $v !== '', $vantagensPost)));
+        $vantagens = array_values(array_filter(array_map('trim', $vantagensPost), fn($v) => $v !== ''));
 
         if (!$servidorObj || $servidor_id_selecionado <= 0) {
             $mensagem_erro = "Selecione um servidor válido para este pacote VIP.";
@@ -335,8 +335,8 @@ require_once __DIR__ . "/../includes/admin_header.php";
                         <div class="col-md-4 admin-form-group">
                             <label for="preco">Preço (R$) *</label>
                             <div class="input-group">
-                                <span class="input-group-text bg-light fw-bold">R$</span>
-                                <input type="number" step="0.01" min="0.01" class="form-control" id="preco" name="preco"
+                                <span class="input-group-text bg-light fw-bold" style="padding: 0.65rem 0.85rem; font-size: 0.88rem; border-color: var(--border-color);">R$</span>
+                                <input type="number" step="0.01" min="0.01" class="admin-form-control" id="preco" name="preco"
                                        value="<?php echo htmlspecialchars((string)$preco, ENT_QUOTES, 'UTF-8'); ?>"
                                        placeholder="0.00" required>
                             </div>
@@ -353,12 +353,14 @@ require_once __DIR__ . "/../includes/admin_header.php";
                         </div>
                     </div>
 
-                    <!-- BENEFÍCIOS (BULLET POINTS) -->
+                    <!-- BENEFÍCIOS -->
                     <div class="admin-card p-3 mb-3 bg-light border">
                         <div class="d-flex align-items-center justify-content-between mb-2">
                             <div>
-                                <h6 class="fw-bold mb-0"><i class="fa-solid fa-list-check text-primary me-1"></i> Benefícios do VIP (Bullet Points)</h6>
-                                <p class="small text-muted mb-0">Cada item é exibido como um bullet point. Textos entre colchetes como <code>[NETHERITE]</code> ganham destaque de cor, e textos entre parênteses no final como <code>(Detalhes extras...)</code> exibem um botão de informação <code>(i)</code> interativo.</p>
+                                <h6 class="fw-bold mb-0 d-inline-flex align-items-center gap-1">
+                                    <i class="fa-solid fa-list-check text-primary me-1"></i> Benefícios do VIP
+                                    <i class="fa-solid fa-circle-info text-muted ms-1" style="cursor: pointer; font-size: 0.85rem;" title="Textos entre parênteses no final como (Detalhes extras...) exibem um botão de informação (i) interativo."></i>
+                                </h6>
                             </div>
                             <button type="button" class="btn btn-outline-primary btn-sm" onclick="adicionarBeneficio()">
                                 <i class="fa-solid fa-plus me-1"></i> Adicionar Benefício
