@@ -4,13 +4,15 @@
  * Cria a cobrança PIX via API do Mercado Pago e registra o pedido no banco de dados.
  */
 
-ini_set('display_errors', 0);
+declare(strict_types=1);
+
+ini_set('display_errors', '0');
 error_reporting(E_ALL);
 
 header("Content-Type: application/json; charset=utf-8");
-header("Access-Control-Allow-Origin: *");
-header("Access-Control-Allow-Methods: POST, OPTIONS");
-header("Access-Control-Allow-Headers: Content-Type, X-API-Key, Authorization");
+
+require_once __DIR__ . "/config_loja.php";
+aplicarCorsLoja();
 
 if (isset($_SERVER['REQUEST_METHOD']) && $_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     http_response_code(200);
@@ -34,12 +36,14 @@ foreach ($configPaths as $cp) {
 }
 
 if (!$configPath) {
+    http_response_code(500);
     echo json_encode(["erro" => "Arquivo config.php não encontrado no servidor."], JSON_UNESCAPED_UNICODE);
     exit;
 }
 
 require_once $configPath;
 require_once __DIR__ . "/../auth_api.php";
+require_once __DIR__ . "/ip_helper.php";
 verificarAcessoApi();
 
 // Lê os dados recebidos via JSON (ou POST)
@@ -49,11 +53,11 @@ if (!is_array($data) || empty($data)) {
     $data = $_POST;
 }
 
-$nick = trim($data['nick'] ?? '');
-$tipoConta = strtolower(trim($data['tipo_conta'] ?? 'original'));
-$servidor = trim($data['servidor'] ?? '');
+$nick = trim((string)($data['nick'] ?? ''));
+$tipoConta = strtolower(trim((string)($data['tipo_conta'] ?? 'original')));
+$servidor = trim((string)($data['servidor'] ?? ''));
 $vipId = (int)($data['vip_id'] ?? 0);
-$vipNome = trim($data['vip_nome'] ?? '');
+$vipNome = trim((string)($data['vip_nome'] ?? ''));
 $valor = (float)($data['valor'] ?? 0);
 
 // Validação dos campos obrigatórios
@@ -63,7 +67,7 @@ if (empty($nick) || strlen($nick) < 3 || strlen($nick) > 16 || !preg_match('/^[a
     exit;
 }
 
-if (!in_array($tipoConta, ['original', 'pirata'])) {
+if (!in_array($tipoConta, ['original', 'pirata'], true)) {
     $tipoConta = 'original';
 }
 
@@ -73,7 +77,7 @@ if (empty($servidor)) {
     exit;
 }
 
-$cupomEnviado = strtoupper(trim($data['cupom'] ?? ''));
+$cupomEnviado = strtoupper(trim((string)($data['cupom'] ?? '')));
 $cupomCodigo = null;
 $valorOriginal = $valor;
 $descontoAplicado = 0.00;
@@ -87,7 +91,7 @@ try {
             $vipRow = $stmtVip->fetch(PDO::FETCH_ASSOC);
             if ($vipRow) {
                 $valorOriginal = (float)$vipRow['preco'];
-                $vipNome = $vipRow['nome'];
+                $vipNome = (string)$vipRow['nome'];
                 $valor = $valorOriginal;
             }
         }
@@ -100,7 +104,7 @@ try {
 
             if ($cupomRow) {
                 $now = time();
-                $expiraTs = strtotime($cupomRow['expira_em']);
+                $expiraTs = strtotime((string)$cupomRow['expira_em']);
                 $isExpirado = ($expiraTs && $expiraTs < $now);
 
                 if (!$cupomRow['ativo']) {
@@ -128,11 +132,11 @@ try {
                         $stmtSrvCheck->execute([':id' => $cupomServidorId]);
                         $srvInfo = $stmtSrvCheck->fetch(PDO::FETCH_ASSOC);
                         if ($srvInfo) {
-                            $vipSrvRaw = trim($vipRow['servidor'] ?? '');
+                            $vipSrvRaw = trim((string)($vipRow['servidor'] ?? ''));
                             if (
-                                strcasecmp($vipSrvRaw, $srvInfo['servername']) === 0 ||
-                                strcasecmp($vipSrvRaw, $srvInfo['nome']) === 0 ||
-                                strtolower(preg_replace('/[^a-zA-Z0-9]/', '', $vipSrvRaw)) === strtolower(preg_replace('/[^a-zA-Z0-9]/', '', $srvInfo['servername']))
+                                strcasecmp($vipSrvRaw, (string)$srvInfo['servername']) === 0 ||
+                                strcasecmp($vipSrvRaw, (string)$srvInfo['nome']) === 0 ||
+                                strtolower(preg_replace('/[^a-zA-Z0-9]/', '', $vipSrvRaw)) === strtolower(preg_replace('/[^a-zA-Z0-9]/', '', (string)$srvInfo['servername']))
                             ) {
                                 $servidorValido = true;
                             }
@@ -153,10 +157,8 @@ try {
                 $porcentagem = (float)$cupomRow['porcentagem_desconto'];
                 $descontoAplicado = round($valorOriginal * ($porcentagem / 100), 2);
                 $valor = max(0.01, round($valorOriginal - $descontoAplicado, 2));
-                $cupomCodigo = $cupomRow['codigo'];
-
-                // Incrementa contador de usos
-                $pdo->prepare("UPDATE cupons SET usos_total = usos_total + 1 WHERE id = :id")->execute([':id' => $cupomRow['id']]);
+                $cupomCodigo = (string)$cupomRow['codigo'];
+                // Não incrementa contador aqui. Será computado de forma idempotente em registrarUsoCupomSePago().
             } else {
                 http_response_code(404);
                 echo json_encode(["erro" => "Cupom '{$cupomEnviado}' não encontrado."], JSON_UNESCAPED_UNICODE);
@@ -168,7 +170,7 @@ try {
     error_log("Erro ao revalidar VIP/Cupom no criar_pix: " . $e->getMessage());
 }
 
-// Valida se o servidor está habilitado (enabled = 1) no banco de dados
+// Valida se o servidor está habilitado no banco de dados
 try {
     $srvSlug = strtolower(preg_replace('/[^a-zA-Z0-9]/', '', $servidor));
     if (isset($pdo) && $pdo instanceof PDO) {
@@ -181,22 +183,7 @@ try {
                 echo json_encode(["erro" => "As compras para este servidor estão temporariamente desabilitadas."], JSON_UNESCAPED_UNICODE);
                 exit;
             }
-            $servidor = $srvRow['servername'];
-        }
-    } elseif (isset($conn) && $conn instanceof mysqli) {
-        $stmtCheck = $conn->prepare("SELECT id, servername, enabled FROM servidores WHERE (servername = ? OR nome = ?) LIMIT 1");
-        if ($stmtCheck) {
-            $stmtCheck->bind_param("ss", $servidor, $srvSlug);
-            $stmtCheck->execute();
-            $res = $stmtCheck->get_result();
-            if ($res && $srvRow = $res->fetch_assoc()) {
-                if (isset($srvRow['enabled']) && (int)$srvRow['enabled'] === 0) {
-                    http_response_code(400);
-                    echo json_encode(["erro" => "As compras para este servidor estão temporariamente desabilitadas."], JSON_UNESCAPED_UNICODE);
-                    exit;
-                }
-                $servidor = $srvRow['servername'];
-            }
+            $servidor = (string)$srvRow['servername'];
         }
     }
 } catch (Exception $e) {
@@ -207,82 +194,72 @@ try {
 $txid = "NERD-" . strtoupper(substr(md5(uniqid($nick . time(), true)), 0, 16));
 
 // Token do Mercado Pago
-$mpAccessToken = defined('MERCADO_PAGO_ACCESS_TOKEN') ? trim(MERCADO_PAGO_ACCESS_TOKEN) : '';
+$mpAccessToken = obterMercadoPagoAccessToken();
+if (!$mpAccessToken) {
+    responder503ServicoIndisponivel("MERCADO_PAGO_ACCESS_TOKEN ausente ou inválido no criar_pix.");
+}
 
-$mpId = null;
-$pixCopiaCola = null;
-$pixQrBase64 = null;
+$siteUrl = obterSiteUrl();
+$paisIp = obterPaisIp();
 
-$isLiveMpToken = (!empty($mpAccessToken) && strpos($mpAccessToken, 'APP_USR-SEU-ACCESS-TOKEN') === false);
+// Comunicação real com a API do Mercado Pago
+$mpUrl = "https://api.mercadopago.com/v1/payments";
 
-if ($isLiveMpToken) {
-    // Comunicação real com a API do Mercado Pago
-    $mpUrl = "https://api.mercadopago.com/v1/payments";
+$mpPayload = [
+    "transaction_amount" => (float)$valor,
+    "description" => "RedeNerds - {$vipNome} ({$servidor}) - Jogador: {$nick}",
+    "payment_method_id" => "pix",
+    "payer" => [
+        "email" => "pagamento.{$nick}@redenerds.com.br",
+        "first_name" => $nick,
+        "last_name" => "Player"
+    ],
+    "notification_url" => $siteUrl . "/api/loja/webhook_mercadopago.php",
+    "external_reference" => $txid
+];
 
-    $mpPayload = [
-        "transaction_amount" => (float)$valor,
-        "description" => "RedeNerds - {$vipNome} ({$servidor}) - Jogador: {$nick}",
-        "payment_method_id" => "pix",
-        "payer" => [
-            "email" => "pagamento.{$nick}@redenerds.com.br",
-            "first_name" => $nick,
-            "last_name" => "Player"
-        ],
-        "notification_url" => "https://redenerds.com.br/api/loja/webhook_mercadopago.php",
-        "external_reference" => $txid
-    ];
+$ch = curl_init($mpUrl);
+curl_setopt_array($ch, [
+    CURLOPT_HTTPHEADER => [
+        "Authorization: Bearer {$mpAccessToken}",
+        "Content-Type: application/json",
+        "X-Idempotency-Key: " . $txid
+    ],
+    CURLOPT_POST => true,
+    CURLOPT_POSTFIELDS => json_encode($mpPayload),
+    CURLOPT_RETURNTRANSFER => true,
+    CURLOPT_SSL_VERIFYPEER => true, CURLOPT_SSL_VERIFYHOST => 2,
+    CURLOPT_TIMEOUT => 15
+]);
 
-    $ch = curl_init($mpUrl);
-    curl_setopt_array($ch, [
-        CURLOPT_HTTPHEADER => [
-            "Authorization: Bearer {$mpAccessToken}",
-            "Content-Type: application/json",
-            "X-Idempotency-Key: " . $txid
-        ],
-        CURLOPT_POST => true,
-        CURLOPT_POSTFIELDS => json_encode($mpPayload),
-        CURLOPT_RETURNTRANSFER => true,
-        CURLOPT_SSL_VERIFYPEER => true, CURLOPT_SSL_VERIFYHOST => 2,
-        CURLOPT_TIMEOUT => 15
-    ]);
+$mpResponse = curl_exec($ch);
+$httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+$curlError = curl_error($ch);
+curl_close($ch);
 
-    $mpResponse = curl_exec($ch);
-    $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-    $curlError = curl_error($ch);
-    curl_close($ch);
+if ($curlError) {
+    http_response_code(500);
+    echo json_encode(["erro" => "Falha ao conectar com o gateway de pagamento: {$curlError}"], JSON_UNESCAPED_UNICODE);
+    exit;
+}
 
-    if ($curlError) {
-        http_response_code(500);
-        echo json_encode(["erro" => "Falha ao conectar com o gateway de pagamento: {$curlError}"], JSON_UNESCAPED_UNICODE);
-        exit;
-    }
+$mpData = json_decode((string)$mpResponse, true);
 
-    $mpData = json_decode($mpResponse, true);
+if ($httpCode >= 200 && $httpCode < 300 && isset($mpData['id'])) {
+    $mpId = (string)$mpData['id'];
+    $pointOfInteraction = $mpData['point_of_interaction'] ?? [];
+    $transactionData = $pointOfInteraction['transaction_data'] ?? [];
 
-    if ($httpCode >= 200 && $httpCode < 300 && isset($mpData['id'])) {
-        $mpId = (string)$mpData['id'];
-        $pointOfInteraction = $mpData['point_of_interaction'] ?? [];
-        $transactionData = $pointOfInteraction['transaction_data'] ?? [];
-
-        $pixCopiaCola = $transactionData['qr_code'] ?? null;
-        $pixQrBase64 = $transactionData['qr_code_base64'] ?? null;
-    } else {
-        $msgErro = $mpData['message'] ?? ($mpData['error'] ?? "Erro na criação do PIX no Mercado Pago.");
-        if (isset($mpData['cause']) && is_array($mpData['cause']) && !empty($mpData['cause'][0]['description'])) {
-            $msgErro .= " (" . $mpData['cause'][0]['description'] . ")";
-        }
-        http_response_code(400);
-        echo json_encode(["erro" => $msgErro], JSON_UNESCAPED_UNICODE);
-        exit;
-    }
+    $pixCopiaCola = $transactionData['qr_code'] ?? null;
+    $pixQrBase64 = $transactionData['qr_code_base64'] ?? null;
 } else {
-    // Modo Demonstração / Sandbox (Permite testar o modal visualmente antes de colocar o token)
-    $mpId = "DEMO_" . time();
-    $pixCopiaCola = "00020126580014br.gov.bcb.pix0136" . $txid . "520400005303986540" . number_format($valor, 2, '.', '') . "5802BR5909RedeNerds6009Sao Paulo62070503***6304ABCD";
-    
-    // QR code placeholder SVG gerado em base64
-    $svg = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="200" height="200"><rect width="200" height="200" fill="#ffffff"/><rect x="20" y="20" width="50" height="50" fill="#030407"/><rect x="30" y="30" width="30" height="30" fill="#ffffff"/><rect x="38" y="38" width="14" height="14" fill="#030407"/><rect x="130" y="20" width="50" height="50" fill="#030407"/><rect x="140" y="30" width="30" height="30" fill="#ffffff"/><rect x="148" y="38" width="14" height="14" fill="#030407"/><rect x="20" y="130" width="50" height="50" fill="#030407"/><rect x="30" y="140" width="30" height="30" fill="#ffffff"/><rect x="38" y="148" width="14" height="14" fill="#030407"/><circle cx="100" cy="100" r="14" fill="#7DB9DF"/></svg>';
-    $pixQrBase64 = base64_encode($svg);
+    $msgErro = $mpData['message'] ?? ($mpData['error'] ?? "Erro na criação do PIX no Mercado Pago.");
+    if (isset($mpData['cause']) && is_array($mpData['cause']) && !empty($mpData['cause'][0]['description'])) {
+        $msgErro .= " (" . $mpData['cause'][0]['description'] . ")";
+    }
+    http_response_code(400);
+    echo json_encode(["erro" => $msgErro], JSON_UNESCAPED_UNICODE);
+    exit;
 }
 
 // Salva o pedido no banco de dados
@@ -290,18 +267,20 @@ try {
     if (isset($pdo) && $pdo instanceof PDO) {
         $stmt = $pdo->prepare("
             INSERT INTO pedidos_vip (
-                txid, nick, tipo_conta, servidor, vip_id, vip_nome, cupom_codigo, 
+                txid, mp_payment_id, nick, pais_ip, tipo_conta, servidor, vip_id, vip_nome, cupom_codigo, 
                 valor, valor_original, desconto_aplicado, status, metodo_pagamento, 
-                pix_copia_cola, pix_qr_base64, criado_em
+                pix_copia_cola, pix_qr_base64, cupom_computado, criado_em
             ) VALUES (
-                :txid, :nick, :tipo_conta, :servidor, :vip_id, :vip_nome, :cupom_codigo, 
+                :txid, :mp_id, :nick, :pais_ip, :tipo_conta, :servidor, :vip_id, :vip_nome, :cupom_codigo, 
                 :valor, :valor_original, :desconto_aplicado, 'pendente', 'pix', 
-                :pix_copia_cola, :pix_qr_base64, NOW()
+                :pix_copia_cola, :pix_qr_base64, 0, NOW()
             )
         ");
         $stmt->execute([
             ':txid' => $txid,
+            ':mp_id' => $mpId,
             ':nick' => $nick,
+            ':pais_ip' => $paisIp,
             ':tipo_conta' => $tipoConta,
             ':servidor' => $servidor,
             ':vip_id' => $vipId,
@@ -337,5 +316,5 @@ echo json_encode([
     "qr_code" => $pixCopiaCola,
     "qr_code_base64" => $pixQrBase64,
     "expira_em" => $expiraEm,
-    "modo_demo" => !$isLiveMpToken
+    "modo_demo" => false
 ], JSON_UNESCAPED_UNICODE);

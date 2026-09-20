@@ -4,11 +4,20 @@
  * Endpoint para validação e cálculo em tempo real de cupons de desconto.
  */
 
-ini_set('display_errors', 0);
+declare(strict_types=1);
+
+ini_set('display_errors', '0');
 error_reporting(E_ALL);
 
 header("Content-Type: application/json; charset=utf-8");
-header("Access-Control-Allow-Origin: *");
+
+require_once __DIR__ . "/config_loja.php";
+aplicarCorsLoja();
+
+if (isset($_SERVER['REQUEST_METHOD']) && $_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+    http_response_code(200);
+    exit;
+}
 
 $configPaths = [
     __DIR__ . "/../../../config.php",
@@ -37,8 +46,8 @@ if (!is_array($data) || empty($data)) {
     $data = $_POST;
 }
 
-$cupomCodigo = strtoupper(trim($data['cupom'] ?? ($_GET['cupom'] ?? '')));
-$vipId = intval($data['vip_id'] ?? ($_GET['vip_id'] ?? 0));
+$cupomCodigo = strtoupper(trim((string)($data['cupom'] ?? ($_GET['cupom'] ?? ''))));
+$vipId = (int)($data['vip_id'] ?? ($_GET['vip_id'] ?? 0));
 
 if (empty($cupomCodigo)) {
     http_response_code(400);
@@ -92,7 +101,7 @@ try {
 
     // Verifica expiração automática
     $now = time();
-    $expiraTs = strtotime($cupomRow['expira_em']);
+    $expiraTs = strtotime((string)$cupomRow['expira_em']);
     if ($expiraTs && $expiraTs < $now) {
         http_response_code(400);
         echo json_encode([
@@ -101,7 +110,7 @@ try {
         exit;
     }
 
-    // Verifica restrição de servidor
+    // 3. Validação de restrição de servidor
     $cupomServidorId = (int)($cupomRow['servidor_id'] ?? 0);
     if ($cupomServidorId > 0) {
         $vipServidorId = (int)($vipRow['servidor_id'] ?? 0);
@@ -110,16 +119,15 @@ try {
         if ($vipServidorId > 0) {
             $servidorValido = ($vipServidorId === $cupomServidorId);
         } else {
-            // Fallback: busca dados do servidor do cupom para comparar com o nome do servidor no VIP
-            $stmtSrvCheck = $pdo->prepare("SELECT id, servername, nome FROM servidores WHERE id = :id LIMIT 1");
-            $stmtSrvCheck->execute([':id' => $cupomServidorId]);
-            $srvInfo = $stmtSrvCheck->fetch(PDO::FETCH_ASSOC);
+            $stmtSrv = $pdo->prepare("SELECT id, servername, nome FROM servidores WHERE id = :id LIMIT 1");
+            $stmtSrv->execute([':id' => $cupomServidorId]);
+            $srvInfo = $stmtSrv->fetch(PDO::FETCH_ASSOC);
             if ($srvInfo) {
-                $vipSrvRaw = trim($vipRow['servidor'] ?? '');
+                $vipSrvRaw = trim((string)($vipRow['servidor'] ?? ''));
                 if (
-                    strcasecmp($vipSrvRaw, $srvInfo['servername']) === 0 ||
-                    strcasecmp($vipSrvRaw, $srvInfo['nome']) === 0 ||
-                    strtolower(preg_replace('/[^a-zA-Z0-9]/', '', $vipSrvRaw)) === strtolower(preg_replace('/[^a-zA-Z0-9]/', '', $srvInfo['servername']))
+                    strcasecmp($vipSrvRaw, (string)$srvInfo['servername']) === 0 ||
+                    strcasecmp($vipSrvRaw, (string)$srvInfo['nome']) === 0 ||
+                    strtolower(preg_replace('/[^a-zA-Z0-9]/', '', $vipSrvRaw)) === strtolower(preg_replace('/[^a-zA-Z0-9]/', '', (string)$srvInfo['servername']))
                 ) {
                     $servidorValido = true;
                 }
@@ -139,22 +147,23 @@ try {
         }
     }
 
-    // 3. Calcula desconto
+    // 4. Calcula o desconto
     $porcentagem = (float)$cupomRow['porcentagem_desconto'];
     $valorDesconto = round($precoOriginal * ($porcentagem / 100), 2);
     $precoFinal = max(0.01, round($precoOriginal - $valorDesconto, 2));
 
     echo json_encode([
-        "success" => true,
-        "cupom" => $cupomRow['codigo'],
-        "porcentagem" => $porcentagem,
-        "desconto" => $valorDesconto,
-        "preco_original" => $precoOriginal,
-        "preco_final" => $precoFinal,
-        "mensagem" => "Cupom de " . number_format($porcentagem, 1, ',', '.') . "% aplicado com sucesso!"
+        "success"              => true,
+        "cupom"                => $cupomRow['codigo'],
+        "porcentagem_desconto" => $porcentagem,
+        "valor_desconto"       => $valorDesconto,
+        "preco_original"       => $precoOriginal,
+        "preco_final"          => $precoFinal,
+        "mensagem"             => "Cupom '{$cupomRow['codigo']}' aplicado com sucesso! ({$porcentagem}% de desconto)"
     ], JSON_UNESCAPED_UNICODE);
 
 } catch (Exception $e) {
+    error_log("Erro ao validar cupom: " . $e->getMessage());
     http_response_code(500);
-    echo json_encode(["erro" => "Erro ao validar cupom: " . $e->getMessage()], JSON_UNESCAPED_UNICODE);
+    echo json_encode(["erro" => "Erro ao validar cupom no servidor."], JSON_UNESCAPED_UNICODE);
 }

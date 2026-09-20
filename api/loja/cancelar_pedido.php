@@ -1,16 +1,19 @@
 <?php
 /**
  * cancelar_pedido.php
- * Invalida e marca um pedido PIX como 'cancelado' ou 'expirado' no banco de dados.
+ * Invalida e marca um pedido como 'cancelado' ou 'expirado' no banco de dados.
  */
 
+declare(strict_types=1);
+
 date_default_timezone_set('America/Sao_Paulo');
-ini_set('display_errors', 0);
+ini_set('display_errors', '0');
 error_reporting(E_ALL);
 
 header("Content-Type: application/json; charset=utf-8");
-header("Access-Control-Allow-Origin: *");
-header("Access-Control-Allow-Methods: POST, GET, OPTIONS");
+
+require_once __DIR__ . "/config_loja.php";
+aplicarCorsLoja();
 
 if (isset($_SERVER['REQUEST_METHOD']) && $_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     http_response_code(200);
@@ -49,10 +52,10 @@ if (!is_array($data) || empty($data)) {
     $data = $_POST;
 }
 
-$txid = trim($data['txid'] ?? ($_GET['txid'] ?? ''));
-$statusAlvo = strtolower(trim($data['status'] ?? ($_GET['status'] ?? 'cancelado')));
+$txid = trim((string)($data['txid'] ?? ($_GET['txid'] ?? '')));
+$statusAlvo = strtolower(trim((string)($data['status'] ?? ($_GET['status'] ?? 'cancelado'))));
 
-if (!in_array($statusAlvo, ['cancelado', 'expirado'])) {
+if (!in_array($statusAlvo, ['cancelado', 'expirado'], true)) {
     $statusAlvo = 'cancelado';
 }
 
@@ -77,17 +80,6 @@ try {
             ':txid' => $txid
         ]);
         $atualizado = ($stmt->rowCount() > 0);
-    } elseif (isset($conn) && $conn instanceof mysqli) {
-        $stmt = $conn->prepare("
-            UPDATE pedidos_vip 
-            SET status = ? 
-            WHERE txid = ? AND status = 'pendente'
-        ");
-        if ($stmt) {
-            $stmt->bind_param("ss", $statusAlvo, $txid);
-            $stmt->execute();
-            $atualizado = ($stmt->affected_rows > 0);
-        }
     }
 } catch (Exception $e) {
     error_log("Erro ao cancelar pedido {$txid}: " . $e->getMessage());
@@ -98,5 +90,5 @@ echo json_encode([
     "txid" => $txid,
     "status" => $statusAlvo,
     "atualizado" => $atualizado,
-    "mensagem" => $statusAlvo === 'expirado' ? "Tempo limite esgotado. Cobrança PIX invalidada." : "Pedido cancelado com sucesso."
+    "mensagem" => $atualizado ? "Pedido cancelado com sucesso." : "Pedido não localizado ou já finalizado."
 ], JSON_UNESCAPED_UNICODE);

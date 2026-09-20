@@ -2,9 +2,12 @@
 /**
  * webhook_mercadopago.php
  * Endpoint de recebimento de notificações IPN/Webhook do Mercado Pago.
+ * Implementa transição atômica e idempotente para evitar duplicações de entrega/notificações.
  */
 
-ini_set('display_errors', 0);
+declare(strict_types=1);
+
+ini_set('display_errors', '0');
 error_reporting(E_ALL);
 
 header("Content-Type: application/json; charset=utf-8");
@@ -32,8 +35,10 @@ if (!$configPath) {
 }
 
 require_once $configPath;
+require_once __DIR__ . "/config_loja.php";
 require_once __DIR__ . "/discord_loja_helper.php";
 require_once __DIR__ . "/delivery_helper.php";
+require_once __DIR__ . "/cupom_helper.php";
 
 // Lê payload JSON ou parâmetros GET
 $rawInput = file_get_contents('php://input');
@@ -47,7 +52,7 @@ $paymentId = $_GET['data_id']
 
 $type = $_GET['type'] ?? ($bodyData['type'] ?? ($bodyData['action'] ?? 'payment'));
 
-if (!$paymentId || (strpos($type, 'payment') === false)) {
+if (!$paymentId || (strpos((string)$type, 'payment') === false)) {
     // Notificação de outro recurso ou ping vazio: responde 200 para o Mercado Pago
     http_response_code(200);
     echo json_encode(["status" => "ignored"]);
@@ -55,14 +60,14 @@ if (!$paymentId || (strpos($type, 'payment') === false)) {
 }
 
 // Validação de Assinatura Criptográfica (x-signature / x-request-id)
-$webhookSecret = defined('MERCADO_PAGO_WEBHOOK_SECRET') ? trim(MERCADO_PAGO_WEBHOOK_SECRET) : '';
+$webhookSecret = defined('MERCADO_PAGO_WEBHOOK_SECRET') ? trim((string)MERCADO_PAGO_WEBHOOK_SECRET) : '';
 $headers = function_exists('getallheaders') ? getallheaders() : [];
 
 $xSignature = $_SERVER['HTTP_X_SIGNATURE'] ?? ($headers['x-signature'] ?? ($headers['X-Signature'] ?? ''));
 $xRequestId = $_SERVER['HTTP_X_REQUEST_ID'] ?? ($headers['x-request-id'] ?? ($headers['X-Request-Id'] ?? ''));
 
 if (!empty($webhookSecret) && !empty($xSignature)) {
-    $parts = explode(',', $xSignature);
+    $parts = explode(',', (string)$xSignature);
     $ts = null;
     $v1 = null;
     foreach ($parts as $part) {
@@ -84,16 +89,16 @@ if (!empty($webhookSecret) && !empty($xSignature)) {
     }
 }
 
-$mpAccessToken = defined('MERCADO_PAGO_ACCESS_TOKEN') ? trim(MERCADO_PAGO_ACCESS_TOKEN) : '';
+$mpAccessToken = obterMercadoPagoAccessToken();
 
-if (empty($mpAccessToken) || strpos($mpAccessToken, 'APP_USR-SEU-ACCESS-TOKEN') !== false) {
+if (!$mpAccessToken) {
     http_response_code(200);
     echo json_encode(["erro" => "MERCADO_PAGO_ACCESS_TOKEN não configurado."]);
     exit;
 }
 
 // Consulta os dados completos do pagamento na API do Mercado Pago
-$mpUrl = "https://api.mercadopago.com/v1/payments/" . urlencode($paymentId);
+$mpUrl = "https://api.mercadopago.com/v1/payments/" . urlencode((string)$paymentId);
 
 $ch = curl_init($mpUrl);
 curl_setopt_array($ch, [
@@ -115,73 +120,71 @@ if ($httpCode < 200 || $httpCode >= 300 || !$response) {
     exit;
 }
 
-$paymentInfo = json_decode($response, true);
-$status = strtolower($paymentInfo['status'] ?? '');
-$externalRef = trim($paymentInfo['external_reference'] ?? '');
+$paymentInfo = json_decode((string)$response, true);
+$status = strtolower((string)($paymentInfo['status'] ?? ''));
+$externalRef = trim((string)($paymentInfo['external_reference'] ?? ''));
 
 if ($status === 'approved' && !empty($externalRef)) {
-    $pedido = null;
+    if (!isset($pdo) || !($pdo instanceof PDO)) {
+        http_response_code(500);
+        echo json_encode(["erro" => "Banco de dados indisponível."]);
+        exit;
+    }
 
+    // 1. Executa a transição atômica de status
+    $transicaoOcorreu = false;
     try {
-        if (isset($pdo) && $pdo instanceof PDO) {
+        $up = $pdo->prepare("
+            UPDATE pedidos_vip 
+            SET status = 'pago', pago_em = NOW() 
+            WHERE txid = :txid AND status <> 'pago'
+        ");
+        $up->execute([':txid' => $externalRef]);
+        $transicaoOcorreu = ($up->rowCount() === 1);
+    } catch (Exception $e) {
+        error_log("Erro na transição atômica do webhook MP: " . $e->getMessage());
+    }
+
+    // 2. Dispara efeitos colaterais SOMENTE se esta execução foi a responsável pela mudança para 'pago'
+    if ($transicaoOcorreu) {
+        try {
             $stmt = $pdo->prepare("SELECT * FROM pedidos_vip WHERE txid = :txid LIMIT 1");
             $stmt->execute([':txid' => $externalRef]);
             $pedido = $stmt->fetch(PDO::FETCH_ASSOC);
-        } elseif (isset($conn) && $conn instanceof mysqli) {
-            $stmt = $conn->prepare("SELECT * FROM pedidos_vip WHERE txid = ? LIMIT 1");
-            if ($stmt) {
-                $stmt->bind_param("s", $externalRef);
-                $stmt->execute();
-                $res = $stmt->get_result();
-                if ($res) $pedido = $res->fetch_assoc();
-            }
-        }
-    } catch (Exception $e) {
-        error_log("Erro ao consultar pedido no webhook MP: " . $e->getMessage());
-    }
 
-    if ($pedido && strtolower($pedido['status'] ?? '') !== 'pago') {
-        // Atualiza para pago
-        try {
-            if (isset($pdo) && $pdo instanceof PDO) {
-                $up = $pdo->prepare("UPDATE pedidos_vip SET status = 'pago', pago_em = NOW() WHERE txid = :txid");
-                $up->execute([':txid' => $externalRef]);
-            } elseif (isset($conn) && $conn instanceof mysqli) {
-                $up = $conn->prepare("UPDATE pedidos_vip SET status = 'pago', pago_em = NOW() WHERE txid = ?");
-                if ($up) {
-                    $up->bind_param("s", $externalRef);
-                    $up->execute();
+            if ($pedido) {
+                // Cômputo do cupom de forma idempotente
+                registrarUsoCupomSePago($pdo, $externalRef);
+
+                // Notificação no Discord
+                try {
+                    enviarNotificacaoCompraDiscord(
+                        $pedido['nick'],
+                        $pedido['tipo_conta'] ?? 'original',
+                        $pedido['servidor'],
+                        $pedido['vip_nome'],
+                        (float)$pedido['valor'],
+                        $externalRef,
+                        '#7DB9DF',
+                        $pedido['metodo_pagamento'] ?? 'pix',
+                        (int)($pedido['parcelas'] ?? 1),
+                        isset($pedido['valor_total']) ? (float)$pedido['valor_total'] : null,
+                        $pedido['cupom_codigo'] ?? null,
+                        (float)($pedido['desconto_aplicado'] ?? 0.00)
+                    );
+                } catch (Exception $e) {
+                    error_log("Erro ao disparar webhook Discord no webhook MP: " . $e->getMessage());
+                }
+
+                // Entrega do VIP
+                try {
+                    enviarEntregaVip($pedido, $pdo);
+                } catch (Exception $e) {
+                    error_log("Erro ao disparar entrega VIP no webhook: " . $e->getMessage());
                 }
             }
         } catch (Exception $e) {
-            error_log("Erro ao atualizar pedido no webhook MP: " . $e->getMessage());
-        }
-
-        // Dispara notificação no Discord
-        try {
-            enviarNotificacaoCompraDiscord(
-                $pedido['nick'],
-                $pedido['tipo_conta'] ?? 'original',
-                $pedido['servidor'],
-                $pedido['vip_nome'],
-                $pedido['valor'],
-                $externalRef,
-                '#7DB9DF',
-                $pedido['metodo_pagamento'] ?? 'pix',
-                (int)($pedido['parcelas'] ?? 1),
-                $pedido['valor_total'] ?? null,
-                $pedido['cupom_codigo'] ?? null,
-                (float)($pedido['desconto_aplicado'] ?? 0.00)
-            );
-        } catch (Exception $e) {
-            error_log("Erro ao disparar webhook Discord no webhook MP: " . $e->getMessage());
-        }
-
-        // Dispara entrega do VIP na API de Entregas
-        try {
-            enviarEntregaVip($pedido, $pdo);
-        } catch (Exception $e) {
-            error_log("Erro ao disparar entrega VIP no webhook: " . $e->getMessage());
+            error_log("Erro ao processar pós-pagamento no webhook MP: " . $e->getMessage());
         }
     }
 }

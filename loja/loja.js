@@ -34,8 +34,11 @@
   document.addEventListener('DOMContentLoaded', () => {
     setupEventListeners();
     setupCardFormHandlers();
+    setupInternationalHandlers();
     setupCouponHandlers();
     carregarCatalogoVips();
+    verificarLocalidadeEstrangeira();
+    verificarRetornoUrlCheckout();
 
     if (STATE.nick) {
       liberarPainelLoja();
@@ -605,9 +608,11 @@
     // Exibe o painel correspondente
     const panelPix = document.getElementById('panel-method-pix');
     const panelCard = document.getElementById('panel-method-card');
+    const panelIntl = document.getElementById('panel-method-international');
 
     if (panelPix) panelPix.hidden = (methodName !== 'pix');
     if (panelCard) panelCard.hidden = (methodName !== 'card');
+    if (panelIntl) panelIntl.hidden = (methodName !== 'international');
 
     if (methodName === 'pix') {
       if (!STATE.currentOrder.txid && STATE.currentOrder.vipData) {
@@ -618,6 +623,8 @@
       if (inputCardNum && inputCardNum.value) {
         onCardNumberInput(inputCardNum.value);
       }
+    } else if (methodName === 'international') {
+      resetInternationalForm();
     }
   }
 
@@ -1138,14 +1145,12 @@
           throw new Error('Dados do cartão inválidos ou recusados pela operadora.');
         }
       } else {
-        // Fallback de demonstração
-        cardToken = 'DEMO_TOKEN_' + Math.random().toString(36).substring(2);
+        throw new Error('Serviço de tokenização do gateway de pagamento indisponível no momento.');
       }
 
-      // 3. Envio seguro ao Backend PHP
+      // 3. Envio seguro ao Backend PHP (sem trafegar número bruto do cartão)
       const payload = {
         token: cardToken,
-        card_number: cardNum,
         cardholder_name: cardholderName,
         email: email,
         cpf: cpf,
@@ -1192,6 +1197,186 @@
     const errorMsg = document.getElementById('card-error-msg');
     if (errorMsg) errorMsg.textContent = msg;
     if (errorBox) errorBox.hidden = false;
+  }
+
+  // 10.3 FLUXO DE PAGAMENTO: CHECKOUT PRO INTERNACIONAL
+  function setupInternationalHandlers() {
+    const formIntl = document.getElementById('form-international-checkout');
+    if (formIntl) {
+      formIntl.addEventListener('submit', (e) => {
+        e.preventDefault();
+        processarCheckoutInternacional();
+      });
+    }
+
+    const btnCheckStatus = document.getElementById('btn-check-intl-status');
+    if (btnCheckStatus) {
+      btnCheckStatus.addEventListener('click', () => {
+        if (STATE.currentOrder.txid) {
+          verificarStatusManualmente(STATE.currentOrder.txid);
+        }
+      });
+    }
+  }
+
+  function resetInternationalForm() {
+    const form = document.getElementById('form-international-checkout');
+    const waitingState = document.getElementById('intl-waiting-state');
+    const errorBox = document.getElementById('intl-error-box');
+
+    if (form) form.hidden = false;
+    if (waitingState) waitingState.hidden = true;
+    if (errorBox) errorBox.hidden = true;
+  }
+
+  async function processarCheckoutInternacional() {
+    const inputEmail = document.getElementById('intl-email');
+    const errorBox = document.getElementById('intl-error-box');
+    const errorMsg = document.getElementById('intl-error-msg');
+    const btnSubmit = document.getElementById('btn-submit-intl');
+    const spinner = document.getElementById('btn-intl-spinner');
+    const icon = document.getElementById('btn-intl-icon');
+    const waitingState = document.getElementById('intl-waiting-state');
+    const form = document.getElementById('form-international-checkout');
+
+    if (errorBox) errorBox.hidden = true;
+
+    const email = inputEmail ? inputEmail.value.trim() : '';
+    if (!email || !email.includes('@') || !email.includes('.')) {
+      if (errorBox && errorMsg) {
+        errorMsg.textContent = 'Please enter a valid email address.';
+        errorBox.hidden = false;
+      }
+      return;
+    }
+
+    if (!STATE.currentOrder.vipData) {
+      if (errorBox && errorMsg) {
+        errorMsg.textContent = 'No VIP package selected.';
+        errorBox.hidden = false;
+      }
+      return;
+    }
+
+    if (btnSubmit) btnSubmit.disabled = true;
+    if (spinner) spinner.hidden = false;
+    if (icon) icon.hidden = true;
+
+    try {
+      const payload = {
+        nick: STATE.nick,
+        tipo_conta: STATE.tipoConta,
+        servidor: STATE.currentOrder.vipData.serverInfo.nome,
+        vip_id: STATE.currentOrder.vipData.id,
+        email: email,
+        cupom: STATE.appliedCoupon ? STATE.appliedCoupon.cupom : ''
+      };
+
+      const res = await fetch('/api/loja/criar_checkout_internacional.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+
+      const data = await res.json();
+      if (!res.ok || data.erro || !data.init_point) {
+        throw new Error(data.erro || 'Failed to create international payment preference.');
+      }
+
+      STATE.currentOrder.txid = data.txid;
+
+      if (form) form.hidden = true;
+      if (waitingState) waitingState.hidden = false;
+
+      // Abre o Checkout Pro em nova janela
+      window.open(data.init_point, '_blank');
+
+      // Inicia contagem regressiva e polling (janela de 2 horas para Checkout Pro)
+      iniciarCountdownPix(2 * 3600);
+      iniciarPollingPix(data.txid);
+
+    } catch (err) {
+      console.error('Erro no checkout internacional:', err);
+      if (errorBox && errorMsg) {
+        errorMsg.textContent = err.message || 'Error communicating with payment gateway.';
+        errorBox.hidden = false;
+      }
+    } finally {
+      if (btnSubmit) btnSubmit.disabled = false;
+      if (spinner) spinner.hidden = true;
+      if (icon) icon.hidden = false;
+    }
+  }
+
+  async function verificarStatusManualmente(txid) {
+    try {
+      const res = await fetch(`/api/loja/checar_status.php?txid=${encodeURIComponent(txid)}`);
+      if (!res.ok) return;
+      const data = await res.json();
+      if (data.status === 'pago' || data.status === 'approved' || data.aprovado === true) {
+        pararPollingPix();
+        exibirSucessoCheckout({
+          ...data,
+          metodo: 'Checkout Pro Internacional'
+        });
+      }
+    } catch (e) {}
+  }
+
+  // 10.4 DETECÇÃO INTELIGENTE DE LOCALIDADE E RETORNO DE CHECKOUT PRO
+  async function verificarLocalidadeEstrangeira() {
+    try {
+      const tz = Intl.DateTimeFormat().resolvedOptions().timeZone || '';
+      const lang = (navigator.languages && navigator.languages.length) ? navigator.languages[0] : (navigator.language || '');
+
+      const res = await fetch(`/api/loja/localidade.php?tz=${encodeURIComponent(tz)}&lang=${encodeURIComponent(lang)}`);
+      if (!res.ok) return;
+
+      const data = await res.json();
+      if (data.sugestao === 'internacional') {
+        const banner = document.getElementById('loja-locality-banner');
+        if (banner) {
+          banner.hidden = false;
+          banner.style.display = 'flex';
+        }
+
+        const btnSwitch = document.getElementById('btn-switch-international');
+        if (btnSwitch) {
+          btnSwitch.addEventListener('click', () => {
+            STATE.activePaymentMethod = 'international';
+            if (STATE.currentOrder.vipData) {
+              switchPaymentMethod('international');
+            } else {
+              const firstVip = document.querySelector('.btn-open-vip-checkout');
+              if (firstVip) firstVip.click();
+            }
+          });
+        }
+      }
+    } catch (e) {}
+  }
+
+  function verificarRetornoUrlCheckout() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const txid = urlParams.get('txid');
+
+    if (txid && txid.startsWith('NERD-')) {
+      STATE.currentOrder.txid = txid;
+      window.history.replaceState({}, document.title, window.location.pathname);
+      
+      const dialog = document.getElementById('modal-pix-overlay');
+      if (dialog) {
+        dialog.hidden = false;
+        document.body.style.overflow = 'hidden';
+      }
+      switchPaymentMethod('international');
+      const form = document.getElementById('form-international-checkout');
+      const waitingState = document.getElementById('intl-waiting-state');
+      if (form) form.hidden = true;
+      if (waitingState) waitingState.hidden = false;
+
+      iniciarPollingPix(txid);
+    }
   }
 
   // 11. POLLING E CONTAGEM REGRESSIVA PRECISA (TIMESTAMP PIX)
@@ -1242,7 +1427,7 @@
           pararPollingPix();
           exibirSucessoCheckout({
             ...data,
-            metodo: 'PIX'
+            metodo: data.metodo || (STATE.activePaymentMethod === 'international' ? 'Checkout Pro Internacional' : (STATE.activePaymentMethod === 'card' ? 'Cartão de Crédito' : 'PIX'))
           });
         } else if (isExpirado) {
           pararPollingPix();
