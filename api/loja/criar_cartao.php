@@ -226,6 +226,29 @@ try {
             exit;
         }
     }
+
+    // Validação do Servidor e correspondência com o VIP
+    $srvSlug = strtolower(preg_replace('/[^a-zA-Z0-9]/', '', $servidor));
+    $stmtCheckSrv = $pdo->prepare("SELECT id, servername, nome, enabled FROM servidores WHERE (servername = :srv OR nome = :srvSlug) LIMIT 1");
+    $stmtCheckSrv->execute([':srv' => $servidor, ':srvSlug' => $srvSlug]);
+    $srvRow = $stmtCheckSrv->fetch(PDO::FETCH_ASSOC);
+
+    if (!$srvRow || (isset($srvRow['enabled']) && (int)$srvRow['enabled'] === 0)) {
+        http_response_code(400);
+        echo json_encode(["erro" => "O servidor selecionado é inválido ou está desabilitado."], JSON_UNESCAPED_UNICODE);
+        exit;
+    }
+
+    $servidorId = (int)$srvRow['id'];
+    $servidor = (string)$srvRow['servername'];
+
+    // Confere se o servidor do VIP corresponde ao servidor selecionado
+    $vipServidorId = (int)($vipRow['servidor_id'] ?? 0);
+    if ($vipServidorId > 0 && $vipServidorId !== $servidorId) {
+        http_response_code(400);
+        echo json_encode(["erro" => "O pacote VIP selecionado não pertence ao servidor {$servidor}."], JSON_UNESCAPED_UNICODE);
+        exit;
+    }
 } catch (Exception $e) {
     error_log("Erro ao buscar preço do VIP/Cupom no BD: " . $e->getMessage());
     http_response_code(500);
