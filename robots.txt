@@ -1,0 +1,35 @@
+﻿# ==========================================
+# robots.txt - Rede Nerds
+# Website: https://redenerds.com.br
+# ==========================================
+
+User-agent: *
+# Páginas Públicas Permitidas
+Allow: /
+Allow: /loja/
+Allow: /wiki/
+Allow: /equipe/
+Allow: /regras/
+Allow: /servidores/
+Allow: /sobre/
+Allow: /suporte/
+Allow: /download/
+Allow: /assets/
+
+# Diretórios Administrativos, Internos e Sensíveis
+Disallow: /admin/
+Disallow: /api/
+Disallow: /migrations/
+Disallow: /tests/
+Disallow: /errors/
+Disallow: /shared/
+Disallow: /config.php
+
+# Arquivos de Configuração, Logs e Banco de Dados
+Disallow: /*.sql$
+Disallow: /*.env$
+Disallow: /*.log$
+Disallow: /*.json$
+
+# Sitemap Principal
+Sitemap: https://redenerds.com.br/sitemap.xml
