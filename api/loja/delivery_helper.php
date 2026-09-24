@@ -1,7 +1,8 @@
 <?php
 /**
  * delivery_helper.php
- * Helper responsável pelo envio e integração automática de entrega de VIPs
+ * Helper responsável pelo envio e integração automática de entrega de VIPs e Chaves.
+ * As configurações de endpoint (URL e Token) ficam centralizadas exclusivamente no config.php.
  */
 
 $configPaths = [
@@ -19,16 +20,30 @@ foreach ($configPaths as $cp) {
     }
 }
 
+if (!defined('DELIVERY_SERVERS')) {
+    define('DELIVERY_SERVERS', []);
+}
+
 if (!defined('DELIVERY_API_URL')) {
-    define('DELIVERY_API_URL', 'http://br2.xmxcloud.net:10504/api/v1/deliveries');
+    define('DELIVERY_API_URL', '');
 }
 
 if (!defined('DELIVERY_API_TOKEN')) {
     define('DELIVERY_API_TOKEN', '');
 }
 
+
 /**
- * Envia uma ordem de entrega de VIP para a API do servidor Minecraft.
+ * Envia uma ordem de entrega de produto (VIP / Chave) para a API do servidor Minecraft.
+ *
+ * Estrutura do payload JSON enviado:
+ * {
+ *   "server": "slug-do-servidor",
+ *   "orderId": "NERD-123456789",
+ *   "packageId": "vip-mvp",
+ *   "player": "NickDoJogador",
+ *   "quantity": 1
+ * }
  *
  * @param array|int|string $pedido Dados do pedido (array) ou ID/txid do pedido
  * @param PDO|null $pdo Conexão PDO (opcional)
@@ -62,7 +77,7 @@ function enviarEntregaVip($pedido, $pdo = null) {
         ];
     }
 
-    // 1. Order ID (identificador do pedido gerado pelo sistema como NERD-... ou Mercado Pago ID)
+    // 1. Order ID (identificador único do pedido, preferencialmente o txid ex: NERD-...)
     $orderId = '';
     if (!empty($pedido['txid'])) {
         $orderId = (string)$pedido['txid'];
@@ -79,15 +94,26 @@ function enviarEntregaVip($pedido, $pdo = null) {
 
     // 3. Server Slug (Puxa o slug 'nome' do banco de dados na tabela servidores)
     $serverSlug = '';
+    $servidorId = isset($pedido['servidor_id']) && is_numeric($pedido['servidor_id']) ? (int)$pedido['servidor_id'] : 0;
     $rawServidor = trim((string)($pedido['servidor'] ?? ($pedido['server'] ?? '')));
 
-    if ($pdo instanceof PDO && !empty($rawServidor)) {
+    if ($pdo instanceof PDO) {
         try {
-            $stmtSrv = $pdo->prepare("SELECT nome FROM servidores WHERE servername = :srv OR nome = :srv LIMIT 1");
-            $stmtSrv->execute([':srv' => $rawServidor]);
-            $srvRow = $stmtSrv->fetch(PDO::FETCH_ASSOC);
-            if ($srvRow && !empty($srvRow['nome'])) {
-                $serverSlug = $srvRow['nome'];
+            if ($servidorId > 0) {
+                $stmtSrv = $pdo->prepare("SELECT nome FROM servidores WHERE id = :id LIMIT 1");
+                $stmtSrv->execute([':id' => $servidorId]);
+                $srvRow = $stmtSrv->fetch(PDO::FETCH_ASSOC);
+                if ($srvRow && !empty($srvRow['nome'])) {
+                    $serverSlug = (string)$srvRow['nome'];
+                }
+            }
+            if (empty($serverSlug) && !empty($rawServidor)) {
+                $stmtSrv = $pdo->prepare("SELECT nome FROM servidores WHERE servername = :srv OR nome = :srv LIMIT 1");
+                $stmtSrv->execute([':srv' => $rawServidor]);
+                $srvRow = $stmtSrv->fetch(PDO::FETCH_ASSOC);
+                if ($srvRow && !empty($srvRow['nome'])) {
+                    $serverSlug = (string)$srvRow['nome'];
+                }
             }
         } catch (Exception $e) {
             error_log("AVISO DELIVERY: Erro ao buscar slug do servidor: " . $e->getMessage());
@@ -154,21 +180,49 @@ function enviarEntregaVip($pedido, $pdo = null) {
         $packageId = (string)($pedido['packageId'] ?? ($chaveId ?: ($vipId ?? '')));
     }
 
-    // Monta o payload JSON
+    // Monta o payload JSON exatamente na estrutura requerida pela API
     $payload = [
         "server"    => (string)$serverSlug,
         "orderId"   => (string)$orderId,
         "packageId" => (string)$packageId,
         "player"    => (string)$player,
-        "amount"    => (int)$quantidade,
         "quantity"  => (int)$quantidade
     ];
 
-    $deliveryUrl = defined('DELIVERY_API_URL') && !empty(DELIVERY_API_URL) 
-        ? DELIVERY_API_URL 
-        : 'http://br2.xmxcloud.net:10504/api/v1/deliveries';
+    // 5. Determina a URL e o Token específicos para o servidor de destino a partir do config.php
+    $deliveryUrl = '';
+    $deliveryToken = '';
 
-    $deliveryToken = defined('DELIVERY_API_TOKEN') ? trim(DELIVERY_API_TOKEN) : '';
+    if (defined('DELIVERY_SERVERS') && is_array(DELIVERY_SERVERS)) {
+        $slugNormalizado = strtolower(preg_replace('/[^a-z0-9_-]/', '', (string)$serverSlug));
+
+        foreach (DELIVERY_SERVERS as $srvKey => $srvConfig) {
+            $keyNorm = strtolower(preg_replace('/[^a-z0-9_-]/', '', (string)$srvKey));
+            if ($keyNorm === $slugNormalizado || strcasecmp((string)$srvKey, (string)$serverSlug) === 0) {
+                if (is_array($srvConfig) && !empty($srvConfig['url'])) {
+                    $deliveryUrl = trim((string)$srvConfig['url']);
+                    $deliveryToken = trim((string)($srvConfig['token'] ?? ''));
+                    break;
+                }
+            }
+        }
+    }
+
+    // Se não encontrou endpoint específico no array, utiliza o fallback geral
+    if (empty($deliveryUrl) && defined('DELIVERY_API_URL') && !empty(DELIVERY_API_URL)) {
+        $deliveryUrl = trim((string)DELIVERY_API_URL);
+        $deliveryToken = defined('DELIVERY_API_TOKEN') ? trim((string)DELIVERY_API_TOKEN) : '';
+    }
+
+    if (empty($deliveryUrl)) {
+        error_log("ERRO DELIVERY: Nenhuma URL de entrega configurada para o servidor '{$serverSlug}' no config.php.");
+        return [
+            'success' => false,
+            'http_code' => 0,
+            'response' => null,
+            'error' => "URL de entrega não configurada para o servidor '{$serverSlug}' no config.php"
+        ];
+    }
 
     $headers = [
         'Content-Type: application/json',
@@ -204,6 +258,14 @@ function enviarEntregaVip($pedido, $pdo = null) {
 
     if ($sucesso) {
         error_log("DELIVERY SUCESSO: Pedido #{$orderId} enviado para '{$player}' ({$packageId} no servidor '{$serverSlug}') - HTTP {$httpCode}");
+        if ($pdo instanceof PDO && !empty($orderId)) {
+            try {
+                $upEntregue = $pdo->prepare("UPDATE pedidos_vip SET entregue = 1 WHERE txid = :txid OR id = :id");
+                $upEntregue->execute([':txid' => $orderId, ':id' => (int)$orderId]);
+            } catch (Exception $e) {
+                error_log("AVISO DELIVERY: Falha ao marcar entregue = 1 no banco: " . $e->getMessage());
+            }
+        }
     } else {
         error_log("DELIVERY ERRO: Falha ao enviar Pedido #{$orderId} ({$packageId} no servidor '{$serverSlug}'): HTTP {$httpCode} - Erro: {$curlError} - Resposta: {$response}");
     }
@@ -214,4 +276,4 @@ function enviarEntregaVip($pedido, $pdo = null) {
         'response' => $response,
         'error' => $curlError ?: null
     ];
-}
+}
