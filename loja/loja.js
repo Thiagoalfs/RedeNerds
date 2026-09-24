@@ -14,13 +14,17 @@
     tipoConta: 'original',
     servidores: [],
     selectedServer: null,
+    currentCategory: 'vips', // 'vips' | 'chaves'
     mpPublicKey: '',
     mpInstance: null,
-    activePaymentMethod: null, // 'pix' | 'card' | 'international' (selecionado ativamente pelo usuário)
+    activePaymentMethod: null, // 'pix' | 'card' | 'international'
     appliedCoupon: null, // { cupom, porcentagem, desconto, preco_original, preco_final }
     currentOrder: {
       txid: null,
-      vipData: null,
+      itemData: null,
+      vipData: null, // fallback compatibility alias
+      tipoProduto: 'vip', // 'vip' | 'chave'
+      quantidade: 1,
       pollingInterval: null,
       countdownTimer: null,
       cardPaymentMethodId: '',
@@ -87,6 +91,16 @@
       btnRetryVips.addEventListener('click', carregarCatalogoVips);
     }
 
+    // Stepper de Quantidade de Chaves no Modal
+    const btnQtyMinus = document.getElementById('btn-qty-minus');
+    const btnQtyPlus = document.getElementById('btn-qty-plus');
+    if (btnQtyMinus) {
+      btnQtyMinus.addEventListener('click', () => alterarQuantidade(-1));
+    }
+    if (btnQtyPlus) {
+      btnQtyPlus.addEventListener('click', () => alterarQuantidade(1));
+    }
+
     const btnClosePix = document.getElementById('btn-close-pix-modal');
     if (btnClosePix) {
       btnClosePix.addEventListener('click', () => fecharModalCheckout());
@@ -110,8 +124,8 @@
     const btnRetryPix = document.getElementById('btn-retry-pix');
     if (btnRetryPix) {
       btnRetryPix.addEventListener('click', () => {
-        if (STATE.currentOrder.vipData) {
-          abrirCheckoutModal(STATE.currentOrder.vipData);
+        if (STATE.currentOrder.itemData) {
+          abrirCheckoutModal(STATE.currentOrder.itemData, STATE.currentOrder.tipoProduto);
         }
       });
     }
@@ -148,6 +162,16 @@
     }
 
     document.addEventListener('click', (e) => {
+      const categoryTabBtn = e.target.closest('.category-tab');
+      if (categoryTabBtn) {
+        e.preventDefault();
+        const cat = categoryTabBtn.dataset.category;
+        if (cat && cat !== STATE.currentCategory) {
+          selecionarCategoria(cat);
+        }
+        return;
+      }
+
       const openNickBtn = e.target.closest('#btn-open-nick-modal, #btn-trocar-nick');
       if (openNickBtn) {
         e.preventDefault();
@@ -307,6 +331,7 @@
       }
 
       renderQuickNav();
+      renderCategoryNav();
       renderServerSectionsWithDividers();
 
       if (loadingBox) loadingBox.hidden = true;
@@ -375,10 +400,74 @@
       window.history.replaceState({}, '', url);
     } catch (e) {}
 
+    renderCategoryNav();
     renderServerSectionsWithDividers();
   }
 
-  // 7. RENDERIZAÇÃO DA SEÇÃO DO SERVIDOR ATIVO
+  // 6.1 SELETOR DE CATEGORIAS (VIPS VS CHAVES)
+  function renderCategoryNav() {
+    const container = document.getElementById('loja-category-selector-container');
+    const navBox = document.getElementById('loja-category-tabs');
+    if (!navBox) return;
+
+    const srv = STATE.servidores.find(s => s.id === STATE.selectedServer) || STATE.servidores[0];
+    if (!srv) {
+      navBox.innerHTML = '';
+      if (container) container.hidden = true;
+      return;
+    }
+
+    const hasVips = Array.isArray(srv.vips) && srv.vips.length > 0;
+    const hasChaves = Array.isArray(srv.chaves) && srv.chaves.length > 0;
+
+    // Se a categoria atual não tiver itens disponíveis no servidor ativo, seleciona a que tiver
+    if (STATE.currentCategory === 'chaves' && !hasChaves && hasVips) {
+      STATE.currentCategory = 'vips';
+    } else if (STATE.currentCategory === 'vips' && !hasVips && hasChaves) {
+      STATE.currentCategory = 'chaves';
+    }
+
+    // Se ambas as categorias tiverem itens disponíveis, renderiza os botões dinamicamente
+    if (hasVips && hasChaves) {
+      const isVipsActive = (STATE.currentCategory === 'vips');
+      const isChavesActive = (STATE.currentCategory === 'chaves');
+
+      let html = `
+        <button type="button" class="category-tab ${isVipsActive ? 'active' : ''}" data-category="vips" role="tab" aria-selected="${isVipsActive ? 'true' : 'false'}">
+          <i class="fa-solid fa-gem"></i> <span>Pacotes VIP</span>
+        </button>
+        <button type="button" class="category-tab ${isChavesActive ? 'active' : ''}" data-category="chaves" role="tab" aria-selected="${isChavesActive ? 'true' : 'false'}">
+          <i class="fa-solid fa-key"></i> <span>Pacotes de Chaves</span>
+        </button>
+      `;
+      navBox.innerHTML = html;
+
+      navBox.querySelectorAll('.category-tab').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          e.preventDefault();
+          const cat = btn.dataset.category;
+          if (cat && cat !== STATE.currentCategory) {
+            selecionarCategoria(cat);
+          }
+        });
+      });
+
+      if (container) container.hidden = false;
+    } else {
+      // Oculta caso só haja uma ou nenhuma categoria cadastrada
+      navBox.innerHTML = '';
+      if (container) container.hidden = true;
+    }
+  }
+
+  function selecionarCategoria(categoria) {
+    STATE.currentCategory = categoria;
+
+    renderCategoryNav();
+    renderServerSectionsWithDividers();
+  }
+
+  // 7. RENDERIZAÇÃO DA SEÇÃO DO SERVIDOR E CATEGORIA ATIVA
   function renderServerSectionsWithDividers() {
     const container = document.getElementById('loja-servers-container');
     if (!container) return;
@@ -395,18 +484,106 @@
     const srv = STATE.servidores.find(s => s.id === STATE.selectedServer) || STATE.servidores[0];
     if (!srv) return;
 
-    const vipsList = Array.isArray(srv.vips) ? srv.vips : [];
+    // Atualiza a visibilidade dinâmica das abas de categoria para o servidor ativo
+    renderCategoryNav();
 
-    let vipsCardsHtml = '';
+    const isChavesCat = (STATE.currentCategory === 'chaves');
+    const itemsList = isChavesCat 
+      ? (Array.isArray(srv.chaves) ? srv.chaves : [])
+      : (Array.isArray(srv.vips) ? srv.vips : []);
 
-    if (vipsList.length === 0) {
-      vipsCardsHtml = `
+    let cardsHtml = '';
+
+    if (itemsList.length === 0) {
+      const msgVazio = isChavesCat 
+        ? 'Nenhum pacote de chaves cadastrado para este servidor no momento.'
+        : 'Nenhum pacote VIP cadastrado para este servidor no momento.';
+      cardsHtml = `
         <div class="state-feedback" style="grid-column: 1 / -1;">
-          <p>Nenhum VIP cadastrado para este servidor no momento.</p>
+          <p>${escapeHTML(msgVazio)}</p>
         </div>
       `;
+    } else if (isChavesCat) {
+      // RENDERIZAÇÃO DOS CARDS DE CHAVES
+      cardsHtml = itemsList.map((chave, index) => {
+        const isFeatured = !!chave.destaque;
+        const precoFormatado = Number(chave.preco).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        const delay = (index * 0.05).toFixed(2);
+
+        const cor1 = (chave.cor1 || '#ffffff').trim();
+        const cor2 = (chave.cor2 || '#ffffff').trim();
+        const hasCustomGradient = cor1 && cor2 && (cor1.toLowerCase() !== cor2.toLowerCase()) && (cor1 !== '#ffffff' || cor2 !== '#ffffff');
+        const tagTextStyle = hasCustomGradient 
+          ? `style="background: linear-gradient(135deg, ${escapeHTML(cor1)}, ${escapeHTML(cor2)}); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; font-weight: 800;"`
+          : `style="color: ${escapeHTML(cor1)}; font-weight: 800;"`;
+
+        const imagemUrl = (chave.imagem || '').trim() || '/assets/images/logo.webp';
+
+        const vantagensHtml = (chave.vantagens || []).map((v) => {
+          let item = (v || '').trim();
+          let infoTexto = '';
+
+          const matchInfo = item.match(/^(.*?)\s*\((.+?)\)$/);
+          if (matchInfo) {
+            item = matchInfo[1].trim();
+            infoTexto = matchInfo[2].trim();
+          }
+
+          const iconeCls = obterIconeVantagem(item);
+          let itemHtml = escapeHTML(item);
+          itemHtml = itemHtml.replace(/\[(.*?)\]/g, `<span class="vip-tag-badge"><strong ${tagTextStyle}>$1</strong></span>`);
+
+          let infoHtml = '';
+          if (infoTexto) {
+            const tooltipContent = renderBenefitInfoHtml(infoTexto);
+            infoHtml = `
+              <span class="benefit-info-trigger-wrap">
+                <button type="button" class="benefit-info-btn" data-title="${escapeHTML(item)}" data-info="${escapeHTML(infoTexto)}" title="Ver detalhes" aria-label="Mais informações">
+                  <i class="fa-solid fa-circle-info"></i>
+                </button>
+                <span class="benefit-info-tooltip">${tooltipContent}</span>
+              </span>
+            `;
+          }
+
+          return `<li><i class="${iconeCls}"></i> <span>${itemHtml}${infoHtml}</span></li>`;
+        }).join('');
+
+        return `
+          <div class="vip-card key-card ${isFeatured ? 'is-featured' : ''}" style="animation-delay: ${delay}s;">
+            <!-- IMAGEM EM DESTAQUE NO TOPO -->
+            <div class="key-card-image-box">
+              <img src="${escapeHTML(imagemUrl)}" alt="${escapeHTML(chave.nome)}" class="key-card-img" loading="lazy" onerror="this.onerror=null; this.src='/assets/images/logo.webp';">
+            </div>
+
+            <div class="vip-card-head">
+              <span class="vip-server-label">${escapeHTML(srv.nome)}</span>
+              ${isFeatured ? `<span class="featured-pill">Mais Escolhido</span>` : ''}
+            </div>
+
+            <h3 class="vip-title key-title">${escapeHTML(chave.nome)}</h3>
+
+            <!-- PREÇO UNITÁRIO SEM DURAÇÃO -->
+            <div class="vip-price-container key-price-container">
+              <span class="price-currency">R$</span>
+              <span class="price-val">${precoFormatado}</span>
+              <span class="price-period">/ unidade</span>
+            </div>
+
+            <ul class="vip-benefits key-benefits">
+              ${vantagensHtml}
+            </ul>
+
+            <button type="button" class="btn-purchase-card btn-purchase-key" data-item-id="${chave.id}" data-tipo="chave" data-server-id="${srv.id}">
+              <span>Adquirir ${escapeHTML(chave.nome)}</span>
+              <i class="fa-solid fa-arrow-right"></i>
+            </button>
+          </div>
+        `;
+      }).join('');
     } else {
-      vipsCardsHtml = vipsList.map((vip, index) => {
+      // RENDERIZAÇÃO DOS CARDS VIP (COM DURAÇÃO)
+      cardsHtml = itemsList.map((vip, index) => {
         const isFeatured = !!vip.destaque;
         const duracao = vip.duracao_dias ? `${vip.duracao_dias} dias` : '30 dias';
         const precoFormatado = Number(vip.preco).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
@@ -423,7 +600,6 @@
           let item = (v || '').trim();
           let infoTexto = '';
 
-          // Captura texto de informação entre parênteses no final: "Nome do item (Info extra...)"
           const matchInfo = item.match(/^(.*?)\s*\((.+?)\)$/);
           if (matchInfo) {
             item = matchInfo[1].trim();
@@ -472,7 +648,7 @@
               ${vantagensHtml}
             </ul>
 
-            <button type="button" class="btn-purchase-card" data-vip-id="${vip.id}" data-server-id="${srv.id}">
+            <button type="button" class="btn-purchase-card" data-item-id="${vip.id}" data-tipo="vip" data-server-id="${srv.id}">
               <span>Adquirir ${escapeHTML(vip.nome)}</span>
               <i class="fa-solid fa-arrow-right"></i>
             </button>
@@ -482,22 +658,27 @@
     }
 
     container.innerHTML = `
-      <div class="loja-vips-grid">
-        ${vipsCardsHtml}
+      <div class="loja-vips-grid ${isChavesCat ? 'loja-keys-grid' : ''}">
+        ${cardsHtml}
       </div>
     `;
 
     container.querySelectorAll('.btn-purchase-card').forEach(btn => {
       btn.addEventListener('click', () => {
-        const vipId = parseInt(btn.dataset.vipId, 10);
+        const itemId = parseInt(btn.dataset.itemId, 10);
+        const tipo = btn.dataset.tipo || 'vip';
         const srvId = btn.dataset.serverId;
         
         const currentSrv = STATE.servidores.find(s => s.id === srvId);
-        const vip = currentSrv ? (currentSrv.vips || []).find(v => v.id === vipId) : null;
+        if (!currentSrv) return;
 
-        if (currentSrv && vip) {
-          const vipCompleto = {
-            ...vip,
+        const item = (tipo === 'chave')
+          ? (currentSrv.chaves || []).find(c => c.id === itemId)
+          : (currentSrv.vips || []).find(v => v.id === itemId);
+
+        if (item) {
+          const itemCompleto = {
+            ...item,
             serverInfo: {
               id: currentSrv.id,
               nome: currentSrv.nome,
@@ -509,7 +690,7 @@
           if (!STATE.nick) {
             abrirModalNick(true);
           } else {
-            abrirCheckoutModal(vipCompleto);
+            abrirCheckoutModal(itemCompleto, tipo);
           }
         }
       });
@@ -517,8 +698,11 @@
   }
 
   // 8. CONTROLE DO MODAL DE CHECKOUT MULTI-MÉTODO
-  function abrirCheckoutModal(vipData) {
-    STATE.currentOrder.vipData = vipData;
+  function abrirCheckoutModal(itemData, tipoProduto = 'vip') {
+    STATE.currentOrder.itemData = itemData;
+    STATE.currentOrder.vipData = itemData; // compatibilidade
+    STATE.currentOrder.tipoProduto = tipoProduto;
+    STATE.currentOrder.quantidade = 1;
     STATE.currentOrder.txid = null;
     removerCupom(false); // Reset limpo do cupom
 
@@ -530,6 +714,8 @@
     const summaryServerVip = document.getElementById('summary-server-vip');
     const methodsNav = document.getElementById('checkout-methods-nav');
     const couponBox = document.getElementById('coupon-input-container');
+    const quantityGroup = document.getElementById('checkout-quantity-group');
+    const inputQty = document.getElementById('input-item-quantity');
 
     const stateSuccess = document.getElementById('pix-success-state');
     const stateError = document.getElementById('pix-error-state');
@@ -538,26 +724,34 @@
 
     pararPollingPix();
 
-    if (headerTitle) headerTitle.textContent = 'Finalizar Compra';
+    if (headerTitle) headerTitle.textContent = (tipoProduto === 'chave') ? 'Finalizar Compra de Chaves' : 'Finalizar Compra';
     if (orderSummaryBox) orderSummaryBox.hidden = false;
     if (couponBox) couponBox.hidden = false;
     if (methodsNav) methodsNav.hidden = false;
     if (summaryAvatar) summaryAvatar.src = `https://mc-heads.net/avatar/${encodeURIComponent(STATE.nick)}/64`;
     if (summaryNick) summaryNick.textContent = STATE.nick;
     
+    // Controle do seletor de quantidade (apenas para chaves)
+    if (quantityGroup) {
+      quantityGroup.hidden = (tipoProduto !== 'chave');
+    }
+    if (inputQty) {
+      inputQty.value = 1;
+    }
+
     if (summaryServerVip) {
-      const serverColor = (vipData.serverInfo && vipData.serverInfo.cor ? vipData.serverInfo.cor : '#38bdf8').trim();
-      const cor1 = (vipData.cor1 || '#ffffff').trim();
-      const cor2 = (vipData.cor2 || '#ffffff').trim();
+      const serverColor = (itemData.serverInfo && itemData.serverInfo.cor ? itemData.serverInfo.cor : '#38bdf8').trim();
+      const cor1 = (itemData.cor1 || '#ffffff').trim();
+      const cor2 = (itemData.cor2 || '#ffffff').trim();
       const hasCustomGradient = cor1 && cor2 && (cor1.toLowerCase() !== cor2.toLowerCase()) && (cor1 !== '#ffffff' || cor2 !== '#ffffff');
 
-      const serverHtml = `<span style="color: ${escapeHTML(serverColor)}; font-weight: 700;">${escapeHTML(vipData.serverInfo ? vipData.serverInfo.nome : '')}</span>`;
-      const vipTextStyle = hasCustomGradient
+      const serverHtml = `<span style="color: ${escapeHTML(serverColor)}; font-weight: 700;">${escapeHTML(itemData.serverInfo ? itemData.serverInfo.nome : '')}</span>`;
+      const itemTextStyle = hasCustomGradient
         ? `background: linear-gradient(135deg, ${escapeHTML(cor1)}, ${escapeHTML(cor2)}); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; font-weight: 800;`
         : `color: ${escapeHTML(cor1)}; font-weight: 800;`;
-      const vipHtml = `<span style="${vipTextStyle}">${escapeHTML(vipData.nome)}</span>`;
+      const itemHtml = `<span style="${itemTextStyle}">${escapeHTML(itemData.nome)}</span>`;
 
-      summaryServerVip.innerHTML = `${serverHtml} <span style="color: rgba(255, 255, 255, 0.35); margin: 0 4px;">•</span> ${vipHtml}`;
+      summaryServerVip.innerHTML = `${serverHtml} <span style="color: rgba(255, 255, 255, 0.35); margin: 0 4px;">•</span> ${itemHtml}`;
     }
     
     atualizarPrecoSumario();
@@ -566,7 +760,7 @@
     if (stateError) stateError.hidden = true;
 
     // Reset do form de cartão
-    const precoBase = obterPrecoAtualVip();
+    const precoBase = obterPrecoAtualItem();
     resetCardForm(precoBase);
 
     // Abre o modal
@@ -577,35 +771,81 @@
     switchPaymentMethod(null);
   }
 
-  function obterPrecoAtualVip() {
-    if (!STATE.currentOrder.vipData) return 0;
-    if (STATE.appliedCoupon && STATE.appliedCoupon.preco_final) {
-      return Number(STATE.appliedCoupon.preco_final);
+  function alterarQuantidade(delta) {
+    if (STATE.currentOrder.tipoProduto !== 'chave') return;
+
+    let novaQtd = (STATE.currentOrder.quantidade || 1) + delta;
+    if (novaQtd < 1) novaQtd = 1;
+    if (novaQtd > 100) novaQtd = 100;
+
+    STATE.currentOrder.quantidade = novaQtd;
+    const inputQty = document.getElementById('input-item-quantity');
+    if (inputQty) inputQty.value = novaQtd;
+
+    atualizarPrecoSumario();
+
+    // Se cupom estiver aplicado, revalida com nova quantidade
+    if (STATE.appliedCoupon && STATE.appliedCoupon.cupom) {
+      aplicarCupom(STATE.appliedCoupon.cupom);
+    } else {
+      if (STATE.activePaymentMethod === 'pix') {
+        STATE.currentOrder.txid = null;
+        gerarCobrancaPix(STATE.currentOrder.itemData);
+      } else if (STATE.activePaymentMethod === 'card') {
+        const inputCardNum = document.getElementById('card-number');
+        if (inputCardNum && inputCardNum.value) {
+          onCardNumberInput(inputCardNum.value);
+        } else {
+          resetInstallmentsSelect(obterPrecoAtualItem());
+        }
+      }
     }
-    return Number(STATE.currentOrder.vipData.preco);
+  }
+
+  function obterPrecoAtualItem() {
+    const item = STATE.currentOrder.itemData || STATE.currentOrder.vipData;
+    if (!item) return 0;
+
+    const precoUnitario = Number(item.preco);
+    const qtd = (STATE.currentOrder.tipoProduto === 'chave') ? (STATE.currentOrder.quantidade || 1) : 1;
+    const totalBruto = precoUnitario * qtd;
+
+    if (STATE.appliedCoupon && STATE.appliedCoupon.porcentagem) {
+      const pct = Number(STATE.appliedCoupon.porcentagem);
+      const desc = Number((totalBruto * (pct / 100)).toFixed(2));
+      return Math.max(0.01, Number((totalBruto - desc).toFixed(2)));
+    }
+
+    return totalBruto;
+  }
+
+  function obterPrecoAtualVip() {
+    return obterPrecoAtualItem();
   }
 
   function atualizarPrecoSumario() {
     const summaryPrice = document.getElementById('summary-price-display');
-    if (!summaryPrice || !STATE.currentOrder.vipData) return;
+    const item = STATE.currentOrder.itemData || STATE.currentOrder.vipData;
+    if (!summaryPrice || !item) return;
 
-    const precoOriginal = Number(STATE.currentOrder.vipData.preco);
+    const precoUnitario = Number(item.preco);
+    const qtd = (STATE.currentOrder.tipoProduto === 'chave') ? (STATE.currentOrder.quantidade || 1) : 1;
+    const precoOriginalTotal = precoUnitario * qtd;
+    const precoFinalTotal = obterPrecoAtualItem();
 
-    if (STATE.appliedCoupon && STATE.appliedCoupon.preco_final < precoOriginal) {
-      const precoFinal = Number(STATE.appliedCoupon.preco_final);
+    if (STATE.appliedCoupon && precoFinalTotal < precoOriginalTotal) {
       summaryPrice.innerHTML = `
-        <span class="summary-amount-original">R$ ${precoOriginal.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</span>
-        <span class="summary-amount-discounted">R$ ${precoFinal.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</span>
+        <span class="summary-amount-original">R$ ${precoOriginalTotal.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+        <span class="summary-amount-discounted">R$ ${precoFinalTotal.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
       `;
     } else {
-      summaryPrice.innerHTML = `R$ ${precoOriginal.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`;
+      summaryPrice.innerHTML = `R$ ${precoOriginalTotal.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
     }
 
     // Atualiza label do botão de cartão
-    const precoAtual = obterPrecoAtualVip();
     const btnCardLabel = document.getElementById('btn-card-label');
     if (btnCardLabel) {
-      btnCardLabel.textContent = `Pagar R$ ${precoAtual.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`;
+      btnCardLabel.textContent = `Pagar R$ ${precoFinalTotal.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
     }
   }
 
@@ -630,8 +870,9 @@
     if (panelIntl) panelIntl.hidden = (methodName !== 'international');
 
     if (methodName === 'pix') {
-      if (!STATE.currentOrder.txid && STATE.currentOrder.vipData) {
-        gerarCobrancaPix(STATE.currentOrder.vipData);
+      const item = STATE.currentOrder.itemData || STATE.currentOrder.vipData;
+      if (!STATE.currentOrder.txid && item) {
+        gerarCobrancaPix(item);
       }
     } else if (methodName === 'card') {
       const inputCardNum = document.getElementById('card-number');
@@ -682,7 +923,8 @@
     const btnApplySpinner = document.getElementById('btn-apply-coupon-spinner');
     const btnApply = document.getElementById('btn-apply-coupon');
 
-    if (!STATE.currentOrder.vipData) return;
+    const item = STATE.currentOrder.itemData || STATE.currentOrder.vipData;
+    if (!item) return;
 
     if (errorMsg) errorMsg.hidden = true;
     if (btnApply) btnApply.disabled = true;
@@ -695,7 +937,10 @@
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           cupom: cupomCodigo,
-          vip_id: STATE.currentOrder.vipData.id
+          tipo_produto: STATE.currentOrder.tipoProduto || 'vip',
+          quantidade: (STATE.currentOrder.tipoProduto === 'chave') ? (STATE.currentOrder.quantidade || 1) : 1,
+          vip_id: item.id,
+          chave_id: item.id
         })
       });
 
@@ -723,7 +968,7 @@
       // Recalcula PIX ou Cartão
       if (STATE.activePaymentMethod === 'pix') {
         STATE.currentOrder.txid = null;
-        gerarCobrancaPix(STATE.currentOrder.vipData);
+        gerarCobrancaPix(item);
       } else if (STATE.activePaymentMethod === 'card') {
         const inputCardNum = document.getElementById('card-number');
         if (inputCardNum && inputCardNum.value) {
@@ -761,16 +1006,17 @@
 
     atualizarPrecoSumario();
 
-    if (recriarPagamento && STATE.currentOrder.vipData) {
+    const item = STATE.currentOrder.itemData || STATE.currentOrder.vipData;
+    if (recriarPagamento && item) {
       if (STATE.activePaymentMethod === 'pix') {
         STATE.currentOrder.txid = null;
-        gerarCobrancaPix(STATE.currentOrder.vipData);
+        gerarCobrancaPix(item);
       } else if (STATE.activePaymentMethod === 'card') {
         const inputCardNum = document.getElementById('card-number');
         if (inputCardNum && inputCardNum.value) {
           onCardNumberInput(inputCardNum.value);
         } else {
-          resetInstallmentsSelect(STATE.currentOrder.vipData.preco);
+          resetInstallmentsSelect(obterPrecoAtualItem());
         }
       }
     }
@@ -784,7 +1030,10 @@
   }
 
   // 9. FLUXO DE PAGAMENTO: PIX
-  async function gerarCobrancaPix(vipData) {
+  async function gerarCobrancaPix(itemData) {
+    const item = itemData || STATE.currentOrder.itemData || STATE.currentOrder.vipData;
+    if (!item) return;
+
     const stateLoading = document.getElementById('pix-loading-state');
     const stateReady = document.getElementById('pix-ready-state');
     const stateError = document.getElementById('pix-error-state');
@@ -797,10 +1046,13 @@
       const payload = {
         nick: STATE.nick,
         tipo_conta: STATE.tipoConta,
-        servidor: vipData.serverInfo.nome,
-        vip_id: vipData.id,
-        vip_nome: vipData.nome,
-        valor: obterPrecoAtualVip(),
+        servidor: item.serverInfo ? item.serverInfo.nome : '',
+        tipo_produto: STATE.currentOrder.tipoProduto || 'vip',
+        quantidade: (STATE.currentOrder.tipoProduto === 'chave') ? (STATE.currentOrder.quantidade || 1) : 1,
+        vip_id: item.id,
+        chave_id: item.id,
+        vip_nome: item.nome,
+        valor: obterPrecoAtualItem(),
         cupom: STATE.appliedCoupon ? STATE.appliedCoupon.cupom : ''
       };
 
@@ -1125,7 +1377,8 @@
       return;
     }
 
-    if (!STATE.currentOrder.vipData) {
+    const item = STATE.currentOrder.itemData || STATE.currentOrder.vipData;
+    if (!item) {
       exibirErroCartao('Sessão de compra expirada. Selecione o pacote novamente.');
       return;
     }
@@ -1186,9 +1439,12 @@
         device_id: deviceId,
         nick: STATE.nick,
         tipo_conta: STATE.tipoConta,
-        servidor: STATE.currentOrder.vipData.serverInfo.nome,
-        vip_id: STATE.currentOrder.vipData.id,
-        vip_nome: STATE.currentOrder.vipData.nome,
+        servidor: item.serverInfo ? item.serverInfo.nome : '',
+        tipo_produto: STATE.currentOrder.tipoProduto || 'vip',
+        quantidade: (STATE.currentOrder.tipoProduto === 'chave') ? (STATE.currentOrder.quantidade || 1) : 1,
+        vip_id: item.id,
+        chave_id: item.id,
+        vip_nome: item.nome,
         cupom: STATE.appliedCoupon ? STATE.appliedCoupon.cupom : ''
       };
 
@@ -1281,9 +1537,10 @@
       return;
     }
 
-    if (!STATE.currentOrder.vipData) {
+    const item = STATE.currentOrder.itemData || STATE.currentOrder.vipData;
+    if (!item) {
       if (errorBox && errorMsg) {
-        errorMsg.textContent = 'No VIP package selected.';
+        errorMsg.textContent = 'No item selected.';
         errorBox.hidden = false;
       }
       return;
@@ -1297,8 +1554,11 @@
       const payload = {
         nick: STATE.nick,
         tipo_conta: STATE.tipoConta,
-        servidor: STATE.currentOrder.vipData.serverInfo.nome,
-        vip_id: STATE.currentOrder.vipData.id,
+        servidor: item.serverInfo ? item.serverInfo.nome : '',
+        tipo_produto: STATE.currentOrder.tipoProduto || 'vip',
+        quantidade: (STATE.currentOrder.tipoProduto === 'chave') ? (STATE.currentOrder.quantidade || 1) : 1,
+        vip_id: item.id,
+        chave_id: item.id,
         email: email,
         cupom: STATE.appliedCoupon ? STATE.appliedCoupon.cupom : ''
       };
@@ -1582,11 +1842,17 @@
     const rMethod = document.getElementById('receipt-method-name');
     const rTxid = document.getElementById('receipt-txid');
 
-    const vipNome = data.vip_nome || STATE.currentOrder.vipData?.nome || 'VIP';
-    const serverNome = data.servidor || STATE.currentOrder.vipData?.serverInfo?.nome || 'Servidor';
+    const item = STATE.currentOrder.itemData || STATE.currentOrder.vipData;
+    const isChave = (STATE.currentOrder.tipoProduto === 'chave');
+    const qtd = isChave ? (STATE.currentOrder.quantidade || 1) : 1;
+    let vipNome = data.vip_nome || item?.nome || 'Item';
+    if (isChave && qtd > 1) {
+      vipNome = `${vipNome} (x${qtd})`;
+    }
+    const serverNome = data.servidor || item?.serverInfo?.nome || 'Servidor';
     const nick = data.nick || STATE.nick || 'Jogador';
     const txid = data.txid || STATE.currentOrder.txid || 'N/A';
-    const metodo = data.metodo || (STATE.activePaymentMethod === 'card' ? 'Cartão de Crédito' : 'PIX');
+    const metodo = data.metodo || (STATE.activePaymentMethod === 'card' ? 'Cartão de Crédito' : (STATE.activePaymentMethod === 'international' ? 'Checkout Pro Internacional' : 'PIX'));
 
     if (rNick) rNick.textContent = nick;
     if (rVip) rVip.textContent = vipNome;

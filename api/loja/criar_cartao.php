@@ -49,6 +49,10 @@ require_once __DIR__ . "/ip_helper.php";
 require_once __DIR__ . "/cupom_helper.php";
 verificarAcessoApi();
 
+if (isset($pdo) && $pdo instanceof PDO) {
+    garantirSchemaTabelaPedidos($pdo);
+}
+
 // Lê os dados recebidos via JSON (ou POST)
 $rawInput = file_get_contents('php://input');
 $data = json_decode($rawInput, true);
@@ -93,7 +97,19 @@ try {
 $nick = trim((string)($data['nick'] ?? ''));
 $tipoConta = strtolower(trim((string)($data['tipo_conta'] ?? 'original')));
 $servidor = trim((string)($data['servidor'] ?? ''));
+$tipoProduto = strtolower(trim((string)($data['tipo_produto'] ?? 'vip')));
+if (!in_array($tipoProduto, ['vip', 'chave'], true)) {
+    $tipoProduto = 'vip';
+}
+
 $vipId = (int)($data['vip_id'] ?? 0);
+$chaveId = (int)($data['chave_id'] ?? 0);
+$itemId = ($tipoProduto === 'chave') ? ($chaveId > 0 ? $chaveId : $vipId) : $vipId;
+
+$quantidade = filter_var($data['quantidade'] ?? 1, FILTER_VALIDATE_INT);
+if ($quantidade === false || $quantidade < 1) $quantidade = 1;
+if ($quantidade > 100) $quantidade = 100;
+if ($tipoProduto === 'vip') $quantidade = 1;
 
 $token = trim((string)($data['token'] ?? ''));
 $installments = (int)($data['installments'] ?? 1);
@@ -116,7 +132,7 @@ if (!in_array($tipoConta, ['original', 'pirata'], true)) {
 
 if (empty($servidor)) {
     http_response_code(400);
-    echo json_encode(["erro" => "Selecione o servidor onde deseja receber o VIP."], JSON_UNESCAPED_UNICODE);
+    echo json_encode(["erro" => "Selecione o servidor onde deseja receber o produto."], JSON_UNESCAPED_UNICODE);
     exit;
 }
 
@@ -155,7 +171,7 @@ $valorOriginal = 0.00;
 $descontoAplicado = 0.00;
 $cupomEnviado = strtoupper(trim((string)($data['cupom'] ?? '')));
 $cupomCodigo = null;
-$vipNome = '';
+$itemNome = '';
 
 if (!isset($pdo) || !($pdo instanceof PDO)) {
     http_response_code(500);
@@ -164,19 +180,24 @@ if (!isset($pdo) || !($pdo instanceof PDO)) {
 }
 
 try {
-    $stmtVip = $pdo->prepare("SELECT id, nome, preco, servidor_id FROM vips WHERE id = :id AND (ativo = 1 OR ativo IS NULL) LIMIT 1");
-    $stmtVip->execute([':id' => $vipId]);
-    $vipRow = $stmtVip->fetch(PDO::FETCH_ASSOC);
+    if ($tipoProduto === 'chave') {
+        $stmtItem = $pdo->prepare("SELECT id, nome, preco, servidor_id FROM chaves WHERE id = :id AND (ativo = 1 OR ativo IS NULL) LIMIT 1");
+    } else {
+        $stmtItem = $pdo->prepare("SELECT id, nome, preco, servidor_id FROM vips WHERE id = :id AND (ativo = 1 OR ativo IS NULL) LIMIT 1");
+    }
+    $stmtItem->execute([':id' => $itemId]);
+    $itemRow = $stmtItem->fetch(PDO::FETCH_ASSOC);
 
-    if (!$vipRow) {
+    if (!$itemRow) {
         http_response_code(404);
-        echo json_encode(["erro" => "Pacote VIP não encontrado ou inativo."], JSON_UNESCAPED_UNICODE);
+        echo json_encode(["erro" => ($tipoProduto === 'chave' ? "Pacote de Chaves" : "Pacote VIP") . " não encontrado ou inativo."], JSON_UNESCAPED_UNICODE);
         exit;
     }
 
-    $valorReal = (float)$vipRow['preco'];
-    $valorOriginal = $valorReal;
-    $vipNome = (string)$vipRow['nome'];
+    $precoUnitario = (float)$itemRow['preco'];
+    $valorOriginal = round($precoUnitario * $quantidade, 2);
+    $valorReal = $valorOriginal;
+    $itemNome = (string)$itemRow['nome'];
 
     // Validação de Cupom de Desconto
     if (!empty($cupomEnviado)) {
@@ -204,8 +225,8 @@ try {
             // Verifica restrição de servidor
             $cupomServidorId = (int)($cupomRow['servidor_id'] ?? 0);
             if ($cupomServidorId > 0) {
-                $vipServidorId = (int)($vipRow['servidor_id'] ?? 0);
-                if ($vipServidorId > 0 && $vipServidorId !== $cupomServidorId) {
+                $itemServidorId = (int)($itemRow['servidor_id'] ?? 0);
+                if ($itemServidorId > 0 && $itemServidorId !== $cupomServidorId) {
                     $stmtSrvNome = $pdo->prepare("SELECT servername FROM servidores WHERE id = :id LIMIT 1");
                     $stmtSrvNome->execute([':id' => $cupomServidorId]);
                     $srvNome = $stmtSrvNome->fetchColumn() ?: 'outro servidor';
@@ -227,7 +248,7 @@ try {
         }
     }
 
-    // Validação do Servidor e correspondência com o VIP
+    // Validação do Servidor e correspondência com o item
     $srvSlug = strtolower(preg_replace('/[^a-zA-Z0-9]/', '', $servidor));
     $stmtCheckSrv = $pdo->prepare("SELECT id, servername, nome, enabled FROM servidores WHERE (servername = :srv OR nome = :srvSlug) LIMIT 1");
     $stmtCheckSrv->execute([':srv' => $servidor, ':srvSlug' => $srvSlug]);
@@ -242,15 +263,15 @@ try {
     $servidorId = (int)$srvRow['id'];
     $servidor = (string)$srvRow['servername'];
 
-    // Confere se o servidor do VIP corresponde ao servidor selecionado
-    $vipServidorId = (int)($vipRow['servidor_id'] ?? 0);
-    if ($vipServidorId > 0 && $vipServidorId !== $servidorId) {
+    // Confere se o servidor do item corresponde ao servidor selecionado
+    $itemServidorId = (int)($itemRow['servidor_id'] ?? 0);
+    if ($itemServidorId > 0 && $itemServidorId !== $servidorId) {
         http_response_code(400);
-        echo json_encode(["erro" => "O pacote VIP selecionado não pertence ao servidor {$servidor}."], JSON_UNESCAPED_UNICODE);
+        echo json_encode(["erro" => "O pacote selecionado não pertence ao servidor {$servidor}."], JSON_UNESCAPED_UNICODE);
         exit;
     }
 } catch (Exception $e) {
-    error_log("Erro ao buscar preço do VIP/Cupom no BD: " . $e->getMessage());
+    error_log("Erro ao buscar preço do Produto/Cupom no BD: " . $e->getMessage());
     http_response_code(500);
     echo json_encode(["erro" => "Erro interno no processamento."], JSON_UNESCAPED_UNICODE);
     exit;
@@ -294,10 +315,14 @@ $cardLastFour = null;
 
 $mpUrl = "https://api.mercadopago.com/v1/payments";
 
+$itemDescricao = ($tipoProduto === 'chave')
+    ? "RedeNerds - {$quantidade}x {$itemNome} ({$servidor}) - Jogador: {$nick}"
+    : "RedeNerds - {$itemNome} ({$servidor}) - Jogador: {$nick}";
+
 $mpPayload = [
     "transaction_amount" => (float)$valorReal,
     "token" => $token,
-    "description" => "VIP {$vipNome} - Nick: {$nick} ({$servidor})",
+    "description" => $itemDescricao,
     "installments" => (int)$installments,
     "payment_method_id" => $paymentMethodId,
     "payer" => [
@@ -315,9 +340,11 @@ $mpPayload = [
         "txid" => $txid,
         "nick" => $nick,
         "tipo_conta" => $tipoConta,
+        "tipo_produto" => $tipoProduto,
+        "quantidade" => $quantidade,
         "servidor" => $servidor,
-        "vip_id" => $vipId,
-        "vip_nome" => $vipNome,
+        "item_id" => $itemId,
+        "item_nome" => $itemNome,
         "cupom" => $cupomCodigo,
         "metodo_pagamento" => "cartao"
     ]
@@ -388,16 +415,19 @@ $statusBd = ($mpStatus === 'approved') ? 'pago' : (($mpStatus === 'in_process') 
 $pagoEm = ($statusBd === 'pago') ? date('Y-m-d H:i:s') : null;
 $cupomJaComputado = 0;
 
+$dbVipId = ($tipoProduto === 'vip') ? $itemId : null;
+$dbChaveId = ($tipoProduto === 'chave') ? $itemId : null;
+
 try {
     $stmt = $pdo->prepare("
         INSERT INTO pedidos_vip (
             txid, mp_payment_id, nick, payer_email, payer_cpf, pais_ip, tipo_conta, servidor, 
-            vip_id, vip_nome, cupom_codigo, valor, valor_original, desconto_aplicado, 
+            tipo_produto, quantidade, chave_id, vip_id, vip_nome, cupom_codigo, valor, valor_original, desconto_aplicado, 
             valor_total, status, status_detail, metodo_pagamento, 
             parcelas, card_first_six_digits, card_last_four_digits, card_payment_method_id, cupom_computado, criado_em, pago_em
         ) VALUES (
             :txid, :mp_id, :nick, :email, :cpf, :pais_ip, :tipo_conta, :servidor,
-            :vip_id, :vip_nome, :cupom_codigo, :valor, :valor_original, :desconto_aplicado, 
+            :tipo_produto, :quantidade, :chave_id, :vip_id, :vip_nome, :cupom_codigo, :valor, :valor_original, :desconto_aplicado, 
             :valor_total, :status, :status_detail, 'cartao',
             :parcelas, :card_six, :card_four, :method_id, :cupom_computado, NOW(), :pago_em
         )
@@ -411,8 +441,11 @@ try {
         ':pais_ip' => $paisIp,
         ':tipo_conta' => $tipoConta,
         ':servidor' => $servidor,
-        ':vip_id' => $vipId,
-        ':vip_nome' => $vipNome,
+        ':tipo_produto' => $tipoProduto,
+        ':quantidade' => $quantidade,
+        ':chave_id' => $dbChaveId,
+        ':vip_id' => $dbVipId,
+        ':vip_nome' => $itemNome,
         ':cupom_codigo' => $cupomCodigo,
         ':valor' => $valorReal,
         ':valor_original' => $valorOriginal,
@@ -441,7 +474,7 @@ if ($statusBd === 'pago') {
             $nick,
             $tipoConta,
             $servidor,
-            $vipNome,
+            $itemNome,
             $valorReal,
             $txid,
             '#7DB9DF',
@@ -449,25 +482,30 @@ if ($statusBd === 'pago') {
             $installments,
             $totalPagoComJuros,
             $cupomCodigo,
-            $descontoAplicado
+            $descontoAplicado,
+            $tipoProduto,
+            $quantidade
         );
     } catch (Exception $e) {
         error_log("Erro ao disparar webhook Discord: " . $e->getMessage());
     }
 
-    // Dispara entrega do VIP
+    // Dispara entrega do produto
     try {
         $pedidoCriado = [
-            'id'        => (int)$pdo->lastInsertId(),
-            'nick'      => $nick,
-            'servidor'  => $servidor,
-            'vip_id'    => $vipId,
-            'vip_nome'  => $vipNome,
-            'txid'      => $txid
+            'id'           => (int)$pdo->lastInsertId(),
+            'nick'         => $nick,
+            'servidor'     => $servidor,
+            'tipo_produto' => $tipoProduto,
+            'quantidade'   => $quantidade,
+            'chave_id'     => $dbChaveId,
+            'vip_id'       => $dbVipId,
+            'vip_nome'     => $itemNome,
+            'txid'         => $txid
         ];
         enviarEntregaVip($pedidoCriado, $pdo);
     } catch (Exception $e) {
-        error_log("Erro ao disparar entrega VIP no criar_cartao: " . $e->getMessage());
+        error_log("Erro ao disparar entrega no criar_cartao: " . $e->getMessage());
     }
 }
 
@@ -479,15 +517,18 @@ if ($mpStatus === 'approved') {
         "txid" => $txid,
         "mp_id" => $mpId,
         "nick" => $nick,
+        "tipo_produto" => $tipoProduto,
+        "quantidade" => $quantidade,
         "servidor" => $servidor,
-        "vip_nome" => $vipNome,
+        "vip_nome" => $itemNome,
+        "item_nome" => $itemNome,
         "valor" => $valorReal,
         "valor_original" => $valorOriginal,
         "desconto_aplicado" => $descontoAplicado,
         "cupom" => $cupomCodigo,
         "valor_total" => $totalPagoComJuros,
         "parcelas" => $installments,
-        "mensagem" => "Pagamento aprovado com sucesso! Seu VIP foi liberado no servidor."
+        "mensagem" => "Pagamento aprovado com sucesso! Seus itens foram liberados no servidor."
     ], JSON_UNESCAPED_UNICODE);
 } elseif ($mpStatus === 'in_process') {
     echo json_encode([
@@ -496,13 +537,16 @@ if ($mpStatus === 'approved') {
         "txid" => $txid,
         "mp_id" => $mpId,
         "nick" => $nick,
+        "tipo_produto" => $tipoProduto,
+        "quantidade" => $quantidade,
         "servidor" => $servidor,
-        "vip_nome" => $vipNome,
+        "vip_nome" => $itemNome,
+        "item_nome" => $itemNome,
         "valor" => $valorReal,
         "valor_original" => $valorOriginal,
         "desconto_aplicado" => $descontoAplicado,
         "cupom" => $cupomCodigo,
-        "mensagem" => "Pagamento em análise de segurança. Seu VIP será liberado automaticamente assim que o Mercado Pago aprovar."
+        "mensagem" => "Pagamento em análise de segurança. Seus itens serão liberados automaticamente assim que o Mercado Pago aprovar."
     ], JSON_UNESCAPED_UNICODE);
 } else {
     $msgAmigavel = mapearStatusDetailMercadoPago($mpStatusDetail);

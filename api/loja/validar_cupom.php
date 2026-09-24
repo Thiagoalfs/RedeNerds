@@ -50,7 +50,19 @@ if (!is_array($data) || empty($data)) {
 }
 
 $cupomCodigo = strtoupper(trim((string)($data['cupom'] ?? ($_GET['cupom'] ?? ''))));
+$tipoProduto = strtolower(trim((string)($data['tipo_produto'] ?? ($_GET['tipo_produto'] ?? 'vip'))));
+if (!in_array($tipoProduto, ['vip', 'chave'], true)) {
+    $tipoProduto = 'vip';
+}
+
 $vipId = (int)($data['vip_id'] ?? ($_GET['vip_id'] ?? 0));
+$chaveId = (int)($data['chave_id'] ?? ($_GET['chave_id'] ?? 0));
+$itemId = ($tipoProduto === 'chave') ? ($chaveId > 0 ? $chaveId : $vipId) : $vipId;
+
+$quantidade = filter_var($data['quantidade'] ?? ($_GET['quantidade'] ?? 1), FILTER_VALIDATE_INT);
+if ($quantidade === false || $quantidade < 1) $quantidade = 1;
+if ($quantidade > 100) $quantidade = 100;
+if ($tipoProduto === 'vip') $quantidade = 1;
 
 if (empty($cupomCodigo)) {
     http_response_code(400);
@@ -58,9 +70,9 @@ if (empty($cupomCodigo)) {
     exit;
 }
 
-if ($vipId <= 0) {
+if ($itemId <= 0) {
     http_response_code(400);
-    echo json_encode(["erro" => "Identificador do VIP inválido."], JSON_UNESCAPED_UNICODE);
+    echo json_encode(["erro" => "Identificador do produto inválido."], JSON_UNESCAPED_UNICODE);
     exit;
 }
 
@@ -99,18 +111,23 @@ try {
 }
 
 try {
-    // 1. Busca o preço oficial do VIP e seus dados de servidor
-    $stmtVip = $pdo->prepare("SELECT id, nome, preco, servidor_id FROM vips WHERE id = :id AND (ativo = 1 OR ativo IS NULL) LIMIT 1");
-    $stmtVip->execute([':id' => $vipId]);
-    $vipRow = $stmtVip->fetch(PDO::FETCH_ASSOC);
+    // 1. Busca o preço oficial do item e seus dados de servidor
+    if ($tipoProduto === 'chave') {
+        $stmtItem = $pdo->prepare("SELECT id, nome, preco, servidor_id FROM chaves WHERE id = :id AND (ativo = 1 OR ativo IS NULL) LIMIT 1");
+    } else {
+        $stmtItem = $pdo->prepare("SELECT id, nome, preco, servidor_id FROM vips WHERE id = :id AND (ativo = 1 OR ativo IS NULL) LIMIT 1");
+    }
+    $stmtItem->execute([':id' => $itemId]);
+    $itemRow = $stmtItem->fetch(PDO::FETCH_ASSOC);
 
-    if (!$vipRow) {
+    if (!$itemRow) {
         http_response_code(404);
-        echo json_encode(["erro" => "Pacote VIP não encontrado ou inativo."], JSON_UNESCAPED_UNICODE);
+        echo json_encode(["erro" => ($tipoProduto === 'chave' ? "Pacote de Chaves" : "Pacote VIP") . " não encontrado ou inativo."], JSON_UNESCAPED_UNICODE);
         exit;
     }
 
-    $precoOriginal = (float)$vipRow['preco'];
+    $precoUnitario = (float)$itemRow['preco'];
+    $precoOriginal = round($precoUnitario * $quantidade, 2);
 
     // 2. Busca o cupom
     $stmtCupom = $pdo->prepare("SELECT * FROM cupons WHERE codigo = :codigo LIMIT 1");
@@ -144,8 +161,8 @@ try {
     // 3. Validação de restrição de servidor
     $cupomServidorId = (int)($cupomRow['servidor_id'] ?? 0);
     if ($cupomServidorId > 0) {
-        $vipServidorId = (int)($vipRow['servidor_id'] ?? 0);
-        if ($vipServidorId > 0 && $vipServidorId !== $cupomServidorId) {
+        $itemServidorId = (int)($itemRow['servidor_id'] ?? 0);
+        if ($itemServidorId > 0 && $itemServidorId !== $cupomServidorId) {
             $stmtSrvNome = $pdo->prepare("SELECT servername FROM servidores WHERE id = :id LIMIT 1");
             $stmtSrvNome->execute([':id' => $cupomServidorId]);
             $srvNome = $stmtSrvNome->fetchColumn() ?: 'outro servidor';
@@ -170,6 +187,8 @@ try {
         "desconto"             => $valorDesconto,
         "porcentagem_desconto" => $porcentagem,
         "valor_desconto"       => $valorDesconto,
+        "preco_unitario"       => $precoUnitario,
+        "quantidade"           => $quantidade,
         "preco_original"       => $precoOriginal,
         "preco_final"          => $precoFinal,
         "mensagem"             => "Cupom '{$cupomRow['codigo']}' aplicado com sucesso! ({$porcentagem}% de desconto)"

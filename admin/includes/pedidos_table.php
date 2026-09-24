@@ -61,9 +61,13 @@ $mostrarPaginacao = $mostrarPaginacao ?? false;
                             </div>
                         </td>
                         <td>
+                            <?php 
+                                $isChave = (($p['tipo_produto'] ?? '') === 'chave' || !empty($p['chave_id']));
+                                $qtd = (int)($p['quantidade'] ?? 1);
+                            ?>
                             <span class="badge bg-light text-dark border font-monospace">
-                                <i class="fa-solid fa-crown text-warning me-1"></i>
-                                <?php echo htmlspecialchars($p['vip_nome'] ?? 'VIP', ENT_QUOTES, 'UTF-8'); ?>
+                                <i class="fa-solid <?php echo $isChave ? 'fa-key text-warning' : 'fa-crown text-warning'; ?> me-1"></i>
+                                <?php echo htmlspecialchars(($isChave && $qtd > 1 ? "{$qtd}x " : "") . ($p['vip_nome'] ?? ($isChave ? 'Chaves' : 'VIP')), ENT_QUOTES, 'UTF-8'); ?>
                             </span>
                         </td>
                         <td>

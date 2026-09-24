@@ -37,6 +37,12 @@
                 <span>Pacotes VIP</span>
             </div>
         </a>
+        <a href="/admin/chaves/" class="nav-item-link <?php echo in_array($paginaAtiva, ['chaves', 'chave_criar', 'chave_editar']) ? 'active' : ''; ?>">
+            <div class="icon-wrap">
+                <i class="fa-solid fa-key"></i>
+                <span>Pacotes de Chaves</span>
+            </div>
+        </a>
         <a href="/admin/cupons/" class="nav-item-link <?php echo in_array($paginaAtiva, ['cupons', 'cupom_criar', 'cupom_editar']) ? 'active' : ''; ?>">
             <div class="icon-wrap">
                 <i class="fa-solid fa-tags"></i>

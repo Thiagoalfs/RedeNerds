@@ -98,44 +98,70 @@ function enviarEntregaVip($pedido, $pdo = null) {
         $serverSlug = strtolower(preg_replace('/[^a-zA-Z0-9_-]/', '', $rawServidor));
     }
 
-    // 4. Package ID (Coluna packageId da tabela de vips)
+    // 4. Package ID & Quantidade
     $packageId = '';
+    $tipoProduto = strtolower(trim((string)($pedido['tipo_produto'] ?? 'vip')));
+    $quantidade = (int)($pedido['quantidade'] ?? 1);
+    if ($quantidade < 1) $quantidade = 1;
+
     $vipId = $pedido['vip_id'] ?? null;
-    $vipNome = $pedido['vip_nome'] ?? null;
+    $chaveId = $pedido['chave_id'] ?? null;
+    $itemNome = $pedido['vip_nome'] ?? ($pedido['item_nome'] ?? null);
 
     if ($pdo instanceof PDO) {
         try {
-            if (!empty($vipId)) {
-                $stmtVip = $pdo->prepare("SELECT packageId FROM vips WHERE id = :id LIMIT 1");
-                $stmtVip->execute([':id' => (int)$vipId]);
-                $vipRow = $stmtVip->fetch(PDO::FETCH_ASSOC);
-                if ($vipRow && !empty($vipRow['packageId'])) {
-                    $packageId = $vipRow['packageId'];
+            if ($tipoProduto === 'chave' || !empty($chaveId)) {
+                if (!empty($chaveId)) {
+                    $stmtChave = $pdo->prepare("SELECT packageId FROM chaves WHERE id = :id LIMIT 1");
+                    $stmtChave->execute([':id' => (int)$chaveId]);
+                    $chaveRow = $stmtChave->fetch(PDO::FETCH_ASSOC);
+                    if ($chaveRow && !empty($chaveRow['packageId'])) {
+                        $packageId = $chaveRow['packageId'];
+                    }
                 }
-            }
-            if (empty($packageId) && !empty($vipNome)) {
-                $stmtVip = $pdo->prepare("SELECT packageId FROM vips WHERE nome = :nome LIMIT 1");
-                $stmtVip->execute([':nome' => $vipNome]);
-                $vipRow = $stmtVip->fetch(PDO::FETCH_ASSOC);
-                if ($vipRow && !empty($vipRow['packageId'])) {
-                    $packageId = $vipRow['packageId'];
+                if (empty($packageId) && !empty($itemNome)) {
+                    $stmtChave = $pdo->prepare("SELECT packageId FROM chaves WHERE nome = :nome LIMIT 1");
+                    $stmtChave->execute([':nome' => $itemNome]);
+                    $chaveRow = $stmtChave->fetch(PDO::FETCH_ASSOC);
+                    if ($chaveRow && !empty($chaveRow['packageId'])) {
+                        $packageId = $chaveRow['packageId'];
+                    }
+                }
+            } else {
+                if (!empty($vipId)) {
+                    $stmtVip = $pdo->prepare("SELECT packageId FROM vips WHERE id = :id LIMIT 1");
+                    $stmtVip->execute([':id' => (int)$vipId]);
+                    $vipRow = $stmtVip->fetch(PDO::FETCH_ASSOC);
+                    if ($vipRow && !empty($vipRow['packageId'])) {
+                        $packageId = $vipRow['packageId'];
+                    }
+                }
+                if (empty($packageId) && !empty($itemNome)) {
+                    $stmtVip = $pdo->prepare("SELECT packageId FROM vips WHERE nome = :nome LIMIT 1");
+                    $stmtVip->execute([':nome' => $itemNome]);
+                    $vipRow = $stmtVip->fetch(PDO::FETCH_ASSOC);
+                    if ($vipRow && !empty($vipRow['packageId'])) {
+                        $packageId = $vipRow['packageId'];
+                    }
                 }
             }
         } catch (Exception $e) {
-            error_log("AVISO DELIVERY: Erro ao buscar packageId da tabela vips: " . $e->getMessage());
+            error_log("AVISO DELIVERY: Erro ao buscar packageId da tabela vips/chaves: " . $e->getMessage());
         }
     }
 
     if (empty($packageId)) {
-        $packageId = (string)($pedido['packageId'] ?? ($vipId ?? ''));
+        $packageId = (string)($pedido['packageId'] ?? ($chaveId ?: ($vipId ?? '')));
     }
 
-    // Monta o payload JSON exatamente conforme especificado
+    // Monta o payload JSON
     $payload = [
         "server"    => (string)$serverSlug,
         "orderId"   => (string)$orderId,
         "packageId" => (string)$packageId,
-        "player"    => (string)$player
+        "player"    => (string)$player,
+        "amount"    => (int)$quantidade,
+        "quantity"  => (int)$quantidade
     ];
 
     $deliveryUrl = defined('DELIVERY_API_URL') && !empty(DELIVERY_API_URL) 
