@@ -30,6 +30,7 @@ $tituloPagina = $tituloPagina ?? 'Painel Administrativo';
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?php echo htmlspecialchars($tituloPagina, ENT_QUOTES, 'UTF-8'); ?> - Rede Nerds</title>
     <link rel="icon" type="image/x-icon" href="/assets/images/logo.webp">
+    <meta name="csrf-token" content="<?php echo htmlspecialchars($csrfToken, ENT_QUOTES, 'UTF-8'); ?>">
     
     <!-- GOOGLE FONTS -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -41,7 +42,7 @@ $tituloPagina = $tituloPagina ?? 'Painel Administrativo';
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     
     <!-- FOLHA DE ESTILOS CENTRALIZADA -->
-    <link rel="stylesheet" href="/admin/admin.css?v=5">
+    <link rel="stylesheet" href="/admin/admin.css?v=<?php echo file_exists(__DIR__ . '/../admin.css') ? filemtime(__DIR__ . '/../admin.css') : '6'; ?>">
 
     <!-- SCRIPT DE TEMA (ANTI-FLICKER - PADRÃO DARK) -->
     <script>

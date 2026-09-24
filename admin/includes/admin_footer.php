@@ -5,6 +5,9 @@
     <!-- BOOTSTRAP BUNDLE JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 
+    <!-- ASYNC ADMIN JS -->
+    <script src="/admin/js/admin_async.js?v=<?php echo file_exists(__DIR__ . '/../js/admin_async.js') ? filemtime(__DIR__ . '/../js/admin_async.js') : '2'; ?>"></script>
+
     <!-- SCRIPTS DE INTERAÇÃO DO PAINEL -->
     <script>
     document.addEventListener('DOMContentLoaded', () => {

@@ -81,7 +81,7 @@ try {
 <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-3">
     <div>
         <h4 class="fw-bold mb-1">Pacotes VIP da Loja</h4>
-        <p class="text-muted small mb-0"><?php echo count($vips); ?> pacote(s) VIP cadastrado(s)</p>
+        <p class="text-muted small mb-0"><span data-item-counter><?php echo count($vips); ?> pacote(s)</span> VIP cadastrado(s)</p>
     </div>
     <div class="d-flex gap-2">
         <a href="/loja/" target="_blank" class="btn btn-outline-secondary btn-sm"><i class="fa-solid fa-arrow-up-right-from-square me-1"></i> Ver Loja</a>
@@ -200,20 +200,22 @@ try {
                                         <a href="editar.php?id=<?php echo (int)$v['id']; ?>" class="btn btn-sm btn-primary" title="Editar VIP">
                                             <i class="fa-solid fa-pen-to-square"></i>
                                         </a>
-                                        <form method="POST" action="/admin/api/vips/toggle.php" class="d-inline">
-                                            <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($csrfToken, ENT_QUOTES, 'UTF-8'); ?>">
-                                            <input type="hidden" name="id" value="<?php echo (int)$v['id']; ?>">
-                                            <button type="submit" class="btn btn-sm btn-outline-secondary" title="<?php echo !empty($v['ativo']) ? 'Desativar da loja' : 'Ativar na loja'; ?>">
-                                                <i class="fa-solid <?php echo !empty($v['ativo']) ? 'fa-eye' : 'fa-eye-slash'; ?>"></i>
-                                            </button>
-                                        </form>
-                                        <form method="POST" action="/admin/api/vips/deletar.php" class="d-inline" onsubmit="return confirm('Tem certeza que deseja excluir o pacote <?php echo htmlspecialchars(addslashes($v['nome']), ENT_QUOTES, 'UTF-8'); ?> do servidor <?php echo htmlspecialchars(addslashes($srvNome), ENT_QUOTES, 'UTF-8'); ?>?');">
-                                            <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($csrfToken, ENT_QUOTES, 'UTF-8'); ?>">
-                                            <input type="hidden" name="id" value="<?php echo (int)$v['id']; ?>">
-                                            <button type="submit" class="btn btn-sm btn-danger" title="Deletar VIP">
-                                                <i class="fa-solid fa-trash"></i>
-                                            </button>
-                                        </form>
+                                        <button type="button" class="btn btn-sm btn-outline-secondary" 
+                                                data-action="async-toggle" 
+                                                data-url="/admin/api/vips/toggle.php" 
+                                                data-id="<?php echo (int)$v['id']; ?>"
+                                                title="<?php echo !empty($v['ativo']) ? 'Desativar da loja' : 'Ativar na loja'; ?>">
+                                            <i class="fa-solid <?php echo !empty($v['ativo']) ? 'fa-eye' : 'fa-eye-slash'; ?>"></i>
+                                        </button>
+                                        <button type="button" class="btn btn-sm btn-danger" 
+                                                data-action="async-delete" 
+                                                data-url="/admin/api/vips/deletar.php" 
+                                                data-id="<?php echo (int)$v['id']; ?>"
+                                                data-name="<?php echo htmlspecialchars($v['nome'], ENT_QUOTES, 'UTF-8'); ?>"
+                                                data-confirm="Tem certeza que deseja excluir o pacote <?php echo htmlspecialchars($v['nome'], ENT_QUOTES, 'UTF-8'); ?> do servidor <?php echo htmlspecialchars($srvNome, ENT_QUOTES, 'UTF-8'); ?>?"
+                                                title="Deletar VIP">
+                                            <i class="fa-solid fa-trash"></i>
+                                        </button>
                                     </div>
                                 </td>
                             </tr>

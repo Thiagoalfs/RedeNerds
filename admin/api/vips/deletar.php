@@ -21,8 +21,19 @@ if ($configPath) {
 
 exigirCSRF();
 
-$id = isset($_POST['id']) ? (int)$_POST['id'] : 0;
-$isAjax = (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest') || (isset($_POST['format']) && $_POST['format'] === 'json');
+$input = $_POST;
+if (empty($input['id'])) {
+    $raw = file_get_contents('php://input');
+    if (!empty($raw)) {
+        $json = json_decode($raw, true);
+        if (is_array($json)) {
+            $input = array_merge($input, $json);
+        }
+    }
+}
+
+$id = isset($input['id']) ? (int)$input['id'] : 0;
+$isAjax = (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest') || (isset($input['format']) && $input['format'] === 'json');
 
 if ($id > 0 && isset($pdo) && $pdo instanceof PDO) {
     try {

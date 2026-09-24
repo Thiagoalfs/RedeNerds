@@ -24,7 +24,7 @@ function renderIconeTable(?string $icone): string {
 <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-3">
     <div>
         <h4 class="fw-bold mb-1">Servidores</h4>
-        <p class="text-muted small mb-0"><?php echo count($servidores); ?> servidor(es) cadastrado(s)</p>
+        <p class="text-muted small mb-0"><span data-item-counter><?php echo count($servidores); ?> servidor(es)</span> cadastrado(s)</p>
     </div>
     <a href="criar.php" class="btn btn-success btn-sm"><i class="fa-solid fa-plus me-1"></i> Novo servidor</a>
 </div>
@@ -76,20 +76,22 @@ function renderIconeTable(?string $icone): string {
                                 <td class="text-end text-nowrap">
                                     <div class="d-inline-flex align-items-center justify-content-end gap-1">
                                         <a href="editar.php?id=<?php echo (int)$s['id']; ?>" class="btn btn-sm btn-primary">Editar</a>
-                                        <form method="POST" action="/admin/api/servidores/toggle.php" class="d-inline">
-                                            <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($csrfToken, ENT_QUOTES, 'UTF-8'); ?>">
-                                            <input type="hidden" name="id" value="<?php echo (int)$s['id']; ?>">
-                                            <button type="submit" class="btn btn-sm btn-outline-secondary" title="<?php echo $s['enabled'] ? 'Ocultar servidor' : 'Exibir servidor'; ?>">
-                                                <i class="fa-solid <?php echo $s['enabled'] ? 'fa-eye' : 'fa-eye-slash'; ?>"></i>
-                                            </button>
-                                        </form>
-                                        <form method="POST" action="/admin/api/servidores/deletar.php" class="d-inline" onsubmit="return confirm('Deletar o servidor <?php echo htmlspecialchars(addslashes($s['servername']), ENT_QUOTES, 'UTF-8'); ?>? Essa ação não pode ser desfeita.');">
-                                            <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($csrfToken, ENT_QUOTES, 'UTF-8'); ?>">
-                                            <input type="hidden" name="id" value="<?php echo (int)$s['id']; ?>">
-                                            <button type="submit" class="btn btn-sm btn-danger" title="Deletar">
-                                                <i class="fa-solid fa-trash"></i>
-                                            </button>
-                                        </form>
+                                        <button type="button" class="btn btn-sm btn-outline-secondary" 
+                                                data-action="async-toggle" 
+                                                data-url="/admin/api/servidores/toggle.php" 
+                                                data-id="<?php echo (int)$s['id']; ?>"
+                                                title="<?php echo $s['enabled'] ? 'Ocultar servidor' : 'Exibir servidor'; ?>">
+                                            <i class="fa-solid <?php echo $s['enabled'] ? 'fa-eye' : 'fa-eye-slash'; ?>"></i>
+                                        </button>
+                                        <button type="button" class="btn btn-sm btn-danger" 
+                                                data-action="async-delete" 
+                                                data-url="/admin/api/servidores/deletar.php" 
+                                                data-id="<?php echo (int)$s['id']; ?>"
+                                                data-name="<?php echo htmlspecialchars($s['servername'], ENT_QUOTES, 'UTF-8'); ?>"
+                                                data-confirm="Deletar o servidor <?php echo htmlspecialchars($s['servername'], ENT_QUOTES, 'UTF-8'); ?>? Essa ação não pode ser desfeita."
+                                                title="Deletar">
+                                            <i class="fa-solid fa-trash"></i>
+                                        </button>
                                     </div>
                                 </td>
                             </tr>
