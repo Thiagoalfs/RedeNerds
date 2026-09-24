@@ -64,6 +64,13 @@
                 <span>Equipe</span>
             </div>
         </a>
+        <a href="/admin/parceiros/" class="nav-item-link <?php echo in_array($paginaAtiva, ['parceiros', 'parceiro_criar', 'parceiro_editar']) ? 'active' : ''; ?>">
+            <div class="icon-wrap">
+                <i class="fa-solid fa-handshake"></i>
+                <span>Parceiros</span>
+            </div>
+        </a>
+
         <?php $isWikiAtiva = in_array($paginaAtiva, ['wiki', 'wiki_categorias', 'wiki_artigo_criar', 'wiki_artigo_editar']); ?>
         <a href="/admin/wiki/" class="nav-item-link <?php echo $isWikiAtiva ? 'active' : ''; ?>">
             <div class="icon-wrap">

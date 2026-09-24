@@ -791,6 +791,20 @@
     box-shadow: 0 0 0 2px #25F4EE, 0 0 0 2px #FE2C55;
 }
 
+.parceiro-social-link.instagram:hover {
+    background: radial-gradient(circle at 30% 107%, #fdf497 0%, #fdf497 5%, #fd5949 45%, #d6249f 60%, #285AEB 90%);
+}
+
+.parceiro-social-link.twitch:hover {
+    background-color: #9146FF;
+}
+
+.parceiro-social-link.kick:hover {
+    background-color: #53FC18;
+    color: #000000;
+}
+
+
 /* Tablet (≥ 600px) */
 @media (min-width: 600px) {
     .parceiro {
