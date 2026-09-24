@@ -107,6 +107,10 @@ try {
     // Ignora erro de limpeza silenciosamente
 }
 
+if (isset($pdo) && $pdo instanceof PDO) {
+    garantirSchemaTabelaPedidos($pdo);
+}
+
 $pedido = null;
 
 // 1. Busca o pedido no banco de dados local
@@ -125,14 +129,92 @@ try {
     error_log("Erro ao buscar status do pedido: " . $e->getMessage());
 }
 
+// Se não encontrou o pedido localmente, tenta auto-recuperar consultando a API do Mercado Pago
 if (!$pedido) {
-    echo json_encode([
-        "success" => true,
-        "txid" => $txid,
-        "status" => "pendente",
-        "aprovado" => false
-    ], JSON_UNESCAPED_UNICODE);
-    exit;
+    $mpAccessToken = obterMercadoPagoAccessToken();
+    if ($mpAccessToken && isset($pdo) && $pdo instanceof PDO) {
+        $searchUrl = "https://api.mercadopago.com/v1/payments/search?external_reference=" . urlencode($txid) . "&sort=date_created&criteria=desc";
+        $ch = curl_init($searchUrl);
+        curl_setopt_array($ch, [
+            CURLOPT_HTTPHEADER => ["Authorization: Bearer {$mpAccessToken}"],
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_SSL_VERIFYPEER => true, CURLOPT_SSL_VERIFYHOST => 2,
+            CURLOPT_TIMEOUT => 8
+        ]);
+        $response = curl_exec($ch);
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        curl_close($ch);
+
+        if ($httpCode >= 200 && $httpCode < 300 && $response) {
+            $searchData = json_decode((string)$response, true);
+            $results = $searchData['results'] ?? [];
+
+            foreach ($results as $paymentInfo) {
+                if (strtolower((string)($paymentInfo['status'] ?? '')) === 'approved') {
+                    $approvedPaymentId = $paymentInfo['id'] ?? null;
+                    $inseriuNovo = autoRecuperarPedidoMercadoPago($pdo, $txid, $approvedPaymentId, $paymentInfo);
+
+                    try {
+                        $stmtFetch = $pdo->prepare("SELECT *, 0 as segundos_desde_criacao FROM pedidos_vip WHERE txid = :txid LIMIT 1");
+                        $stmtFetch->execute([':txid' => $txid]);
+                        $pedido = $stmtFetch->fetch(PDO::FETCH_ASSOC);
+
+                        if ($pedido) {
+                            if ($inseriuNovo) {
+                                try {
+                                    enviarNotificacaoCompraDiscord(
+                                        $pedido['nick'],
+                                        $pedido['tipo_conta'] ?? 'original',
+                                        $pedido['servidor'],
+                                        $pedido['vip_nome'],
+                                        (float)$pedido['valor'],
+                                        $txid,
+                                        '#7DB9DF',
+                                        $pedido['metodo_pagamento'] ?? 'pix',
+                                        1,
+                                        null,
+                                        null,
+                                        0.00,
+                                        $pedido['tipo_produto'] ?? 'vip',
+                                        (int)($pedido['quantidade'] ?? 1)
+                                    );
+                                } catch (Exception $eDisc) {}
+
+                                try {
+                                    enviarEntregaVip($pedido, $pdo);
+                                } catch (Exception $eEntr) {}
+                            }
+
+                            echo json_encode([
+                                "success" => true,
+                                "txid" => $txid,
+                                "status" => "pago",
+                                "aprovado" => true,
+                                "pago_em" => date('c'),
+                                "nick" => $pedido['nick'],
+                                "servidor" => $pedido['servidor'],
+                                "vip_nome" => $pedido['vip_nome']
+                            ], JSON_UNESCAPED_UNICODE);
+                            exit;
+                        }
+                    } catch (Exception $eFetch) {
+                        error_log("Erro ao buscar pedido recuperado: " . $eFetch->getMessage());
+                    }
+                    break;
+                }
+            }
+        }
+    }
+
+    if (!$pedido) {
+        echo json_encode([
+            "success" => true,
+            "txid" => $txid,
+            "status" => "pendente",
+            "aprovado" => false
+        ], JSON_UNESCAPED_UNICODE);
+        exit;
+    }
 }
 
 $statusAtual = strtolower((string)($pedido['status'] ?? 'pendente'));
@@ -267,7 +349,9 @@ if ($mpAccessToken) {
                             (int)($pedido['parcelas'] ?? 1),
                             isset($pedido['valor_total']) ? (float)$pedido['valor_total'] : null,
                             $pedido['cupom_codigo'] ?? null,
-                            (float)($pedido['desconto_aplicado'] ?? 0.00)
+                            (float)($pedido['desconto_aplicado'] ?? 0.00),
+                            $pedido['tipo_produto'] ?? 'vip',
+                            (int)($pedido['quantidade'] ?? 1)
                         );
                     } catch (Exception $e) {
                         error_log("Erro ao disparar webhook Discord no checar_status: " . $e->getMessage());

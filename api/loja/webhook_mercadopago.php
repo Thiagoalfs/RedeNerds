@@ -131,6 +131,8 @@ if ($status === 'approved' && !empty($externalRef)) {
         exit;
     }
 
+    garantirSchemaTabelaPedidos($pdo);
+
     // 1. Executa a transição atômica de status
     $transicaoOcorreu = false;
     try {
@@ -146,6 +148,11 @@ if ($status === 'approved' && !empty($externalRef)) {
         $transicaoOcorreu = ($up->rowCount() === 1);
     } catch (Exception $e) {
         error_log("Erro na transição atômica do webhook MP: " . $e->getMessage());
+    }
+
+    // Caso o pedido não tenha sido encontrado para update, tenta auto-recuperação resiliente
+    if (!$transicaoOcorreu) {
+        $transicaoOcorreu = autoRecuperarPedidoMercadoPago($pdo, $externalRef, $paymentId, $paymentInfo);
     }
 
     // 2. Dispara efeitos colaterais SOMENTE se esta execução foi a responsável pela mudança para 'pago'
@@ -173,7 +180,9 @@ if ($status === 'approved' && !empty($externalRef)) {
                         (int)($pedido['parcelas'] ?? 1),
                         isset($pedido['valor_total']) ? (float)$pedido['valor_total'] : null,
                         $pedido['cupom_codigo'] ?? null,
-                        (float)($pedido['desconto_aplicado'] ?? 0.00)
+                        (float)($pedido['desconto_aplicado'] ?? 0.00),
+                        $pedido['tipo_produto'] ?? 'vip',
+                        (int)($pedido['quantidade'] ?? 1)
                     );
                 } catch (Exception $e) {
                     error_log("Erro ao disparar webhook Discord no webhook MP: " . $e->getMessage());

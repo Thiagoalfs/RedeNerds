@@ -35,7 +35,7 @@ if (!defined('DISCORD_WEBHOOKS')) {
  * @param string|null $corHex Cor do embed em hexadecimal (ex: '#7DB9DF')
  * @return bool Sucesso no envio
  */
-function enviarNotificacaoCompraDiscord($nick, $tipoConta, $servidor, $vipNome, $valor, $txid, $corHex = '#7DB9DF', $metodo = 'pix', $parcelas = 1, $valorTotal = null, $cupomCodigo = null, $descontoAplicado = 0.00) {
+function enviarNotificacaoCompraDiscord($nick, $tipoConta, $servidor, $vipNome, $valor, $txid, $corHex = '#7DB9DF', $metodo = 'pix', $parcelas = 1, $valorTotal = null, $cupomCodigo = null, $descontoAplicado = 0.00, $tipoProduto = 'vip', $quantidade = 1) {
     $urlWebhook = DISCORD_WEBHOOKS['Loja'] ?? (DISCORD_WEBHOOKS['Atualizações'] ?? null);
 
     if (empty($urlWebhook)) {
@@ -88,6 +88,10 @@ function enviarNotificacaoCompraDiscord($nick, $tipoConta, $servidor, $vipNome, 
         $valorDisplay .= " (Total: R$ {$totalFormatado})";
     }
 
+    $isChave = ($tipoProduto === 'chave');
+    $itemFieldLabel = $isChave ? "🗝️ Pacote de Chaves" : "💎 Pacote VIP";
+    $itemFieldValue = ($isChave && $quantidade > 1) ? "**{$quantidade}x {$vipNome}**" : "**{$vipNome}**";
+
     $fields = [
         [
             "name" => "👤 Jogador",
@@ -100,8 +104,8 @@ function enviarNotificacaoCompraDiscord($nick, $tipoConta, $servidor, $vipNome, 
             "inline" => true
         ],
         [
-            "name" => "💎 Pacote VIP",
-            "value" => "**{$vipNome}**",
+            "name" => $itemFieldLabel,
+            "value" => $itemFieldValue,
             "inline" => true
         ],
         [
@@ -130,9 +134,14 @@ function enviarNotificacaoCompraDiscord($nick, $tipoConta, $servidor, $vipNome, 
         ];
     }
 
+    $embedTitle = $isChave ? "🗝️ Nova Compra de Chaves!" : "💎 Nova Compra Aprovada!";
+    $embedDesc = $isChave
+        ? "Um jogador acabou de adquirir pacotes de chaves via **{$metodoLabel}**!"
+        : "Um jogador acabou de adquirir um pacote VIP via **{$metodoLabel}**!";
+
     $embed = [
-        "title" => "💎 Nova Compra Aprovada!",
-        "description" => "Um jogador acabou de adquirir um pacote VIP via **{$metodoLabel}**!",
+        "title" => $embedTitle,
+        "description" => $embedDesc,
         "color" => $corDecimal,
         "thumbnail" => [
             "url" => $avatarUrl

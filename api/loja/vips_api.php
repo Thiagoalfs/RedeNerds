@@ -164,8 +164,9 @@ $servidoresDefault = [
 
 $servidoresDoBanco = [];
 $vipsDoBanco = [];
+$chavesDoBanco = [];
 
-// 1. Consulta os servidores ativos e os VIPs cadastrados no banco
+// 1. Consulta os servidores ativos e os VIPs/Chaves cadastrados no banco
 try {
     if (isset($pdo) && $pdo instanceof PDO) {
         $stmtSrv = $pdo->query("SELECT id, servername, nome, themecolor, icon, descricao FROM servidores WHERE enabled = 1 ORDER BY id ASC");
@@ -173,6 +174,13 @@ try {
 
         $stmtVips = $pdo->query("SELECT * FROM vips WHERE ativo = 1 ORDER BY preco ASC");
         $vipsDoBanco = $stmtVips->fetchAll(PDO::FETCH_ASSOC);
+
+        try {
+            $stmtChaves = $pdo->query("SELECT * FROM chaves WHERE (ativo = 1 OR ativo IS NULL) ORDER BY preco ASC");
+            $chavesDoBanco = $stmtChaves->fetchAll(PDO::FETCH_ASSOC);
+        } catch (Exception $e) {
+            $chavesDoBanco = [];
+        }
     } elseif (isset($conn) && $conn instanceof mysqli) {
         $resSrv = $conn->query("SELECT id, servername, nome, themecolor, icon, descricao FROM servidores WHERE enabled = 1 ORDER BY id ASC");
         if ($resSrv) {
@@ -183,13 +191,18 @@ try {
         if ($resVips) {
             while ($row = $resVips->fetch_assoc()) $vipsDoBanco[] = $row;
         }
+
+        $resChaves = $conn->query("SELECT * FROM chaves WHERE (ativo = 1 OR ativo IS NULL) ORDER BY preco ASC");
+        if ($resChaves) {
+            while ($row = $resChaves->fetch_assoc()) $chavesDoBanco[] = $row;
+        }
     }
 } catch (Exception $e) {
-    error_log("Erro ao buscar VIPs e Servidores: " . $e->getMessage());
+    error_log("Erro ao buscar VIPs, Chaves e Servidores: " . $e->getMessage());
 }
 
-// 2. Se temos servidores e VIPs no banco, monta a resposta dinâmica usando o `servername`
-if (!empty($servidoresDoBanco) && !empty($vipsDoBanco)) {
+// 2. Se temos servidores e VIPs/Chaves no banco, monta a resposta dinâmica usando o `servername`
+if (!empty($servidoresDoBanco) && (!empty($vipsDoBanco) || !empty($chavesDoBanco))) {
     $servidoresFormatados = [];
 
     foreach ($servidoresDoBanco as $srv) {
@@ -197,6 +210,7 @@ if (!empty($servidoresDoBanco) && !empty($vipsDoBanco)) {
         $srvSlug = strtolower(trim($srv['nome']));
 
         $vipsDoServidor = [];
+        $chavesDoServidor = [];
 
         foreach ($vipsDoBanco as $v) {
             $vipSrvRaw = trim($v['servidor'] ?? '');
@@ -228,7 +242,7 @@ if (!empty($servidoresDoBanco) && !empty($vipsDoBanco)) {
                 $vipsDoServidor[] = [
                     "id" => (int)$v['id'],
                     "servidor_id" => (int)$srv['id'],
-                    "servidor" => $srv['servername'], // Puxa exatamente o servername da tabela servidores!
+                    "servidor" => $srv['servername'],
                     "nome" => $v['nome'],
                     "preco" => (float)$v['preco'],
                     "duracao_dias" => isset($v['duracao_dias']) ? (int)$v['duracao_dias'] : 30,
@@ -240,8 +254,48 @@ if (!empty($servidoresDoBanco) && !empty($vipsDoBanco)) {
             }
         }
 
+        foreach ($chavesDoBanco as $c) {
+            $chaveSrvRaw = trim($c['servidor'] ?? '');
+            $chaveSrvLimpo = strtolower(preg_replace('/[^a-zA-Z0-9]/', '', $chaveSrvRaw));
+            $chaveServidorId = (int)($c['servidor_id'] ?? 0);
+
+            $pertenceAoServidor = (
+                ($chaveServidorId > 0 && $chaveServidorId === (int)$srv['id']) ||
+                ($chaveServidorId === 0 && (
+                    strcasecmp($chaveSrvRaw, $srv['servername']) === 0 ||
+                    strcasecmp($chaveSrvRaw, $srvSlug) === 0 ||
+                    ($chaveSrvLimpo !== '' && $chaveSrvLimpo === $srvNomeLimpo)
+                ))
+            );
+
+            if ($pertenceAoServidor) {
+                $vantagens = [];
+                if (!empty($c['vantagens'])) {
+                    $jsonDecoded = json_decode($c['vantagens'], true);
+                    if (is_array($jsonDecoded)) {
+                        $vantagens = $jsonDecoded;
+                    } else {
+                        $vantagens = array_values(array_filter(array_map('trim', explode("\n", $c['vantagens']))));
+                    }
+                }
+
+                $chavesDoServidor[] = [
+                    "id" => (int)$c['id'],
+                    "servidor_id" => (int)$srv['id'],
+                    "servidor" => $srv['servername'],
+                    "nome" => $c['nome'],
+                    "imagem" => !empty($c['imagem']) ? $c['imagem'] : '',
+                    "preco" => (float)$c['preco'],
+                    "destaque" => !empty($c['destaque']),
+                    "cor1" => !empty($c['cor1']) ? $c['cor1'] : '#ffffff',
+                    "cor2" => !empty($c['cor2']) ? $c['cor2'] : '#ffffff',
+                    "vantagens" => $vantagens
+                ];
+            }
+        }
+
         // Se o servidor possui pacotes cadastrados, inclui na loja
-        if (!empty($vipsDoServidor)) {
+        if (!empty($vipsDoServidor) || !empty($chavesDoServidor)) {
             $servidoresFormatados[] = [
                 "id" => $srvSlug ?: $srvNomeLimpo,
                 "servidor_id" => (int)$srv['id'],
@@ -249,7 +303,8 @@ if (!empty($servidoresDoBanco) && !empty($vipsDoBanco)) {
                 "badge" => !empty($srv['descricao']) ? mb_strimwidth(strip_tags($srv['descricao']), 0, 45, '...') : 'Servidor Oficial',
                 "cor" => $srv['themecolor'] ?: '#7DB9DF',
                 "icon" => $srv['icon'] ?: 'fa-solid fa-server',
-                "vips" => $vipsDoServidor
+                "vips" => $vipsDoServidor,
+                "chaves" => $chavesDoServidor
             ];
         }
     }

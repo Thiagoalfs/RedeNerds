@@ -47,6 +47,10 @@ require_once __DIR__ . "/../auth_api.php";
 require_once __DIR__ . "/ip_helper.php";
 verificarAcessoApi();
 
+if (isset($pdo) && $pdo instanceof PDO) {
+    garantirSchemaTabelaPedidos($pdo);
+}
+
 // Lê dados da requisição
 $rawInput = file_get_contents('php://input');
 $data = json_decode($rawInput, true);
@@ -93,7 +97,19 @@ try {
 $nick = trim((string)($data['nick'] ?? ''));
 $tipoConta = strtolower(trim((string)($data['tipo_conta'] ?? 'original')));
 $servidor = trim((string)($data['servidor'] ?? ''));
+$tipoProduto = strtolower(trim((string)($data['tipo_produto'] ?? 'vip')));
+if (!in_array($tipoProduto, ['vip', 'chave'], true)) {
+    $tipoProduto = 'vip';
+}
+
 $vipId = (int)($data['vip_id'] ?? 0);
+$chaveId = (int)($data['chave_id'] ?? 0);
+$itemId = ($tipoProduto === 'chave') ? ($chaveId > 0 ? $chaveId : $vipId) : $vipId;
+
+$quantidade = filter_var($data['quantidade'] ?? 1, FILTER_VALIDATE_INT);
+if ($quantidade === false || $quantidade < 1) $quantidade = 1;
+if ($quantidade > 100) $quantidade = 100;
+if ($tipoProduto === 'vip') $quantidade = 1;
 
 if (empty($nick) || strlen($nick) < 3 || strlen($nick) > 16 || !preg_match('/^[a-zA-Z0-9_]+$/', $nick)) {
     http_response_code(400);
@@ -107,7 +123,7 @@ if (!in_array($tipoConta, ['original', 'pirata'], true)) {
 
 if (empty($servidor)) {
     http_response_code(400);
-    echo json_encode(["erro" => "Please select the server where you want to receive your VIP."], JSON_UNESCAPED_UNICODE);
+    echo json_encode(["erro" => "Please select the server where you want to receive your item."], JSON_UNESCAPED_UNICODE);
     exit;
 }
 
@@ -117,9 +133,9 @@ if (empty($email) || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
     exit;
 }
 
-if ($vipId <= 0) {
+if ($itemId <= 0) {
     http_response_code(400);
-    echo json_encode(["erro" => "Invalid VIP package selected."], JSON_UNESCAPED_UNICODE);
+    echo json_encode(["erro" => "Invalid package selected."], JSON_UNESCAPED_UNICODE);
     exit;
 }
 
@@ -128,7 +144,7 @@ $cupomCodigo = null;
 $valorOriginal = 0.0;
 $descontoAplicado = 0.0;
 $valor = 0.0;
-$vipNome = '';
+$itemNome = '';
 
 // 3. CONSULTA ESTRITA DE PREÇO E CUPOM NO BANCO DE DADOS
 if (!isset($pdo) || !($pdo instanceof PDO)) {
@@ -138,18 +154,23 @@ if (!isset($pdo) || !($pdo instanceof PDO)) {
 }
 
 try {
-    $stmtVip = $pdo->prepare("SELECT id, nome, preco, servidor_id FROM vips WHERE id = :id AND (ativo = 1 OR ativo IS NULL) LIMIT 1");
-    $stmtVip->execute([':id' => $vipId]);
-    $vipRow = $stmtVip->fetch(PDO::FETCH_ASSOC);
+    if ($tipoProduto === 'chave') {
+        $stmtItem = $pdo->prepare("SELECT id, nome, preco, servidor_id FROM chaves WHERE id = :id AND (ativo = 1 OR ativo IS NULL) LIMIT 1");
+    } else {
+        $stmtItem = $pdo->prepare("SELECT id, nome, preco, servidor_id FROM vips WHERE id = :id AND (ativo = 1 OR ativo IS NULL) LIMIT 1");
+    }
+    $stmtItem->execute([':id' => $itemId]);
+    $itemRow = $stmtItem->fetch(PDO::FETCH_ASSOC);
 
-    if (!$vipRow) {
+    if (!$itemRow) {
         http_response_code(404);
-        echo json_encode(["erro" => "VIP package not found or currently inactive."], JSON_UNESCAPED_UNICODE);
+        echo json_encode(["erro" => ($tipoProduto === 'chave' ? "Keys package" : "VIP package") . " not found or currently inactive."], JSON_UNESCAPED_UNICODE);
         exit;
     }
 
-    $valorOriginal = (float)$vipRow['preco'];
-    $vipNome = (string)$vipRow['nome'];
+    $precoUnitario = (float)$itemRow['preco'];
+    $valorOriginal = round($precoUnitario * $quantidade, 2);
+    $itemNome = (string)$itemRow['nome'];
     $valor = $valorOriginal;
 
     // Validação de Cupom
@@ -178,8 +199,8 @@ try {
             // Restrição de servidor se houver
             $cupomServidorId = (int)($cupomRow['servidor_id'] ?? 0);
             if ($cupomServidorId > 0) {
-                $vipServidorId = (int)($vipRow['servidor_id'] ?? 0);
-                if ($vipServidorId > 0 && $vipServidorId !== $cupomServidorId) {
+                $itemServidorId = (int)($itemRow['servidor_id'] ?? 0);
+                if ($itemServidorId > 0 && $itemServidorId !== $cupomServidorId) {
                     http_response_code(400);
                     echo json_encode(["erro" => "This coupon is not valid for the selected server."], JSON_UNESCAPED_UNICODE);
                     exit;
@@ -190,7 +211,6 @@ try {
             $descontoAplicado = round($valorOriginal * ($porcentagem / 100), 2);
             $valor = max(0.01, round($valorOriginal - $descontoAplicado, 2));
             $cupomCodigo = (string)$cupomRow['codigo'];
-            // Não incrementamos usos_total aqui; será computado de forma idempotente após o pagamento.
         } else {
             http_response_code(404);
             echo json_encode(["erro" => "Coupon '{$cupomEnviado}' not found."], JSON_UNESCAPED_UNICODE);
@@ -229,13 +249,17 @@ $siteUrl = obterSiteUrl();
 $paisIp = obterPaisIp();
 
 $now = time();
-$expiraFrom = date('Y-m-d\TH:i:s.000P', $now - 120); // 2 minutos de folga para trás contra drift de relógio
-$expiraTo   = date('Y-m-d\TH:i:s.000P', $now + 7200); // 2 horas de janela
+$expiraFrom = date('Y-m-d\TH:i:s.000P', $now - 120);
+$expiraTo   = date('Y-m-d\TH:i:s.000P', $now + 7200);
+
+$itemTitulo = ($tipoProduto === 'chave')
+    ? "RedeNerds - {$quantidade}x {$itemNome} ({$servidor}) - Jogador: {$nick}"
+    : "RedeNerds - {$itemNome} ({$servidor}) - Jogador: {$nick}";
 
 $preferencePayload = [
     "items" => [
         [
-            "title" => "RedeNerds - {$vipNome} ({$servidor}) - Player: {$nick}",
+            "title" => $itemTitulo,
             "quantity" => 1,
             "currency_id" => "BRL",
             "unit_price" => (float)$valor
@@ -268,9 +292,12 @@ $preferencePayload = [
     "metadata" => [
         "txid" => $txid,
         "nick" => $nick,
+        "tipo_conta" => $tipoConta,
+        "tipo_produto" => $tipoProduto,
+        "quantidade" => $quantidade,
         "servidor" => $servidor,
-        "vip_id" => $vipId,
-        "vip_nome" => $vipNome,
+        "item_id" => $itemId,
+        "item_nome" => $itemNome,
         "cupom" => $cupomCodigo
     ]
 ];
@@ -317,15 +344,18 @@ $prefId = (string)$mpData['id'];
 $initPoint = (string)($mpData['init_point'] ?? '');
 
 // 5. REGISTRO DO PEDIDO NO BANCO DE DADOS
+$dbVipId = ($tipoProduto === 'vip') ? $itemId : null;
+$dbChaveId = ($tipoProduto === 'chave') ? $itemId : null;
+
 try {
     $stmtIns = $pdo->prepare("
         INSERT INTO pedidos_vip (
             txid, mp_payment_id, nick, payer_email, payer_cpf, pais_ip, tipo_conta, servidor, 
-            vip_id, vip_nome, cupom_codigo, valor, valor_original, desconto_aplicado, 
+            tipo_produto, quantidade, chave_id, vip_id, vip_nome, cupom_codigo, valor, valor_original, desconto_aplicado, 
             valor_total, status, metodo_pagamento, cupom_computado, criado_em
         ) VALUES (
             :txid, :mp_id, :nick, :email, NULL, :pais_ip, :tipo_conta, :servidor,
-            :vip_id, :vip_nome, :cupom_codigo, :valor, :valor_original, :desconto_aplicado,
+            :tipo_produto, :quantidade, :chave_id, :vip_id, :vip_nome, :cupom_codigo, :valor, :valor_original, :desconto_aplicado,
             :valor_total, 'pendente', 'checkout_pro', 0, NOW()
         )
     ");
@@ -337,8 +367,11 @@ try {
         ':pais_ip'           => $paisIp,
         ':tipo_conta'        => $tipoConta,
         ':servidor'          => $servidor,
-        ':vip_id'            => $vipId,
-        ':vip_nome'          => $vipNome,
+        ':tipo_produto'      => $tipoProduto,
+        ':quantidade'        => $quantidade,
+        ':chave_id'          => $dbChaveId,
+        ':vip_id'            => $dbVipId,
+        ':vip_nome'          => $itemNome,
         ':cupom_codigo'      => $cupomCodigo,
         ':valor'             => $valor,
         ':valor_original'    => $valorOriginal,
@@ -359,8 +392,11 @@ echo json_encode([
     "init_point"         => $initPoint,
     "nick"               => $nick,
     "tipo_conta"         => $tipoConta,
+    "tipo_produto"       => $tipoProduto,
+    "quantidade"         => $quantidade,
     "servidor"           => $servidor,
-    "vip_nome"           => $vipNome,
+    "vip_nome"           => $itemNome,
+    "item_nome"          => $itemNome,
     "valor"              => $valor,
     "valor_original"     => $valorOriginal,
     "desconto_aplicado"  => $descontoAplicado,
