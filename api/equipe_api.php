@@ -47,7 +47,9 @@ try {
             $rowsDef = $stmtCargosDef->fetchAll(PDO::FETCH_ASSOC);
             foreach ($rowsDef as $rd) {
                 $cargosHierarquia[] = $rd['nome'];
-                $cargosCores[$rd['nome']] = $rd['cor'] ?? '#27acff';
+                $corVal = !empty($rd['cor']) ? trim($rd['cor']) : '#27acff';
+                $cargosCores[$rd['nome']] = $corVal;
+                $cargosCores[mb_strtolower(trim($rd['nome']))] = $corVal;
             }
         } catch (Exception $e) {
             $cargosHierarquia = [];
@@ -78,9 +80,10 @@ try {
             $membros = $stmtMembros->fetchAll(PDO::FETCH_COLUMN, 0);
 
             if (!empty($membros)) {
+                $corFinal = $cargosCores[$cargo] ?? ($cargosCores[mb_strtolower(trim($cargo))] ?? '#27acff');
                 $resultado[] = [
                     'categoryTitle' => $cargo,
-                    'cor'           => $cargosCores[$cargo] ?? null,
+                    'cor'           => $corFinal,
                     'members'       => $membros,
                 ];
             }

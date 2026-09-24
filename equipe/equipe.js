@@ -2,71 +2,40 @@ document.addEventListener("DOMContentLoaded", function () {
     carregarEquipe();
 });
 
+function adjustColorBrightness(hex, percent) {
+    hex = hex.replace(/^#/, '');
+    if (hex.length === 3) {
+        hex = hex.split('').map(c => c + c).join('');
+    }
+    const num = parseInt(hex, 16);
+    if (isNaN(num)) return '#27acff';
+
+    let r = (num >> 16) + percent;
+    let g = ((num >> 8) & 0x00FF) + percent;
+    let b = (num & 0x00FF) + percent;
+
+    r = Math.min(255, Math.max(0, r));
+    g = Math.min(255, Math.max(0, g));
+    b = Math.min(255, Math.max(0, b));
+
+    return `#${((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1)}`;
+}
+
 function getCargoTheme(cargoTitle, cargoCor) {
-    if (cargoCor && typeof cargoCor === "string" && cargoCor.trim().startsWith("#")) {
-        const hex = cargoCor.trim();
-        return {
-            gradient: `linear-gradient(to right, ${hex}, ${hex})`,
-            color: hex
-        };
+    let hex = (cargoCor && typeof cargoCor === "string") ? cargoCor.trim() : "";
+    if (!hex.startsWith("#")) {
+        hex = hex ? `#${hex}` : "#27acff";
+    }
+    if (!/^#[0-9a-fA-F]{3,8}$/.test(hex)) {
+        hex = "#27acff";
     }
 
-    const title = (cargoTitle || "").toLowerCase().trim();
+    const lightHex = adjustColorBrightness(hex, 18);
+    const darkHex = adjustColorBrightness(hex, -18);
 
-    // Fundador: Azul
-    if (title.includes("fundad")) {
-        return {
-            gradient: "linear-gradient(to right, rgb(75, 179, 245), rgb(39, 172, 255))",
-            color: "#27acff"
-        };
-    }
-    // Gerente / Diretor: Amarelo
-    if (title.includes("gerent") || title.includes("diretor")) {
-        return {
-            gradient: "linear-gradient(to right, #F1C40F, #F39C12)",
-            color: "#F1C40F"
-        };
-    }
-    // Coordenador: Azul bebê
-    if (title.includes("coord")) {
-        return {
-            gradient: "linear-gradient(to right, #89CFF0, #5DADE2)",
-            color: "#89CFF0"
-        };
-    }
-    // Administrador: Vermelho
-    if (title.includes("admin")) {
-        return {
-            gradient: "linear-gradient(to right, #E74C3C, #C0392B)",
-            color: "#E74C3C"
-        };
-    }
-    // Moderador: Verde
-    if (title.includes("moder")) {
-        return {
-            gradient: "linear-gradient(to right, #2ECC71, #27AE60)",
-            color: "#2ECC71"
-        };
-    }
-    // Designer: Laranja
-    if (title.includes("design")) {
-        return {
-            gradient: "linear-gradient(to right, #FF8C00, #E67E22)",
-            color: "#FF8C00"
-        };
-    }
-    // Desenvolvedor / outros: Roxo
-    if (title.includes("desenvolv") || title.includes("dev")) {
-        return {
-            gradient: "linear-gradient(to right, #B971DA, #8E44AD)",
-            color: "#B971DA"
-        };
-    }
-
-    // Padrão: Azul
     return {
-        gradient: "linear-gradient(to right, rgb(75, 179, 245), rgb(39, 172, 255))",
-        color: "#27acff"
+        gradient: `linear-gradient(135deg, ${lightHex}, ${darkHex})`,
+        color: hex
     };
 }
 
@@ -92,50 +61,76 @@ async function carregarEquipe() {
             const members = Array.isArray(cargo.members) ? cargo.members : [];
             const isCarousel = members.length > 3;
 
-            // Para cada nick no array de membros, gera a tag de imagem e a nametag personalizada
-            const membrosHtml = members.map(nick => {
-                const skinUrl = `https://vzge.me/bust/${encodeURIComponent(nick)}.png`;
+            // Header
+            const header = document.createElement("div");
+            header.className = "equipe-header";
 
-                return `
-                    <div class="skin" style="--hover-color: ${theme.color};">
-                        <img src="${skinUrl}" alt="Skin de ${nick}" loading="lazy" onerror="this.onerror=null; this.src='${FALLBACK_SKIN}';">
-                        <div class="nametag-box" style="background: ${theme.gradient};">
-                            <p class="nametag">${nick}</p>
-                        </div>
-                    </div>
-                `;
-            }).join("");
+            const h3 = document.createElement("h3");
+            h3.textContent = cargo.categoryTitle; // texto puro, nunca interpretado como HTML
 
-            const navButtonsHtml = isCarousel ? `
-                <div class="carousel-nav-buttons" aria-label="Navegação do carrossel">
+            const headerColor = document.createElement("div");
+            headerColor.className = "equipe-header-color";
+            headerColor.style.background = `linear-gradient(90deg, ${theme.color}, rgba(0, 0, 0, 0))`;
+
+            header.append(h3, headerColor);
+
+            if (isCarousel) {
+                const navButtons = document.createElement("div");
+                navButtons.className = "carousel-nav-buttons";
+                navButtons.setAttribute("aria-label", "Navegação do carrossel");
+                navButtons.innerHTML = `
                     <button type="button" class="btn-carousel-scroll prev" aria-label="Membro anterior"><i class="fa-solid fa-chevron-left"></i></button>
                     <button type="button" class="btn-carousel-scroll next" aria-label="Próximo membro"><i class="fa-solid fa-chevron-right"></i></button>
-                </div>
-            ` : '';
+                `;
+                header.appendChild(navButtons);
+            }
 
-            section.innerHTML = `
-                <div class="equipe-header">
-                    <h3>${cargo.categoryTitle}</h3>
-                    <div class="equipe-header-color" style="background: linear-gradient(90deg, ${theme.color}, rgba(0, 0, 0, 0));"></div>
-                    ${navButtonsHtml}
-                </div>
-                <div class="skins-wrapper ${isCarousel ? 'is-carousel' : ''}">
-                    ${membrosHtml}
-                </div>
-            `;
+            // Wrapper de skins
+            const wrapper = document.createElement("div");
+            wrapper.className = `skins-wrapper ${isCarousel ? 'is-carousel' : ''}`;
+
+            members.forEach(nick => {
+                const skinUrl = `https://vzge.me/bust/${encodeURIComponent(nick)}.png`;
+
+                const skinDiv = document.createElement("div");
+                skinDiv.className = "skin";
+                skinDiv.style.setProperty('--hover-color', theme.color);
+
+                const img = document.createElement("img");
+                img.src = skinUrl;
+                img.alt = `Skin de ${nick}`;
+                img.loading = "lazy";
+                img.addEventListener("error", function () {
+                    this.onerror = null;
+                    this.src = FALLBACK_SKIN;
+                }, { once: true });
+
+                const nametagBox = document.createElement("div");
+                nametagBox.className = "nametag-box";
+                nametagBox.style.background = theme.gradient;
+
+                const nametag = document.createElement("p");
+                nametag.className = "nametag";
+                nametag.textContent = nick; // texto puro
+
+                nametagBox.appendChild(nametag);
+                skinDiv.append(img, nametagBox);
+                wrapper.appendChild(skinDiv);
+            });
+
+            section.append(header, wrapper);
 
             // Ativa o scroll suave pelos botões do carrossel
             if (isCarousel) {
                 const prevBtn = section.querySelector(".btn-carousel-scroll.prev");
                 const nextBtn = section.querySelector(".btn-carousel-scroll.next");
-                const wrapper = section.querySelector(".skins-wrapper");
 
-                if (prevBtn && wrapper) {
+                if (prevBtn) {
                     prevBtn.addEventListener("click", () => {
                         wrapper.scrollBy({ left: -wrapper.clientWidth * 0.7, behavior: "smooth" });
                     });
                 }
-                if (nextBtn && wrapper) {
+                if (nextBtn) {
                     nextBtn.addEventListener("click", () => {
                         wrapper.scrollBy({ left: wrapper.clientWidth * 0.7, behavior: "smooth" });
                     });

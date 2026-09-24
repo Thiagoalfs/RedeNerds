@@ -45,6 +45,21 @@ function enviarNotificacaoCompraDiscord($nick, $tipoConta, $servidor, $vipNome, 
 
     $url = $urlWebhook . (strpos($urlWebhook, '?') !== false ? '&wait=true' : '?wait=true');
 
+    // Busca cor do tema do servidor se disponível
+    if (($corHex === '#7DB9DF' || empty($corHex)) && !empty($servidor)) {
+        global $pdo;
+        if (isset($pdo) && $pdo instanceof PDO) {
+            try {
+                $stmtCor = $pdo->prepare("SELECT themecolor FROM servidores WHERE servername = :srv OR nome = :srv LIMIT 1");
+                $stmtCor->execute([':srv' => $servidor]);
+                $srvCor = $stmtCor->fetchColumn();
+                if (!empty($srvCor)) {
+                    $corHex = $srvCor;
+                }
+            } catch (Exception $e) {}
+        }
+    }
+
     // Converte hex para decimal pro Discord
     $corLimpa = ltrim($corHex, '#');
     $corDecimal = hexdec($corLimpa);
@@ -60,6 +75,8 @@ function enviarNotificacaoCompraDiscord($nick, $tipoConta, $servidor, $vipNome, 
         if ($parcelas > 1) {
             $metodoLabel .= " ({$parcelas}x)";
         }
+    } elseif ($metodoLower === 'checkout_pro' || $metodoLower === 'internacional' || $metodoLower === 'international') {
+        $metodoLabel = '🌐 Pagamento Internacional (Checkout Pro)';
     } else {
         $metodoLabel = '⚡ PIX (Instantâneo)';
     }
