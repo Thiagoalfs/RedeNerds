@@ -23,7 +23,7 @@ document.addEventListener("DOMContentLoaded", function () {
     // 2. Carrega o Footer
     const footerContainer = document.getElementById("footer");
     if (footerContainer) {
-        fetch("/shared/footer.html?v=1")
+        fetch("/shared/footer.html?v=2")
             .then(response => {
                 if (!response.ok) throw new Error(`Erro ${response.status} ao buscar ${response.url}`);
                 return response.text();
