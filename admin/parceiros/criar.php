@@ -131,27 +131,21 @@ require_once __DIR__ . "/../includes/admin_header.php";
                     </div>
 
                     <!-- FOTO DO PARCEIRO -->
-                    <div class="mb-4 p-3 bg-light rounded border">
+                    <div class="mb-3">
                         <label class="form-label fw-bold d-block mb-1">
                             <i class="fa-solid fa-image text-primary me-1"></i> Foto de Perfil / Avatar
                         </label>
                         <div class="form-text small mb-2">
-                            Envie um arquivo de imagem (PNG, JPG, WEBP). O sistema converterá automaticamente para <strong>.webp</strong> otimizado na pasta <code>/assets/parceiros/</code>.
+                            Envie um arquivo de imagem (PNG, JPG, WEBP). O sistema converterá automaticamente para <strong>.webp</strong> otimizado.
                         </div>
 
                         <div class="row g-3 align-items-center">
                             <div class="col-12 col-sm-auto text-center">
-                                <img id="preview-foto" src="/assets/images/logo.webp" alt="Prévia" class="rounded-circle border shadow-sm" style="width: 80px; height: 80px; object-fit: cover;" onerror="this.src='/assets/images/logo.webp'">
+                                <img id="preview-foto" src="/assets/images/logo.webp" alt="Prévia" class="rounded-circle border shadow-sm" style="width: 70px; height: 70px; object-fit: cover;" onerror="this.src='/assets/images/logo.webp'">
                             </div>
                             <div class="col">
-                                <div class="mb-2">
-                                    <label for="foto_upload" class="form-label small fw-semibold mb-1">Fazer Upload de Arquivo</label>
-                                    <input type="file" class="form-control form-control-sm" id="foto_upload" name="foto_upload" accept="image/png,image/jpeg,image/webp,image/gif,image/avif">
-                                </div>
-                                <div>
-                                    <label for="foto_url" class="form-label small fw-semibold mb-1">Ou informe a URL da Imagem</label>
-                                    <input type="text" class="form-control form-control-sm font-monospace" id="foto_url" name="foto_url" value="<?php echo htmlspecialchars($foto, ENT_QUOTES, 'UTF-8'); ?>" placeholder="https://... ou /assets/parceiros/foto.webp">
-                                </div>
+                                <label for="foto_upload" class="form-label small fw-semibold mb-1">Fazer Upload de Arquivo</label>
+                                <input type="file" class="form-control" id="foto_upload" name="foto_upload" accept="image/png,image/jpeg,image/webp,image/gif,image/avif">
                             </div>
                         </div>
                     </div>
@@ -215,7 +209,7 @@ require_once __DIR__ . "/../includes/admin_header.php";
                     </div>
 
                     <!-- STATUS -->
-                    <div class="mt-4 p-3 bg-light rounded border">
+                    <div class="mt-4">
                         <div class="form-check form-switch">
                             <input class="form-check-input" type="checkbox" id="ativo" name="ativo" value="1" <?php echo $ativo ? 'checked' : ''; ?>>
                             <label class="form-check-label fw-bold" for="ativo">Parceiro Ativo (Exibir publicamente no site)</label>
@@ -238,7 +232,6 @@ require_once __DIR__ . "/../includes/admin_header.php";
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     const fileInput = document.getElementById('foto_upload');
-    const urlInput = document.getElementById('foto_url');
     const previewImg = document.getElementById('preview-foto');
 
     if (fileInput && previewImg) {
@@ -250,17 +243,6 @@ document.addEventListener('DOMContentLoaded', function() {
                     previewImg.src = evt.target.result;
                 };
                 reader.readAsDataURL(file);
-            }
-        });
-    }
-
-    if (urlInput && previewImg) {
-        urlInput.addEventListener('input', function() {
-            const url = this.value.trim();
-            if (url) {
-                previewImg.src = url;
-            } else if (!fileInput.files.length) {
-                previewImg.src = '/assets/images/logo.webp';
             }
         });
     }

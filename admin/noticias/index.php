@@ -87,9 +87,9 @@ try {
             <table class="table table-admin align-middle mb-0">
                 <thead>
                     <tr>
+                        <th style="width: 140px;">Servidor</th>
                         <th style="width: 70px;">Capa</th>
                         <th>Título</th>
-                        <th style="width: 130px;">Servidor</th>
                         <th style="width: 140px;">Categoria</th>
                         <th style="width: 130px;">Autor</th>
                         <th style="width: 140px;">Data</th>
@@ -105,16 +105,6 @@ try {
                         <?php foreach ($noticias as $n): ?>
                             <tr>
                                 <td>
-                                    <?php if (!empty($n['capa'])): ?>
-                                        <img src="<?php echo htmlspecialchars($n['capa'], ENT_QUOTES, 'UTF-8'); ?>" class="rounded border" width="48" height="32" style="object-fit: cover;" alt="Capa" onerror="this.style.display='none'">
-                                    <?php else: ?>
-                                        <span class="text-muted">—</span>
-                                    <?php endif; ?>
-                                </td>
-                                <td>
-                                    <strong class="text-dark"><?php echo htmlspecialchars($n['titulo'], ENT_QUOTES, 'UTF-8'); ?></strong>
-                                </td>
-                                <td>
                                     <?php 
                                         $srvKey = $n['category'] ?? '';
                                         $srvInfo = $servidoresMap[$srvKey] ?? null;
@@ -124,6 +114,16 @@ try {
                                         <i class="fa-solid fa-server me-1"></i>
                                         <?php echo htmlspecialchars($srvKey ?: 'Geral', ENT_QUOTES, 'UTF-8'); ?>
                                     </span>
+                                </td>
+                                <td>
+                                    <?php if (!empty($n['capa'])): ?>
+                                        <img src="<?php echo htmlspecialchars($n['capa'], ENT_QUOTES, 'UTF-8'); ?>" class="rounded border" width="48" height="32" style="object-fit: cover;" alt="Capa" onerror="this.style.display='none'">
+                                    <?php else: ?>
+                                        <span class="text-muted">—</span>
+                                    <?php endif; ?>
+                                </td>
+                                <td>
+                                    <strong class="text-dark"><?php echo htmlspecialchars($n['titulo'], ENT_QUOTES, 'UTF-8'); ?></strong>
                                 </td>
                                 <td><span class="badge bg-light text-dark border"><?php echo htmlspecialchars($n['categoria_envio'] ?? 'Atualização', ENT_QUOTES, 'UTF-8'); ?></span></td>
                                 <td><small><?php echo htmlspecialchars($n['autor'] ?? 'Admin', ENT_QUOTES, 'UTF-8'); ?></small></td>

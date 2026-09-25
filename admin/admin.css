@@ -948,6 +948,46 @@ body {
   color: #ffffff;
 }
 
+[data-theme="dark"] .btn-outline-dark {
+  color: #f8fafc;
+  border-color: rgba(255, 255, 255, 0.4);
+}
+
+[data-theme="dark"] .btn-outline-dark:hover,
+[data-theme="dark"] .btn-outline-dark:focus,
+[data-theme="dark"] .btn-outline-dark:active {
+  background-color: #ffffff;
+  border-color: #ffffff;
+  color: #0f172a;
+}
+
+[data-theme="dark"] .btn-outline-success {
+  color: #34d399;
+  border-color: rgba(52, 211, 153, 0.4);
+}
+
+[data-theme="dark"] .btn-outline-success:hover,
+[data-theme="dark"] .btn-outline-success:focus,
+[data-theme="dark"] .btn-outline-success:active {
+  background-color: #10b981;
+  border-color: #10b981;
+  color: #ffffff;
+}
+
+[data-theme="dark"] .btn-outline-danger {
+  color: #f87171;
+  border-color: rgba(248, 113, 113, 0.4);
+}
+
+[data-theme="dark"] .btn-outline-danger:hover,
+[data-theme="dark"] .btn-outline-danger:focus,
+[data-theme="dark"] .btn-outline-danger:active {
+  background-color: #ef4444;
+  border-color: #ef4444;
+  color: #ffffff;
+}
+
+
 /* Modais */
 [data-theme="dark"] .modal-content {
   background-color: #111827;
