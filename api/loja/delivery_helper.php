@@ -58,10 +58,10 @@ function enviarEntregaVip($pedido, $pdo = null) {
     if (!is_array($pedido) && $pdo instanceof PDO) {
         $idOrTxid = trim((string)$pedido);
         if (is_numeric($idOrTxid)) {
-            $stmt = $pdo->prepare("SELECT * FROM pedidos_vip WHERE id = :id LIMIT 1");
+            $stmt = $pdo->prepare("SELECT * FROM pedidos WHERE id = :id LIMIT 1");
             $stmt->execute([':id' => (int)$idOrTxid]);
         } else {
-            $stmt = $pdo->prepare("SELECT * FROM pedidos_vip WHERE txid = :txid LIMIT 1");
+            $stmt = $pdo->prepare("SELECT * FROM pedidos WHERE txid = :txid LIMIT 1");
             $stmt->execute([':txid' => $idOrTxid]);
         }
         $pedido = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -260,7 +260,7 @@ function enviarEntregaVip($pedido, $pdo = null) {
         error_log("DELIVERY SUCESSO: Pedido #{$orderId} enviado para '{$player}' ({$packageId} no servidor '{$serverSlug}') - HTTP {$httpCode}");
         if ($pdo instanceof PDO && !empty($orderId)) {
             try {
-                $upEntregue = $pdo->prepare("UPDATE pedidos_vip SET entregue = 1 WHERE txid = :txid OR id = :id");
+                $upEntregue = $pdo->prepare("UPDATE pedidos SET entregue = 1 WHERE txid = :txid OR id = :id");
                 $upEntregue->execute([':txid' => $orderId, ':id' => (int)$orderId]);
             } catch (Exception $e) {
                 error_log("AVISO DELIVERY: Falha ao marcar entregue = 1 no banco: " . $e->getMessage());

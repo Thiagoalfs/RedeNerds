@@ -1,7 +1,7 @@
 <?php
 /**
  * admin/pedidos/exportar.php
- * Endpoint de exportação de pedidos VIP para formato CSV compatível com Excel.
+ * Endpoint de exportação de pedidos para formato CSV compatível com Excel.
  */
 
 // Inicia buffer para garantir envio limpo de cabeçalhos e arquivo
@@ -116,7 +116,7 @@ try {
         }
     }
 
-    $stmt = $pdo->prepare("SELECT * FROM pedidos_vip $whereSql ORDER BY id DESC");
+    $stmt = $pdo->prepare("SELECT * FROM pedidos $whereSql ORDER BY id DESC");
     $stmt->execute($params);
 
     // Limpa quaisquer buffers anteriores para saída limpa do arquivo binário/texto
@@ -124,7 +124,7 @@ try {
         ob_end_clean();
     }
 
-    $filename = "pedidos_vip_" . date('Y-m-d_His') . ".csv";
+    $filename = "pedidos_" . date('Y-m-d_His') . ".csv";
 
     header('Content-Type: text/csv; charset=UTF-8');
     header('Content-Disposition: attachment; filename="' . $filename . '"');
@@ -228,7 +228,7 @@ try {
     fclose($output);
     exit;
 } catch (Exception $e) {
-    error_log("Erro ao exportar pedidos VIP: " . $e->getMessage());
+    error_log("Erro ao exportar pedidos: " . $e->getMessage());
     http_response_code(500);
     echo "Erro ao exportar pedidos: " . htmlspecialchars($e->getMessage(), ENT_QUOTES, 'UTF-8');
     exit;

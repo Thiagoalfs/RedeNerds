@@ -66,8 +66,8 @@ function responder503ServicoIndisponivel(string $logDetalhe): void {
 }
 
 /**
- * Garante automaticamente que a tabela chaves e as colunas necessárias em pedidos_vip existam,
- * e que vip_id permita NULL para evitar restrições de integridade em compras de chaves.
+ * Garante automaticamente que a tabela chaves e a tabela pedidos existam,
+ * renomeando pedidos_vip para pedidos se necessário, e configurando todas as colunas.
  */
 function garantirSchemaTabelaPedidos(?PDO $pdo): void {
     if (!$pdo || !($pdo instanceof PDO)) {
@@ -99,8 +99,62 @@ function garantirSchemaTabelaPedidos(?PDO $pdo): void {
           INDEX idx_srv (`servidor_id`, `ativo`)
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;");
 
-        // 2. Analisa colunas existentes em pedidos_vip
-        $stmtCols = $pdo->query("SHOW COLUMNS FROM `pedidos_vip`");
+        // 2. Se existir a tabela legada pedidos_vip e não existir pedidos, renomeia
+        try {
+            $stmtCheckOld = $pdo->query("SHOW TABLES LIKE 'pedidos_vip'");
+            $oldExists = ($stmtCheckOld && $stmtCheckOld->rowCount() > 0);
+            $stmtCheckNew = $pdo->query("SHOW TABLES LIKE 'pedidos'");
+            $newExists = ($stmtCheckNew && $stmtCheckNew->rowCount() > 0);
+
+            if ($oldExists && !$newExists) {
+                $pdo->exec("RENAME TABLE `pedidos_vip` TO `pedidos`");
+            }
+        } catch (\Throwable $e) {
+            // Ignora se não for suportado pelo driver de banco
+        }
+
+        // 3. Garante que a tabela pedidos exista
+        $pdo->exec("CREATE TABLE IF NOT EXISTS `pedidos` (
+            `id` INT AUTO_INCREMENT PRIMARY KEY,
+            `txid` VARCHAR(100) NOT NULL UNIQUE,
+            `mp_payment_id` VARCHAR(100) NULL DEFAULT NULL,
+            `nick` VARCHAR(50) NOT NULL,
+            `payer_email` VARCHAR(150) NULL DEFAULT NULL,
+            `payer_cpf` VARCHAR(20) NULL DEFAULT NULL,
+            `pais_ip` CHAR(2) NULL DEFAULT NULL,
+            `tipo_conta` VARCHAR(20) NOT NULL DEFAULT 'original',
+            `servidor` VARCHAR(100) NOT NULL,
+            `servidor_id` INT NULL DEFAULT NULL,
+            `tipo_produto` VARCHAR(20) NOT NULL DEFAULT 'vip',
+            `quantidade` INT NOT NULL DEFAULT 1,
+            `chave_id` INT NULL DEFAULT NULL,
+            `vip_id` INT NULL DEFAULT NULL,
+            `vip_nome` VARCHAR(100) NOT NULL,
+            `cupom_codigo` VARCHAR(50) NULL DEFAULT NULL,
+            `valor` DECIMAL(10,2) NOT NULL DEFAULT 0.00,
+            `valor_original` DECIMAL(10,2) NOT NULL DEFAULT 0.00,
+            `desconto_aplicado` DECIMAL(10,2) NOT NULL DEFAULT 0.00,
+            `valor_total` DECIMAL(10,2) NOT NULL DEFAULT 0.00,
+            `status` VARCHAR(20) NOT NULL DEFAULT 'pendente',
+            `status_detail` VARCHAR(100) NULL DEFAULT NULL,
+            `metodo_pagamento` VARCHAR(20) NOT NULL DEFAULT 'pix',
+            `parcelas` INT NOT NULL DEFAULT 1,
+            `card_first_six_digits` VARCHAR(10) NULL DEFAULT NULL,
+            `card_last_four_digits` VARCHAR(10) NULL DEFAULT NULL,
+            `card_payment_method_id` VARCHAR(50) NULL DEFAULT NULL,
+            `pix_copia_cola` TEXT NULL DEFAULT NULL,
+            `pix_qr_base64` LONGTEXT NULL DEFAULT NULL,
+            `cupom_computado` TINYINT(1) NOT NULL DEFAULT 0,
+            `entregue` TINYINT(1) NOT NULL DEFAULT 0,
+            `pago_em` DATETIME NULL DEFAULT NULL,
+            `criado_em` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            INDEX idx_status (`status`),
+            INDEX idx_nick (`nick`),
+            INDEX idx_txid (`txid`)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;");
+
+        // 4. Analisa colunas existentes em pedidos
+        $stmtCols = $pdo->query("SHOW COLUMNS FROM `pedidos`");
         if ($stmtCols) {
             $cols = [];
             $colDetails = [];
@@ -111,28 +165,28 @@ function garantirSchemaTabelaPedidos(?PDO $pdo): void {
             }
 
             if (!in_array('quantidade', $cols, true)) {
-                $pdo->exec("ALTER TABLE `pedidos_vip` ADD COLUMN `quantidade` INT NOT NULL DEFAULT 1");
+                $pdo->exec("ALTER TABLE `pedidos` ADD COLUMN `quantidade` INT NOT NULL DEFAULT 1");
             }
             if (!in_array('tipo_produto', $cols, true)) {
-                $pdo->exec("ALTER TABLE `pedidos_vip` ADD COLUMN `tipo_produto` VARCHAR(20) NOT NULL DEFAULT 'vip'");
+                $pdo->exec("ALTER TABLE `pedidos` ADD COLUMN `tipo_produto` VARCHAR(20) NOT NULL DEFAULT 'vip'");
             }
             if (!in_array('chave_id', $cols, true)) {
-                $pdo->exec("ALTER TABLE `pedidos_vip` ADD COLUMN `chave_id` INT NULL DEFAULT NULL");
+                $pdo->exec("ALTER TABLE `pedidos` ADD COLUMN `chave_id` INT NULL DEFAULT NULL");
             }
             if (!in_array('cupom_computado', $cols, true)) {
-                $pdo->exec("ALTER TABLE `pedidos_vip` ADD COLUMN `cupom_computado` TINYINT(1) NOT NULL DEFAULT 0");
+                $pdo->exec("ALTER TABLE `pedidos` ADD COLUMN `cupom_computado` TINYINT(1) NOT NULL DEFAULT 0");
             }
             if (!in_array('pais_ip', $cols, true)) {
-                $pdo->exec("ALTER TABLE `pedidos_vip` ADD COLUMN `pais_ip` CHAR(2) NULL DEFAULT NULL");
+                $pdo->exec("ALTER TABLE `pedidos` ADD COLUMN `pais_ip` CHAR(2) NULL DEFAULT NULL");
             }
 
             // Garante que vip_id permita NULL (crucial para compras de chaves)
             if (isset($colDetails['vip_id']) && strtolower((string)($colDetails['vip_id']['Null'] ?? '')) === 'no') {
-                $pdo->exec("ALTER TABLE `pedidos_vip` MODIFY COLUMN `vip_id` INT NULL DEFAULT NULL");
+                $pdo->exec("ALTER TABLE `pedidos` MODIFY COLUMN `vip_id` INT NULL DEFAULT NULL");
             }
 
-            // 3. Garante constraint UNIQUE em txid para evitar concorrência/duplicações
-            $stmtIdx = $pdo->query("SHOW INDEX FROM `pedidos_vip` WHERE Column_name = 'txid'");
+            // 5. Garante constraint UNIQUE em txid para evitar concorrência/duplicações
+            $stmtIdx = $pdo->query("SHOW INDEX FROM `pedidos` WHERE Column_name = 'txid'");
             $hasUniqueTxid = false;
             if ($stmtIdx) {
                 while ($idxRow = $stmtIdx->fetch(PDO::FETCH_ASSOC)) {
@@ -144,14 +198,14 @@ function garantirSchemaTabelaPedidos(?PDO $pdo): void {
             }
             if (!$hasUniqueTxid) {
                 try {
-                    $pdo->exec("ALTER TABLE `pedidos_vip` ADD UNIQUE INDEX `uq_txid` (`txid`)");
+                    $pdo->exec("ALTER TABLE `pedidos` ADD UNIQUE INDEX `uq_txid` (`txid`)");
                 } catch (\Throwable $e) {
                     // Ignora se já existir ou se houver duplicatas legadas
                 }
             }
         }
     } catch (\Throwable $e) {
-        error_log("Aviso ao garantir schema da loja em pedidos_vip/chaves: " . $e->getMessage());
+        error_log("Aviso ao garantir schema da loja em pedidos/chaves: " . $e->getMessage());
     }
 }
 
@@ -238,7 +292,7 @@ function autoRecuperarPedidoMercadoPago(PDO $pdo, string $externalRef, mixed $pa
 
     try {
         $stmtIns = $pdo->prepare("
-            INSERT INTO pedidos_vip (
+            INSERT INTO pedidos (
                 txid, mp_payment_id, nick, pais_ip, tipo_conta, servidor, 
                 tipo_produto, quantidade, chave_id, vip_id, vip_nome, 
                 valor, valor_original, status, metodo_pagamento, cupom_computado, criado_em, pago_em

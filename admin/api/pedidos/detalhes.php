@@ -17,10 +17,10 @@ if ($id <= 0 && empty($txid)) {
 
 try {
     if ($id > 0) {
-        $stmt = $pdo->prepare("SELECT * FROM pedidos_vip WHERE id = :id LIMIT 1");
+        $stmt = $pdo->prepare("SELECT * FROM pedidos WHERE id = :id LIMIT 1");
         $stmt->execute([':id' => $id]);
     } else {
-        $stmt = $pdo->prepare("SELECT * FROM pedidos_vip WHERE txid = :txid LIMIT 1");
+        $stmt = $pdo->prepare("SELECT * FROM pedidos WHERE txid = :txid LIMIT 1");
         $stmt->execute([':txid' => $txid]);
     }
 

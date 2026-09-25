@@ -15,7 +15,7 @@ echo "==> Executando testes de Transição Atômica (Webhook & Checar Status)...
 
 $txid = 'NERD-TEST-WEBHOOK-01';
 $pdo->prepare("
-    INSERT INTO pedidos_vip (txid, nick, servidor, vip_id, vip_nome, cupom_codigo, valor, status, cupom_computado)
+    INSERT INTO pedidos (txid, nick, servidor, vip_id, vip_nome, cupom_codigo, valor, status, cupom_computado)
     VALUES (:txid, :nick, :servidor, :vip_id, :vip_nome, :cupom_codigo, :valor, :status, :cupom_computado)
 ")->execute([
     ':txid'            => $txid,
@@ -32,7 +32,7 @@ $pdo->prepare("
 // Simulação de 2 workers concorrentes executando a query atômica do webhook
 function simularWorkerWebhook(PDO $pdo, string $txid, string $mpPaymentId): bool {
     $up = $pdo->prepare("
-        UPDATE pedidos_vip 
+        UPDATE pedidos 
         SET status = 'pago', pago_em = NOW(), mp_payment_id = :mp_id 
         WHERE txid = :txid AND status <> 'pago'
     ");
@@ -43,7 +43,7 @@ function simularWorkerWebhook(PDO $pdo, string $txid, string $mpPaymentId): bool
     $transicaoOcorreu = ($up->rowCount() === 1);
 
     if ($transicaoOcorreu) {
-        $stmt = $pdo->prepare("SELECT * FROM pedidos_vip WHERE txid = :txid LIMIT 1");
+        $stmt = $pdo->prepare("SELECT * FROM pedidos WHERE txid = :txid LIMIT 1");
         $stmt->execute([':txid' => $txid]);
         $pedido = $stmt->fetch(PDO::FETCH_ASSOC);
 
@@ -63,7 +63,7 @@ $res1 = simularWorkerWebhook($pdo, $txid, 'MP-99887766');
 assert($res1 === true, "Falha: Worker 1 deveria ter realizado a transição atômica");
 assert(count(TestSpy::$entregasVip) === 1, "Falha: deve haver exatamente 1 entrega de VIP");
 assert(count(TestSpy::$discordNotificacoes) === 1, "Falha: deve haver exatamente 1 notificação no Discord");
-assert($pdo->pedidos_vip[$txid]['mp_payment_id'] === 'MP-99887766', "Falha: mp_payment_id deve ser gravado");
+assert($pdo->pedidos[$txid]['mp_payment_id'] === 'MP-99887766', "Falha: mp_payment_id deve ser gravado");
 echo "  [PASS] Worker 1 realizou a transição, gravou mp_payment_id e disparou entrega e notificação.\n";
 
 // Worker 2 tenta processar a mesma notificação duplicada/concorrente

@@ -42,7 +42,7 @@ RedeNerds/
 │   ├── equipe/          # Gestão de membros e hierarquia/cores de cargos
 │   ├── includes/        # Componentes compartilhados do admin (Header, Sidebar fixa, Footer, Toolbar)
 │   ├── noticias/        # Gestão de novidades com upload WebP e Discord Webhook
-│   ├── pedidos/         # Histórico de pedidos VIP e exportação CSV compatível com Excel
+│   ├── pedidos/         # Histórico de pedidos e exportação CSV compatível com Excel
 │   ├── servidores/      # Gestão de servidores e temas
 │   ├── vips/            # Gestão do catálogo de pacotes VIP
 │   └── wiki/            # Gestão de artigos, categorias e editor Markdown com upload de imagens
@@ -148,7 +148,7 @@ O sistema de Wiki oferece uma experiência de documentação completa e rica par
 
 O painel administrativo centraliza toda a gestão do site com proteção contra força bruta (**Rate Limiting** na tabela `tentativas_login`), sidebar lateral fixa com rolagem independente e layout responsivo:
 
-### 1. 📊 Pedidos VIP & Exportação de Vendas (`admin/pedidos/`)
+### 1. 📊 Pedidos & Exportação de Vendas (`admin/pedidos/`)
 * Listagem completa de transações com status (`aprovado`, `pendente`, `cancelado`), valor, servidor e nick do jogador.
 * Modal de detalhes do pedido com histórico, txid, cupom utilizado e logs de entrega.
 * Exportação em **CSV compatível com Microsoft Excel** com filtros de período e opção de "Apenas Aprovados".

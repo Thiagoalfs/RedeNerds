@@ -1,7 +1,7 @@
 <?php
 /**
  * admin/includes/pedidos_table.php
- * Componente reutilizável da tabela de pedidos VIP com modal de detalhes instantâneo.
+ * Componente reutilizável da tabela de pedidos com modal de detalhes instantâneo.
  *
  * Variáveis esperadas:
  * - array $pedidos: lista de pedidos a serem exibidos
@@ -22,7 +22,7 @@ $mostrarPaginacao = $mostrarPaginacao ?? false;
         <thead>
             <tr>
                 <th style="width: 220px;">Jogador</th>
-                <th>Pacote VIP</th>
+                <th>Produto</th>
                 <th>Servidor</th>
                 <th>Método</th>
                 <th>Valor Pago</th>
@@ -213,8 +213,11 @@ $mostrarPaginacao = $mostrarPaginacao ?? false;
                         <span class="fw-semibold">${p.servidor || p.servidor_nome || '—'}</span>
                     </li>
                     <li class="list-group-item d-flex justify-content-between align-items-center">
-                        <span class="text-muted">Pacote VIP:</span>
-                        <span class="badge bg-light text-dark border font-monospace fs-6"><i class="fa-solid fa-crown text-warning me-1"></i>${p.vip_nome || '—'}</span>
+                        <span class="text-muted">Produto:</span>
+                        <span class="badge bg-light text-dark border font-monospace fs-6">
+                            <i class="fa-solid ${p.tipo_produto === 'chave' ? 'fa-key' : 'fa-crown'} text-warning me-1"></i>
+                            ${(p.tipo_produto === 'chave' && (parseInt(p.quantidade) || 1) > 1) ? `${p.quantidade}x ` : ''}${p.vip_nome || (p.tipo_produto === 'chave' ? 'Chaves' : 'Produto')}
+                        </span>
                     </li>
                     <li class="list-group-item d-flex justify-content-between align-items-center">
                         <span class="text-muted">Método de Pagamento:</span>

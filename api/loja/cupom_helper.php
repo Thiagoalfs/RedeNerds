@@ -26,7 +26,7 @@ function registrarUsoCupomSePago(PDO $pdo, string $txid): bool {
         // 1. Busca dados do pedido bloqueando a linha se necessário
         $stmtSel = $pdo->prepare("
             SELECT cupom_codigo, status, cupom_computado 
-            FROM pedidos_vip 
+            FROM pedidos 
             WHERE txid = :txid 
             LIMIT 1
         ");
@@ -40,7 +40,7 @@ function registrarUsoCupomSePago(PDO $pdo, string $txid): bool {
 
         // 2. Marca cupom_computado = 1 de forma atômica
         $stmtUp = $pdo->prepare("
-            UPDATE pedidos_vip 
+            UPDATE pedidos 
             SET cupom_computado = 1 
             WHERE txid = :txid AND status = 'pago' AND (cupom_computado = 0 OR cupom_computado IS NULL)
         ");

@@ -1,6 +1,6 @@
 <?php
 $paginaAtiva = 'pedidos';
-$tituloPagina = 'Pedidos VIP & Vendas';
+$tituloPagina = 'Pedidos & Vendas';
 require_once __DIR__ . "/../includes/admin_header.php";
 
 if (!defined('POR_PAGINA')) {
@@ -73,14 +73,14 @@ try {
 
         $whereSql = !empty($where) ? "WHERE " . implode(" AND ", $where) : "";
 
-        $stmtCount = $pdo->prepare("SELECT COUNT(*) FROM pedidos_vip $whereSql");
+        $stmtCount = $pdo->prepare("SELECT COUNT(*) FROM pedidos $whereSql");
         $stmtCount->execute($params);
         $totalPedidos = (int)$stmtCount->fetchColumn();
 
         $totalPaginas = max(1, (int)ceil($totalPedidos / POR_PAGINA));
 
         $stmt = $pdo->prepare("
-            SELECT * FROM pedidos_vip 
+            SELECT * FROM pedidos 
             $whereSql 
             ORDER BY id DESC 
             LIMIT :limit OFFSET :offset
@@ -100,7 +100,7 @@ try {
 
 <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-3">
     <div>
-        <h4 class="fw-bold mb-1">Pedidos VIP & Vendas</h4>
+        <h4 class="fw-bold mb-1">Pedidos</h4>
         <p class="text-muted small mb-0"><?php echo $totalPedidos; ?> pedido(s) registrado(s)</p>
     </div>
     <div class="d-flex gap-2">
@@ -173,13 +173,13 @@ try {
             <form method="GET" action="exportar.php" target="_blank" id="formExportarPedidos">
                 <div class="modal-header">
                     <h5 class="modal-title fw-bold" id="modalExportarPedidosLabel">
-                        <i class="fa-solid fa-file-excel text-success me-2"></i> Exportar Pedidos VIP (.CSV)
+                        <i class="fa-solid fa-file-excel text-success me-2"></i> Exportar Pedidos (.CSV)
                     </h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
                 </div>
                 <div class="modal-body">
                     <p class="text-muted small mb-3">
-                        Selecione o período desejado ou marque para exportar todo o histórico de VIPs para Excel (.csv).
+                        Selecione o período desejado ou marque para exportar todo o histórico de pedidos para Excel (.csv).
                     </p>
 
                     <!-- FILTRO DE PERÍODO -->

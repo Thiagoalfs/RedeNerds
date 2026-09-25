@@ -137,7 +137,7 @@ if ($status === 'approved' && !empty($externalRef)) {
     $transicaoOcorreu = false;
     try {
         $up = $pdo->prepare("
-            UPDATE pedidos_vip 
+            UPDATE pedidos 
             SET status = 'pago', pago_em = NOW(), mp_payment_id = :mp_id 
             WHERE txid = :txid AND status <> 'pago'
         ");
@@ -158,7 +158,7 @@ if ($status === 'approved' && !empty($externalRef)) {
     // 2. Dispara efeitos colaterais SOMENTE se esta execução foi a responsável pela mudança para 'pago'
     if ($transicaoOcorreu) {
         try {
-            $stmt = $pdo->prepare("SELECT * FROM pedidos_vip WHERE txid = :txid LIMIT 1");
+            $stmt = $pdo->prepare("SELECT * FROM pedidos WHERE txid = :txid LIMIT 1");
             $stmt->execute([':txid' => $externalRef]);
             $pedido = $stmt->fetch(PDO::FETCH_ASSOC);
 

@@ -423,7 +423,7 @@ $dbChaveId = ($tipoProduto === 'chave') ? $itemId : null;
 
 try {
     $stmt = $pdo->prepare("
-        INSERT INTO pedidos_vip (
+        INSERT INTO pedidos (
             txid, mp_payment_id, nick, payer_email, payer_cpf, pais_ip, tipo_conta, servidor, 
             tipo_produto, quantidade, chave_id, vip_id, vip_nome, cupom_codigo, valor, valor_original, desconto_aplicado, 
             valor_total, status, status_detail, metodo_pagamento, 

@@ -74,7 +74,7 @@ try {
     if (isset($pdo) && $pdo instanceof PDO) {
         // Apenas cancela se estiver 'pendente' (não cancela pedidos que já foram pagos)
         $stmt = $pdo->prepare("
-            UPDATE pedidos_vip 
+            UPDATE pedidos 
             SET status = :novoStatus
             WHERE txid = :txid AND status = 'pendente'
         ");

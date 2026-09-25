@@ -15,7 +15,7 @@ echo "==> Executando testes de Idempotência de Cupom...\n";
 // Insere pedido pendente com cupom PROMO10
 $txid = 'NERD-TEST-CUPOM-01';
 $pdo->prepare("
-    INSERT INTO pedidos_vip (txid, nick, servidor, vip_id, vip_nome, cupom_codigo, valor, status, cupom_computado)
+    INSERT INTO pedidos (txid, nick, servidor, vip_id, vip_nome, cupom_codigo, valor, status, cupom_computado)
     VALUES (:txid, :nick, :servidor, :vip_id, :vip_nome, :cupom_codigo, :valor, :status, :cupom_computado)
 ")->execute([
     ':txid'            => $txid,
@@ -38,7 +38,7 @@ assert($usos === 0, "Falha: usos_total deveria ser 0 após tentativa em pedido p
 echo "  [PASS] Pedido pendente não incrementa cupom.\n";
 
 // 2. Muda status para 'pago' e executa registrarUsoCupomSePago
-$pdo->prepare("UPDATE pedidos_vip SET status = 'pago', pago_em = datetime('now') WHERE txid = :txid")
+$pdo->prepare("UPDATE pedidos SET status = 'pago', pago_em = datetime('now') WHERE txid = :txid")
     ->execute([':txid' => $txid]);
 
 $resPago1 = registrarUsoCupomSePago($pdo, $txid);
@@ -47,7 +47,7 @@ assert($resPago1 === true, "Falha: primeira chamada para pedido pago deveria ret
 $usos1 = (int)$pdo->query("SELECT usos_total FROM cupons WHERE codigo = 'PROMO10'")->fetchColumn();
 assert($usos1 === 1, "Falha: usos_total deveria ser 1 após primeira confirmação de pagamento");
 
-$computado = (int)$pdo->query("SELECT cupom_computado FROM pedidos_vip WHERE txid = '{$txid}'")->fetchColumn();
+$computado = (int)$pdo->query("SELECT cupom_computado FROM pedidos WHERE txid = '{$txid}'")->fetchColumn();
 assert($computado === 1, "Falha: cupom_computado deveria ser 1");
 echo "  [PASS] Primeira confirmação de pagamento incrementa cupom exatamente 1 vez.\n";
 
