@@ -84,6 +84,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         ':ativo' => $ativo
                     ]);
 
+                    require_once __DIR__ . "/../../api/cache_helper.php";
+                    invalidarCache('parceiros');
+
                     header("Location: index.php?msg=" . urlencode("Parceiro '{$nome}' cadastrado com sucesso!"));
                     exit;
                 } catch (PDOException $e) {

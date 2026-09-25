@@ -104,6 +104,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     ':id'         => $id
                 ]);
 
+                require_once __DIR__ . "/../../api/cache_helper.php";
+                invalidarCache('servidores');
+
                 header("Location: index.php");
                 exit;
             }

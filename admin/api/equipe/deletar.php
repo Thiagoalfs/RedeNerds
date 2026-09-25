@@ -28,6 +28,10 @@ if ($id > 0 && isset($pdo) && $pdo instanceof PDO) {
     try {
         $stmt = $pdo->prepare("DELETE FROM equipe WHERE id = :id");
         $stmt->execute([':id' => $id]);
+
+        require_once __DIR__ . "/../../../api/cache_helper.php";
+        invalidarCache('equipe');
+
         if ($isAjax) {
             header('Content-Type: application/json; charset=utf-8');
             echo json_encode(["success" => true]);

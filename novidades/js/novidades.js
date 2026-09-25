@@ -41,6 +41,9 @@ function initNovidades() {
     };
 
     const fetchJSON = async (url) => {
+        if (window.AppCache) {
+            return await AppCache.fetchWithCache('novidades_query_' + encodeURIComponent(url), url);
+        }
         const res = await fetch(url);
         const contentType = res.headers.get("content-type") || "";
         
@@ -100,75 +103,91 @@ function initNovidades() {
     // ========================================================
     // 1. CARREGAMENTO DA TELA PRINCIPAL (Top 3)
     // ========================================================
+    const renderTopNews = (data) => {
+        const atualizacoesSec = document.getElementById("atualizacoes-section") || document.getElementById("novidades-section");
+        if (!newsContainer) return;
+
+        if (data && data.erro) {
+            console.error("Erro retornado do backend:", data.erro);
+            if (atualizacoesSec && !newsContainer.children.length) atualizacoesSec.hidden = true;
+            return;
+        }
+
+        const entries = Array.isArray(data) ? data : (data && data.data && Array.isArray(data.data) ? data.data : []);
+
+        if (entries.length === 0) {
+            if (atualizacoesSec && !newsContainer.children.length) atualizacoesSec.hidden = true;
+            return;
+        }
+
+        newsContainer.innerHTML = entries.map(news => {
+            const categoryKey = toCategoryKey(news.category);
+            const categoryLabel = categoryLabels[categoryKey] || news.category || "";
+            const rawDesc = String(news.conteudo || "").replace(/<[^>]+>/g, "").replace(/\\n/g, " ").trim();
+            const descSnippet = rawDesc || "Clique para ver todos os detalhes e informações desta atualização.";
+            const dataObj = news.criado_em ? new Date(String(news.criado_em).replace(" ", "T")) : new Date();
+            const dataFormatada = !isNaN(dataObj.getTime()) ? dataObj.toLocaleDateString("pt-BR") : "";
+
+            return `
+            <a class="news-div" href="/novidades/novidade-page/?id=${news.id}" data-category="${categoryKey}">
+                <div class="news-div-banner">
+                    <img class="news-img" src="${escapeHTML(news.capa)}" alt="${escapeHTML(news.titulo)}">
+                </div>
+                <div class="news-div-content">
+                    <div class="news-div-meta">
+                        <span class="news-div-date">${dataFormatada}</span>
+                        ${categoryLabel ? `<span class="news-div-tag" data-category="${categoryKey}">${escapeHTML(categoryLabel)}</span>` : ""}
+                    </div>
+                    <h3 class="news-div-title">${escapeHTML(news.titulo)}</h3>
+                    <p class="news-div-desc">${escapeHTML(descSnippet)}</p>
+                    <div class="news-div-footer">
+                        <div class="author">
+                            <img class="author-head" src="https://mc-heads.net/avatar/${escapeHTML(news.autor)}" alt="${escapeHTML(news.autor)}">
+                            <span>${escapeHTML(news.autor)}</span>
+                        </div>
+                    </div>
+                </div>
+            </a>
+            `;
+        }).join("");
+
+        // Revela a seção completa somente agora após carregar as notícias com sucesso
+        if (atualizacoesSec) {
+            atualizacoesSec.removeAttribute("hidden");
+            atualizacoesSec.hidden = false;
+        }
+    };
+
     const loadTopNews = () => {
         const atualizacoesSec = document.getElementById("atualizacoes-section") || document.getElementById("novidades-section");
         if (!newsContainer) return;
 
         // Mantém a seção inteira oculta inicialmente (sem piscar nem mostrar 'carregando...')
-        if (atualizacoesSec) {
+        if (atualizacoesSec && !newsContainer.children.length) {
             atualizacoesSec.hidden = true;
         }
 
-        fetch("/api/novidades_api.php?limit=3")
-            .then(res => {
-                if (!res.ok) throw new Error("HTTP error " + res.status);
-                return res.json();
-            })
-            .then(data => {
-                if (data && data.erro) {
-                    console.error("Erro retornado do backend:", data.erro);
-                    if (atualizacoesSec) atualizacoesSec.hidden = true;
-                    return;
+        if (window.AppCache) {
+            AppCache.fetchWithCache('novidades_limit_3', '/api/novidades_api.php?limit=3', {
+                onCached: renderTopNews,
+                onFresh: renderTopNews,
+                onError: (err) => {
+                    console.error("Erro ao carregar atualizações:", err);
+                    if (atualizacoesSec && !newsContainer.children.length) atualizacoesSec.hidden = true;
                 }
-
-                const entries = Array.isArray(data) ? data : (data && data.data && Array.isArray(data.data) ? data.data : []);
-
-                if (entries.length === 0) {
-                    if (atualizacoesSec) atualizacoesSec.hidden = true;
-                    return;
-                }
-
-                newsContainer.innerHTML = entries.map(news => {
-                    const categoryKey = toCategoryKey(news.category);
-                    const categoryLabel = categoryLabels[categoryKey] || news.category || "";
-                    const rawDesc = String(news.conteudo || "").replace(/<[^>]+>/g, "").replace(/\\n/g, " ").trim();
-                    const descSnippet = rawDesc || "Clique para ver todos os detalhes e informações desta atualização.";
-                    const dataObj = news.criado_em ? new Date(String(news.criado_em).replace(" ", "T")) : new Date();
-                    const dataFormatada = !isNaN(dataObj.getTime()) ? dataObj.toLocaleDateString("pt-BR") : "";
-
-                    return `
-                    <a class="news-div" href="/novidades/novidade-page/?id=${news.id}" data-category="${categoryKey}">
-                        <div class="news-div-banner">
-                            <img class="news-img" src="${escapeHTML(news.capa)}" alt="${escapeHTML(news.titulo)}">
-                        </div>
-                        <div class="news-div-content">
-                            <div class="news-div-meta">
-                                <span class="news-div-date">${dataFormatada}</span>
-                                ${categoryLabel ? `<span class="news-div-tag" data-category="${categoryKey}">${escapeHTML(categoryLabel)}</span>` : ""}
-                            </div>
-                            <h3 class="news-div-title">${escapeHTML(news.titulo)}</h3>
-                            <p class="news-div-desc">${escapeHTML(descSnippet)}</p>
-                            <div class="news-div-footer">
-                                <div class="author">
-                                    <img class="author-head" src="https://mc-heads.net/avatar/${escapeHTML(news.autor)}" alt="${escapeHTML(news.autor)}">
-                                    <span>${escapeHTML(news.autor)}</span>
-                                </div>
-                            </div>
-                        </div>
-                    </a>
-                    `;
-                }).join("");
-
-                // Revela a seção completa somente agora após carregar as notícias com sucesso
-                if (atualizacoesSec) {
-                    atualizacoesSec.removeAttribute("hidden");
-                    atualizacoesSec.hidden = false;
-                }
-            })
-            .catch(err => {
-                console.error("Erro ao carregar atualizações:", err);
-                if (atualizacoesSec) atualizacoesSec.hidden = true;
             });
+        } else {
+            fetch("/api/novidades_api.php?limit=3")
+                .then(res => {
+                    if (!res.ok) throw new Error("HTTP error " + res.status);
+                    return res.json();
+                })
+                .then(renderTopNews)
+                .catch(err => {
+                    console.error("Erro ao carregar atualizações:", err);
+                    if (atualizacoesSec && !newsContainer.children.length) atualizacoesSec.hidden = true;
+                });
+        }
     };
 
     // ========================================================

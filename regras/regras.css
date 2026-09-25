@@ -1,5 +1,6 @@
 /* =========================================
    PÁGINA REGRAS — ESTILO FAQ ACCORDION
+   (Estilos de acordeão .regra-item herdados do shared.css)
    ========================================= */
 
 /* ---------- CONTAINER GERAL ---------- */
@@ -14,90 +15,12 @@
     box-sizing: border-box;
 }
 
-/* Item de cada regra (Accordion) */
-.regra-item {
-    background-color: #0E131F;
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    border-radius: 12px;
-    overflow: hidden;
-    transition: border-color 0.25s ease, background-color 0.25s ease, box-shadow 0.25s ease;
-    box-sizing: border-box;
-}
-
-.regra-item:hover {
-    border-color: rgba(56, 189, 248, 0.35);
-    background-color: #121827;
-}
-
-.regra-item[open] {
-    border-color: rgba(56, 189, 248, 0.45);
-    background-color: #121827;
-    box-shadow: 0 8px 24px -6px rgba(0, 0, 0, 0.4);
-}
-
-.regra-item summary {
-    list-style: none;
-    cursor: pointer;
-    padding: 16px 20px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 16px;
-    font-family: 'Poppins', sans-serif;
-    font-weight: 700;
-    font-size: 1.02rem;
-    color: #FFFFFF;
-    user-select: none;
-    transition: background-color 0.2s ease, color 0.2s ease;
-}
-
-.regra-item summary::-webkit-details-marker {
-    display: none;
-}
-
-.regra-item summary:hover {
-    background-color: rgba(56, 189, 248, 0.04);
-}
-
-.regra-item summary::after {
-    content: "\f078";
-    font-family: "Font Awesome 6 Free";
-    font-weight: 900;
-    color: #38BDF8;
-    font-size: 0.85rem;
-    transition: transform 0.25s ease;
-    flex-shrink: 0;
-}
-
-.regra-item[open] summary::after {
-    transform: rotate(180deg);
-}
-
-.regra-answer {
-    padding: 14px 20px 18px 20px;
-    color: #94A3B8;
-    line-height: 1.65;
-    font-size: 0.95rem;
-    border-top: 1px solid rgba(255, 255, 255, 0.06);
-    margin: 0;
-}
-
 /* ---------- RESPONSIVO ---------- */
 @media (min-width: 700px) {
     #container {
         margin: 2.5rem auto 4.5rem auto;
         gap: 1rem;
         padding: 0 1.5rem;
-    }
-
-    .regra-item summary {
-        padding: 18px 22px;
-        font-size: 1.08rem;
-    }
-
-    .regra-answer {
-        padding: 16px 22px 20px 22px;
-        font-size: 0.98rem;
     }
 }
 

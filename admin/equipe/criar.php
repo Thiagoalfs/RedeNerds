@@ -56,6 +56,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             try {
                 $stmt = $pdo->prepare("INSERT INTO equipe (nick, cargo) VALUES (:nick, :cargo)");
                 $stmt->execute([':nick' => $nick, ':cargo' => $cargo]);
+
+                require_once __DIR__ . "/../../api/cache_helper.php";
+                invalidarCache('equipe');
+
                 header("Location: index.php");
                 exit;
             } catch (PDOException $e) {

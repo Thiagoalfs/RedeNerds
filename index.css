@@ -1,40 +1,8 @@
 @import url('/shared/tokens.css');
 
 /* ======================================================== */
-/* HERO SECTION DA LANDING PAGE                             */
+/* HERO SECTION — ESTILOS ESPECÍFICOS DA HOME               */
 /* ======================================================== */
-#big-header-img-content {
-    width: 100%;
-    max-width: 1200px;
-    gap: clamp(36px, 5.5vw, 76px);
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    justify-content: center;
-    box-sizing: border-box;
-    padding: 0 clamp(16px, 3vw, 40px);
-}
-
-#img-titulo {
-    width: clamp(260px, 25vw, 380px);
-    max-width: 100%;
-    height: auto;
-    filter: drop-shadow(0 16px 32px rgba(0, 0, 0, 0.8));
-    user-select: none;
-    flex-shrink: 0;
-}
-
-#big-header-text {
-    flex: 1 1 auto;
-    width: fit-content;
-    max-width: 620px;
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    text-align: left;
-    min-width: 0;
-}
-
 .hero-title {
     margin: 0 0 0.75rem 0;
     font-family: var(--font-main);
@@ -156,52 +124,12 @@
     user-select: none;
 }
 
-
 @media (max-width: 900px) {
-    #big-header-div {
-        height: auto !important;
-        min-height: clamp(680px, 92svh, 860px) !important;
-        padding: 0 !important;
-    }
-
-    #big-header-img-content {
-        flex-direction: column !important;
-        align-items: center !important;
-        text-align: center !important;
-        gap: 16px;
-        width: 100% !important;
-        max-width: 100% !important;
-        padding: 2.5rem 1.25rem 3rem 1.25rem !important;
-        box-sizing: border-box;
-    }
-
-    #img-titulo {
-        width: clamp(140px, 32vw, 185px);
-        margin: 0;
-    }
-
-    #big-header-text {
-        align-items: center;
-        text-align: center;
-        width: 100%;
-    }
-
-    .hero-title {
-    margin: 0 0 0.75rem 0;
-    font-family: var(--font-main);
-    font-weight: 900;
-    font-size: clamp(2.5rem, 4.4vw, 4.2rem);
-    line-height: 1.08;
-    letter-spacing: -1.2px;
-    text-transform: uppercase;
-    display: flex;
-    flex-direction: column;
-}
-
     .hero-description {
         margin: 0 auto 1.5rem auto;
         font-size: 0.95rem;
         max-width: 520px;
+        text-align: center;
     }
 
     .hero-buttons {
@@ -216,30 +144,6 @@
 }
 
 @media (max-width: 540px) {
-    #big-header-div {
-        min-height: auto !important;
-    }
-
-    #big-header-img-content {
-        padding: 2rem 1rem 2.5rem 1rem !important;
-    }
-
-    #img-titulo {
-        width: 130px;
-    }
-
-    .hero-title {
-    margin: 0 0 0.75rem 0;
-    font-family: var(--font-main);
-    font-weight: 900;
-    font-size: clamp(2.5rem, 4.4vw, 4.2rem);
-    line-height: 1.08;
-    letter-spacing: -1.2px;
-    text-transform: uppercase;
-    display: flex;
-    flex-direction: column;
-}
-
     .hero-description {
         font-size: 0.88rem;
         line-height: 1.5;
@@ -251,7 +155,6 @@
         gap: 10px;
     }
 
-    .btn-hero-discord,
     .btn-hero-servers {
         width: 100%;
         box-sizing: border-box;
@@ -272,132 +175,39 @@
     }
 }
 
-/* =========================
-   Landing — Mobile-first
-   Minimalista
-   ========================= */
-
-.page,
-.section,
-.redirect-card {
-    box-sizing: border-box;
-}
-
-/* ----- Página ----- */
-
-.page {
-    width: 100%;
-    max-width: 1240px;
-    margin: 0 auto;
-    padding: 20px 20px 50px 20px;
-    display: flex;
-    flex-direction: column;
-    gap: 40px;
-}
-
-/* ----- Seções genéricas ----- */
-
-.section {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    text-align: center;
-    gap: 18px;
-}
-
-.section-title {
-    margin: 0;
-    font-family: 'Poppins', sans-serif;
-    font-size: clamp(1.75rem, 3vw, 2.35rem);
-    font-weight: 800;
-    color: #FFFFFF;
-    letter-spacing: -0.5px;
-    line-height: 1.2;
-    padding: 0;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 8px;
-}
-
-.section-title::after {
-    content: "";
-    display: block;
-    width: 42px;
-    height: 3px;
-    background: #38BDF8;
-    border-radius: 2px;
-}
-
-.section-lead {
-    margin: 0;
-    color: #94A3B8;
-    font-size: clamp(0.9rem, 1.1vw, 0.98rem);
-    line-height: 1.6;
-    max-width: 560px;
-}
-
-
-/* ============================================
-   Tablet (≥ 600px)
-   ============================================ */
-@media (min-width: 600px) {
-    .page {
-        max-width: 1264px;
-        padding: 30px 32px 60px 32px;
-        gap: 45px;
-    }
-
-    .section-title {
-        font-size: 30px;
-    }
-
-    .redirect-card {
-        padding: 24px;
-    }
-
-    .redirect-icon {
-        width: 56px;
-        height: 56px;
-        font-size: 22px;
-    }
-
-    .redirect-title {
-        font-size: 18px;
-    }
-}
-
-/* ============================================
-   Desktop (≥ 1024px)
-   ============================================ */
-@media (min-width: 1024px) {
-    .page {
-        max-width: 1280px;
-        padding: 40px 40px 80px 40px;
-        gap: 55px;
-    }
-
-    .section-title {
-        font-size: 34px;
-    }
-}
-
 /* =========================================
    Grid de servidores (cards na landing)
-   - Flexbox auto-adaptativo: 1, 2, 3 ou mais
-     cards ficam sempre centralizados e bem distribuídos
+   Mobile: Carrossel horizontal deslizável
    ========================================= */
 .servers-grid {
     display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    align-items: center;
-    gap: 30px;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+    justify-content: flex-start;
+    align-items: stretch;
+    gap: 16px;
     width: 100%;
-    max-width: 800px;
-    padding: 10px 0;
+    max-width: 100%;
+    padding: 10px 16px 20px 16px;
     margin: 0 auto;
     box-sizing: border-box;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(125, 185, 223, 0.25) transparent;
+}
+
+.servers-grid::-webkit-scrollbar {
+    height: 4px;
+}
+
+.servers-grid::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.servers-grid::-webkit-scrollbar-thumb {
+    background: rgba(125, 185, 223, 0.25);
+    border-radius: 4px;
 }
 
 .server-card {
@@ -413,10 +223,14 @@
     transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
     cursor: pointer;
     position: relative;
-    width: 360px;
-    height: 400px;
+    width: 82vw;
+    max-width: 320px;
+    min-width: 260px;
+    min-height: 380px;
+    height: auto;
     box-sizing: border-box;
     flex-shrink: 0;
+    scroll-snap-align: center;
 }
 
 .server-card:hover {
@@ -492,12 +306,12 @@
     z-index: 2;
 }
 
-/* Conteúdo do Card de tamanho fixo */
+/* Conteúdo do Card */
 .server-card-content {
-    padding: 24px;
+    padding: 22px 20px;
     display: flex;
     flex-direction: column;
-    height: 290px;
+    flex: 1;
     box-sizing: border-box;
     position: relative;
     z-index: 1;
@@ -534,6 +348,7 @@
     align-items: center;
     gap: 8px;
     margin-top: auto;
+    padding-top: 14px;
     font-family: 'Poppins', sans-serif;
     font-weight: 800;
     font-size: 13.5px;
@@ -556,16 +371,28 @@
     transform: translateX(3px);
 }
 
-/* ----- Responsivo ----- */
-@media (max-width: 768px) {
+/* ----- Desktop & Tablet (≥ 768px): Grid fixo e centralizado ----- */
+@media (min-width: 768px) {
     .servers-grid {
-        max-width: 380px;
+        flex-wrap: wrap;
+        justify-content: center;
+        overflow-x: visible;
+        gap: 30px;
+        max-width: 800px;
+        padding: 10px 0;
     }
 
     .server-card {
-        width: 100%;
-        max-width: 360px;
-        height: 480px;
+        width: 360px;
+        height: 400px;
+        min-height: 400px;
+        flex: 0 0 auto;
+        scroll-snap-align: none;
+    }
+
+    .server-card-content {
+        padding: 24px;
+        height: 290px;
     }
 }
 
@@ -671,6 +498,7 @@
 }
 
 #novidades-section,
+#atualizacoes-section,
 #servers-section,
 #como-jogar-section,
 #parceiros-section,
@@ -684,17 +512,45 @@
 
 /* =========================================
    Seção Parceiros (index.html)
+   Mobile: Carrossel contínuo infinito (Marquee)
    ========================================= */
 .parceiros-grid {
     display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    align-items: flex-start;
-    gap: 30px 28px;
+    overflow: hidden;
     width: 100%;
     max-width: 100%;
-    padding: 6px 0 0 0;
+    padding: 8px 0 14px 0;
     margin: 0 auto;
+    box-sizing: border-box;
+    mask-image: linear-gradient(to right, transparent, black 8%, black 92%, transparent);
+    -webkit-mask-image: linear-gradient(to right, transparent, black 8%, black 92%, transparent);
+    position: relative;
+    user-select: none;
+}
+
+.parceiros-track {
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+    gap: 20px;
+    width: max-content;
+    animation: parceiros-marquee 25s linear infinite;
+    will-change: transform;
+}
+
+@keyframes parceiros-marquee {
+    0% {
+        transform: translateX(0);
+    }
+    100% {
+        transform: translateX(-50%);
+    }
+}
+
+/* Pausa suave ao segurar ou tocar */
+.parceiros-grid:hover .parceiros-track,
+.parceiros-grid:active .parceiros-track {
+    animation-play-state: paused;
 }
 
 .parceiro {
@@ -703,13 +559,13 @@
     align-items: center;
     gap: 8px;
     text-align: center;
-    width: 150px;
+    width: 130px;
     flex: 0 0 auto;
 }
 
 .parceiro-avatar {
-    width: 110px;
-    height: 110px;
+    width: 96px;
+    height: 96px;
     border-radius: 50%;
     overflow: hidden;
     background-color: var(--color-surface);
@@ -754,13 +610,13 @@
     border-radius: 12px;
 }
 
-/* Ícones sociais (YT + TikTok) centralizados abaixo do nome */
+/* Ícones sociais (YT + TikTok + Insta + Twitch + Kick) centralizados abaixo do nome */
 .parceiro-social {
     display: flex;
     flex-direction: row;
     justify-content: center;
     align-items: center;
-    gap: 12px;
+    gap: 10px;
     margin-top: 2px;
 }
 
@@ -782,7 +638,8 @@
     color: white;
 }
 
-.parceiro-social-link.yt:hover {
+.parceiro-social-link.yt:hover,
+.parceiro-social-link.youtube:hover {
     background-color: #FF0000;
 }
 
@@ -791,7 +648,8 @@
     box-shadow: 0 0 0 2px #25F4EE, 0 0 0 2px #FE2C55;
 }
 
-.parceiro-social-link.instagram:hover {
+.parceiro-social-link.instagram:hover,
+.parceiro-social-link.insta:hover {
     background: radial-gradient(circle at 30% 107%, #fdf497 0%, #fdf497 5%, #fd5949 45%, #d6249f 60%, #285AEB 90%);
 }
 
@@ -804,20 +662,44 @@
     color: #000000;
 }
 
-
-/* Tablet (≥ 600px) */
+/* Tablet (≥ 600px): volta para grid distribuído sem animação */
 @media (min-width: 600px) {
+    .parceiros-grid {
+        overflow: visible;
+        mask-image: none;
+        -webkit-mask-image: none;
+        padding: 6px 0 0 0;
+    }
+
+    .parceiros-track {
+        animation: none;
+        transform: none;
+        width: 100%;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 35px 30px;
+    }
+
+    .parceiro.parceiro-clone {
+        display: none !important;
+    }
+
     .parceiro {
         width: 160px;
     }
 
-    .parceiros-grid {
-        gap: 35px 30px;
+    .parceiro-avatar {
+        width: 115px;
+        height: 115px;
     }
 }
 
 /* Desktop (≥ 1024px) */
 @media (min-width: 1024px) {
+    .parceiros-track {
+        gap: 40px 35px;
+    }
+
     .parceiro {
         width: 170px;
     }
@@ -829,10 +711,6 @@
 
     .parceiro-nome {
         font-size: 15px;
-    }
-
-    .parceiros-grid {
-        gap: 40px 35px;
     }
 }
 

@@ -96,6 +96,9 @@ try {
     $stmtDel = $pdo->prepare("DELETE FROM equipe_cargos WHERE id = :id");
     $stmtDel->execute([':id' => $id]);
 
+    require_once __DIR__ . "/../../../api/cache_helper.php";
+    invalidarCache('equipe');
+
     if ($isAjax) {
         header('Content-Type: application/json; charset=utf-8');
         echo json_encode(["success" => true, "id" => $id]);

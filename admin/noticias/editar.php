@@ -86,6 +86,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     ':id'              => $id
                 ]);
 
+                require_once __DIR__ . "/../../api/cache_helper.php";
+                invalidarCache('novidades');
+
                 header("Location: index.php");
                 exit;
             } catch (PDOException $e) {

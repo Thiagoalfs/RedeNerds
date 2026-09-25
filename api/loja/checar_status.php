@@ -18,6 +18,9 @@ header("Content-Type: application/json; charset=utf-8");
 require_once __DIR__ . "/config_loja.php";
 aplicarCorsLoja();
 
+require_once __DIR__ . "/../rate_limiter.php";
+exigirRateLimit('loja_checar_status', 30, 60);
+
 $configPaths = [
     __DIR__ . "/../../../config.php",
     __DIR__ . "/../../config.php",

@@ -9,64 +9,10 @@
     --border-subtle: rgba(255, 255, 255, 0.08);
 }
 
-/* =========================
-   Base — Mobile-first
-   ========================= */
-
-.page,
-.section {
-    box-sizing: border-box;
-}
-
-.page {
-    width: 100%;
-    max-width: 1240px;
-    margin: 0 auto;
-    padding: 30px 20px 60px 20px;
-    display: flex;
-    flex-direction: column;
-    gap: 55px;
-}
-
-.section {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    text-align: center;
-    gap: 20px;
-}
-
-.section-title {
-    margin: 0;
-    font-family: 'Poppins', sans-serif;
-    font-size: clamp(1.75rem, 3vw, 2.35rem);
-    font-weight: 800;
-    color: #FFFFFF;
-    letter-spacing: -0.5px;
-    line-height: 1.2;
-    padding: 0;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 8px;
-}
-
-.section-title::after {
-    content: "";
-    display: block;
-    width: 42px;
-    height: 3px;
-    background: #38BDF8;
-    border-radius: 2px;
-}
-
-.section-lead {
-    margin: 0;
-    color: var(--text-muted);
-    font-size: 15px;
-    line-height: 1.6;
-    max-width: 560px;
-}
+/* ========================================================
+   Página Sobre — Estilos Específicos de Conteúdo
+   (Estrutura .page, .section, .section-title e .cta-button herdados do shared.css)
+   ======================================================== */
 
 /* Texto corrido (Quem somos / Por que criamos) */
 .sobre-text {
@@ -195,85 +141,8 @@
     color: var(--text-body);
 }
 
-/* =========================
-   CTA final
-   ========================= */
-.cta-buttons {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    width: 100%;
-    max-width: 300px;
-    margin-top: 4px;
-}
-
-.cta-button {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.5rem;
-    padding: 0.75rem 1.5rem;
-    border-radius: 8px;
-    text-decoration: none;
-    font-weight: 600;
-    font-size: 0.9rem;
-    font-family: inherit;
-    transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
-    box-sizing: border-box;
-}
-
-.cta-button-primary {
-    background-color: #5865F2;
-    color: white;
-}
-
-.cta-button-primary:hover {
-    background-color: #4752c4;
-}
-
-.cta-button-secondary {
-    background-color: transparent;
-    color: var(--text);
-    border: 1px solid var(--border-subtle);
-}
-
-.cta-button-secondary:hover {
-    border-color: var(--border-color-1);
-    color: var(--border-color-1);
-}
-
-/* ============================================
-   Tablet (≥ 600px)
-   ============================================ */
-@media (min-width: 600px) {
-    .page {
-        max-width: 1264px;
-        padding: 40px 32px 80px 32px;
-        gap: 70px;
-    }
-
-    .cta-buttons {
-        flex-direction: row;
-        max-width: none;
-        justify-content: center;
-        flex-wrap: wrap;
-    }
-
-    .cta-button {
-        width: auto;
-    }
-}
-
-/* ============================================
-   Desktop (≥ 1024px)
-   ============================================ */
+/* Desktop (≥ 1024px) */
 @media (min-width: 1024px) {
-    .page {
-        max-width: 1280px;
-        padding: 60px 40px 100px 40px;
-        gap: 85px;
-    }
-
     .missao-visao-grid {
         flex-direction: row;
     }

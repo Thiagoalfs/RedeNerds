@@ -103,6 +103,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         ':id' => $id
                     ]);
 
+                    require_once __DIR__ . "/../../api/cache_helper.php";
+                    invalidarCache('parceiros');
+
                     header("Location: index.php?msg=" . urlencode("Parceiro '{$nome}' atualizado com sucesso!"));
                     exit;
                 } catch (PDOException $e) {

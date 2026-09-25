@@ -43,13 +43,8 @@ async function carregarEquipe() {
     const containerEquipe = document.getElementById("equipe");
     if (!containerEquipe) return;
 
-    try {
-        const response = await fetch("/api/equipe_api.php");
-        if (!response.ok) {
-            throw new Error(`Erro ao carregar dados: ${response.status}`);
-        }
-
-        const cargos = await response.json();
+    const render = (cargos) => {
+        if (!Array.isArray(cargos)) return;
 
         // Limpa o container
         containerEquipe.innerHTML = "";
@@ -139,9 +134,28 @@ async function carregarEquipe() {
 
             containerEquipe.appendChild(section);
         });
+    };
 
-    } catch (error) {
-        console.error("Erro ao carregar a equipe:", error);
-        containerEquipe.innerHTML = "<p style='color: white; text-align: center;'>Erro ao carregar os membros da equipe.</p>";
+    if (window.AppCache) {
+        await AppCache.fetchWithCache('equipe', '/api/equipe_api.php', {
+            onCached: render,
+            onFresh: render,
+            onError: (error) => {
+                console.error("Erro ao carregar a equipe:", error);
+                containerEquipe.innerHTML = "<p style='color: white; text-align: center;'>Erro ao carregar os membros da equipe.</p>";
+            }
+        });
+    } else {
+        try {
+            const response = await fetch("/api/equipe_api.php");
+            if (!response.ok) {
+                throw new Error(`Erro ao carregar dados: ${response.status}`);
+            }
+            const cargos = await response.json();
+            render(cargos);
+        } catch (error) {
+            console.error("Erro ao carregar a equipe:", error);
+            containerEquipe.innerHTML = "<p style='color: white; text-align: center;'>Erro ao carregar os membros da equipe.</p>";
+        }
     }
 }

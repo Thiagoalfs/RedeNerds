@@ -15,6 +15,9 @@ header("Content-Type: application/json; charset=utf-8");
 require_once __DIR__ . "/config_loja.php";
 aplicarCorsLoja();
 
+require_once __DIR__ . "/../rate_limiter.php";
+exigirRateLimit('loja_cancelar_pedido', 10, 60);
+
 if (isset($_SERVER['REQUEST_METHOD']) && $_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     http_response_code(200);
     exit;

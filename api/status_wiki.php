@@ -11,6 +11,9 @@ header("Content-Type: application/json; charset=utf-8");
 header("Access-Control-Allow-Origin: *");
 header("Cache-Control: no-cache, no-store, must-revalidate");
 
+require_once __DIR__ . "/rate_limiter.php";
+exigirRateLimit('api_status_wiki', 60, 60);
+
 $configPaths = [
     __DIR__ . "/../config.php",
     __DIR__ . "/../../config.php",

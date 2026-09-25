@@ -9,124 +9,131 @@ document.addEventListener("DOMContentLoaded", function () {
 
 const SERVIDORES_API_URL = "/api/servidores_api.php";
 
+function renderizarServidorDados(dados, key) {
+    if (!dados || !dados.success || !Array.isArray(dados.servidores) || dados.servidores.length === 0) {
+        return;
+    }
+
+    const servidores = dados.servidores;
+
+    // Busca pelo slug (nome) vindo da URL; se não encontrar, usa o primeiro servidor ativo
+    const server = servidores.find(s => {
+        const sSlug = String(s.nome || "").toLowerCase().trim();
+        const sName = String(s.servername || "").toLowerCase().replace(/[^a-z0-9]/g, "");
+        const cleanKey = key.replace(/[^a-z0-9]/g, "");
+        return sSlug === key || sName === cleanKey;
+    }) || servidores[0];
+
+    // 1. Atualiza o título da página
+    document.title = `${server.servername} - Rede Nerds`;
+
+    // 2. Injeta as cores dinâmicas no :root CSS
+    const themeColor = server.themecolor || "#7DB9DF";
+    document.documentElement.style.setProperty("--theme-color", themeColor);
+    document.documentElement.style.setProperty("--theme-shadow-color", hexParaRgba(themeColor, 0.2));
+    document.documentElement.style.setProperty("--theme-hover-bg", hexParaRgba(themeColor, 0.12));
+
+    // 3. Cabeçalho & Título
+    const titleEl = document.getElementById("server-section-title");
+    if (titleEl) titleEl.textContent = server.servername;
+
+    // Badge descritiva
+    const catBadge = document.getElementById("server-category-badge");
+    if (catBadge) {
+        if (server.servername.toLowerCase().includes("potato")) {
+            catBadge.textContent = "Modpack Tech & Automação";
+        } else if (server.servername.toLowerCase().includes("dead")) {
+            catBadge.textContent = "Hardcore Survival & Apocalipse";
+        } else {
+            catBadge.textContent = "Servidor Oficial";
+        }
+    }
+
+    // 3.1 Fundo Temático Dinâmico do Servidor (via Banco de Dados ou Fallback)
+    const bgBackdrop = document.getElementById("server-bg-backdrop");
+    if (bgBackdrop) {
+        const bgUrl = server.bg_image || (
+            (String(server.nome || "").toLowerCase().includes("dead") || String(server.servername || "").toLowerCase().includes("dead"))
+                ? "/assets/servidores/nerddead.webp"
+                : ""
+        );
+
+        if (bgUrl) {
+            bgBackdrop.style.backgroundImage = `url('${bgUrl}')`;
+            bgBackdrop.classList.add("has-bg");
+        } else {
+            bgBackdrop.style.backgroundImage = "";
+            bgBackdrop.classList.remove("has-bg");
+        }
+    }
+
+    // Ícone do Servidor
+    atualizarIconeServidor(server);
+
+    // IP de Conexão no Hero
+    const ipDisplay = document.getElementById("server-ip-display");
+    if (ipDisplay) ipDisplay.textContent = server.ip;
+
+    // 4. Descrição / Sobre o Servidor
+    const aboutEl = document.getElementById("server-about");
+    if (aboutEl) aboutEl.textContent = server.descricao;
+
+    // 5. Recursos & Destaques (Features)
+    const featuresContainer = document.getElementById("server-features");
+    if (featuresContainer) {
+        const features = Array.isArray(server.features) ? server.features : [];
+        if (features.length > 0) {
+            featuresContainer.innerHTML = features
+                .map(f => `<li><i class="fa-solid fa-check"></i> <span>${escapeHtml(f)}</span></li>`)
+                .join("");
+        } else {
+            featuresContainer.innerHTML = `<li><i class="fa-solid fa-check"></i> <span>Experiência multiplayer estável e otimizada</span></li>`;
+        }
+    }
+
+    // 6. Botões de Ação
+    const btnModpack = document.getElementById("btn-modpack");
+    if (btnModpack) {
+        btnModpack.href = server.modpackurl || "/download";
+    }
+
+    const btnHeroCopy = document.getElementById("btn-hero-copy-ip");
+    if (btnHeroCopy) {
+        btnHeroCopy.onclick = () => copiarIp(server.ip, btnHeroCopy, true);
+    }
+
+    const btnSidebarCopy = document.getElementById("btn-copy-ip");
+    if (btnSidebarCopy) {
+        btnSidebarCopy.setAttribute("data-copy-ip", server.ip);
+        btnSidebarCopy.onclick = () => copiarIp(server.ip, btnSidebarCopy, false);
+    }
+
+    // Link para a Loja VIP
+    const btnVipStore = document.getElementById("btn-server-vip-store");
+    if (btnVipStore) {
+        btnVipStore.href = `/loja?servidor=${encodeURIComponent(server.nome || 'potatonerds')}`;
+    }
+}
+
 async function carregarServidor() {
     const urlParams = new URLSearchParams(window.location.search);
     const key = (urlParams.get("servidor") || "").toLowerCase().trim();
 
-    try {
-        const response = await fetch(SERVIDORES_API_URL);
-        if (!response.ok) throw new Error("Erro ao carregar dados dos servidores.");
-
-        const dados = await response.json();
-        if (!dados.success || !Array.isArray(dados.servidores)) {
-            throw new Error("Resposta inválida da API.");
+    if (window.AppCache) {
+        await AppCache.fetchWithCache('servidores', SERVIDORES_API_URL, {
+            onCached: (dados) => renderizarServidorDados(dados, key),
+            onFresh: (dados) => renderizarServidorDados(dados, key),
+            onError: (err) => console.error("Erro ao carregar servidor:", err)
+        });
+    } else {
+        try {
+            const response = await fetch(SERVIDORES_API_URL);
+            if (!response.ok) throw new Error("Erro ao carregar dados dos servidores.");
+            const dados = await response.json();
+            renderizarServidorDados(dados, key);
+        } catch (error) {
+            console.error("Erro ao carregar servidor:", error);
         }
-
-        const servidores = dados.servidores;
-        if (servidores.length === 0) {
-            throw new Error("Nenhum servidor disponível no momento.");
-        }
-
-        // Busca pelo slug (nome) vindo da URL; se não encontrar, usa o primeiro servidor ativo
-        const server = servidores.find(s => {
-            const sSlug = String(s.nome || "").toLowerCase().trim();
-            const sName = String(s.servername || "").toLowerCase().replace(/[^a-z0-9]/g, "");
-            const cleanKey = key.replace(/[^a-z0-9]/g, "");
-            return sSlug === key || sName === cleanKey;
-        }) || servidores[0];
-
-        // 1. Atualiza o título da página
-        document.title = `${server.servername} - Rede Nerds`;
-
-        // 2. Injeta as cores dinâmicas no :root CSS
-        const themeColor = server.themecolor || "#7DB9DF";
-        document.documentElement.style.setProperty("--theme-color", themeColor);
-        document.documentElement.style.setProperty("--theme-shadow-color", hexParaRgba(themeColor, 0.2));
-        document.documentElement.style.setProperty("--theme-hover-bg", hexParaRgba(themeColor, 0.12));
-
-        // 3. Cabeçalho & Título
-        const titleEl = document.getElementById("server-section-title");
-        if (titleEl) titleEl.textContent = server.servername;
-
-        // Badge descritiva
-        const catBadge = document.getElementById("server-category-badge");
-        if (catBadge) {
-            if (server.servername.toLowerCase().includes("potato")) {
-                catBadge.textContent = "Modpack Tech & Automação";
-            } else if (server.servername.toLowerCase().includes("dead")) {
-                catBadge.textContent = "Hardcore Survival & Apocalipse";
-            } else {
-                catBadge.textContent = "Servidor Oficial";
-            }
-        }
-
-        // 3.1 Fundo Temático Dinâmico do Servidor (via Banco de Dados ou Fallback)
-        const bgBackdrop = document.getElementById("server-bg-backdrop");
-        if (bgBackdrop) {
-            const bgUrl = server.bg_image || (
-                (String(server.nome || "").toLowerCase().includes("dead") || String(server.servername || "").toLowerCase().includes("dead"))
-                    ? "/assets/servidores/nerddead.webp"
-                    : ""
-            );
-
-            if (bgUrl) {
-                bgBackdrop.style.backgroundImage = `url('${bgUrl}')`;
-                bgBackdrop.classList.add("has-bg");
-            } else {
-                bgBackdrop.style.backgroundImage = "";
-                bgBackdrop.classList.remove("has-bg");
-            }
-        }
-
-        // Ícone do Servidor
-        atualizarIconeServidor(server);
-
-        // IP de Conexão no Hero
-        const ipDisplay = document.getElementById("server-ip-display");
-        if (ipDisplay) ipDisplay.textContent = server.ip;
-
-        // 4. Descrição / Sobre o Servidor
-        const aboutEl = document.getElementById("server-about");
-        if (aboutEl) aboutEl.textContent = server.descricao;
-
-        // 5. Recursos & Destaques (Features)
-        const featuresContainer = document.getElementById("server-features");
-        if (featuresContainer) {
-            const features = Array.isArray(server.features) ? server.features : [];
-            if (features.length > 0) {
-                featuresContainer.innerHTML = features
-                    .map(f => `<li><i class="fa-solid fa-check"></i> <span>${escapeHtml(f)}</span></li>`)
-                    .join("");
-            } else {
-                featuresContainer.innerHTML = `<li><i class="fa-solid fa-check"></i> <span>Experiência multiplayer estável e otimizada</span></li>`;
-            }
-        }
-
-        // 6. Botões de Ação
-        const btnModpack = document.getElementById("btn-modpack");
-        if (btnModpack) {
-            btnModpack.href = server.modpackurl || "/download";
-        }
-
-        const btnHeroCopy = document.getElementById("btn-hero-copy-ip");
-        if (btnHeroCopy) {
-            btnHeroCopy.addEventListener("click", () => copiarIp(server.ip, btnHeroCopy, true));
-        }
-
-        const btnSidebarCopy = document.getElementById("btn-copy-ip");
-        if (btnSidebarCopy) {
-            btnSidebarCopy.setAttribute("data-copy-ip", server.ip);
-            btnSidebarCopy.addEventListener("click", () => copiarIp(server.ip, btnSidebarCopy, false));
-        }
-
-        // Link para a Loja VIP
-        const btnVipStore = document.getElementById("btn-server-vip-store");
-        if (btnVipStore) {
-            btnVipStore.href = `/loja?servidor=${encodeURIComponent(server.nome || 'potatonerds')}`;
-        }
-
-    } catch (error) {
-        console.error("Erro ao carregar servidor:", error);
     }
 }
 

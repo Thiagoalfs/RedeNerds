@@ -99,6 +99,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                 $noticia_id = (int)$pdo->lastInsertId();
 
+                require_once __DIR__ . "/../../api/cache_helper.php";
+                invalidarCache('novidades');
+
                 if ($enviar_webhook) {
                     enviarWebhookDiscord($categoria_envio, $titulo, $conteudo, $autor, $capa, $category, $marcar_everyone);
                 }
