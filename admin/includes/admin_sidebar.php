@@ -28,7 +28,7 @@
         <a href="/admin/pedidos/" class="nav-item-link <?php echo ($paginaAtiva === 'pedidos') ? 'active' : ''; ?>">
             <div class="icon-wrap">
                 <i class="fa-solid fa-receipt"></i>
-                <span>Pedidos VIP</span>
+                <span>Pedidos</span>
             </div>
         </a>
         <a href="/admin/vips/" class="nav-item-link <?php echo in_array($paginaAtiva, ['vips', 'vip_criar', 'vip_editar']) ? 'active' : ''; ?>">

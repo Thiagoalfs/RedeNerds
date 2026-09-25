@@ -32,7 +32,7 @@ echo "  [PASS] Detecção de tokens ausentes e placeholders funciona corretament
 // 2. Simulação de requisição em endpoint sem token configurado
 // Garantia de que responder503ServicoIndisponivel não insere registros no banco
 $pdo = criarBancoTestes();
-$totalPedidosAntes = count($pdo->pedidos_vip);
+$totalPedidosAntes = count($pdo->pedidos);
 assert($totalPedidosAntes === 0, "Falha: banco de teste deve iniciar sem pedidos");
 
 // Simulação da lógica de criar_pix / criar_checkout_internacional quando token é nulo:
@@ -50,7 +50,7 @@ if (!$tokenSimulado) {
 } else {
     // Apenas se houvesse token o pedido seria inserido
     $pdo->prepare("
-        INSERT INTO pedidos_vip (txid, nick, servidor, vip_id, vip_nome, valor, status)
+        INSERT INTO pedidos (txid, nick, servidor, vip_id, vip_nome, valor, status)
         VALUES ('NERD-FAIL', 'User', 'Survival', 1, 'VIP', 50, 'pendente')
     ")->execute();
     $pedidoCriado = true;
@@ -60,7 +60,7 @@ assert($respostaHttp !== null, "Falha: resposta HTTP deve existir");
 assert($respostaHttp['status_code'] === 503, "Falha: código de status deve ser 503");
 assert(isset($respostaHttp['body']['erro']), "Falha: corpo da resposta deve conter mensagem amigável de erro");
 assert($pedidoCriado === false, "Falha: pedido NÃO pode ser criado no banco de dados");
-assert(count($pdo->pedidos_vip) === 0, "Falha: nenhum registro deve ser inserido em pedidos_vip quando 503 ocorre");
+assert(count($pdo->pedidos) === 0, "Falha: nenhum registro deve ser inserido em pedidos quando 503 ocorre");
 
 echo "  [PASS] Endpoint retorna HTTP 503 e garante zero pedidos criados no banco de dados.\n";
 echo "✔ Todos os testes de token ausente e resposta 503 passaram com sucesso!\n\n";

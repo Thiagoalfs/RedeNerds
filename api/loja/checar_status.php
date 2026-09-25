@@ -92,14 +92,14 @@ try {
 try {
     if (isset($pdo) && $pdo instanceof PDO) {
         $pdo->exec("
-            UPDATE pedidos_vip 
+            UPDATE pedidos 
             SET status = 'expirado' 
             WHERE status = 'pendente' 
               AND (metodo_pagamento IS NULL OR metodo_pagamento <> 'checkout_pro')
               AND TIMESTAMPDIFF(MINUTE, criado_em, NOW()) >= 15
         ");
         $pdo->exec("
-            UPDATE pedidos_vip 
+            UPDATE pedidos 
             SET status = 'expirado' 
             WHERE status = 'pendente' 
               AND metodo_pagamento = 'checkout_pro'
@@ -121,7 +121,7 @@ try {
     if (isset($pdo) && $pdo instanceof PDO) {
         $stmt = $pdo->prepare("
             SELECT *, TIMESTAMPDIFF(SECOND, criado_em, NOW()) as segundos_desde_criacao 
-            FROM pedidos_vip 
+            FROM pedidos 
             WHERE txid = :txid 
             LIMIT 1
         ");
@@ -158,7 +158,7 @@ if (!$pedido) {
                     $inseriuNovo = autoRecuperarPedidoMercadoPago($pdo, $txid, $approvedPaymentId, $paymentInfo);
 
                     try {
-                        $stmtFetch = $pdo->prepare("SELECT *, 0 as segundos_desde_criacao FROM pedidos_vip WHERE txid = :txid LIMIT 1");
+                        $stmtFetch = $pdo->prepare("SELECT *, 0 as segundos_desde_criacao FROM pedidos WHERE txid = :txid LIMIT 1");
                         $stmtFetch->execute([':txid' => $txid]);
                         $pedido = $stmtFetch->fetch(PDO::FETCH_ASSOC);
 
@@ -257,7 +257,7 @@ $segundosDecorridos = isset($pedido['segundos_desde_criacao']) ? (int)$pedido['s
 if ($segundosDecorridos >= $limiteSegundos) {
     try {
         if (isset($pdo) && $pdo instanceof PDO) {
-            $upStmt = $pdo->prepare("UPDATE pedidos_vip SET status = 'expirado' WHERE txid = :txid AND status = 'pendente'");
+            $upStmt = $pdo->prepare("UPDATE pedidos SET status = 'expirado' WHERE txid = :txid AND status = 'pendente'");
             $upStmt->execute([':txid' => $txid]);
         }
     } catch (Exception $e) {}
@@ -320,7 +320,7 @@ if ($mpAccessToken) {
                 try {
                     if (isset($pdo) && $pdo instanceof PDO) {
                         $upStmt = $pdo->prepare("
-                            UPDATE pedidos_vip 
+                            UPDATE pedidos 
                             SET status = 'pago', pago_em = NOW(), mp_payment_id = COALESCE(:mp_id, mp_payment_id) 
                             WHERE txid = :txid AND status <> 'pago'
                         ");
@@ -383,7 +383,7 @@ if ($mpAccessToken) {
                 // Apenas para PIX/Cartão transparente rejeitado de forma definitiva
                 try {
                     if (isset($pdo) && $pdo instanceof PDO) {
-                        $upStmt = $pdo->prepare("UPDATE pedidos_vip SET status = 'cancelado' WHERE txid = :txid AND status = 'pendente'");
+                        $upStmt = $pdo->prepare("UPDATE pedidos SET status = 'cancelado' WHERE txid = :txid AND status = 'pendente'");
                         $upStmt->execute([':txid' => $txid]);
                     }
                 } catch (Exception $e) {}

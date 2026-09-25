@@ -27,14 +27,14 @@ try {
         }
 
         // Faturamento Total
-        $totalFaturamento = (float)$pdo->query("SELECT COALESCE(SUM(valor), 0) FROM pedidos_vip WHERE status = 'pago'")->fetchColumn();
+        $totalFaturamento = (float)$pdo->query("SELECT COALESCE(SUM(valor), 0) FROM pedidos WHERE status = 'pago'")->fetchColumn();
 
         // Faturamento do Mês Atual
-        $faturamentoMes = (float)$pdo->query("SELECT COALESCE(SUM(valor), 0) FROM pedidos_vip WHERE status = 'pago' AND MONTH(criado_em) = MONTH(CURRENT_DATE()) AND YEAR(criado_em) = YEAR(CURRENT_DATE())")->fetchColumn();
+        $faturamentoMes = (float)$pdo->query("SELECT COALESCE(SUM(valor), 0) FROM pedidos WHERE status = 'pago' AND MONTH(criado_em) = MONTH(CURRENT_DATE()) AND YEAR(criado_em) = YEAR(CURRENT_DATE())")->fetchColumn();
 
         // Pedidos Pagos vs Pendentes
-        $totalPedidosPagos = (int)$pdo->query("SELECT COUNT(*) FROM pedidos_vip WHERE status = 'pago'")->fetchColumn();
-        $totalPedidosPendentes = (int)$pdo->query("SELECT COUNT(*) FROM pedidos_vip WHERE status = 'pendente'")->fetchColumn();
+        $totalPedidosPagos = (int)$pdo->query("SELECT COUNT(*) FROM pedidos WHERE status = 'pago'")->fetchColumn();
+        $totalPedidosPendentes = (int)$pdo->query("SELECT COUNT(*) FROM pedidos WHERE status = 'pendente'")->fetchColumn();
 
         // Cupons
         $totalCuponsAtivos = (int)$pdo->query("SELECT COUNT(*) FROM cupons WHERE ativo = 1 AND expira_em >= NOW()")->fetchColumn();
@@ -45,7 +45,7 @@ try {
         $totalNoticias = (int)$pdo->query("SELECT COUNT(*) FROM novidades")->fetchColumn();
 
         // Últimos 8 Pedidos
-        $stmtUltimos = $pdo->query("SELECT * FROM pedidos_vip ORDER BY id DESC LIMIT 8");
+        $stmtUltimos = $pdo->query("SELECT * FROM pedidos ORDER BY id DESC LIMIT 8");
         $ultimosPedidos = $stmtUltimos->fetchAll(PDO::FETCH_ASSOC);
     }
 } catch (Exception $e) {
@@ -79,10 +79,10 @@ try {
         </div>
     </div>
 
-    <!-- Card 2: Pedidos VIP -->
+    <!-- Card 2: Pedidos -->
     <div class="kpi-card">
         <div class="kpi-info">
-            <span class="kpi-label">Vendas VIP Aprovadas</span>
+            <span class="kpi-label">Vendas Aprovadas</span>
             <div class="kpi-value"><?php echo $totalPedidosPagos; ?></div>
             <span class="kpi-subtext text-warning fw-semibold"><?php echo $totalPedidosPendentes; ?> pedido(s) pendente(s)</span>
         </div>

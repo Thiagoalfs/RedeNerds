@@ -22,16 +22,8 @@ try {
       INDEX idx_srv (`servidor_id`, `ativo`)
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;");
 
-    $colunasPedidos = $pdo->query("SHOW COLUMNS FROM pedidos_vip")->fetchAll(PDO::FETCH_COLUMN);
-    if (!in_array('quantidade', $colunasPedidos, true)) {
-        $pdo->exec("ALTER TABLE pedidos_vip ADD COLUMN quantidade INT NOT NULL DEFAULT 1");
-    }
-    if (!in_array('tipo_produto', $colunasPedidos, true)) {
-        $pdo->exec("ALTER TABLE pedidos_vip ADD COLUMN tipo_produto VARCHAR(20) NOT NULL DEFAULT 'vip'");
-    }
-    if (!in_array('chave_id', $colunasPedidos, true)) {
-        $pdo->exec("ALTER TABLE pedidos_vip ADD COLUMN chave_id INT NULL DEFAULT NULL");
-    }
+    require_once __DIR__ . "/../../api/loja/config_loja.php";
+    garantirSchemaTabelaPedidos($pdo);
 } catch (Exception $e) {}
 
 $filtroServidor = trim($_GET['servidor'] ?? '');

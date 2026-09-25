@@ -95,13 +95,15 @@ class MockPDOStatement extends PDOStatement {
 }
 
 class MockPDO extends PDO {
-    public array $pedidos_vip = [];
+    public array $pedidos = [];
+    public array $pedidos_vip = []; // Alias retrocompatível
     public array $cupons = [];
     public array $rate_limits_loja = [];
     private bool $inTransaction = false;
     private array $snapshot = [];
 
     public function __construct() {
+        $this->pedidos_vip =& $this->pedidos;
         $this->cupons['PROMO10'] = [
             'id' => 1,
             'codigo' => 'PROMO10',
@@ -116,7 +118,7 @@ class MockPDO extends PDO {
     public function beginTransaction(): bool {
         $this->inTransaction = true;
         $this->snapshot = [
-            'pedidos_vip' => $this->pedidos_vip,
+            'pedidos' => $this->pedidos,
             'cupons' => $this->cupons,
             'rate_limits_loja' => $this->rate_limits_loja
         ];
@@ -131,7 +133,8 @@ class MockPDO extends PDO {
 
     public function rollBack(): bool {
         if ($this->inTransaction && !empty($this->snapshot)) {
-            $this->pedidos_vip = $this->snapshot['pedidos_vip'];
+            $this->pedidos = $this->snapshot['pedidos'];
+            $this->pedidos_vip =& $this->pedidos;
             $this->cupons = $this->snapshot['cupons'];
             $this->rate_limits_loja = $this->snapshot['rate_limits_loja'];
         }
@@ -162,14 +165,14 @@ class MockPDO extends PDO {
     public function handleQuery(string $sql, array $params): array {
         $normalized = preg_replace('/\s+/', ' ', trim($sql));
 
-        // SELECT ... FROM pedidos_vip WHERE txid = ...
-        if (stripos($normalized, 'SELECT') === 0 && stripos($normalized, 'FROM pedidos_vip') !== false) {
+        // SELECT ... FROM pedidos / pedidos_vip WHERE txid = ...
+        if (stripos($normalized, 'SELECT') === 0 && (stripos($normalized, 'FROM pedidos') !== false || stripos($normalized, 'FROM pedidos_vip') !== false)) {
             $txid = $params[':txid'] ?? ($params[0] ?? '');
             if (empty($txid) && preg_match("/txid\s*=\s*'([^']+)'/i", $normalized, $m)) {
                 $txid = $m[1];
             }
-            if (!empty($txid) && isset($this->pedidos_vip[$txid])) {
-                $row = $this->pedidos_vip[$txid];
+            if (!empty($txid) && isset($this->pedidos[$txid])) {
+                $row = $this->pedidos[$txid];
                 if (preg_match('/SELECT\s+cupom_computado\s+FROM/i', $normalized)) {
                     return ['rows' => [['cupom_computado' => $row['cupom_computado']]], 'affected' => 1];
                 }
@@ -194,11 +197,11 @@ class MockPDO extends PDO {
             return ['rows' => [], 'affected' => 0];
         }
 
-        // INSERT INTO pedidos_vip
-        if (stripos($normalized, 'INSERT INTO pedidos_vip') === 0) {
+        // INSERT INTO pedidos / pedidos_vip
+        if (stripos($normalized, 'INSERT INTO pedidos') === 0 || stripos($normalized, 'INSERT INTO pedidos_vip') === 0) {
             $txid = $params[':txid'] ?? ('NERD-' . uniqid());
-            $this->pedidos_vip[$txid] = [
-                'id' => count($this->pedidos_vip) + 1,
+            $this->pedidos[$txid] = [
+                'id' => count($this->pedidos) + 1,
                 'txid' => $txid,
                 'nick' => $params[':nick'] ?? 'TestPlayer',
                 'servidor' => $params[':servidor'] ?? 'Survival',
@@ -213,27 +216,27 @@ class MockPDO extends PDO {
             return ['rows' => [], 'affected' => 1];
         }
 
-        // UPDATE pedidos_vip SET cupom_computado = 1 WHERE txid = :txid AND status = 'pago' AND ...
-        if (stripos($normalized, 'UPDATE pedidos_vip SET cupom_computado = 1') !== false) {
+        // UPDATE pedidos / pedidos_vip SET cupom_computado = 1 WHERE txid = :txid AND status = 'pago' AND ...
+        if (stripos($normalized, 'UPDATE pedidos SET cupom_computado = 1') !== false || stripos($normalized, 'UPDATE pedidos_vip SET cupom_computado = 1') !== false) {
             $txid = $params[':txid'] ?? '';
-            if (!empty($txid) && isset($this->pedidos_vip[$txid])) {
-                if ($this->pedidos_vip[$txid]['status'] === 'pago' && empty($this->pedidos_vip[$txid]['cupom_computado'])) {
-                    $this->pedidos_vip[$txid]['cupom_computado'] = 1;
+            if (!empty($txid) && isset($this->pedidos[$txid])) {
+                if ($this->pedidos[$txid]['status'] === 'pago' && empty($this->pedidos[$txid]['cupom_computado'])) {
+                    $this->pedidos[$txid]['cupom_computado'] = 1;
                     return ['rows' => [], 'affected' => 1];
                 }
             }
             return ['rows' => [], 'affected' => 0];
         }
 
-        // UPDATE pedidos_vip SET status = 'pago' ... WHERE txid = :txid AND status <> 'pago'
-        if (stripos($normalized, 'UPDATE pedidos_vip') === 0 && stripos($normalized, "status = 'pago'") !== false && stripos($normalized, "status <> 'pago'") !== false) {
+        // UPDATE pedidos / pedidos_vip SET status = 'pago' ... WHERE txid = :txid AND status <> 'pago'
+        if ((stripos($normalized, 'UPDATE pedidos') === 0 || stripos($normalized, 'UPDATE pedidos_vip') === 0) && stripos($normalized, "status = 'pago'") !== false && stripos($normalized, "status <> 'pago'") !== false) {
             $txid = $params[':txid'] ?? '';
-            if (!empty($txid) && isset($this->pedidos_vip[$txid])) {
-                if ($this->pedidos_vip[$txid]['status'] !== 'pago') {
-                    $this->pedidos_vip[$txid]['status'] = 'pago';
-                    $this->pedidos_vip[$txid]['pago_em'] = date('Y-m-d H:i:s');
+            if (!empty($txid) && isset($this->pedidos[$txid])) {
+                if ($this->pedidos[$txid]['status'] !== 'pago') {
+                    $this->pedidos[$txid]['status'] = 'pago';
+                    $this->pedidos[$txid]['pago_em'] = date('Y-m-d H:i:s');
                     if (isset($params[':mp_id'])) {
-                        $this->pedidos_vip[$txid]['mp_payment_id'] = $params[':mp_id'];
+                        $this->pedidos[$txid]['mp_payment_id'] = $params[':mp_id'];
                     }
                     return ['rows' => [], 'affected' => 1];
                 }
@@ -241,12 +244,12 @@ class MockPDO extends PDO {
             return ['rows' => [], 'affected' => 0];
         }
 
-        // UPDATE pedidos_vip SET status = 'pago'
-        if (stripos($normalized, 'UPDATE pedidos_vip') === 0 && stripos($normalized, "status = 'pago'") !== false) {
+        // UPDATE pedidos / pedidos_vip SET status = 'pago'
+        if ((stripos($normalized, 'UPDATE pedidos') === 0 || stripos($normalized, 'UPDATE pedidos_vip') === 0) && stripos($normalized, "status = 'pago'") !== false) {
             $txid = $params[':txid'] ?? '';
-            if (!empty($txid) && isset($this->pedidos_vip[$txid])) {
-                $this->pedidos_vip[$txid]['status'] = 'pago';
-                $this->pedidos_vip[$txid]['pago_em'] = date('Y-m-d H:i:s');
+            if (!empty($txid) && isset($this->pedidos[$txid])) {
+                $this->pedidos[$txid]['status'] = 'pago';
+                $this->pedidos[$txid]['pago_em'] = date('Y-m-d H:i:s');
                 return ['rows' => [], 'affected' => 1];
             }
             return ['rows' => [], 'affected' => 0];
