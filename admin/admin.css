@@ -531,48 +531,42 @@ body {
 }
 
 /* ======================================================== */
-/* 6. BADGES DE STATUS                                     */
+/* 6. STATUS EM TEXTO (TABELAS)                            */
 /* ======================================================== */
 .badge-status {
   display: inline-flex;
   align-items: center;
   gap: 0.35rem;
-  font-size: 0.75rem;
-  font-weight: 700;
-  padding: 0.3rem 0.65rem;
-  border-radius: 9999px;
-  text-transform: uppercase;
-  letter-spacing: 0.3px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  padding: 0 !important;
+  background: transparent !important;
+  border: none !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  letter-spacing: 0.2px;
 }
 
 .badge-status.pago,
 .badge-status.ativo,
 .badge-status.visivel {
-  background-color: #ecfdf5;
-  color: #059669;
-  border: 1px solid #a7f3d0;
+  color: #10b981;
 }
 
 .badge-status.pendente,
 .badge-status.analise {
-  background-color: #fffbeb;
-  color: #d97706;
-  border: 1px solid #fde68a;
+  color: #f59e0b;
 }
 
 .badge-status.recusado,
 .badge-status.cancelado,
 .badge-status.expirado {
-  background-color: #fef2f2;
-  color: #dc2626;
-  border: 1px solid #fecaca;
+  color: #ef4444;
 }
 
 .badge-status.inativo,
 .badge-status.oculto {
-  background-color: #f1f5f9;
   color: #64748b;
-  border: 1px solid #cbd5e1;
 }
 
 /* ======================================================== */
@@ -883,35 +877,27 @@ body {
 [data-theme="dark"] .kpi-icon-purple { background: rgba(139, 92, 246, 0.15); color: #c084fc; }
 [data-theme="dark"] .kpi-icon-red { background: rgba(239, 68, 68, 0.15); color: #f87171; }
 
-/* Status Badges */
+/* Status em Texto no Dark Mode */
 [data-theme="dark"] .badge-status.pago,
 [data-theme="dark"] .badge-status.ativo,
 [data-theme="dark"] .badge-status.visivel {
-  background-color: rgba(16, 185, 129, 0.12);
   color: #34d399;
-  border-color: rgba(16, 185, 129, 0.3);
 }
 
 [data-theme="dark"] .badge-status.pendente,
 [data-theme="dark"] .badge-status.analise {
-  background-color: rgba(245, 158, 11, 0.12);
   color: #fbbf24;
-  border-color: rgba(245, 158, 11, 0.3);
 }
 
 [data-theme="dark"] .badge-status.recusado,
 [data-theme="dark"] .badge-status.cancelado,
 [data-theme="dark"] .badge-status.expirado {
-  background-color: rgba(239, 68, 68, 0.12);
   color: #f87171;
-  border-color: rgba(239, 68, 68, 0.3);
 }
 
 [data-theme="dark"] .badge-status.inativo,
 [data-theme="dark"] .badge-status.oculto {
-  background-color: rgba(148, 163, 184, 0.12);
   color: #94a3b8;
-  border-color: rgba(148, 163, 184, 0.3);
 }
 
 /* Action Buttons */

@@ -1,6 +1,6 @@
 <?php
 $paginaAtiva = 'cupons';
-$tituloPagina = 'Cupons de Desconto';
+$tituloPagina = 'Cupons';
 require_once __DIR__ . "/../includes/admin_header.php";
 
 $servidoresMap = [];

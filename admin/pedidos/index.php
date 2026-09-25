@@ -1,6 +1,6 @@
 <?php
 $paginaAtiva = 'pedidos';
-$tituloPagina = 'Pedidos & Vendas';
+$tituloPagina = 'Pedidos';
 require_once __DIR__ . "/../includes/admin_header.php";
 
 if (!defined('POR_PAGINA')) {

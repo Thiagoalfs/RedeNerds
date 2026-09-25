@@ -91,7 +91,6 @@ foreach ($gruposBrutos as $cNome => $lista) {
                         <colgroup>
                             <col style="width: 50px;">
                             <col>
-                            <col style="width: 160px;">
                             <col style="width: 140px;">
                         </colgroup>
                         <tbody>
@@ -102,11 +101,6 @@ foreach ($gruposBrutos as $cNome => $lista) {
                                     </td>
                                     <td>
                                         <strong class="text-dark"><?php echo htmlspecialchars($m['nick'], ENT_QUOTES, 'UTF-8'); ?></strong>
-                                    </td>
-                                    <td>
-                                        <span class="badge text-white" style="background-color: <?php echo htmlspecialchars($cargoCor, ENT_QUOTES, 'UTF-8'); ?>; text-shadow: 0 1px 2px rgba(0,0,0,0.3);">
-                                            <?php echo htmlspecialchars($m['cargo'], ENT_QUOTES, 'UTF-8'); ?>
-                                        </span>
                                     </td>
                                     <td class="text-end text-nowrap">
                                         <div class="d-inline-flex align-items-center justify-content-end gap-1">

@@ -1,6 +1,6 @@
 <?php
 $paginaAtiva = 'dashboard';
-$tituloPagina = 'Visão Geral';
+$tituloPagina = 'Dashboard';
 require_once __DIR__ . "/includes/admin_header.php";
 
 // 1. Consulta Métricas & KPIs
