@@ -1,6 +1,6 @@
 <?php
 $paginaAtiva = 'cupons';
-$tituloPagina = 'Cupons de Desconto';
+$tituloPagina = 'Cupons';
 require_once __DIR__ . "/../includes/admin_header.php";
 
 $servidoresMap = [];
@@ -113,9 +113,6 @@ function statusDoCupom(array $cupom): array {
                                 <td>
                                     <i class="fa-regular fa-clock text-muted me-1"></i>
                                     <?php echo date('d/m/Y H:i', strtotime($c['expira_em'])); ?>
-                                    <?php if ($st['expirado']): ?>
-                                        <span class="badge bg-danger ms-1" style="font-size: 0.68rem;">Expirado</span>
-                                    <?php endif; ?>
                                 </td>
                                 <td>
                                     <span class="<?php echo $st['badge']; ?>"><?php echo $st['label']; ?></span>

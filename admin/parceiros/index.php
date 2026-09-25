@@ -1,6 +1,6 @@
 <?php
 $paginaAtiva = 'parceiros';
-$tituloPagina = 'Parceiros e Criadores de Conteúdo';
+$tituloPagina = 'Parceiros';
 require_once __DIR__ . "/../includes/admin_header.php";
 
 // Auto-criação da tabela se não existir

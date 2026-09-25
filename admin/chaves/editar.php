@@ -217,28 +217,22 @@ require_once __DIR__ . "/../includes/admin_header.php";
                     </div>
 
                     <!-- IMAGEM / RENDER 3D DO PACOTE DE CHAVES (key-card-image-box) -->
-                    <div class="admin-card p-3 mb-3 bg-light border">
-                        <h6 class="fw-bold mb-2"><i class="fa-solid fa-image me-1 text-primary"></i> Imagem do Item (Topo do Card)</h6>
-                        <p class="small text-muted mb-3">Envie uma imagem com fundo transparente (PNG, WEBP ou GIF) ou informe um link externo. Ela será exibida no topo do card da chave (área <code>key-card-image-box</code>).</p>
+                    <div class="admin-form-group mb-3">
+                        <label class="form-label fw-bold mb-1"><i class="fa-solid fa-image me-1 text-primary"></i> Imagem do Item (Topo do Card)</label>
+                        <div class="form-text small mb-2">Envie uma imagem com fundo transparente (PNG, WEBP ou GIF). Ela será exibida no topo do card da chave.</div>
                         
                         <div class="row g-3 align-items-center">
-                            <div class="col-md-5">
-                                <label class="small fw-semibold">Upload de Novo Arquivo</label>
+                            <div class="col-md-9">
+                                <label class="small fw-semibold mb-1">Upload de Novo Arquivo</label>
                                 <input type="file" class="admin-form-control" id="imagem_upload" name="imagem_upload" accept="image/*" onchange="previewImagemChave(this)">
-                            </div>
-                            <div class="col-md-4">
-                                <label class="small fw-semibold">Ou Link / URL Externa</label>
-                                <input type="text" class="admin-form-control" id="imagem_url" name="imagem_url"
-                                       value="<?php echo htmlspecialchars($imagem, ENT_QUOTES, 'UTF-8'); ?>"
-                                       placeholder="https://... ou /assets/chaves/..." oninput="previewImagemUrl(this.value)">
                             </div>
                             <div class="col-md-3 d-flex align-items-center gap-2">
                                 <span class="small text-muted">Prévia:</span>
-                                <div id="chave-preview-box" class="bg-dark border rounded d-flex align-items-center justify-content-center overflow-hidden" style="width: 70px; height: 70px;">
+                                <div id="chave-preview-box" class="bg-dark border rounded d-flex align-items-center justify-content-center overflow-hidden" style="width: 50px; height: 50px;">
                                     <?php if (!empty($imagem)): ?>
-                                        <img id="chave-preview-img" src="<?php echo htmlspecialchars($imagem, ENT_QUOTES, 'UTF-8'); ?>" style="max-width: 58px; max-height: 58px; object-fit: contain;" alt="Imagem da Chave">
+                                        <img id="chave-preview-img" src="<?php echo htmlspecialchars($imagem, ENT_QUOTES, 'UTF-8'); ?>" style="max-width: 42px; max-height: 42px; object-fit: contain;" alt="Imagem da Chave">
                                     <?php else: ?>
-                                        <img id="chave-preview-img" src="/assets/images/logo.webp" style="max-width: 58px; max-height: 58px; object-fit: contain; opacity: 0.35;" alt="Prévia">
+                                        <img id="chave-preview-img" src="/assets/images/logo.webp" style="max-width: 42px; max-height: 42px; object-fit: contain; opacity: 0.35;" alt="Prévia">
                                     <?php endif; ?>
                                 </div>
                             </div>
@@ -314,19 +308,6 @@ function previewImagemChave(input) {
             }
         };
         reader.readAsDataURL(input.files[0]);
-    }
-}
-
-function previewImagemUrl(url) {
-    const img = document.getElementById('chave-preview-img');
-    if (img) {
-        if (url && url.trim() !== '') {
-            img.src = url.trim();
-            img.style.opacity = '1';
-        } else {
-            img.src = '/assets/images/logo.webp';
-            img.style.opacity = '0.35';
-        }
     }
 }
 

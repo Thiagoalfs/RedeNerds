@@ -21,9 +21,9 @@ $mostrarPaginacao = $mostrarPaginacao ?? false;
     <table class="table table-admin align-middle mb-0">
         <thead>
             <tr>
+                <th style="width: 130px;">Servidor</th>
                 <th style="width: 220px;">Jogador</th>
                 <th>Produto</th>
-                <th>Servidor</th>
                 <th>Método</th>
                 <th>Valor Pago</th>
                 <th>Cupom</th>
@@ -48,6 +48,12 @@ $mostrarPaginacao = $mostrarPaginacao ?? false;
                 ?>
                     <tr>
                         <td>
+                            <span class="badge" style="background-color: <?php echo htmlspecialchars($srvCor, ENT_QUOTES, 'UTF-8'); ?>; color: #fff; font-weight: 600;">
+                                <i class="fa-solid fa-server me-1"></i>
+                                <?php echo htmlspecialchars($srvKey ?: 'Geral', ENT_QUOTES, 'UTF-8'); ?>
+                            </span>
+                        </td>
+                        <td>
                             <div class="d-flex align-items-center gap-2">
                                 <img src="https://mc-heads.net/avatar/<?php echo urlencode($p['nick']); ?>/32" 
                                      class="rounded border" width="32" height="32" alt="Skin"
@@ -68,12 +74,6 @@ $mostrarPaginacao = $mostrarPaginacao ?? false;
                             <span class="badge bg-light text-dark border font-monospace">
                                 <i class="fa-solid <?php echo $isChave ? 'fa-key text-warning' : 'fa-crown text-warning'; ?> me-1"></i>
                                 <?php echo htmlspecialchars(($isChave && $qtd > 1 ? "{$qtd}x " : "") . ($p['vip_nome'] ?? ($isChave ? 'Chaves' : 'VIP')), ENT_QUOTES, 'UTF-8'); ?>
-                            </span>
-                        </td>
-                        <td>
-                            <span class="badge" style="background-color: <?php echo htmlspecialchars($srvCor, ENT_QUOTES, 'UTF-8'); ?>; color: #fff; font-weight: 600;">
-                                <i class="fa-solid fa-server me-1"></i>
-                                <?php echo htmlspecialchars($srvKey ?: 'Geral', ENT_QUOTES, 'UTF-8'); ?>
                             </span>
                         </td>
                         <td>

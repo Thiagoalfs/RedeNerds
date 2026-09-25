@@ -75,7 +75,7 @@
         <a href="/admin/wiki/" class="nav-item-link <?php echo $isWikiAtiva ? 'active' : ''; ?>">
             <div class="icon-wrap">
                 <i class="fa-solid fa-book-open"></i>
-                <span>Wiki & Guias</span>
+                <span>Wiki & Tutoriais</span>
             </div>
         </a>
         <?php if ($isWikiAtiva): ?>

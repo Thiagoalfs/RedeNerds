@@ -43,14 +43,13 @@ try {
     </div>
     <div class="d-flex align-items-center flex-wrap gap-2">
         <!-- TOGGLE GERAL DA WIKI (PÚBLICA / NAVBAR) -->
-        <form method="POST" action="/admin/api/wiki/toggle_geral.php" class="d-inline-flex align-items-center m-0 me-1" id="formToggleWikiGeral">
+        <form method="POST" action="/admin/api/wiki/toggle_geral.php" class="d-inline m-0">
             <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($csrfToken, ENT_QUOTES, 'UTF-8'); ?>">
-            <div class="form-check form-switch d-inline-flex align-items-center gap-2 m-0 p-0" title="Ativar ou desativar a visualização pública da Wiki e o link na Navbar do site">
-                <input class="form-check-input ms-0" type="checkbox" role="switch" id="toggleWikiGeralSwitch" name="wiki_habilitada" value="1" <?php echo $wikiHabilitada ? 'checked' : ''; ?> onchange="this.form.submit()" style="cursor: pointer; width: 2.2em; height: 1.15em;">
-                <label class="form-check-label small fw-semibold <?php echo $wikiHabilitada ? 'text-success' : 'text-danger'; ?>" for="toggleWikiGeralSwitch" style="cursor: pointer; user-select: none;">
-                    <?php echo $wikiHabilitada ? '<i class="fa-solid fa-globe me-1"></i>Wiki: Ativa' : '<i class="fa-solid fa-eye-slash me-1"></i>Wiki: Oculta'; ?>
-                </label>
-            </div>
+            <input type="hidden" name="wiki_habilitada" value="<?php echo $wikiHabilitada ? '0' : '1'; ?>">
+            <button type="submit" class="btn btn-sm <?php echo $wikiHabilitada ? 'btn-outline-success' : 'btn-outline-danger'; ?>" title="<?php echo $wikiHabilitada ? 'Clique para ocultar a Wiki no site' : 'Clique para ativar a visualização pública da Wiki'; ?>">
+                <i class="fa-solid <?php echo $wikiHabilitada ? 'fa-globe' : 'fa-eye-slash'; ?> me-1"></i>
+                Wiki: <?php echo $wikiHabilitada ? 'Ativa' : 'Oculta'; ?>
+            </button>
         </form>
 
         <a href="/wiki/" target="_blank" class="btn btn-outline-secondary btn-sm"><i class="fa-solid fa-arrow-up-right-from-square me-1"></i> Ver Wiki</a>
