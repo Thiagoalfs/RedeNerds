@@ -74,6 +74,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             try {
                 $upd = $pdo->prepare("UPDATE equipe SET nick = :nick, cargo = :cargo WHERE id = :id");
                 $upd->execute([':nick' => $nick, ':cargo' => $cargo, ':id' => $id]);
+
+                require_once __DIR__ . "/../../api/cache_helper.php";
+                invalidarCache('equipe');
+
                 header("Location: index.php");
                 exit;
             } catch (PDOException $e) {

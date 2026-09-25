@@ -11,6 +11,9 @@ error_reporting(E_ALL);
 header("Content-Type: application/json; charset=utf-8");
 header("Access-Control-Allow-Origin: *");
 
+require_once __DIR__ . "/../rate_limiter.php";
+exigirRateLimit('loja_vips_api', 60, 60);
+
 $configPaths = [
     __DIR__ . "/../../../config.php",
     __DIR__ . "/../../config.php",

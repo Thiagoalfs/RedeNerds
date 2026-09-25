@@ -23,6 +23,7 @@
 </IfModule>
 
 ErrorDocument 404 /errors/404/index.html
+ErrorDocument 429 /errors/429/index.html
 
 <FilesMatch "config\.php$">
     Require all denied

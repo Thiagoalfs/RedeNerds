@@ -36,6 +36,9 @@ function getIdentificador(string $usuario): string {
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    require_once __DIR__ . "/../api/rate_limiter.php";
+    exigirRateLimit('admin_login_post', 5, 300);
+
     $usuario = trim($_POST['usuario'] ?? '');
     $senha = $_POST['senha'] ?? '';
 

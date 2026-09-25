@@ -18,30 +18,34 @@ async function carregarServidores() {
     const grid = document.querySelector('.servers-grid');
     if (!grid) return;
 
-    try {
-        const resposta = await fetch(SERVIDORES_API_URL);
-        if (!resposta.ok) throw new Error('Falha na requisição');
-
-        const dados = await resposta.json();
-        if (!dados.success || !Array.isArray(dados.servidores)) {
-            throw new Error('Resposta inválida da API');
-        }
-
+    const render = (dados) => {
+        if (!dados || !dados.success || !Array.isArray(dados.servidores)) return;
         if (dados.servidores.length === 0) {
-            // Nenhum servidor habilitado: mantém o grid vazio silenciosamente
             grid.innerHTML = '';
             return;
         }
-
-        // Só substitui os cards estáticos depois que os dinâmicos carregaram com sucesso
         grid.innerHTML = '';
         dados.servidores.forEach((servidor) => {
             const cardEl = criarCardServidor(servidor);
             grid.appendChild(cardEl);
         });
-    } catch (erro) {
-        // Em caso de falha, mantém os cards estáticos do HTML como fallback
-        console.error('Não foi possível carregar os servidores dinamicamente:', erro);
+    };
+
+    if (window.AppCache) {
+        await AppCache.fetchWithCache('servidores', SERVIDORES_API_URL, {
+            onCached: render,
+            onFresh: render,
+            onError: (erro) => console.error('Não foi possível carregar os servidores dinamicamente:', erro)
+        });
+    } else {
+        try {
+            const resposta = await fetch(SERVIDORES_API_URL);
+            if (!resposta.ok) throw new Error('Falha na requisição');
+            const dados = await resposta.json();
+            render(dados);
+        } catch (erro) {
+            console.error('Não foi possível carregar os servidores dinamicamente:', erro);
+        }
     }
 }
 
@@ -99,27 +103,52 @@ async function carregarParceiros() {
     const grid = document.querySelector('.parceiros-grid');
     if (!grid) return;
 
-    try {
-        const resposta = await fetch(PARCEIROS_API_URL);
-        if (!resposta.ok) throw new Error('Falha na requisição');
-
-        const dados = await resposta.json();
-        if (!dados.success || !Array.isArray(dados.parceiros)) {
-            throw new Error('Resposta inválida da API');
-        }
-
+    const render = (dados) => {
+        if (!dados || !dados.success || !Array.isArray(dados.parceiros)) return;
         if (dados.parceiros.length === 0) {
             grid.innerHTML = '<p class="text-muted text-center" style="grid-column: 1/-1; color: var(--color-text-muted);">Nenhum parceiro cadastrado no momento.</p>';
             return;
         }
-
         grid.innerHTML = '';
+
+        const track = document.createElement('div');
+        track.className = 'parceiros-track';
+
+        // Cards originais
         dados.parceiros.forEach((parceiro) => {
             const cardEl = criarCardParceiro(parceiro);
-            grid.appendChild(cardEl);
+            track.appendChild(cardEl);
         });
-    } catch (erro) {
-        console.error('Não foi possível carregar os parceiros dinamicamente:', erro);
+
+        // Clona os itens para permitir animação contínua infinita (marquee) no mobile
+        const totalClones = Math.max(1, Math.ceil(8 / dados.parceiros.length));
+        for (let i = 0; i < totalClones; i++) {
+            dados.parceiros.forEach((parceiro) => {
+                const cloneEl = criarCardParceiro(parceiro);
+                cloneEl.classList.add('parceiro-clone');
+                cloneEl.setAttribute('aria-hidden', 'true');
+                track.appendChild(cloneEl);
+            });
+        }
+
+        grid.appendChild(track);
+    };
+
+    if (window.AppCache) {
+        await AppCache.fetchWithCache('parceiros', PARCEIROS_API_URL, {
+            onCached: render,
+            onFresh: render,
+            onError: (erro) => console.error('Não foi possível carregar os parceiros dinamicamente:', erro)
+        });
+    } else {
+        try {
+            const resposta = await fetch(PARCEIROS_API_URL);
+            if (!resposta.ok) throw new Error('Falha na requisição');
+            const dados = await resposta.json();
+            render(dados);
+        } catch (erro) {
+            console.error('Não foi possível carregar os parceiros dinamicamente:', erro);
+        }
     }
 }
 

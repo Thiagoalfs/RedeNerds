@@ -10,6 +10,9 @@ error_reporting(E_ALL);
 header("Content-Type: application/json; charset=utf-8");
 header("Access-Control-Allow-Origin: *");
 
+require_once __DIR__ . "/rate_limiter.php";
+exigirRateLimit('api_novidades', 60, 60);
+
 $configPaths = [
     __DIR__ . "/../../config.php",
     __DIR__ . "/../config.php",
@@ -33,6 +36,10 @@ if (!$configPath) {
 require_once $configPath;
 require_once __DIR__ . "/auth_api.php";
 verificarAcessoApi();
+
+require_once __DIR__ . "/cache_helper.php";
+$queryFingerprint = !empty($_GET) ? http_build_query($_GET) : 'all';
+verificarEtagCache('novidades', $queryFingerprint);
 
 // Detecta se há conexão válida ($pdo ou $conn)
 $usePDO = false;

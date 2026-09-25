@@ -57,6 +57,9 @@ if (isset($pdo) && $pdo instanceof PDO) {
             $del = $pdo->prepare("DELETE FROM parceiros WHERE id = :id");
             $del->execute([':id' => $id]);
 
+            require_once __DIR__ . "/../../../api/cache_helper.php";
+            invalidarCache('parceiros');
+
             // Se possuía foto local em /assets/parceiros/, apaga o arquivo físico
             if (!empty($parceiro['foto'])) {
                 apagarFotoParceiroAntigaSeForUpload($parceiro['foto'], '');

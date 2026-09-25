@@ -14,28 +14,33 @@ async function carregarDownloads() {
     const lista = document.querySelector('.downloads-list');
     if (!lista) return;
 
-    try {
-        const resposta = await fetch(SERVIDORES_API_URL);
-        if (!resposta.ok) throw new Error('Falha na requisição');
-
-        const dados = await resposta.json();
-        if (!dados.success || !Array.isArray(dados.servidores)) {
-            throw new Error('Resposta inválida da API');
-        }
-
+    const render = (dados) => {
+        if (!dados || !dados.success || !Array.isArray(dados.servidores)) return;
         if (dados.servidores.length === 0) {
             lista.innerHTML = '';
             return;
         }
-
-        // Só substitui os cards estáticos depois que os dinâmicos carregaram com sucesso
         lista.innerHTML = '';
         dados.servidores.forEach(servidor => {
             lista.appendChild(criarCardDownload(servidor));
         });
-    } catch (erro) {
-        // Em caso de falha, mantém os cards estáticos do HTML como fallback
-        console.error('Não foi possível carregar os downloads dinamicamente:', erro);
+    };
+
+    if (window.AppCache) {
+        await AppCache.fetchWithCache('servidores', SERVIDORES_API_URL, {
+            onCached: render,
+            onFresh: render,
+            onError: (erro) => console.error('Não foi possível carregar os downloads dinamicamente:', erro)
+        });
+    } else {
+        try {
+            const resposta = await fetch(SERVIDORES_API_URL);
+            if (!resposta.ok) throw new Error('Falha na requisição');
+            const dados = await resposta.json();
+            render(dados);
+        } catch (erro) {
+            console.error('Não foi possível carregar os downloads dinamicamente:', erro);
+        }
     }
 }
 

@@ -1,0 +1,80 @@
+/* Centraliza o conteúdo no meio da tela verticalmente */
+.error-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 55vh;
+    text-align: center;
+}
+
+.error-content {
+    max-width: 520px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 1.5rem 1rem;
+}
+
+/* Número 429 grande em destaque */
+.error-code {
+    font-size: 5.5rem;
+    font-weight: 900;
+    line-height: 1;
+    color: var(--border-color-1, #7DB9DF);
+    letter-spacing: -2px;
+    text-shadow: 0 0 25px rgba(125, 185, 223, 0.25);
+}
+
+.error-content h1 {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: #ffffff;
+    margin: 0;
+}
+
+.error-content p {
+    color: #b0b4ba;
+    font-size: 0.98rem;
+    line-height: 1.6;
+    margin: 0 0 0.5rem 0;
+}
+
+.rate-limit-notice {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: rgba(125, 185, 223, 0.08);
+    border: 1px solid rgba(125, 185, 223, 0.2);
+    border-radius: 8px;
+    padding: 0.6rem 1rem;
+    font-size: 0.88rem;
+    color: #cad2db;
+    margin-bottom: 1rem;
+}
+
+.rate-limit-notice i {
+    color: var(--border-color-1, #7DB9DF);
+}
+
+/* Botão de retorno ao início */
+.cta-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.6rem;
+    padding: 0.8rem 1.6rem;
+    border-radius: 8px;
+    text-decoration: none;
+    color: #ffffff;
+    font-weight: 600;
+    font-size: 0.95rem;
+    background-color: var(--border-color-1, #7DB9DF);
+    transition: opacity 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.cta-button:hover {
+    opacity: 0.9;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(125, 185, 223, 0.3);
+}

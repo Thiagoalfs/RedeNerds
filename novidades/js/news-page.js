@@ -57,60 +57,76 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const toCategoryKey = value => String(value || "").trim();
 
-    fetch(`/api/novidades_api.php?id=${id}`)
-        .then(res => res.json())
-        .then(news => {
-            if (!news || news.erro) {
-                container.innerHTML = `<p style="text-align:center; padding: 20px;">Atualização não encontrada.</p>`;
-                return;
-            }
+    const renderNewsArticle = (news) => {
+        if (!news || news.erro) {
+            container.innerHTML = `<p style="text-align:center; padding: 20px;">Atualização não encontrada.</p>`;
+            return;
+        }
 
-            document.title = news.titulo + " - RedeNerds";
-            const safeSetMeta = (sel, attr, val) => {
-                const el = document.querySelector(sel);
-                if (el) el.setAttribute(attr, val);
-            };
-            const descricaoCurta = String(news.conteudo || "").substring(0, 150);
-            safeSetMeta('meta[name="description"]', "content", descricaoCurta);
-            safeSetMeta('meta[property="og:title"]', "content", news.titulo || "");
-            safeSetMeta('meta[property="og:description"]', "content", descricaoCurta);
-            safeSetMeta('meta[property="og:image"]', "content", news.capa || "");
+        document.title = news.titulo + " - RedeNerds";
+        const safeSetMeta = (sel, attr, val) => {
+            const el = document.querySelector(sel);
+            if (el) el.setAttribute(attr, val);
+        };
+        const descricaoCurta = String(news.conteudo || "").substring(0, 150);
+        safeSetMeta('meta[name="description"]', "content", descricaoCurta);
+        safeSetMeta('meta[property="og:title"]', "content", news.titulo || "");
+        safeSetMeta('meta[property="og:description"]', "content", descricaoCurta);
+        safeSetMeta('meta[property="og:image"]', "content", news.capa || "");
 
-            const categoryKey = toCategoryKey(news.category);
-            const categoryLabel = categoryLabels[categoryKey] || categoryKey;
+        const categoryKey = toCategoryKey(news.category);
+        const categoryLabel = categoryLabels[categoryKey] || categoryKey;
 
-            // Data: backend pode mandar "YYYY-MM-DD HH:MM:SS" → troca espaço por "T" pro Safari
-            const dataFormatada = news.criado_em
-                ? new Date(String(news.criado_em).replace(" ", "T")).toLocaleDateString("pt-BR")
-                : "";
+        // Data: backend pode mandar "YYYY-MM-DD HH:MM:SS" → troca espaço por "T" pro Safari
+        const dataFormatada = news.criado_em
+            ? new Date(String(news.criado_em).replace(" ", "T")).toLocaleDateString("pt-BR")
+            : "";
 
-            container.innerHTML = `
-                <a href="/#atualizacoes-section" id="voltar">
-                    <i class="fa-solid fa-arrow-left"></i> Voltar
-                </a>
-                <article class="novidade-article" data-category="${escapeHTML(categoryKey)}">
-                    <div class="novidade-banner">
-                        <img src="${escapeHTML(news.capa || "")}" alt="${escapeHTML(news.titulo || "")}" onerror="this.style.display='none'">
-                    </div>
-                    <div class="novidade-meta">
-                        ${categoryLabel ? `<span class="novidade-tag" data-category="${escapeHTML(categoryKey)}">${escapeHTML(categoryLabel)}</span>` : ""}
-                        <h1>${escapeHTML(news.titulo || "")}</h1>
-                        <div class="novidade-info">
-                            <div class="author">
-                                <img class="author-head" src="https://mc-heads.net/avatar/${escapeHTML(news.autor || "")}" alt="${escapeHTML(news.autor || "")}" onerror="this.style.display='none'">
-                                <p>${escapeHTML(news.autor || "")}</p>
-                            </div>
-                            <p class="date">${dataFormatada}</p>
+        container.innerHTML = `
+            <a href="/#atualizacoes-section" id="voltar">
+                <i class="fa-solid fa-arrow-left"></i> Voltar
+            </a>
+            <article class="novidade-article" data-category="${escapeHTML(categoryKey)}">
+                <div class="novidade-banner">
+                    <img src="${escapeHTML(news.capa || "")}" alt="${escapeHTML(news.titulo || "")}" onerror="this.style.display='none'">
+                </div>
+                <div class="novidade-meta">
+                    ${categoryLabel ? `<span class="novidade-tag" data-category="${escapeHTML(categoryKey)}">${escapeHTML(categoryLabel)}</span>` : ""}
+                    <h1>${escapeHTML(news.titulo || "")}</h1>
+                    <div class="novidade-info">
+                        <div class="author">
+                            <img class="author-head" src="https://mc-heads.net/avatar/${escapeHTML(news.autor || "")}" alt="${escapeHTML(news.autor || "")}" onerror="this.style.display='none'">
+                            <p>${escapeHTML(news.autor || "")}</p>
                         </div>
+                        <p class="date">${dataFormatada}</p>
                     </div>
-                    <div class="novidade-body">
-                        ${parseDescription(news.conteudo)}
-                    </div>
-                </article>
-            `;
-        })
-        .catch(err => {
-            console.error("Erro ao carregar atualização:", err);
-            container.innerHTML = `<p style="color: red; text-align: center; padding: 20px;">Erro ao carregar atualização.</p>`;
+                </div>
+                <div class="novidade-body">
+                    ${parseDescription(news.conteudo)}
+                </div>
+            </article>
+        `;
+    };
+
+    const apiUrl = `/api/novidades_api.php?id=${id}`;
+    if (window.AppCache) {
+        AppCache.fetchWithCache('novidades_id_' + id, apiUrl, {
+            onCached: renderNewsArticle,
+            onFresh: renderNewsArticle,
+            onError: (err) => {
+                console.error("Erro ao carregar atualização:", err);
+                if (!container.children.length) {
+                    container.innerHTML = `<p style="color: red; text-align: center; padding: 20px;">Erro ao carregar atualização.</p>`;
+                }
+            }
         });
+    } else {
+        fetch(apiUrl)
+            .then(res => res.json())
+            .then(renderNewsArticle)
+            .catch(err => {
+                console.error("Erro ao carregar atualização:", err);
+                container.innerHTML = `<p style="color: red; text-align: center; padding: 20px;">Erro ao carregar atualização.</p>`;
+            });
+    }
 });

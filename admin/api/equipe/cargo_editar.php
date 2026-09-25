@@ -125,6 +125,9 @@ try {
 
     $pdo->commit();
 
+    require_once __DIR__ . "/../../../api/cache_helper.php";
+    invalidarCache('equipe');
+
     if ($isAjax) {
         header('Content-Type: application/json; charset=utf-8');
         echo json_encode([

@@ -89,6 +89,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                 $novoServidorId = (int)$pdo->lastInsertId();
                 garantirCategoriasPadraoWiki($pdo, $novoServidorId);
+
+                require_once __DIR__ . "/../../api/cache_helper.php";
+                invalidarCache('servidores');
+
                 header("Location: index.php");
                 exit;
             }

@@ -289,6 +289,7 @@ a {
     letter-spacing: -0.5px;
     color: var(--color-text-main);
     margin-bottom: 0.75rem;
+    width: fit-content;
 }
 
 .subtitle::after {
@@ -409,4 +410,342 @@ a {
         box-sizing: border-box;
     }
 }
+
+/* ==========================================================================
+   ESTRUTURA DE PÁGINAS E SEÇÕES (LAYOUT GLOBAL)
+   ========================================================================== */
+.page,
+.section {
+    box-sizing: border-box;
+}
+
+.page {
+    width: 100%;
+    max-width: 1240px;
+    margin: 0 auto;
+    padding: 20px 20px 50px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 40px;
+}
+
+.section {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 18px;
+    width: 100%;
+}
+
+.section-title {
+    margin: 0;
+    font-family: var(--font-main);
+    font-size: clamp(1.75rem, 3vw, 2.35rem);
+    font-weight: 800;
+    color: #FFFFFF;
+    letter-spacing: -0.5px;
+    line-height: 1.2;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    width: fit-content;
+}
+
+.section-title::after {
+    content: "";
+    display: block;
+    width: 42px;
+    height: 3px;
+    background: #38BDF8;
+    border-radius: 2px;
+}
+
+.section-lead {
+    margin: 0;
+    color: #94A3B8;
+    font-size: clamp(0.9rem, 1.1vw, 0.98rem);
+    line-height: 1.6;
+    max-width: 560px;
+}
+
+@media (min-width: 600px) {
+    .page {
+        max-width: 1264px;
+        padding: 30px 32px 60px 32px;
+        gap: 45px;
+    }
+}
+
+@media (min-width: 1024px) {
+    .page {
+        max-width: 1280px;
+        padding: 40px 40px 80px 40px;
+        gap: 55px;
+    }
+}
+
+/* ==========================================================================
+   SISTEMA DE BOTÕES E CTAS GLOBAIS
+   ========================================================================== */
+.cta-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    width: 100%;
+    max-width: 320px;
+    margin-top: 4px;
+}
+
+.cta-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.6rem;
+    padding: 0.8rem 1.6rem;
+    border-radius: 8px;
+    text-decoration: none;
+    color: #ffffff;
+    font-weight: 600;
+    font-size: 0.95rem;
+    font-family: inherit;
+    background-color: var(--border-color-1, #7DB9DF);
+    border: none;
+    cursor: pointer;
+    box-sizing: border-box;
+    transition: opacity 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
+}
+
+.cta-button:hover {
+    opacity: 0.9;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(125, 185, 223, 0.3);
+}
+
+.cta-button-primary {
+    background-color: #5865F2;
+    color: #ffffff;
+}
+
+.cta-button-primary:hover {
+    background-color: #4752c4;
+    box-shadow: 0 4px 15px rgba(88, 101, 242, 0.35);
+}
+
+.cta-button-secondary {
+    background-color: transparent;
+    color: #ffffff;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.cta-button-secondary:hover {
+    border-color: var(--color-accent, #7DB9DF);
+    color: var(--color-accent, #7DB9DF);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+@media (min-width: 600px) {
+    .cta-buttons {
+        flex-direction: row;
+        max-width: none;
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+
+    .cta-button {
+        width: auto;
+    }
+}
+
+/* ==========================================================================
+   ACORDEÕES GLOBAIS (FAQ / REGRAS / DETALHES)
+   ========================================================================== */
+.accordion-list,
+.faq-list,
+.regras-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    width: 100%;
+    max-width: 900px;
+    margin: 0 auto;
+    box-sizing: border-box;
+}
+
+.accordion-item,
+.faq-item,
+.regra-item {
+    background-color: #0b0f15;
+    border: 1.5px solid rgba(255, 255, 255, 0.08);
+    border-radius: 12px;
+    overflow: hidden;
+    transition: border-color 0.25s ease, background-color 0.25s ease, box-shadow 0.25s ease;
+    box-sizing: border-box;
+}
+
+.accordion-item:hover,
+.faq-item:hover,
+.regra-item:hover {
+    border-color: var(--color-accent, #7DB9DF);
+}
+
+.accordion-item[open],
+.faq-item[open],
+.regra-item[open] {
+    border-color: var(--color-accent, #7DB9DF);
+    box-shadow: 0 8px 24px -6px rgba(0, 0, 0, 0.4);
+}
+
+.accordion-item summary,
+.faq-item summary,
+.regra-item summary {
+    list-style: none;
+    cursor: pointer;
+    padding: 18px 22px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    font-family: var(--font-main);
+    font-weight: 700;
+    font-size: 1.02rem;
+    color: #FFFFFF;
+    user-select: none;
+    transition: background-color 0.2s ease;
+}
+
+.accordion-item summary::-webkit-details-marker,
+.faq-item summary::-webkit-details-marker,
+.regra-item summary::-webkit-details-marker {
+    display: none;
+}
+
+.accordion-item summary:hover,
+.faq-item summary:hover,
+.regra-item summary:hover {
+    background-color: rgba(125, 185, 223, 0.05);
+}
+
+.accordion-item summary::after,
+.faq-item summary::after,
+.regra-item summary::after {
+    content: "\f078";
+    font-family: "Font Awesome 6 Free";
+    font-weight: 900;
+    color: var(--color-accent, #7DB9DF);
+    font-size: 0.85rem;
+    transition: transform 0.25s ease;
+    flex-shrink: 0;
+}
+
+.accordion-item[open] summary::after,
+.faq-item[open] summary::after,
+.regra-item[open] summary::after {
+    transform: rotate(180deg);
+}
+
+.accordion-content,
+.accordion-answer,
+.faq-answer,
+.regra-answer {
+    padding: 16px 22px 20px 22px;
+    color: #c5c5c5;
+    line-height: 1.65;
+    font-size: 0.95rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.06);
+    margin: 0;
+}
+
+.accordion-content a,
+.accordion-answer a,
+.faq-answer a,
+.regra-answer a {
+    color: var(--color-accent, #7DB9DF);
+    text-decoration: underline;
+}
+
+/* ==========================================================================
+   BADGES E INDICADORES DE STATUS GLOBAIS
+   ========================================================================== */
+.pulse-dot {
+    width: 7px;
+    height: 7px;
+    background-color: #2ecc71;
+    border-radius: 50%;
+    display: inline-block;
+    box-shadow: 0 0 8px #2ecc71;
+    flex-shrink: 0;
+}
+
+.badge-status-online {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 3px 9px;
+    background-color: rgba(46, 204, 113, 0.12);
+    border: 1px solid rgba(46, 204, 113, 0.3);
+    border-radius: 6px;
+    color: #2ecc71;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* ==========================================================================
+   CORES E ÍCONES SOCIAIS COMPARTILHADOS
+   ========================================================================== */
+.social-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background-color: rgba(255, 255, 255, 0.06);
+    color: var(--color-text-muted, #94a3b8);
+    text-decoration: none;
+    font-size: 14px;
+    transition: transform 0.2s ease, background-color 0.2s ease, color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.social-link:hover {
+    color: #ffffff;
+}
+
+.social-yt:hover,
+.social-youtube:hover {
+    background-color: #FF0000 !important;
+    color: #ffffff !important;
+}
+
+.social-tiktok:hover {
+    background-color: #000000 !important;
+    box-shadow: 0 0 0 2px #25F4EE, 0 0 0 2px #FE2C55 !important;
+    color: #ffffff !important;
+}
+
+.social-instagram:hover,
+.social-insta:hover {
+    background: radial-gradient(circle at 30% 107%, #fdf497 0%, #fdf497 5%, #fd5949 45%, #d6249f 60%, #285AEB 90%) !important;
+    color: #ffffff !important;
+}
+
+.social-twitch:hover {
+    background-color: #9146FF !important;
+    color: #ffffff !important;
+}
+
+.social-kick:hover {
+    background-color: #53FC18 !important;
+    color: #000000 !important;
+}
+
+.social-discord:hover {
+    background-color: #5865F2 !important;
+    color: #ffffff !important;
+}
+
 

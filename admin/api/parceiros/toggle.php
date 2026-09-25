@@ -57,6 +57,9 @@ if (isset($pdo) && $pdo instanceof PDO) {
             $upd = $pdo->prepare("UPDATE parceiros SET ativo = :novo WHERE id = :id");
             $upd->execute([':novo' => $novoStatus, ':id' => $id]);
 
+            require_once __DIR__ . "/../../../api/cache_helper.php";
+            invalidarCache('parceiros');
+
             if ($isAjax) {
                 header('Content-Type: application/json; charset=utf-8');
                 echo json_encode(["success" => true, "ativo" => $novoStatus]);

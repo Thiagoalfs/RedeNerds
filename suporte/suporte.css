@@ -31,6 +31,7 @@
     margin: 0 auto 0 auto;
     display: flex;
     flex-direction: column;
+    align-items: center;
     gap: 12px;
 }
 
@@ -39,44 +40,6 @@
     font-size: 16px;
     line-height: 1.6;
     margin: 0;
-}
-
-/* ============================================
-   Subtítulo (corrige a borda esticada do common.css)
-   O .subtitle do common.css usa border-bottom 1px solid
-   que estica 100% da largura do pai. Aqui usamos
-   ::after com largura fixa + display:inline-block.
-   ============================================ */
-
-#canais-section .subtitle,
-#status-section .subtitle,
-#faq-section .subtitle,
-#dicas-section .subtitle,
-.suporte-intro .subtitle {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    width: auto;
-    padding: 0;
-    border-bottom: none;
-    position: relative;
-    margin: 0 0 20px 0;
-    gap: 8px;
-}
-
-#canais-section .subtitle::after,
-#status-section .subtitle::after,
-#faq-section .subtitle::after,
-#dicas-section .subtitle::after,
-.suporte-intro .subtitle::after {
-    content: "";
-    display: block;
-    width: 42px;
-    height: 3px;
-    background: #38BDF8;
-    border-radius: 2px;
-    position: static;
-    transform: none;
 }
 
 /* ============================================
@@ -91,25 +54,9 @@
     width: 100%;
 }
 
-/* Cabeçalho de cada seção (centered-content) */
-#canais-section > .centered-content,
-#status-section > .centered-content,
-#faq-section > .centered-content,
-#dicas-section > .centered-content {
-    display: block;
-    text-align: center;
-    width: 100%;
-    margin: 0 0 25px 0;
-    justify-content: flex-start;
-    gap: 10px;
-}
-
-/* <p> com max-width dentro de .centered-content — centraliza o bloco do parágrafo */
-#canais-section > .centered-content > p,
-#faq-section > .centered-content > p,
-#dicas-section > .centered-content > p {
-    margin-left: auto;
-    margin-right: auto;
+/* Espaçamento do cabeçalho de cada seção */
+#suporte-container .centered-content {
+    margin-bottom: 25px;
 }
 
 /* ============================================
@@ -213,85 +160,10 @@
 .canal-card-ticket .canal-card-cta { color: var(--border-color-2); }
 
 /* ============================================
-   FAQ
+   FAQ (Estilos base de .faq-item e .faq-answer herdados do shared.css)
    ============================================ */
-
 .faq-list {
-    display: block;
-    width: 100%;
-    max-width: 900px;
     margin: 0 auto;
-    box-sizing: border-box;
-}
-
-.faq-item {
-    background-color: var(--card-bg);
-    border: 1.5px solid var(--card-border);
-    border-radius: 10px;
-    overflow: hidden;
-    transition: border-color 0.3s ease;
-    margin-bottom: 14px;
-}
-
-.faq-item:last-child {
-    margin-bottom: 0;
-}
-
-.faq-item:hover {
-    border-color: var(--border-color-1);
-}
-
-.faq-item[open] {
-    border-color: var(--border-color-1);
-}
-
-.faq-item summary {
-    list-style: none;
-    cursor: pointer;
-    padding: 18px 22px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 16px;
-    font-weight: 600;
-    font-size: 16px;
-    user-select: none;
-    transition: background-color 0.2s ease;
-}
-
-.faq-item summary::-webkit-details-marker {
-    display: none;
-}
-
-.faq-item summary:hover {
-    background-color: rgba(125, 185, 223, 0.08);
-}
-
-.faq-item summary::after {
-    content: "\f078";
-    font-family: "Font Awesome 6 Free";
-    font-weight: 900;
-    color: var(--border-color-1);
-    transition: transform 0.3s ease;
-    flex-shrink: 0;
-}
-
-.faq-item[open] summary::after {
-    transform: rotate(180deg);
-}
-
-.faq-answer {
-    padding: 16px 22px 20px 22px;
-    color: var(--text-muted);
-    line-height: 1.6;
-    font-size: 15px;
-    border-top: 1px solid rgba(125, 185, 223, 0.12);
-    margin: 0;
-}
-
-.faq-answer a {
-    color: var(--border-color-1);
-    text-decoration: underline;
 }
 
 /* ============================================

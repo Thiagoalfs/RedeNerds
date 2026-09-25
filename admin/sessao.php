@@ -35,6 +35,12 @@ if (empty($_SESSION['csrf_token'])) {
 
 $csrfToken = $_SESSION['csrf_token'];
 
+// Rate limit preventivo para endpoints de API interna do painel
+if (stripos($_SERVER['REQUEST_URI'] ?? '', '/admin/api/') !== false) {
+    require_once __DIR__ . "/../api/rate_limiter.php";
+    exigirRateLimit('admin_api_action', 60, 60);
+}
+
 /**
  * Valida o token CSRF de requisições POST.
  * Retorna true se válido, ou encerra com 403 Forbidden caso inválido.
