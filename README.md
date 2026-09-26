@@ -22,12 +22,13 @@ Este é o **repositório de produção oficial** do site da Rede Nerds. Tudo o q
 
 O ecossistema combina páginas otimizadas com SEO completo e seções **dinâmicas alimentadas por APIs REST em PHP e banco de dados MySQL**:
 
-- 💎 **`loja/`** — Loja oficial com checkout transparente Mercado Pago (PIX automático, cupons de desconto, entrega automática in-game e webhooks no Discord).
-- 📚 **`wiki/`** — Central de tutoriais e documentação da comunidade com sumário dinâmico (ToC), busca instantânea, lightbox em imagens, callouts estilizados e navegação contínua.
-- 🖥️ **`servidores/`** e **Página Inicial** — Detalhes completos de cada servidor, downloads de modpack, cópia de IP em 1 clique e temas dinâmicos via `/api/servidores_api.php`.
-- 👥 **`equipe/`** — Listagem de membros da staff com hierarquia e cores personalizáveis, fallback inteligente de skins e carrossel mobile via `/api/equipe_api.php`.
-- 📰 **`novidades/`** — Notícias e changelogs com paginação, busca, filtros e tags coloridas por servidor via `/api/novidades_api.php`.
-- ⚙️ **`admin/`** — Painel administrativo moderno com sidebar fixa, rate limiting contra força bruta, gestão de vendas, cupons, servidores, notícias, equipe e wiki.
+- **`loja/`** — Loja oficial com checkout transparente (PIX Mercado Pago, Cartão de Crédito e Checkout Internacional), catálogo dinâmico de **VIPs e Pacotes de Chaves**, seletor dinâmico de quantidade, validação de preços **Zero-Trust**, cupons de desconto, entrega automática in-game com payload JSON padronizado e webhooks no Discord.
+- **`wiki/`** — Central de tutoriais e documentação da comunidade com sumário dinâmico (ToC), busca instantânea, lightbox em imagens, callouts estilizados e navegação contínua.
+- **`servidores/`** e **Página Inicial** — Detalhes completos de cada servidor, downloads de modpack, cópia de IP em 1 clique, vitrine de parceiros e temas dinâmicos via `/api/servidores_api.php`.
+- **`equipe/`** — Listagem de membros da staff com hierarquia e cores personalizáveis, renderização segura contra XSS, fallback inteligente de skins e carrossel mobile via `/api/equipe_api.php`.
+- **`novidades/`** — Notícias e changelogs com paginação, busca, filtros e tags coloridas por servidor via `/api/novidades_api.php`.
+- **`admin/`** — Painel administrativo moderno com sidebar fixa, rate limiting contra força bruta, gestão de vendas, cupons, catálogo de VIPs e Chaves (com upload de imagens), parceiros, servidores, notícias, equipe e wiki.
+- **`tests/`** — Suíte completa de testes automatizados cobrindo segurança, anti-spoofing de IP, geolocalização, idempotência transacional, atomicidade de webhooks e lógica de cálculo de pacotes.
 
 ---
 
@@ -36,144 +37,169 @@ O ecossistema combina páginas otimizadas com SEO completo e seções **dinâmic
 ```
 RedeNerds/
 ├── .github/workflows/   # Automação de deploy contínuo (CI/CD)
-├── admin/               # Painel Administrativo completo (Dashboard, Vendas, Cupons, Wiki, Equipe, Notícias, Servidores)
+├── admin/               # Painel Administrativo completo
 │   ├── api/             # Endpoints internos protegidos do painel (CRUDs, uploads e ações)
+│   │   ├── chaves/      # Endpoints para criação, edição e exclusão de pacotes de chaves
+│   │   ├── cupons/      # Endpoints para controle de cupons promocionais
+│   │   ├── equipe/      # Endpoints para gestão de cargos e membros da staff
+│   │   ├── noticias/    # Endpoints para publicação de notícias e webhook Discord
+│   │   ├── parceiros/   # Endpoints para gerenciamento de parceiros da rede
+│   │   ├── pedidos/     # Endpoints para consulta e exportação de pedidos
+│   │   ├── servidores/  # Endpoints para gestão de servidores e temas
+│   │   ├── vips/        # Endpoints para catálogo de VIPs
+│   │   └── wiki/        # Endpoints para artigos e categorias da Wiki
+│   ├── chaves/          # Gestão de pacotes de chaves com upload de imagem e preview
 │   ├── cupons/          # Gestão de cupons de desconto (percentual / fixo)
 │   ├── equipe/          # Gestão de membros e hierarquia/cores de cargos
 │   ├── includes/        # Componentes compartilhados do admin (Header, Sidebar fixa, Footer, Toolbar)
 │   ├── noticias/        # Gestão de novidades com upload WebP e Discord Webhook
-│   ├── pedidos/         # Histórico de pedidos e exportação CSV compatível com Excel
+│   ├── parceiros/       # Gestão completa de parceiros e banners
+│   ├── pedidos/         # Histórico de pedidos (VIPs e Chaves) e exportação CSV compatível com Excel
 │   ├── servidores/      # Gestão de servidores e temas
 │   ├── vips/            # Gestão do catálogo de pacotes VIP
 │   └── wiki/            # Gestão de artigos, categorias e editor Markdown com upload de imagens
 ├── api/                 # Endpoints REST públicos e protegidos em PHP
-│   ├── loja/            # APIs de checkout PIX, validação de cupons, webhooks e entrega automática
+│   ├── loja/            # APIs de checkout (PIX, Cartão, Internacional), cupons, webhooks e entrega
 │   ├── wiki/            # API da Wiki com busca, artigos e categorias
-│   └── auth_api.php     # Middleware de controle de acesso (Same-Origin & API Key)
-├── assets/              # Recursos visuais (imagens, ícones, capas WebP e uploads)
+│   ├── auth_api.php     # Middleware de controle de acesso (Same-Origin & API Key)
+│   ├── equipe_api.php   # API pública de membros da equipe
+│   ├── novidades_api.php# API pública de notícias com paginação e busca
+│   └── servidores_api.php# API pública de servidores e temas
+├── assets/              # Recursos visuais (imagens, ícones 3D de redes sociais, capas e uploads)
+│   ├── images/          # Ícones 3D oficiais (Instagram, TikTok, YouTube, CurseForge, Discord) e banners
+│   └── servidores/      # Ícones oficiais dos servidores da rede
 ├── download/            # Página de download (launchers, modpacks, etc.)
-├── equipe/              # Página pública da equipe (grid desktop e carrossel mobile)
+├── equipe/              # Página pública da equipe (grid desktop, carrossel mobile e anti-XSS)
 ├── errors/404/          # Página 404 personalizada
-├── loja/                # Página Oficial da Loja (painel VIPs & checkout PIX interativo)
+├── loja/                # Página Oficial da Loja (painel VIPs & Chaves, checkout interativo)
+├── migrations/          # Scripts SQL versionados de atualização estrutural do banco de dados
 ├── novidades/           # Página pública de notícias e artigos individuais
 ├── regras/              # Regras da comunidade e dos servidores
 ├── servidores/          # Página detalhada de cada servidor com specs e download
-├── shared/              # Componentes globais (navbar, footer, modal loja, estilos compartilhados)
+├── shared/              # Componentes globais (navbar, footer com redes sociais 3D, modais)
+├── sobre/               # Página institucional sobre a história e valores da Rede Nerds
 ├── suporte/             # Central de ajuda / FAQ / suporte aos jogadores
+├── tests/               # Suíte de testes unitários e de integração (100% automatizados)
 ├── wiki/                # Central de Guias & Wiki pública
-├── index.html           # Página inicial (Landing Page)
-├── index.css            # Estilos da home
-└── .htaccess            # Configurações do servidor Apache, compressão e cache
+├── index.html           # Página inicial (Landing Page com vitrine de servidores, parceiros e Discord)
+├── index.css            # Estilos da landing page
+├── robots.txt           # Diretrizes de indexação SEO e proteção de rotas privadas
+└── .htaccess            # Configurações do servidor Apache, compressão, segurança e cache
 ```
 
 ---
 
-## 💎 Loja Oficial & Checkout PIX Automático (`loja/`)
+## 💎 Loja Oficial & Checkout Multi-Gateway (`loja/`)
 
-A loja da Rede Nerds possui checkout transparente e automatizado para pacotes VIP:
+A loja da Rede Nerds conta com uma infraestrutura de checkout transparente, robusta e modular:
 
-1. **Identificação do Jogador:** Validação de nickname (Original vs Pirata) com preview dinâmico de avatar via API de skins.
-2. **Catálogo Conectado aos Servidores:** Pacotes VIP vinculados dinamicamente à tabela `servidores`, respeitando servidores ativos (`enabled = 1`) e suas cores temáticas.
-3. **Cupons de Desconto:** Validação em tempo real de cupons promocionais (`/api/loja/validar_cupom.php`) com suporte a desconto percentual (%) ou fixo (R$), limite de uso e valor mínimo.
-4. **Gateway Mercado Pago (PIX):** Geração instantânea de QR Code Base64 e código PIX Copia e Cola.
-5. **Verificação em Tempo Real (Polling & Webhook):** Consulta de aprovação a cada 3 segundos com tela de sucesso imediata e recebimento de Webhook oficial.
-6. **Entrega Automática nos Servidores (`api/loja/delivery_helper.php`):** Despacho imediato dos comandos de ativação do VIP para o plugin de entregas nos servidores de Minecraft via HTTP API.
-7. **Discord Webhooks:** Notificações formatadas no canal financeiro/loja com dados do pedido, jogador, servidor, cupom aplicado e comprovante.
+### 1. Catálogo Dinâmico de Produtos
+- **Abas de Categorias (VIPs & Chaves):** Alternância fluida entre pacotes VIP e pacotes de chaves (keys/caixas), respeitando servidores ativos (`enabled = 1`) e suas respectivas identidades visuais.
+- **Seletor Dinâmico de Quantidade:** Interface com botões incrementais (`-`/`+`), cálculo de subtotal em tempo real no frontend e campo numérico interativo.
+- **Identificação do Jogador:** Validação de nickname (Original vs Pirata) com preview dinâmico de avatar via API de skins.
+
+### 2. Validação Zero-Trust & Segurança no Backend
+- **Cálculo de Preço no Servidor:** O frontend envia apenas o `vip_id` (ou `chave_id`) e a `quantidade`. O backend busca o preço unitário oficial no banco de dados e recalcula o valor total, prevenindo manipulação de payload.
+- **Sanitização & Clamping:** Proteção contra quantidades inválidas, negativas ou excessivas (limite parametrizado de 1 a 100 unidades por compra).
+- **Idempotência de Cupons:** O desconto do cupom só é debitado/incrementado uma única vez após a confirmação irreversível do pagamento.
+
+### 3. Gateways & Detecção Inteligente de Localidade
+- **PIX Mercado Pago:** Geração instantânea de QR Code Base64 e código Copia e Cola com polling assíncrono a cada 3 segundos.
+- **Cartão de Crédito:** Checkout transparente via Tokenização Mercado Pago.
+- **Checkout Internacional:** Suporte a pagamentos globais com redirecionamento otimizado.
+- **Detecção de Localidade (`geo_helper.php` & `ip_helper.php`):** Identificação automática de jogadores nacionais ou internacionais combinando headers `CF-IPCountry`, fuso horário e idioma do navegador, com mitigação ativa de *IP spoofing*.
+
+### 4. Entrega Automática & Notificações
+- **Transição Atômica de Status:** Verificação de concorrência (`UPDATE ... WHERE status = 'pendente'`) garantindo que apenas um worker processe a entrega, prevenindo duplicações.
+- **Payload JSON Padronizado (`delivery_helper.php`):** Despacho padronizado para o endpoint de entrega configurado em `delivery_api_url` no `config.php`:
+  ```json
+  {
+    "tipo": "vip|chave",
+    "produto": "Nome do Pacote",
+    "quantidade": 1,
+    "nick": "PlayerName",
+    "servidor": "Survival",
+    "txid": "MP-1234567890",
+    "valor": 29.90,
+    "data": "2026-09-25T22:00:00Z"
+  }
+  ```
+- **Discord Webhooks:** Notificações formatadas no canal financeiro com dados completos da transação, jogador, servidor, método de pagamento, cupom aplicado e comprovante.
 
 ```mermaid
-%%{init: {'themeVariables': {'fontSize': '18px'}}}%%
-flowchart LR
-    A["Jogador insere Nick & Servidor"] --> B["Escolhe pacote VIP & Aplica Cupom"]
-    B --> C["API gera PIX no Mercado Pago"]
-    C --> D["Exibe QR Code & Copia e Cola"]
-    D --> E["Polling / Webhook detecta pagamento"]
-    E --> F["Notificação enviada ao Discord"]
-    E --> G["Entrega Automática no Servidor (API/Plugin)"]
-    E --> H["Tela de Confirmação & Ativação"]
+%%{init: {'themeVariables': {'fontSize': '16px'}}}%%
+flowchart TD
+    A["Jogador seleciona Categoria (VIP / Chaves) & Quantidade"] --> B["Insere Nick & Aplica Cupom Promocional"]
+    B --> C["Backend valida com Zero-Trust (Recalcula Preço Unitário no Banco)"]
+    C --> D{"Método Escolhido"}
+    D -->|"PIX"| E["QR Code Mercado Pago & Polling"]
+    D -->|"Cartão"| F["Processamento Direto Mercado Pago"]
+    D -->|"Internacional"| G["Checkout Global"]
+    E & F & G --> H["Webhook / Checar Status com Transição Atômica"]
+    H --> I["Incremento Idempotente de Cupom"]
+    H --> J["Entrega Automática nos Servidores (Payload JSON)"]
+    H --> K["Notificação Rica no Discord Webhook"]
+    H --> L["Confirmação Instantânea na Tela do Jogador"]
 ```
 
 ---
 
-## 📚 Central de Wiki & Guias da Comunidade (`wiki/`)
+## 🧪 Suíte de Testes Automatizados (`tests/`)
 
-O sistema de Wiki oferece uma experiência de documentação completa e rica para os jogadores:
+O projeto conta com uma suíte de testes unitários e de integração em PHP para garantir a estabilidade e segurança das rotas críticas:
 
-* **Busca Instantânea & Filtros:** Pesquisa em tempo real com destaque (*highlight*) de termos e filtro por categorias.
-* **Sumário Dinâmico (ToC):** Índice lateral gerado automaticamente a partir dos títulos (`H2`, `H3`) do artigo com *Scroll Spy* ativo.
-* **Caixas de Aviso Estilizadas (*Gamer Callouts*):** Formatações visuais exclusivas para dicas, avisos importantes e notas de perigo/cuidado.
-* **Lightbox de Imagens:** Clique em qualquer imagem de artigo para abrir o visualizador com zoom em tela cheia.
-* **Navegação Contínua:** Botões inteligentes de "Artigo Anterior" e "Próximo Artigo" ao final de cada guia.
-* **Editor Markdown no Painel Admin (`admin/wiki/`):**
-  * Barra de ferramentas rápida (*Markdown Toolbar*) para inserção de negrito, listas, títulos, código e callouts em 1 clique.
-  * Upload direto de imagens com conversão e inserção imediata no texto.
-  * Gerenciamento de categorias com contadores de artigos e hierarquia.
-  * Notificações automáticas no Discord na publicação de novos tutoriais.
+```bash
+php -d zend.assertions=1 -d assert.exception=1 tests/run_all_tests.php
+```
 
----
-
-## 👥 Página da Equipe & Staff (`equipe/`)
-
-* **Identidade Visual por Cargo:** Nametags com gradientes e barras temáticas exclusivas para cada hierarquia:
-  * 🔵 **Fundadores** (Azul)
-  * 🟡 **Gerentes / Diretores** (Amarelo)
-  * 🩵 **Coordenadores** (Azul Bebê)
-  * 🔴 **Administradores** (Vermelho)
-  * 🟢 **Moderadores** (Verde)
-  * 🟠 **Designers** (Laranja)
-  * 🟣 **Desenvolvedores** (Roxo)
-* **Gerenciamento de Hierarquia no Painel Admin (`admin/equipe/manage.php`):** Criação e edição de cargos com seletor de cor Hexadecimal, preview dinâmico em tempo real e ordenação.
-* **Atalho Rápido de Membros:** Botão de `+ Adicionar` direto no cabeçalho de cada categoria na listagem admin com pré-seleção automática do cargo.
-* **Carrossel Mobile Inteligente:** No celular, categorias com mais de 3 membros se transformam automaticamente em um carrossel horizontal suave com *scroll snap* e setas de navegação.
-* **Fallback Anti-Falha:** Caso a API de skins esteja indisponível, o sistema carrega automaticamente a skin padrão do Steve sem quebrar o layout.
-
----
-
-## 📰 Notícias & Novidades (`novidades/`)
-
-* **Badges e Destaques por Servidor:** Tags de categoria coloridas com estilo *pill badge* translúcido para cada servidor da rede (`CobbleNerd`, `NerdSky`, `Potato Nerd`, `NerdDead`, `Sistemas`, `Potato Sky`).
-* **Artigos Individuais:** Página dedicada com cabeçalho colorido dinamicamente conforme a categoria, renderização Markdown, tempo de leitura e informações do autor.
-* **Filtros e Paginação:** Busca instantânea por termos e filtro por servidores com pontos de identificação coloridos.
-
----
-
-## 🖥️ Página de Detalhes dos Servidores (`servidores/`)
-
-* **Hero Banner Dinâmico:** Ícone oficial do servidor, status de conexão `🟢 ONLINE`, e caixa de cópia rápida de IP com botão 1-clique.
-* **Layout Gamer 2 Colunas:** Divisão clara entre a história/descrição do servidor, grade de recursos/vantagens e sidebar lateral com especificações técnicas (*Plataforma, Modloader, Proteção*).
-* **Integração com Modpack & Loja:** Botão direto de download do modpack e atalho para os pacotes VIP do servidor específico.
+| Suíte de Teste | Arquivo | O que valida |
+| :--- | :--- | :--- |
+| **Resolução de IP** | `ip_helper_test.php` | Validação de CIDR Cloudflare IPv4, detecção de conexão direta e mitigação de spoofing de IP via headers forjados. |
+| **Detecção de Localidade** | `localidade_test.php` | Classificação correta entre comprador nacional e internacional combinando sinais do navegador e `CF-IPCountry`. |
+| **Idempotência de Cupom** | `cupom_idempotencia_test.php` | Garante que múltiplos webhooks ou consultas não incrementem o contador de uso do cupom mais de uma vez. |
+| **Atomicidade de Transição** | `webhook_atomicidade_test.php` | Impede condições de corrida (race conditions) e entregas duplicadas em requisições simultâneas de webhook. |
+| **Proteção contra Falha 503** | `sem_token_503_test.php` | Resposta segura HTTP 503 e bloqueio de criação de pedidos no banco em caso de credenciais ausentes ou inválidas. |
+| **Zero-Trust de Chaves** | `chaves_loja_test.php` | Validação de clamping de quantidades, cálculo de valores com cupons no servidor e integridade do payload de entrega. |
 
 ---
 
 ## ⚙️ Painel Administrativo (`admin/`)
 
-O painel administrativo centraliza toda a gestão do site com proteção contra força bruta (**Rate Limiting** na tabela `tentativas_login`), sidebar lateral fixa com rolagem independente e layout responsivo:
+O painel administrativo centraliza toda a gestão do ecossistema com proteção contra força bruta (**Rate Limiting** via tabela `tentativas_login`), layout responsivo e sidebar fixa:
 
-### 1. 📊 Pedidos & Exportação de Vendas (`admin/pedidos/`)
-* Listagem completa de transações com status (`aprovado`, `pendente`, `cancelado`), valor, servidor e nick do jogador.
-* Modal de detalhes do pedido com histórico, txid, cupom utilizado e logs de entrega.
-* Exportação em **CSV compatível com Microsoft Excel** com filtros de período e opção de "Apenas Aprovados".
+### 1. Pedidos & Vendas (`admin/pedidos/`)
+- Listagem de transações (VIPs e Chaves) com filtros por status (`aprovado`, `pendente`, `cancelado`), servidor e nick.
+- Modal com histórico detalhado, txid, payload de entrega e cupom utilizado.
+- Exportação em **CSV compatível com Microsoft Excel** com filtros avançados.
 
-### 2. 🏷️ Gerenciador de Cupons (`admin/cupons/`)
-* Criação de códigos promocionais com desconto em porcentagem (%) ou valor fixo (R$).
-* Configuração de limite máximo de usos, validade e valor mínimo do carrinho.
-* Ativação/desativação rápida com 1 clique (`toggle`).
+### 2. Gerenciador de Chaves (`admin/chaves/`)
+- Cadastro, edição e exclusão de pacotes de chaves/keys por servidor.
+- Upload de imagens com preview instantâneo.
+- Configuração de quantidade base, preço unitário e comandos de ativação in-game.
 
-### 3. 📚 Gestão da Wiki (`admin/wiki/`)
-* CRUD completo de artigos e categorias.
-* Editor Markdown com preview, toolbar e upload de imagens.
+### 3. Gerenciador de Cupons (`admin/cupons/`)
+- Criação de cupons promocionais com desconto percentual (%) ou valor fixo (R$).
+- Controle de limite de usos, data de validade e valor mínimo de compra.
+- Ativação/desativação rápida com 1 clique (`toggle`).
 
-### 4. 📰 Gerenciador de Notícias (`admin/noticias/`)
-* Criação e edição com Markdown e seleção do autor.
-* Upload de capas em formato **WebP** com nomes em hash (anti-colisão).
-* Integração Discord Webhook com publicação, edição e exclusão de mensagens no Discord via Message ID.
+### 4. Gerenciador de VIPs (`admin/vips/`)
+- Cadastro de planos VIP vinculados a servidores com definição de vantagens, duração e preços.
 
-### 5. 🖥️ Gerenciador de Servidores (`admin/servidores/`)
-* Cadastro completo: nome, IP, link do modpack, descrição e lista dinâmica de features.
-* Cor do tema (`themecolor`) que alimenta os cards em todo o site.
+### 5. Gerenciador de Parceiros (`admin/parceiros/`)
+- Cadastro completo de parceiros, banners, links externos e ordenação para exibição na home.
 
-### 6. 👥 Gerenciador de Equipe (`admin/equipe/`)
-* Adição e edição de membros com atalho por cargo.
-* Painel de hierarquia de cargos com seletor de cores HEX.
+### 6. Gestão da Wiki (`admin/wiki/`)
+- CRUD completo de artigos e categorias.
+- Editor Markdown com preview em tempo real, toolbar e upload de imagens com compressão.
+
+### 7. Gerenciador de Notícias (`admin/noticias/`)
+- Criação e edição de novidades em Markdown com seleção de autor.
+- Upload de capas em formato **WebP** com hash anti-colisão.
+- Integração bidirecional com Discord Webhook (publicação, edição e remoção de posts via Message ID).
+
+### 8. Gerenciador de Servidores (`admin/servidores/`) & Equipe (`admin/equipe/`)
+- Cadastro de servidores, IPs, links de modpack, temas visuais (`themecolor`) e lista de features.
+- Gestão de membros da equipe com hierarquia visual e seletor de cores Hexadecimal.
 
 ---
 
@@ -181,40 +207,35 @@ O painel administrativo centraliza toda a gestão do site com proteção contra 
 
 | Endpoint | Método | Descrição |
 | :--- | :---: | :--- |
-| `/api/novidades_api.php` | `GET` | Busca notícias com suporte a paginação, busca (`?q=`) e filtros |
+| `/api/novidades_api.php` | `GET` | Busca notícias com suporte a paginação, busca (`?q=`) e filtros de servidor |
 | `/api/wiki/artigos.php` | `GET` | Busca e listagem de artigos da Wiki com filtros de categoria |
 | `/api/wiki/categorias.php` | `GET` | Retorna categorias ativas da Wiki com contadores de artigos |
-| `/api/equipe_api.php` | `GET` | Retorna membros da equipe agrupados por cargo |
+| `/api/equipe_api.php` | `GET` | Retorna membros da equipe agrupados por cargo com sanitização anti-XSS |
 | `/api/servidores_api.php` | `GET` | Retorna servidores habilitados com cores e ícones processados |
-| `/api/loja/vips_api.php` | `GET` | Catálogo de pacotes VIP filtrados por servidores com `enabled = 1` |
-| `/api/loja/validar_cupom.php` | `POST` | Valida código de cupom de desconto para o checkout |
-| `/api/loja/criar_pix.php` | `POST` | Cria cobrança PIX via Mercado Pago e registra pedido no banco |
-| `/api/loja/checar_status.php` | `GET` | Consulta status do pagamento PIX em tempo real |
-| `/api/loja/webhook_mercadopago.php` | `POST` | Recebimento assíncrono de notificações de pagamento do gateway |
+| `/api/loja/vips_api.php` | `GET` | Catálogo de produtos (VIPs e Chaves) filtrados por servidores ativos |
+| `/api/loja/validar_cupom.php` | `POST` | Valida código de cupom de desconto em tempo real |
+| `/api/loja/criar_pix.php` | `POST` | Cria cobrança PIX via Mercado Pago com validação zero-trust de valor |
+| `/api/loja/criar_cartao.php` | `POST` | Processa pagamento via cartão de crédito transparente |
+| `/api/loja/criar_checkout_internacional.php` | `POST` | Inicia fluxo de checkout para compradores internacionais |
+| `/api/loja/checar_status.php` | `GET` | Consulta status do pagamento em tempo real com entrega sob demanda |
+| `/api/loja/cancelar_pedido.php` | `POST` | Cancela pedido pendente e libera recursos |
+| `/api/loja/webhook_mercadopago.php` | `POST` | Recebimento assíncrono e atômico de notificações de pagamento |
+| `/api/loja/localidade.php` | `GET` | Retorna a localidade sugerida (nacional ou internacional) do visitante |
 
-### 🔐 Segurança e Autenticação (`api/auth_api.php`)
-* **Requisições Internas (Site):** Requisições originadas do próprio domínio (`redenerds.com.br` ou `localhost`) têm acesso liberado de forma transparente.
-* **Requisições Externas (Plugins/Servidores):** Exigem autenticação via Header `X-API-Key` ou parâmetro `?api_key=`, validado contra `API_SECRET_KEY` configurado em `config.php`.
-
----
-
-## 🔍 SEO e Redes Sociais
-
-Todas as páginas públicas possuem meta tags completas configuradas para motores de busca e pré-visualização rica em plataformas como Discord, WhatsApp, Twitter/X e Facebook:
-* **Open Graph:** `og:title`, `og:description`, `og:image`, `og:url`, `og:type` e `og:locale`.
-* **Twitter Cards:** `twitter:card: summary_large_image`, `twitter:title`, `twitter:description` e `twitter:image`.
-* **Favicons:** Ícone oficial padronizado em todas as páginas públicas e no painel administrativo.
+### Segurança e Autenticação (`api/auth_api.php`)
+- **Requisições Internas (Site):** Requisições originadas do próprio domínio têm acesso liberado de forma transparente via verificação de origem.
+- **Requisições Externas (Plugins/Servidores):** Exigem autenticação via Header `X-API-Key` ou parâmetro `?api_key=`, validado contra `API_SECRET_KEY` configurado em `config.php`.
 
 ---
 
-## 🛠️ Stack
+## 🛠️ Stack Tecnológica
 
-- **HTML5 & CSS3** — Interface responsiva, design mobile-first, tipografia Poppins e paleta escura sólida
-- **JavaScript (ES6+)** — Consumo assíncrono de APIs, carrossel por gestos, engine de checkout PIX e visualizador Lightbox
-- **PHP 8+** — APIs REST, controladores administrativos, integração Mercado Pago, Discord Webhooks e entrega nos servidores
-- **MySQL / MariaDB** — Banco de dados relacional com colunas geradas (`STORED`) e compatibilidade universal PDO/MySQLi
-- **GitHub Actions** — CI/CD com automação de deploy contínuo para produção
-- **Apache (.htaccess)** — Cabeçalhos de segurança, cache e regras de roteamento
+- **Frontend:** HTML5, CSS3 moderno (design responsivo, paleta escura sólida, variáveis CSS), JavaScript (ES6+ assíncrono, sanitização DOM, carrossel touch).
+- **Backend:** PHP 8+ com tipagem estrita (`declare(strict_types=1)`), PDO/MySQLi, cURL e tratamento de exceções.
+- **Banco de Dados:** MySQL / MariaDB com constraints relacionais, índices únicos em transações (`txid`) e suporte a migrations versionadas.
+- **Gateways & APIs:** Mercado Pago SDK/REST API, Discord Webhooks API, Minecraft Skins API.
+- **Qualidade & Segurança:** Suíte de testes automatizados com PHP Assertions, rate limiting de login, sanitização XSS, anti-spoofing Cloudflare e validação Zero-Trust.
+- **Infraestrutura:** Servidor Apache com `.htaccess` otimizado (gzip, cache headers, rewrite rules) e GitHub Actions para CI/CD.
 
 ---
 
@@ -222,7 +243,8 @@ Todas as páginas públicas possuem meta tags completas configuradas para motore
 
 1. Abra uma [issue](https://github.com/Thiagoalfs/RedeNerds/issues) descrevendo o problema ou sugestão.
 2. Crie uma branch a partir da `main` e envie um Pull Request.
-3. Evite alterações diretas na `main` sem revisão, pois ela reflete diretamente o ambiente de produção.
+3. Certifique-se de que todos os testes passem executando `php -d zend.assertions=1 -d assert.exception=1 tests/run_all_tests.php`.
+4. Evite alterações diretas na `main` sem revisão, pois ela reflete diretamente o ambiente de produção.
 
 ---
 
