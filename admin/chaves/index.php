@@ -1,6 +1,6 @@
 <?php
 $paginaAtiva = 'chaves';
-$tituloPagina = 'Pacotes de Chaves';
+$tituloPagina = 'Pacotes';
 require_once __DIR__ . "/../includes/admin_header.php";
 
 // Auto-criação da tabela e colunas se não existirem
@@ -103,12 +103,12 @@ try {
 
 <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-3">
     <div>
-        <h4 class="fw-bold mb-1">Pacotes de Chaves da Loja</h4>
-        <p class="text-muted small mb-0"><span data-item-counter><?php echo count($chaves); ?> pacote(s)</span> de Chaves cadastrado(s)</p>
+        <h4 class="fw-bold mb-1">Pacotes da Loja</h4>
+        <p class="text-muted small mb-0"><span data-item-counter><?php echo count($chaves); ?> pacote(s)</span> cadastrado(s)</p>
     </div>
     <div class="d-flex gap-2">
         <a href="/loja/" target="_blank" class="btn btn-outline-secondary btn-sm"><i class="fa-solid fa-arrow-up-right-from-square me-1"></i> Ver Loja</a>
-        <a href="criar.php<?php echo $filtroServidor ? '?servidor=' . urlencode($filtroServidor) : ''; ?>" class="btn btn-success btn-sm"><i class="fa-solid fa-plus me-1"></i> Novo Pacote de Chaves</a>
+        <a href="criar.php<?php echo $filtroServidor ? '?servidor=' . urlencode($filtroServidor) : ''; ?>" class="btn btn-success btn-sm"><i class="fa-solid fa-plus me-1"></i> Novo Pacote</a>
     </div>
 </div>
 
@@ -157,7 +157,7 @@ try {
                 <thead>
                     <tr>
                         <th style="width: 160px;">Servidor</th>
-                        <th>Pacote de Chaves</th>
+                        <th>Pacote</th>
                         <th style="width: 160px;">Package ID</th>
                         <th style="width: 140px;">Preço Unitário</th>
                         <th style="width: 110px;">Status</th>
@@ -168,7 +168,7 @@ try {
                     <?php if (empty($chaves)): ?>
                         <tr>
                             <td colspan="6" class="text-center py-4 text-muted">
-                                Nenhum pacote de chaves encontrado<?php echo $filtroServidor ? ' para o servidor selecionado' : ''; ?>. Clique em "+ Novo Pacote de Chaves" para cadastrar.
+                                Nenhum pacote encontrado<?php echo $filtroServidor ? ' para o servidor selecionado' : ''; ?>. Clique em "+ Novo Pacote" para cadastrar.
                             </td>
                         </tr>
                     <?php else: ?>

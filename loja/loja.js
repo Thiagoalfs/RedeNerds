@@ -91,7 +91,7 @@
       btnRetryVips.addEventListener('click', carregarCatalogoVips);
     }
 
-    // Stepper de Quantidade de Chaves no Modal
+    // Stepper de Quantidade de Pacotes no Modal
     const btnQtyMinus = document.getElementById('btn-qty-minus');
     const btnQtyPlus = document.getElementById('btn-qty-plus');
     if (btnQtyMinus) {
@@ -437,7 +437,7 @@
           <i class="fa-solid fa-gem"></i> <span>Pacotes VIP</span>
         </button>
         <button type="button" class="category-tab ${isChavesActive ? 'active' : ''}" data-category="chaves" role="tab" aria-selected="${isChavesActive ? 'true' : 'false'}">
-          <i class="fa-solid fa-key"></i> <span>Pacotes de Chaves</span>
+          <i class="fa-solid fa-key"></i> <span>Pacotes</span>
         </button>
       `;
       navBox.innerHTML = html;
@@ -496,7 +496,7 @@
 
     if (itemsList.length === 0) {
       const msgVazio = isChavesCat 
-        ? 'Nenhum pacote de chaves cadastrado para este servidor no momento.'
+        ? 'Nenhum pacote cadastrado para este servidor no momento.'
         : 'Nenhum pacote VIP cadastrado para este servidor no momento.';
       cardsHtml = `
         <div class="state-feedback" style="grid-column: 1 / -1;">
@@ -724,7 +724,7 @@
 
     pararPollingPix();
 
-    if (headerTitle) headerTitle.textContent = (tipoProduto === 'chave') ? 'Finalizar Compra de Chaves' : 'Finalizar Compra';
+    if (headerTitle) headerTitle.textContent = (tipoProduto === 'chave') ? 'Finalizar Compra de Pacotes' : 'Finalizar Compra';
     if (orderSummaryBox) orderSummaryBox.hidden = false;
     if (couponBox) couponBox.hidden = false;
     if (methodsNav) methodsNav.hidden = false;

@@ -130,18 +130,45 @@ $mostrarPaginacao = $mostrarPaginacao ?? false;
 
 <!-- PAGINAÇÃO (QUANDO HABILITADA) -->
 <?php if ($mostrarPaginacao && isset($totalPaginas) && $totalPaginas > 1): ?>
+    <?php
+    // Monta a URL de uma página preservando os filtros ativos
+    $urlPagina = function ($p) use ($filtroServidor, $filtroStatus, $filtroMetodo, $busca) {
+        return '?page=' . (int)$p
+            . '&servidor=' . urlencode($filtroServidor ?? '')
+            . '&status=' . urlencode($filtroStatus ?? '')
+            . '&metodo=' . urlencode($filtroMetodo ?? '')
+            . '&busca=' . urlencode($busca ?? '');
+    };
+
+    // Janela de páginas visíveis: 3 primeiras + página atual (se fora da janela) + última
+    $paginasVisiveis = [1, 2, 3];
+    if ($pagina > 3 && $pagina < $totalPaginas) {
+        $paginasVisiveis[] = (int)$pagina;
+    }
+    $paginasVisiveis[] = $totalPaginas;
+    $paginasVisiveis = array_values(array_unique(array_filter($paginasVisiveis, function ($p) use ($totalPaginas) {
+        return $p >= 1 && $p <= $totalPaginas;
+    })));
+    sort($paginasVisiveis);
+    ?>
     <nav class="d-flex justify-content-center mt-3">
         <ul class="pagination pagination-sm">
             <li class="page-item <?php echo ($pagina <= 1) ? 'disabled' : ''; ?>">
-                <a class="page-link" href="?page=<?php echo max(1, $pagina - 1); ?>&servidor=<?php echo urlencode($filtroServidor ?? ''); ?>&status=<?php echo urlencode($filtroStatus ?? ''); ?>&metodo=<?php echo urlencode($filtroMetodo ?? ''); ?>&busca=<?php echo urlencode($busca ?? ''); ?>">‹ Anterior</a>
+                <a class="page-link" href="<?php echo $urlPagina(max(1, $pagina - 1)); ?>">‹ Anterior</a>
             </li>
-            <?php for ($i = 1; $i <= $totalPaginas; $i++): ?>
-                <li class="page-item <?php echo ($i === $pagina) ? 'active' : ''; ?>">
-                    <a class="page-link" href="?page=<?php echo $i; ?>&servidor=<?php echo urlencode($filtroServidor ?? ''); ?>&status=<?php echo urlencode($filtroStatus ?? ''); ?>&metodo=<?php echo urlencode($filtroMetodo ?? ''); ?>&busca=<?php echo urlencode($busca ?? ''); ?>"><?php echo $i; ?></a>
+            <?php
+            $paginaAnteriorExibida = 0;
+            foreach ($paginasVisiveis as $p):
+                if ($p - $paginaAnteriorExibida > 1): ?>
+                    <li class="page-item disabled"><span class="page-link">…</span></li>
+                <?php endif; ?>
+                <li class="page-item <?php echo ($p === (int)$pagina) ? 'active' : ''; ?>">
+                    <a class="page-link" href="<?php echo $urlPagina($p); ?>"><?php echo $p; ?></a>
                 </li>
-            <?php endfor; ?>
+                <?php $paginaAnteriorExibida = $p; ?>
+            <?php endforeach; ?>
             <li class="page-item <?php echo ($pagina >= $totalPaginas) ? 'disabled' : ''; ?>">
-                <a class="page-link" href="?page=<?php echo min($totalPaginas, $pagina + 1); ?>&servidor=<?php echo urlencode($filtroServidor ?? ''); ?>&status=<?php echo urlencode($filtroStatus ?? ''); ?>&metodo=<?php echo urlencode($filtroMetodo ?? ''); ?>&busca=<?php echo urlencode($busca ?? ''); ?>">Próxima ›</a>
+                <a class="page-link" href="<?php echo $urlPagina(min($totalPaginas, $pagina + 1)); ?>">Próxima ›</a>
             </li>
         </ul>
     </nav>

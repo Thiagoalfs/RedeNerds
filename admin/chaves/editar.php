@@ -48,7 +48,7 @@ try {
     $chave = $stmt->fetch(PDO::FETCH_ASSOC);
 
     if (!$chave) {
-        header("Location: index.php?erro=" . urlencode("Pacote de chaves não encontrado."));
+        header("Location: index.php?erro=" . urlencode("Pacote não encontrado."));
         exit;
     }
 } catch (PDOException $e) {
@@ -141,17 +141,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     ':id'          => $id,
                 ]);
 
-                header("Location: index.php?msg=" . urlencode("Pacote de Chaves '{$nome}' atualizado com sucesso!"));
+                header("Location: index.php?msg=" . urlencode("Pacote '{$nome}' atualizado com sucesso!"));
                 exit;
             } catch (PDOException $e) {
-                $mensagem_erro = "Erro ao atualizar pacote de chaves: " . $e->getMessage();
+                $mensagem_erro = "Erro ao atualizar pacote: " . $e->getMessage();
             }
         }
     }
 }
 
 $paginaAtiva = 'chaves';
-$tituloPagina = 'Editar Pacote de Chaves';
+$tituloPagina = 'Editar Pacote';
 require_once __DIR__ . "/../includes/admin_header.php";
 ?>
 
@@ -159,8 +159,8 @@ require_once __DIR__ . "/../includes/admin_header.php";
     <div class="col-12 col-xl-10">
         <div class="admin-card">
             <div class="admin-card-header">
-                <h5 class="admin-card-title"><i class="fa-solid fa-key text-warning"></i> Editar Pacote de Chaves #<?php echo (int)$id; ?></h5>
-                <a href="index.php" class="btn btn-outline-secondary btn-sm">← Voltar para Pacotes de Chaves</a>
+                <h5 class="admin-card-title"><i class="fa-solid fa-key text-warning"></i> Editar Pacote #<?php echo (int)$id; ?></h5>
+                <a href="index.php" class="btn btn-outline-secondary btn-sm">← Voltar para Pacotes</a>
             </div>
             <div class="p-4">
                 <?php if ($mensagem_erro): ?>
@@ -183,7 +183,7 @@ require_once __DIR__ . "/../includes/admin_header.php";
                             </select>
                         </div>
                         <div class="col-md-5 admin-form-group">
-                            <label for="nome">Nome do Pacote de Chaves *</label>
+                            <label for="nome">Nome do Pacote *</label>
                             <input type="text" class="admin-form-control" id="nome" name="nome"
                                    value="<?php echo htmlspecialchars($nome, ENT_QUOTES, 'UTF-8'); ?>"
                                    placeholder="Ex: Chave Mítica" required>
@@ -288,7 +288,7 @@ require_once __DIR__ . "/../includes/admin_header.php";
 
                     <div class="d-flex justify-content-end gap-2">
                         <a href="index.php" class="btn btn-outline-secondary">Cancelar</a>
-                        <button type="submit" class="btn btn-success"><i class="fa-solid fa-floppy-disk me-1"></i> Atualizar Pacote de Chaves</button>
+                        <button type="submit" class="btn btn-success"><i class="fa-solid fa-floppy-disk me-1"></i> Atualizar Pacote</button>
                     </div>
                 </form>
             </div>

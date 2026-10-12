@@ -66,7 +66,7 @@ if ($id > 0 && isset($pdo) && $pdo instanceof PDO) {
         if ($isAjax) {
             http_response_code(500);
             header('Content-Type: application/json; charset=utf-8');
-            echo json_encode(["success" => false, "erro" => "Erro ao deletar pacote de chaves."]);
+            echo json_encode(["success" => false, "erro" => "Erro ao deletar pacote."]);
             exit;
         }
     }
