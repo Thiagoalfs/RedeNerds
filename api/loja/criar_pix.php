@@ -150,7 +150,7 @@ $itemRow = $stmtItem->fetch(PDO::FETCH_ASSOC);
 
 if (!$itemRow) {
     http_response_code(404);
-    echo json_encode(["erro" => ($tipoProduto === 'chave' ? "Pacote de Chaves" : "Pacote VIP") . " não encontrado ou inativo."], JSON_UNESCAPED_UNICODE);
+    echo json_encode(["erro" => ($tipoProduto === 'chave' ? "Pacote" : "Pacote VIP") . " não encontrado ou inativo."], JSON_UNESCAPED_UNICODE);
     exit;
 }
 

@@ -107,9 +107,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if ($erro_imagem) {
             $mensagem_erro = $erro_imagem;
         } elseif (!$servidorObj || $servidor_id_selecionado <= 0) {
-            $mensagem_erro = "Selecione um servidor válido para este pacote de chaves.";
+            $mensagem_erro = "Selecione um servidor válido para este pacote.";
         } elseif ($nome === '' || strlen($nome) < 2) {
-            $mensagem_erro = "Informe um nome válido para o pacote de chaves.";
+            $mensagem_erro = "Informe um nome válido para o pacote.";
         } elseif ($packageId === '') {
             $mensagem_erro = "Informe o Package ID correspondente no plugin de entrega.";
         } elseif ($preco <= 0) {
@@ -272,7 +272,7 @@ require_once __DIR__ . "/../includes/admin_header.php";
                             <div class="form-check form-switch mt-2">
                                 <input class="form-check-input" type="checkbox" id="destaque" name="destaque" value="1" <?php echo $destaque ? 'checked' : ''; ?>>
                                 <label class="form-check-label fw-bold" for="destaque">
-                                    <i class="fa-solid fa-star text-warning me-1"></i> Destacar pacote de chaves na loja
+                                    <i class="fa-solid fa-star text-warning me-1"></i> Destacar pacote na loja
                                 </label>
                             </div>
                         </div>
