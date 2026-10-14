@@ -139,7 +139,7 @@ require_once __DIR__ . "/../includes/admin_header.php";
                     <div class="alert alert-danger"><?php echo htmlspecialchars($mensagem_erro, ENT_QUOTES, 'UTF-8'); ?></div>
                 <?php endif; ?>
 
-                <form method="POST" enctype="multipart/form-data">
+                <form method="POST" class="js-unsaved-form" enctype="multipart/form-data">
                     <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($csrfToken, ENT_QUOTES, 'UTF-8'); ?>">
 
                     <div class="row g-3 mb-3">
@@ -191,7 +191,7 @@ require_once __DIR__ . "/../includes/admin_header.php";
                     <!-- IMAGEM / RENDER 3D DO PACOTE DE CHAVES (key-card-image-box) -->
                     <div class="admin-form-group mb-3">
                         <label class="form-label fw-bold mb-1"><i class="fa-solid fa-image me-1 text-primary"></i> Imagem do Item (Topo do Card)</label>
-                        <div class="form-text small mb-2">Envie uma imagem com fundo transparente (PNG, WEBP ou GIF). Ela será exibida no topo do card da chave.</div>
+                        <div class="form-text small mb-2">Envie uma imagem com fundo transparente (PNG, WEBP ou GIF). Ela será exibida no topo do card da chave. <strong>A imagem só é enviada ao clicar em Salvar.</strong></div>
                         
                         <div class="row g-3 align-items-center">
                             <div class="col-md-9">
@@ -200,7 +200,7 @@ require_once __DIR__ . "/../includes/admin_header.php";
                             </div>
                             <div class="col-md-3 d-flex align-items-center gap-2">
                                 <span class="small text-muted">Prévia:</span>
-                                <div id="chave-preview-box" class="bg-dark border rounded d-flex align-items-center justify-content-center overflow-hidden" style="width: 50px; height: 50px;">
+                                <div id="chave-preview-box" data-preview-box="1" class="bg-dark border rounded d-flex align-items-center justify-content-center overflow-hidden" style="width: 50px; height: 50px;">
                                     <img id="chave-preview-img" src="<?php echo !empty($imagem) ? htmlspecialchars($imagem, ENT_QUOTES, 'UTF-8') : '/assets/images/logo.webp'; ?>" style="max-width: 42px; max-height: 42px; object-fit: contain; <?php echo empty($imagem) ? 'opacity: 0.35;' : ''; ?>" alt="Prévia">
                                 </div>
                             </div>
@@ -245,10 +245,6 @@ require_once __DIR__ . "/../includes/admin_header.php";
                         </div>
                     </div>
 
-                    <div class="d-flex justify-content-end gap-2">
-                        <a href="index.php" class="btn btn-outline-secondary">Cancelar</a>
-                        <button type="submit" class="btn btn-success"><i class="fa-solid fa-floppy-disk me-1"></i> Salvar Pacote</button>
-                    </div>
                 </form>
             </div>
         </div>
@@ -285,6 +281,7 @@ function adicionarVantagem() {
     const container = document.getElementById('container-vantagens');
     const div = document.createElement('div');
     div.className = 'input-group input-group-sm vantagem-item';
+    div.setAttribute('data-js-added', '1');
     div.innerHTML = `
         <span class="input-group-text bg-light text-muted"><i class="fa-solid fa-gift"></i></span>
         <input type="text" class="admin-form-control" name="vantagens[]" placeholder="Ex: Armadura Mítica Completa" required>
@@ -304,4 +301,5 @@ function removerVantagem(btn) {
 }
 </script>
 
+<?php require_once __DIR__ . "/../includes/unsaved_bar.php"; ?>
 <?php require_once __DIR__ . "/../includes/admin_footer.php"; ?>

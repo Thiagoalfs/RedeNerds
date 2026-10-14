@@ -139,7 +139,7 @@ require_once __DIR__ . "/../includes/admin_header.php";
                     </div>
                 <?php endif; ?>
 
-                <form method="POST" action="editar.php?id=<?php echo (int)$id; ?>" enctype="multipart/form-data">
+                <form method="POST" class="js-unsaved-form" action="editar.php?id=<?php echo (int)$id; ?>" enctype="multipart/form-data">
                     <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($csrfToken, ENT_QUOTES, 'UTF-8'); ?>">
                     <input type="hidden" name="id" value="<?php echo (int)$id; ?>">
 
@@ -243,13 +243,6 @@ require_once __DIR__ . "/../includes/admin_header.php";
                         </div>
                     </div>
 
-                    <!-- BOTÕES DE SUBMIT -->
-                    <div class="d-flex justify-content-end gap-2 mt-4">
-                        <a href="index.php" class="btn btn-outline-secondary">Cancelar</a>
-                        <button type="submit" class="btn btn-primary fw-bold px-4">
-                            <i class="fa-solid fa-check me-1"></i> Salvar Alterações
-                        </button>
-                    </div>
                 </form>
             </div>
         </div>
@@ -276,4 +269,5 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 
+<?php require_once __DIR__ . "/../includes/unsaved_bar.php"; ?>
 <?php require_once __DIR__ . "/../includes/admin_footer.php"; ?>

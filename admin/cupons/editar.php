@@ -136,7 +136,7 @@ require_once __DIR__ . "/../includes/admin_header.php";
                     </div>
                 <?php endif; ?>
 
-                <form method="POST" action="editar.php?id=<?php echo (int)$id; ?>">
+                <form method="POST" class="js-unsaved-form" action="editar.php?id=<?php echo (int)$id; ?>">
                     <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($csrfToken, ENT_QUOTES, 'UTF-8'); ?>">
                     <div class="admin-form-group">
                         <label for="codigo">Código do Cupom</label>
@@ -179,14 +179,11 @@ require_once __DIR__ . "/../includes/admin_header.php";
                         <label class="form-check-label fw-semibold" for="ativo">Cupom Ativo</label>
                     </div>
 
-                    <div class="d-flex justify-content-end gap-2">
-                        <a href="index.php" class="btn btn-outline-secondary">Cancelar</a>
-                        <button type="submit" class="btn btn-primary fw-bold px-4">Salvar Alterações</button>
-                    </div>
                 </form>
             </div>
         </div>
     </div>
 </div>
 
+<?php require_once __DIR__ . "/../includes/unsaved_bar.php"; ?>
 <?php require_once __DIR__ . "/../includes/admin_footer.php"; ?>

@@ -134,7 +134,7 @@ require_once __DIR__ . "/../includes/admin_header.php";
                     <div class="alert alert-danger"><?php echo htmlspecialchars($mensagem_erro, ENT_QUOTES, 'UTF-8'); ?></div>
                 <?php endif; ?>
 
-                <form method="POST" enctype="multipart/form-data">
+                <form method="POST" class="js-unsaved-form" enctype="multipart/form-data">
                     <input type="hidden" name="id" value="<?php echo (int)$id; ?>">
                     <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($csrfToken, ENT_QUOTES, 'UTF-8'); ?>">
                     <div class="row g-3 mb-3">
@@ -177,7 +177,7 @@ require_once __DIR__ . "/../includes/admin_header.php";
                     <!-- ÍCONE -->
                     <div class="admin-card p-3 mb-3 bg-light border">
                         <h6 class="fw-bold mb-2"><i class="fa-solid fa-icons me-1 text-primary"></i> Ícone do Servidor</h6>
-                        <p class="small text-muted mb-3">Envie uma imagem para substituir o ícone atual (PNG, JPG, WEBP ou GIF). Deixe em branco para manter o ícone atual.</p>
+                        <p class="small text-muted mb-3">Envie uma imagem para substituir o ícone atual (PNG, JPG, WEBP ou GIF). Deixe em branco para manter o ícone atual. <strong>A imagem só é enviada ao clicar em Salvar.</strong></p>
                         <div class="row g-3 align-items-center">
                             <div class="col-md-9">
                                 <label class="small fw-semibold">Upload de Novo Ícone</label>
@@ -185,7 +185,7 @@ require_once __DIR__ . "/../includes/admin_header.php";
                             </div>
                             <div class="col-md-3 d-flex align-items-center gap-2">
                                 <span class="small text-muted">Atual / Preview:</span>
-                                <div id="icone-preview-box" class="bg-white border rounded d-flex align-items-center justify-content-center overflow-hidden" style="width: 48px; height: 48px; font-size: 1.25rem;">
+                                <div id="icone-preview-box" data-preview-box="1" class="bg-white border rounded d-flex align-items-center justify-content-center overflow-hidden" style="width: 48px; height: 48px; font-size: 1.25rem;">
                                     <?php if (!empty($iconAtual)): ?>
                                         <img src="<?php echo htmlspecialchars($iconAtual, ENT_QUOTES, 'UTF-8'); ?>" class="rounded" width="48" height="48" style="object-fit:cover;" alt="Ícone">
                                     <?php else: ?>
@@ -199,7 +199,7 @@ require_once __DIR__ . "/../includes/admin_header.php";
                     <!-- BACKGROUND / WALLPAPER DO SERVIDOR -->
                     <div class="admin-card p-3 mb-3 bg-light border">
                         <h6 class="fw-bold mb-2"><i class="fa-solid fa-image me-1 text-primary"></i> Background do Servidor (Wallpaper)</h6>
-                        <p class="small text-muted mb-3">Imagem de fundo exibida no site para este servidor (como no servidor Nerd Dead). Recomendado: 1920x1080 em JPG, PNG ou WEBP.</p>
+                        <p class="small text-muted mb-3">Imagem de fundo exibida no site para este servidor (como no servidor Nerd Dead). Recomendado: 1920x1080 em JPG, PNG ou WEBP. <strong>A imagem só é enviada ao clicar em Salvar.</strong></p>
                         <div class="row g-3 align-items-center">
                             <div class="col-md-8">
                                 <label class="small fw-semibold">Upload de Nova Imagem de Fundo</label>
@@ -214,7 +214,7 @@ require_once __DIR__ . "/../includes/admin_header.php";
                                 <?php endif; ?>
                             </div>
                             <div class="col-md-4">
-                                <div id="bg-preview-box" class="bg-dark border rounded overflow-hidden d-flex align-items-center justify-content-center text-muted small position-relative" style="height: 75px; width: 100%;">
+                                <div id="bg-preview-box" data-preview-box="1" class="bg-dark border rounded overflow-hidden d-flex align-items-center justify-content-center text-muted small position-relative" style="height: 75px; width: 100%;">
                                     <?php if (!empty($bgAtual)): ?>
                                         <img src="<?php echo htmlspecialchars($bgAtual, ENT_QUOTES, 'UTF-8'); ?>" alt="Fundo Atual" style="width:100%;height:100%;object-fit:cover;">
                                     <?php else: ?>
@@ -246,10 +246,6 @@ require_once __DIR__ . "/../includes/admin_header.php";
                         <label class="form-check-label fw-semibold" for="enabled">Servidor Ativo e Visível no Site</label>
                     </div>
 
-                    <div class="d-flex justify-content-end gap-2">
-                        <a href="index.php" class="btn btn-outline-secondary">Cancelar</a>
-                        <button type="submit" class="btn btn-primary fw-bold px-4">Salvar Alterações</button>
-                    </div>
                 </form>
             </div>
         </div>
@@ -261,6 +257,7 @@ function adicionarFeature() {
     const container = document.getElementById('features-container');
     const div = document.createElement('div');
     div.className = 'input-group mb-2 feature-row';
+    div.setAttribute('data-js-added', '1');
     div.innerHTML = '<input type="text" class="form-control" name="features[]" placeholder="Ex: Novo recurso"><button type="button" class="btn btn-outline-danger" onclick="removerFeature(this)"><i class="fa-solid fa-xmark"></i></button>';
     container.appendChild(div);
 }
@@ -303,4 +300,5 @@ function previewBg(input) {
 atualizarPreviewCor();
 </script>
 
+<?php require_once __DIR__ . "/../includes/unsaved_bar.php"; ?>
 <?php require_once __DIR__ . "/../includes/admin_footer.php"; ?>
