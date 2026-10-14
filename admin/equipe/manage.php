@@ -386,9 +386,12 @@ function reordenarCargo(id, acao) {
             window.AdminToast.success('Cargo movido ' + label + ' com sucesso!');
         })
         .catch(function(err) {
+            window.AdminToast.error(err && err.message ? err.message : 'Erro ao reordenar cargo.');
+        })
+        .finally(function() {
+            // Sempre restaura a linha (sucesso ou erro)
             row.style.opacity = '';
             row.style.pointerEvents = '';
-            window.AdminToast.error(err && err.message ? err.message : 'Erro ao reordenar cargo.');
         });
 }
 
