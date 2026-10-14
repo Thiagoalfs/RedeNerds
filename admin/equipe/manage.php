@@ -360,30 +360,63 @@ function abrirModalEditarCargo(id, nome, cor, ordem) {
 }
 
 function reordenarCargo(id, acao) {
-    if (!window.AdminApi || !window.AdminToast) {
-        // Fallback: submit tradicional via formulário dinâmico (mantém CSRF)
-        const form = document.createElement('form');
-        form.method = 'POST';
-        form.action = '/admin/api/equipe/cargo_reordenar.php';
-        form.innerHTML = '<input type="hidden" name="csrf_token" value="' + CSRF_TOKEN + '">' +
-                         '<input type="hidden" name="id" value="' + id + '">' +
-                         '<input type="hidden" name="acao" value="' + acao + '">';
-        document.body.appendChild(form);
-        form.submit();
+    const label = (acao === 'subir') ? 'para cima' : 'para baixo';
+    const row = document.querySelector('tr.cargo-row[data-id="' + id + '"]');
+    if (!row) return;
+
+    const sibling = (acao === 'subir') ? row.previousElementSibling : row.nextElementSibling;
+    if (!sibling || !sibling.classList.contains('cargo-row')) {
+        window.AdminToast.info('Este cargo já está na ' + (acao === 'subir' ? 'primeira' : 'última') + ' posição.');
         return;
     }
 
-    const label = (acao === 'subir') ? 'para cima' : 'para baixo';
+    row.style.opacity = '0.4';
+    row.style.pointerEvents = 'none';
 
     window.AdminApi.post('/admin/api/equipe/cargo_reordenar.php', { id: id, acao: acao })
         .then(function(data) {
+            // Move a linha na tabela sem recarregar a página
+            const tbody = document.getElementById('sortable-cargos');
+            if (acao === 'subir') {
+                tbody.insertBefore(row, sibling);
+            } else {
+                tbody.insertBefore(sibling, row);
+            }
+            atualizarHierarquiaCargos();
             window.AdminToast.success('Cargo movido ' + label + ' com sucesso!');
-            setTimeout(function() { location.reload(); }, 600);
         })
         .catch(function(err) {
-            console.error('Erro ao reordenar cargo:', err);
+            row.style.opacity = '';
+            row.style.pointerEvents = '';
             window.AdminToast.error(err && err.message ? err.message : 'Erro ao reordenar cargo.');
         });
+}
+
+// Atualiza badges de posição, coroa "Topo" e estados dos botões
+// após qualquer reordenação (subir/descer ou drag-and-drop)
+function atualizarHierarquiaCargos() {
+    const tbody = document.getElementById('sortable-cargos');
+    if (!tbody) return;
+    const rows = tbody.querySelectorAll('tr.cargo-row');
+    rows.forEach(function(row, idx) {
+        const badgeNum = row.querySelector('.badge.bg-dark');
+        if (badgeNum) badgeNum.textContent = '#' + (idx + 1);
+
+        const nomeDiv = row.children[1] ? row.children[1].querySelector('div') : null;
+        const coroa = nomeDiv ? nomeDiv.querySelector('.badge.bg-warning') : null;
+        if (idx === 0 && !coroa && nomeDiv) {
+            const span = document.createElement('span');
+            span.className = 'badge bg-warning text-dark small';
+            span.innerHTML = '<i class="fa-solid fa-crown me-1"></i> Topo';
+            nomeDiv.appendChild(span);
+        } else if (idx !== 0 && coroa) {
+            coroa.remove();
+        }
+
+        const botoes = row.querySelectorAll('button[onclick^="reordenarCargo"]');
+        if (botoes[0]) botoes[0].disabled = (idx === 0);
+        if (botoes[1]) botoes[1].disabled = (idx === rows.length - 1);
+    });
 }
 
 document.addEventListener('DOMContentLoaded', function() {
@@ -504,10 +537,8 @@ document.addEventListener('DOMContentLoaded', function() {
     function salvarNovaOrdem() {
         const rows = tbody.querySelectorAll('tr.cargo-row');
         const ordemIds = [];
-        rows.forEach((r, idx) => {
+        rows.forEach((r) => {
             ordemIds.push(parseInt(r.dataset.id, 10));
-            const badge = r.querySelector('.badge.bg-dark');
-            if (badge) badge.textContent = '#' + (idx + 1);
         });
 
         if (ordemIds.length === 0) return;
@@ -526,6 +557,7 @@ document.addEventListener('DOMContentLoaded', function() {
         .then(res => res.json())
         .then(data => {
             if (data.success) {
+                atualizarHierarquiaCargos();
                 AdminToast.success('Hierarquia reordenada com sucesso!');
             } else {
                 AdminToast.error('Erro ao salvar hierarquia: ' + (data.erro || 'Falha na requisição'));
