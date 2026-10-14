@@ -37,16 +37,34 @@ $isAjax = (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTT
 
 if ($id > 0 && isset($pdo) && $pdo instanceof PDO) {
     try {
-        $stmt = $pdo->prepare("DELETE FROM servidores WHERE id = :id");
+        $stmt = $pdo->prepare("SELECT servername FROM servidores WHERE id = :id LIMIT 1");
         $stmt->execute([':id' => $id]);
+        $srv = $stmt->fetch(PDO::FETCH_ASSOC);
 
-        require_once __DIR__ . "/../../../api/cache_helper.php";
-        invalidarCache('servidores');
+        if ($srv) {
+            $del = $pdo->prepare("DELETE FROM servidores WHERE id = :id");
+            $del->execute([':id' => $id]);
 
-        if ($isAjax) {
-            header('Content-Type: application/json; charset=utf-8');
-            echo json_encode(["success" => true]);
+            require_once __DIR__ . "/../../../api/cache_helper.php";
+            invalidarCache('servidores');
+
+            $msg = "Servidor '{$srv['servername']}' deletado com sucesso.";
+
+            if ($isAjax) {
+                header('Content-Type: application/json; charset=utf-8');
+                echo json_encode(["success" => true]);
+                exit;
+            }
+
+            header("Location: /admin/servidores/?msg=" . urlencode($msg));
             exit;
+        } else {
+            if ($isAjax) {
+                http_response_code(404);
+                header('Content-Type: application/json; charset=utf-8');
+                echo json_encode(["success" => false, "erro" => "Servidor não encontrado."]);
+                exit;
+            }
         }
     } catch (Exception $e) {
         error_log("Erro ao deletar servidor: " . $e->getMessage());

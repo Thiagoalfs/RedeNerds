@@ -93,7 +93,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 require_once __DIR__ . "/../../api/cache_helper.php";
                 invalidarCache('servidores');
 
-                header("Location: index.php");
+                header("Location: index.php?msg=" . urlencode("Servidor '{$servername}' cadastrado com sucesso!"));
                 exit;
             }
         }

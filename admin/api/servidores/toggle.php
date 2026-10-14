@@ -48,7 +48,7 @@ if ($id <= 0) {
 
 if (isset($pdo) && $pdo instanceof PDO) {
     try {
-        $stmt = $pdo->prepare("SELECT enabled FROM servidores WHERE id = :id LIMIT 1");
+        $stmt = $pdo->prepare("SELECT enabled, servername FROM servidores WHERE id = :id LIMIT 1");
         $stmt->execute([':id' => $id]);
         $srv = $stmt->fetch(PDO::FETCH_ASSOC);
 
@@ -65,6 +65,12 @@ if (isset($pdo) && $pdo instanceof PDO) {
                 echo json_encode(["success" => true, "enabled" => $novoStatus]);
                 exit;
             }
+
+            $msg = $novoStatus
+                ? "Servidor '{$srv['servername']}' ativado com sucesso!"
+                : "Servidor '{$srv['servername']}' ocultado com sucesso!";
+            header("Location: /admin/servidores/?msg=" . urlencode($msg));
+            exit;
         } else {
             if ($isAjax) {
                 http_response_code(404);
