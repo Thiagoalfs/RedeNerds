@@ -79,19 +79,24 @@ if (!preg_match('/^#[0-9a-fA-F]{6}$/', $cor)) {
 }
 
 try {
-    // Garante que a tabela existe
-    $pdo->exec("CREATE TABLE IF NOT EXISTS `equipe_cargos` (
-        `id` INT AUTO_INCREMENT PRIMARY KEY,
-        `nome` VARCHAR(100) NOT NULL UNIQUE,
-        `cor` VARCHAR(20) NOT NULL DEFAULT '#27acff',
-        `ordem` INT NOT NULL DEFAULT 0,
-        `criado_em` TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;");
+    // Garante a estrutura da tabela apenas uma vez por sessão (DDL completo em migrations/2026_10_14_vips_cupons_equipe.sql)
+    if (empty($_SESSION['equipe_cargos_schema_ok'])) {
+        // Garante que a tabela existe
+        $pdo->exec("CREATE TABLE IF NOT EXISTS `equipe_cargos` (
+            `id` INT AUTO_INCREMENT PRIMARY KEY,
+            `nome` VARCHAR(100) NOT NULL UNIQUE,
+            `cor` VARCHAR(20) NOT NULL DEFAULT '#27acff',
+            `ordem` INT NOT NULL DEFAULT 0,
+            `criado_em` TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;");
 
-    // Garante que a coluna cor existe
-    try {
-        $pdo->exec("ALTER TABLE `equipe_cargos` ADD COLUMN `cor` VARCHAR(20) NOT NULL DEFAULT '#27acff' AFTER `nome`");
-    } catch (Exception $ignored) {}
+        // Garante que a coluna cor existe
+        try {
+            $pdo->exec("ALTER TABLE `equipe_cargos` ADD COLUMN `cor` VARCHAR(20) NOT NULL DEFAULT '#27acff' AFTER `nome`");
+        } catch (Exception $ignored) {}
+
+        $_SESSION['equipe_cargos_schema_ok'] = true;
+    }
 
     // Verifica se já existe um cargo com esse nome
     $stmtCheck = $pdo->prepare("SELECT id FROM equipe_cargos WHERE LOWER(nome) = LOWER(:nome) LIMIT 1");

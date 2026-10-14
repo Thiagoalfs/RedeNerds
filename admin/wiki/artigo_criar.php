@@ -59,7 +59,9 @@ if ($servidor_id > 0) {
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    if ($servidor_id <= 0 || empty($titulo) || empty($conteudo) || empty($autor)) {
+    if (!validarCsrfToken($_POST['csrf_token'] ?? '')) {
+        $erro = "Token CSRF inválido ou expirado. Recarregue a página e tente novamente.";
+    } elseif ($servidor_id <= 0 || empty($titulo) || empty($conteudo) || empty($autor)) {
         $erro = "Preencha o servidor, título, autor e conteúdo do artigo.";
     } else {
         $slug = preg_replace('/[^a-z0-9]+/i', '-', strtolower(iconv('UTF-8', 'ASCII//TRANSLIT', $titulo)));

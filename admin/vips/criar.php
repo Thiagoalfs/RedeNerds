@@ -36,16 +36,20 @@ try {
 
 $mensagem_erro = "";
 
-try {
-    $colunasVips = $pdo->query("SHOW COLUMNS FROM vips")->fetchAll(PDO::FETCH_COLUMN);
-    if (!in_array('cor1', $colunasVips, true)) {
-        $pdo->exec("ALTER TABLE vips ADD COLUMN cor1 VARCHAR(20) NULL DEFAULT '#ffffff'");
+// Garante as colunas de cor apenas uma vez por sessão (DDL completo em migrations/2026_10_14_vips_cupons_equipe.sql)
+if (empty($_SESSION['vips_schema_ok'])) {
+    try {
+        $colunasVips = $pdo->query("SHOW COLUMNS FROM vips")->fetchAll(PDO::FETCH_COLUMN);
+        if (!in_array('cor1', $colunasVips, true)) {
+            $pdo->exec("ALTER TABLE vips ADD COLUMN cor1 VARCHAR(20) NULL DEFAULT '#ffffff'");
+        }
+        if (!in_array('cor2', $colunasVips, true)) {
+            $pdo->exec("ALTER TABLE vips ADD COLUMN cor2 VARCHAR(20) NULL DEFAULT '#ffffff'");
+        }
+        $_SESSION['vips_schema_ok'] = true;
+    } catch (Exception $e) {
+        // Ignora: a ausência das colunas será tratada no INSERT/UPDATE
     }
-    if (!in_array('cor2', $colunasVips, true)) {
-        $pdo->exec("ALTER TABLE vips ADD COLUMN cor2 VARCHAR(20) NULL DEFAULT '#ffffff'");
-    }
-} catch (Exception $e) {
-    // Ignora
 }
 
 $servidor_id_selecionado = 0;

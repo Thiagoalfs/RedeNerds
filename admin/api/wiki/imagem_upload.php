@@ -29,6 +29,9 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     exit;
 }
 
+// CSRF: aceita token no campo do FormData ou no header X-CSRF-Token
+exigirCSRF();
+
 $fileField = null;
 if (isset($_FILES['imagem']) && $_FILES['imagem']['error'] !== UPLOAD_ERR_NO_FILE) {
     $fileField = $_FILES['imagem'];

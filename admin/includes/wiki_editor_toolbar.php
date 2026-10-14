@@ -163,6 +163,7 @@ async function fazerUploadImagemWiki(file) {
 
     const formData = new FormData();
     formData.append('imagem', file);
+    formData.append('csrf_token', '<?php echo isset($csrfToken) ? htmlspecialchars($csrfToken, ENT_QUOTES, 'UTF-8') : ''; ?>');
 
     try {
         const res = await fetch('/admin/api/wiki/imagem_upload.php', {

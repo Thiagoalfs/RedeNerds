@@ -27,9 +27,15 @@ if ($id <= 0) {
     exit;
 }
 
-$stmt = $pdo->prepare("SELECT * FROM novidades WHERE id = :id LIMIT 1");
-$stmt->execute([':id' => $id]);
-$noticia = $stmt->fetch(PDO::FETCH_ASSOC);
+try {
+    $stmt = $pdo->prepare("SELECT * FROM novidades WHERE id = :id LIMIT 1");
+    $stmt->execute([':id' => $id]);
+    $noticia = $stmt->fetch(PDO::FETCH_ASSOC);
+} catch (PDOException $e) {
+    error_log("Erro ao buscar novidade ID {$id}: " . $e->getMessage());
+    header("Location: index.php?erro=" . urlencode("Erro ao buscar novidade."));
+    exit;
+}
 
 if (!$noticia) {
     header("Location: index.php");

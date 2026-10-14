@@ -25,13 +25,21 @@ $servidor_id = 0;
 $expira_em = date('Y-m-d\TH:i', strtotime('+30 days'));
 $ativo = 1;
 
+// Garante a coluna servidor_id apenas uma vez por sessão (DDL completo em migrations/2026_10_14_vips_cupons_equipe.sql)
+if (empty($_SESSION['cupons_schema_ok'])) {
+    try {
+        $colunasCupons = $pdo->query("SHOW COLUMNS FROM cupons")->fetchAll(PDO::FETCH_COLUMN);
+        if (!in_array('servidor_id', $colunasCupons, true)) {
+            $pdo->exec("ALTER TABLE cupons ADD COLUMN servidor_id INT NULL DEFAULT 0");
+        }
+        $_SESSION['cupons_schema_ok'] = true;
+    } catch (Exception $e) {
+        // Ignora: a ausência da coluna será tratada no INSERT
+    }
+}
+
 $servidores = [];
 try {
-    $colunasCupons = $pdo->query("SHOW COLUMNS FROM cupons")->fetchAll(PDO::FETCH_COLUMN);
-    if (!in_array('servidor_id', $colunasCupons, true)) {
-        $pdo->exec("ALTER TABLE cupons ADD COLUMN servidor_id INT NULL DEFAULT 0");
-    }
-
     $stmtSrv = $pdo->query("SELECT id, servername, nome FROM servidores ORDER BY servername ASC");
     $servidores = $stmtSrv->fetchAll(PDO::FETCH_ASSOC);
 } catch (Exception $e) {
