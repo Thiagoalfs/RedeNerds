@@ -1,24 +1,6 @@
 <?php
 require_once __DIR__ . "/../../sessao.php";
 
-$configPaths = [
-    __DIR__ . "/config.php",
-    __DIR__ . "/../config.php",
-    __DIR__ . "/../../config.php",
-    __DIR__ . "/../../../config.php",
-    ($_SERVER['DOCUMENT_ROOT'] ?? '') . "/config.php"
-];
-$configPath = null;
-foreach ($configPaths as $cp) {
-    if (!empty($cp) && file_exists($cp)) {
-        $configPath = $cp;
-        break;
-    }
-}
-if ($configPath) {
-    require_once $configPath;
-}
-
 exigirCSRF();
 
 $input = $_POST;
@@ -48,17 +30,32 @@ if ($id <= 0) {
 
 if (isset($pdo) && $pdo instanceof PDO) {
     try {
-        $stmt = $pdo->prepare("DELETE FROM cupons WHERE id = :id");
+        $stmt = $pdo->prepare("SELECT codigo FROM cupons WHERE id = :id LIMIT 1");
         $stmt->execute([':id' => $id]);
+        $cupom = $stmt->fetch(PDO::FETCH_ASSOC);
 
-        if ($isAjax) {
-            header('Content-Type: application/json; charset=utf-8');
-            echo json_encode(["success" => true]);
+        if ($cupom) {
+            $del = $pdo->prepare("DELETE FROM cupons WHERE id = :id");
+            $del->execute([':id' => $id]);
+
+            if ($isAjax) {
+                header('Content-Type: application/json; charset=utf-8');
+                echo json_encode(["success" => true]);
+                exit;
+            }
+
+            header("Location: /admin/cupons/?msg=" . urlencode("Cupom '{$cupom['codigo']}' deletado com sucesso!"));
+            exit;
+        } else {
+            if ($isAjax) {
+                http_response_code(404);
+                header('Content-Type: application/json; charset=utf-8');
+                echo json_encode(["success" => false, "erro" => "Cupom não encontrado."]);
+                exit;
+            }
+            header("Location: /admin/cupons/?erro=" . urlencode("Cupom não encontrado."));
             exit;
         }
-
-        header("Location: /admin/cupons/?msg=" . urlencode("Cupom deletado com sucesso!"));
-        exit;
     } catch (Exception $e) {
         error_log("Erro ao deletar cupom: " . $e->getMessage());
         if ($isAjax) {

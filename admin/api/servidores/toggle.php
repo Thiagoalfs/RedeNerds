@@ -62,7 +62,7 @@ if (isset($pdo) && $pdo instanceof PDO) {
 
             if ($isAjax) {
                 header('Content-Type: application/json; charset=utf-8');
-                echo json_encode(["success" => true, "enabled" => $novoStatus]);
+                echo json_encode(["success" => true, "ativo" => $novoStatus]);
                 exit;
             }
 

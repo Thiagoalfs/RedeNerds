@@ -34,8 +34,8 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     exit;
 }
 
-// CSRF check
-$tokenRecebido = $_POST['csrf_token'] ?? '';
+// CSRF check (aceita campo do form, header X-CSRF-Token ou corpo JSON)
+$tokenRecebido = obterCsrfTokenRequisicao();
 if (!validarCsrfToken($tokenRecebido)) {
     if ($isAjax) {
         http_response_code(403);
@@ -76,6 +76,17 @@ if (mb_strlen($nome) > 100) {
 // Validação da cor Hex
 if (!preg_match('/^#[0-9a-fA-F]{6}$/', $cor)) {
     $cor = '#27acff';
+}
+
+if (!isset($pdo) || !$pdo instanceof PDO) {
+    if ($isAjax) {
+        http_response_code(500);
+        header('Content-Type: application/json; charset=utf-8');
+        echo json_encode(["success" => false, "erro" => "Erro de conexão com o banco de dados."]);
+        exit;
+    }
+    header("Location: /admin/equipe/manage.php?erro=" . urlencode("Erro de conexão com o banco de dados."));
+    exit;
 }
 
 try {

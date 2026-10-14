@@ -1,40 +1,62 @@
 <?php
 require_once __DIR__ . "/../../sessao.php";
 
-$configPaths = [
-    __DIR__ . "/config.php",
-    __DIR__ . "/../config.php",
-    __DIR__ . "/../../config.php",
-    __DIR__ . "/../../../config.php",
-    ($_SERVER['DOCUMENT_ROOT'] ?? '') . "/config.php"
-];
-$configPath = null;
-foreach ($configPaths as $cp) {
-    if (!empty($cp) && file_exists($cp)) {
-        $configPath = $cp;
-        break;
-    }
-}
-if ($configPath) {
-    require_once $configPath;
-}
-
 exigirCSRF();
 
-$id = isset($_POST['id']) ? (int)$_POST['id'] : 0;
-$isAjax = (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest') || (isset($_POST['format']) && $_POST['format'] === 'json');
+$input = $_POST;
+if (empty($input['id'])) {
+    $raw = file_get_contents('php://input');
+    if (!empty($raw)) {
+        $json = json_decode($raw, true);
+        if (is_array($json)) {
+            $input = array_merge($input, $json);
+        }
+    }
+}
 
-if ($id > 0 && isset($pdo) && $pdo instanceof PDO) {
+$id = isset($input['id']) ? (int)$input['id'] : 0;
+$isAjax = (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest') || (isset($input['format']) && $input['format'] === 'json');
+
+if ($id <= 0) {
+    if ($isAjax) {
+        http_response_code(400);
+        header('Content-Type: application/json; charset=utf-8');
+        echo json_encode(["success" => false, "erro" => "ID inválido."]);
+        exit;
+    }
+    header("Location: /admin/equipe/?erro=" . urlencode("ID inválido."));
+    exit;
+}
+
+if (isset($pdo) && $pdo instanceof PDO) {
     try {
-        $stmt = $pdo->prepare("DELETE FROM equipe WHERE id = :id");
+        $stmt = $pdo->prepare("SELECT nick FROM equipe WHERE id = :id LIMIT 1");
         $stmt->execute([':id' => $id]);
+        $membro = $stmt->fetch(PDO::FETCH_ASSOC);
 
-        require_once __DIR__ . "/../../../api/cache_helper.php";
-        invalidarCache('equipe');
+        if ($membro) {
+            $del = $pdo->prepare("DELETE FROM equipe WHERE id = :id");
+            $del->execute([':id' => $id]);
 
-        if ($isAjax) {
-            header('Content-Type: application/json; charset=utf-8');
-            echo json_encode(["success" => true]);
+            require_once __DIR__ . "/../../../api/cache_helper.php";
+            invalidarCache('equipe');
+
+            if ($isAjax) {
+                header('Content-Type: application/json; charset=utf-8');
+                echo json_encode(["success" => true]);
+                exit;
+            }
+
+            header("Location: /admin/equipe/?msg=" . urlencode("Membro '{$membro['nick']}' removido com sucesso!"));
+            exit;
+        } else {
+            if ($isAjax) {
+                http_response_code(404);
+                header('Content-Type: application/json; charset=utf-8');
+                echo json_encode(["success" => false, "erro" => "Membro não encontrado."]);
+                exit;
+            }
+            header("Location: /admin/equipe/?erro=" . urlencode("Membro não encontrado."));
             exit;
         }
     } catch (Exception $e) {
@@ -45,6 +67,8 @@ if ($id > 0 && isset($pdo) && $pdo instanceof PDO) {
             echo json_encode(["success" => false, "erro" => "Erro ao remover membro da equipe."]);
             exit;
         }
+        header("Location: /admin/equipe/?erro=" . urlencode("Erro ao remover membro da equipe."));
+        exit;
     }
 }
 

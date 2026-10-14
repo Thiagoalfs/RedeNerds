@@ -47,7 +47,7 @@ foreach ($gruposBrutos as $cNome => $lista) {
 <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-3">
     <div>
         <h4 class="fw-bold mb-1">Equipe</h4>
-        <p class="text-muted small mb-0"><?php echo count($membros); ?> membro(s) em <?php echo count($grupos); ?> categoria(s)</p>
+        <p class="text-muted small mb-0"><span data-item-counter><?php echo count($membros); ?> membro(s)</span> em <?php echo count($grupos); ?> categoria(s)</p>
     </div>
     <div class="d-flex gap-2">
         <a href="manage.php" class="btn btn-outline-primary btn-sm"><i class="fa-solid fa-layer-group me-1"></i> Gerenciar Cargos</a>
@@ -105,13 +105,15 @@ foreach ($gruposBrutos as $cNome => $lista) {
                                     <td class="text-end text-nowrap">
                                         <div class="d-inline-flex align-items-center justify-content-end gap-1">
                                             <a href="editar.php?id=<?php echo (int)$m['id']; ?>" class="btn btn-sm btn-primary">Editar</a>
-                                            <form method="POST" action="/admin/api/equipe/deletar.php" class="d-inline" onsubmit="return confirm('Remover <?php echo htmlspecialchars(addslashes($m['nick']), ENT_QUOTES, 'UTF-8'); ?> da equipe?');">
-                                                <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($csrfToken, ENT_QUOTES, 'UTF-8'); ?>">
-                                                <input type="hidden" name="id" value="<?php echo (int)$m['id']; ?>">
-                                                <button type="submit" class="btn btn-sm btn-danger" title="Deletar">
-                                                    <i class="fa-solid fa-trash"></i>
-                                                </button>
-                                            </form>
+                                            <button type="button" class="btn btn-sm btn-danger" 
+                                                    data-action="async-delete" 
+                                                    data-url="/admin/api/equipe/deletar.php" 
+                                                    data-id="<?php echo (int)$m['id']; ?>" 
+                                                    data-name="<?php echo htmlspecialchars($m['nick'], ENT_QUOTES, 'UTF-8'); ?>" 
+                                                    data-confirm="Remover <?php echo htmlspecialchars($m['nick'], ENT_QUOTES, 'UTF-8'); ?> da equipe?" 
+                                                    title="Deletar">
+                                                <i class="fa-solid fa-trash"></i>
+                                            </button>
                                         </div>
                                     </td>
                                 </tr>

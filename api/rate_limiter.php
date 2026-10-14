@@ -191,6 +191,8 @@ function exigirRateLimit(
         'status' => 'error',
         'error_code' => 'RATE_LIMIT_EXCEEDED',
         'message' => 'Muitas requisições. Por favor, aguarde alguns segundos antes de tentar novamente.',
+        'erro' => 'Muitas requisições. Por favor, aguarde alguns segundos antes de tentar novamente.',
+        'mensagem' => 'Muitas requisições. Por favor, aguarde alguns segundos antes de tentar novamente.',
         'retry_after' => $resultado['retry_after']
     ], JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
 

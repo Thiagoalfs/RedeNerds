@@ -11,6 +11,10 @@ if (ob_get_level() === 0) {
 
 require_once __DIR__ . "/../sessao.php";
 
+// Rate limit específico da exportação de pedidos (protege contra downloads em massa)
+require_once __DIR__ . "/../../api/rate_limiter.php";
+exigirRateLimit('admin_exportar_pedidos', 10, 60);
+
 $configPaths = [
     __DIR__ . "/../../../config.php",
     __DIR__ . "/../../config.php",
@@ -28,9 +32,40 @@ if ($configPath) {
     require_once $configPath;
 }
 
+/**
+ * Exibe uma mensagem de erro amigável ao usuário (sem vazar detalhes internos)
+ * e encerra a execução sem gerar nenhum arquivo.
+ */
+if (!function_exists('exportarPedidosErro')) {
+    function exportarPedidosErro(string $mensagem, int $codigoHttp = 500): void {
+        while (ob_get_level()) {
+            ob_end_clean();
+        }
+        if (!headers_sent()) {
+            http_response_code($codigoHttp);
+            header('Content-Type: text/html; charset=UTF-8');
+        }
+        echo '<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Erro ao exportar pedidos</title>
+</head>
+<body style="font-family: Arial, Helvetica, sans-serif; background: #f8f9fa; color: #212529; margin: 0; padding: 40px;">
+    <div style="max-width: 560px; margin: 0 auto; background: #fff; border: 1px solid #dee2e6; border-radius: 8px; padding: 24px;">
+        <h1 style="font-size: 18px; margin: 0 0 12px;">Não foi possível exportar os pedidos</h1>
+        <p style="margin: 0 0 16px; color: #6c757d;">' . htmlspecialchars($mensagem, ENT_QUOTES, 'UTF-8') . '</p>
+        <a href="index.php" style="display: inline-block; background: #0d6efd; color: #fff; text-decoration: none; padding: 8px 14px; border-radius: 6px; font-size: 14px;">Voltar para Pedidos</a>
+    </div>
+</body>
+</html>';
+        exit;
+    }
+}
 if (!isset($pdo) || !($pdo instanceof PDO)) {
-    http_response_code(500);
-    die("Erro: Conexão com banco de dados não disponível.");
+    error_log("Exportar pedidos: conexão com o banco de dados não disponível.");
+    exportarPedidosErro("A conexão com o banco de dados não está disponível no momento. Tente novamente em alguns instantes ou contate o suporte.", 500);
 }
 
 $todoPeriodo = !empty($_GET['todo_periodo']) && ($_GET['todo_periodo'] === '1' || $_GET['todo_periodo'] === 'on');
@@ -94,7 +129,9 @@ if (!empty($filtroServidor)) {
             $params[':srv_like'] = "%{$filtroServidor}%";
         }
     } catch (Exception $e) {
+        // Falha ao identificar o servidor: NÃO exportar tudo silenciosamente.
         error_log("Erro ao buscar servidor no exportar: " . $e->getMessage());
+        exportarPedidosErro("Não foi possível aplicar o filtro de servidor selecionado. A exportação foi cancelada para evitar o download de registros fora do filtro. Tente novamente.", 500);
     }
 }
 
@@ -105,6 +142,34 @@ if (!empty($busca)) {
 }
 
 $whereSql = !empty($where) ? "WHERE " . implode(" AND ", $where) : "";
+
+/**
+ * Protege campos de texto contra "CSV Injection" (fórmula maliciosa executada ao abrir no Excel).
+ * Qualquer valor iniciado por =, +, - ou @ (ou contendo tabulação/início de linha) recebe
+ * o prefixo de apóstrofo (') para ser tratado como texto puro pela planilha.
+ */
+if (!function_exists('escaparCsv')) {
+    function escaparCsv($valor) {
+        if (is_int($valor) || is_float($valor)) {
+            return $valor;
+        }
+        if ($valor === null || $valor === false || $valor === true || is_array($valor) || is_object($valor)) {
+            return '';
+        }
+
+        $valor = (string) $valor;
+        if ($valor === '') {
+            return $valor;
+        }
+
+        $inicioRisco = ["=", "+", "-", "@", "\t", "\r", "\n"];
+        if (in_array(mb_substr($valor, 0, 1), $inicioRisco, true) || preg_match('/^[\x00-\x1F]/', $valor)) {
+            return "'" . $valor;
+        }
+
+        return $valor;
+    }
+}
 
 try {
     // Mapa de servidores para preenchimento de nomes caso necessário
@@ -201,25 +266,25 @@ try {
 
         $linha = [
             $row['id'] ?? '',
-            $row['txid'] ?? '',
+            escaparCsv($row['txid'] ?? ''),
             $dataCriado,
             $dataPago,
-            $row['nick'] ?? '',
-            ucfirst($row['tipo_conta'] ?? 'Original'),
-            $row['vip_nome'] ?? '',
-            $servidorNome ?: 'Geral',
+            escaparCsv($row['nick'] ?? ''),
+            escaparCsv(ucfirst($row['tipo_conta'] ?? 'Original')),
+            escaparCsv($row['vip_nome'] ?? ''),
+            escaparCsv($servidorNome ?: 'Geral'),
             number_format((float)($row['valor_original'] ?? $row['valor'] ?? 0), 2, ',', '.'),
             number_format((float)($row['desconto_aplicado'] ?? 0), 2, ',', '.'),
             number_format((float)($row['valor'] ?? $row['valor_total'] ?? 0), 2, ',', '.'),
-            $row['cupom_codigo'] ?? '',
-            $metodoFormatado,
+            escaparCsv($row['cupom_codigo'] ?? ''),
+            escaparCsv($metodoFormatado),
             $row['parcelas'] ?? 1,
-            $statusFormatado,
-            $row['status_detail'] ?? '',
-            $row['payer_email'] ?? '',
-            $row['payer_cpf'] ?? '',
-            $entregueFormatado,
-            $row['mp_payment_id'] ?? ''
+            escaparCsv($statusFormatado),
+            escaparCsv($row['status_detail'] ?? ''),
+            escaparCsv($row['payer_email'] ?? ''),
+            escaparCsv($row['payer_cpf'] ?? ''),
+            escaparCsv($entregueFormatado),
+            escaparCsv($row['mp_payment_id'] ?? '')
         ];
 
         fputcsv($output, $linha, ';');
@@ -229,7 +294,5 @@ try {
     exit;
 } catch (Exception $e) {
     error_log("Erro ao exportar pedidos: " . $e->getMessage());
-    http_response_code(500);
-    echo "Erro ao exportar pedidos: " . htmlspecialchars($e->getMessage(), ENT_QUOTES, 'UTF-8');
-    exit;
+    exportarPedidosErro("Ocorreu um erro inesperado ao gerar o arquivo de exportação. Tente novamente ou contate o suporte se o problema persistir.", 500);
 }

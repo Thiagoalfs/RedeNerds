@@ -103,10 +103,6 @@ $coresPredefinidas = [
     </div>
 <?php endif; ?>
 
-<div id="toast-ajax" class="alert alert-success small d-none" role="alert" style="position: sticky; top: 10px; z-index: 999;">
-    <i class="fa-solid fa-check me-1"></i> <span id="toast-ajax-msg">Hierarquia salva!</span>
-</div>
-
 <!-- TABELA DE CARGOS -->
 <div class="admin-card">
     <div class="admin-card-header d-flex justify-content-between align-items-center">
@@ -114,7 +110,7 @@ $coresPredefinidas = [
             <h6 class="fw-bold mb-0"><i class="fa-solid fa-sitemap me-1 text-primary"></i> Hierarquia de Cargos</h6>
             <span class="text-muted small">Arraste as linhas ou use as setas para ajustar a prioridade (do topo para a base).</span>
         </div>
-        <span class="badge bg-light text-dark border"><?php echo $totalCargos; ?> cargo(s)</span>
+        <span class="badge bg-light text-dark border" data-item-counter><?php echo $totalCargos; ?> cargo(s)</span>
     </div>
     <div class="card-body p-0">
         <div class="table-responsive">
@@ -147,22 +143,12 @@ $coresPredefinidas = [
                                         
                                         <!-- Botões Up / Down -->
                                         <div class="btn-group btn-group-sm ms-1" role="group">
-                                            <form method="POST" action="/admin/api/equipe/cargo_reordenar.php" class="d-inline">
-                                                <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($csrfToken, ENT_QUOTES, 'UTF-8'); ?>">
-                                                <input type="hidden" name="id" value="<?php echo (int)$c['id']; ?>">
-                                                <input type="hidden" name="acao" value="subir">
-                                                <button type="submit" class="btn btn-sm btn-outline-secondary p-1 px-2" title="Mover para cima" <?php echo ($idx === 0) ? 'disabled' : ''; ?>>
-                                                    <i class="fa-solid fa-chevron-up" style="font-size: 0.75rem;"></i>
-                                                </button>
-                                            </form>
-                                            <form method="POST" action="/admin/api/equipe/cargo_reordenar.php" class="d-inline">
-                                                <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($csrfToken, ENT_QUOTES, 'UTF-8'); ?>">
-                                                <input type="hidden" name="id" value="<?php echo (int)$c['id']; ?>">
-                                                <input type="hidden" name="acao" value="descer">
-                                                <button type="submit" class="btn btn-sm btn-outline-secondary p-1 px-2" title="Mover para baixo" <?php echo ($idx === $totalCargos - 1) ? 'disabled' : ''; ?>>
-                                                    <i class="fa-solid fa-chevron-down" style="font-size: 0.75rem;"></i>
-                                                </button>
-                                            </form>
+                                            <button type="button" class="btn btn-sm btn-outline-secondary p-1 px-2" title="Mover para cima" onclick="reordenarCargo(<?php echo (int)$c['id']; ?>, 'subir')" <?php echo ($idx === 0) ? 'disabled' : ''; ?>>
+                                                <i class="fa-solid fa-chevron-up" style="font-size: 0.75rem;"></i>
+                                            </button>
+                                            <button type="button" class="btn btn-sm btn-outline-secondary p-1 px-2" title="Mover para baixo" onclick="reordenarCargo(<?php echo (int)$c['id']; ?>, 'descer')" <?php echo ($idx === $totalCargos - 1) ? 'disabled' : ''; ?>>
+                                                <i class="fa-solid fa-chevron-down" style="font-size: 0.75rem;"></i>
+                                            </button>
                                         </div>
                                     </div>
                                 </td>
@@ -373,6 +359,33 @@ function abrirModalEditarCargo(id, nome, cor, ordem) {
     modal.show();
 }
 
+function reordenarCargo(id, acao) {
+    if (!window.AdminApi || !window.AdminToast) {
+        // Fallback: submit tradicional via formulário dinâmico (mantém CSRF)
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = '/admin/api/equipe/cargo_reordenar.php';
+        form.innerHTML = '<input type="hidden" name="csrf_token" value="' + CSRF_TOKEN + '">' +
+                         '<input type="hidden" name="id" value="' + id + '">' +
+                         '<input type="hidden" name="acao" value="' + acao + '">';
+        document.body.appendChild(form);
+        form.submit();
+        return;
+    }
+
+    const label = (acao === 'subir') ? 'para cima' : 'para baixo';
+
+    window.AdminApi.post('/admin/api/equipe/cargo_reordenar.php', { id: id, acao: acao })
+        .then(function(data) {
+            window.AdminToast.success('Cargo movido ' + label + ' com sucesso!');
+            setTimeout(function() { location.reload(); }, 600);
+        })
+        .catch(function(err) {
+            console.error('Erro ao reordenar cargo:', err);
+            window.AdminToast.error(err && err.message ? err.message : 'Erro ao reordenar cargo.');
+        });
+}
+
 document.addEventListener('DOMContentLoaded', function() {
     // Sincronização e Preview no Modal NOVO CARGO
     const novoNomeInput = document.getElementById('novo-cargo-nome');
@@ -513,21 +526,14 @@ document.addEventListener('DOMContentLoaded', function() {
         .then(res => res.json())
         .then(data => {
             if (data.success) {
-                const toast = document.getElementById('toast-ajax');
-                const toastMsg = document.getElementById('toast-ajax-msg');
-                if (toast && toastMsg) {
-                    toastMsg.textContent = 'Hierarquia reordenada com sucesso!';
-                    toast.classList.remove('d-none');
-                    setTimeout(() => {
-                        toast.classList.add('d-none');
-                    }, 3000);
-                }
+                AdminToast.success('Hierarquia reordenada com sucesso!');
             } else {
-                alert('Erro ao salvar hierarquia: ' + (data.erro || 'Falha na requisição'));
+                AdminToast.error('Erro ao salvar hierarquia: ' + (data.erro || 'Falha na requisição'));
             }
         })
         .catch(err => {
             console.error('Erro ao reordenar:', err);
+            AdminToast.error('Erro ao salvar hierarquia. Tente novamente.');
         });
     }
 });

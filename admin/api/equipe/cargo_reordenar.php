@@ -51,6 +51,17 @@ if (!validarCsrfToken($tokenRecebido)) {
     exit;
 }
 
+if (!isset($pdo) || !$pdo instanceof PDO) {
+    if ($isAjax) {
+        http_response_code(500);
+        header('Content-Type: application/json; charset=utf-8');
+        echo json_encode(["success" => false, "erro" => "Erro de conexão com o banco de dados."]);
+        exit;
+    }
+    header("Location: /admin/equipe/manage.php?erro=" . urlencode("Erro de conexão com o banco de dados."));
+    exit;
+}
+
 try {
     // Modo 1: Array ordenado de IDs (Drag-and-Drop ou envio em lote)
     $ordemIds = $_POST['ordem_ids'] ?? $jsonData['ordem_ids'] ?? null;

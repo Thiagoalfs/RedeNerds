@@ -110,7 +110,10 @@ $mostrarPaginacao = $mostrarPaginacao ?? false;
                             <?php endif; ?>
                         </td>
                         <td class="text-muted small">
-                            <?php echo date('d/m/Y H:i', strtotime($p['criado_em'])); ?>
+                            <?php
+                            $criadoEm = !empty($p['criado_em']) ? strtotime($p['criado_em']) : false;
+                            echo $criadoEm ? date('d/m/Y H:i', $criadoEm) : '—';
+                            ?>
                         </td>
                         <td class="text-end">
                             <button type="button" 
@@ -131,6 +134,12 @@ $mostrarPaginacao = $mostrarPaginacao ?? false;
 <!-- PAGINAÇÃO (QUANDO HABILITADA) -->
 <?php if ($mostrarPaginacao && isset($totalPaginas) && $totalPaginas > 1): ?>
     <?php
+    // Defaults para permitir reuso do componente em outras páginas
+    $filtroServidor = $filtroServidor ?? '';
+    $filtroStatus = $filtroStatus ?? '';
+    $filtroMetodo = $filtroMetodo ?? '';
+    $busca = $busca ?? '';
+
     // Monta a URL de uma página preservando os filtros ativos
     $urlPagina = function ($p) use ($filtroServidor, $filtroStatus, $filtroMetodo, $busca) {
         return '?page=' . (int)$p
@@ -203,6 +212,17 @@ $mostrarPaginacao = $mostrarPaginacao ?? false;
         const modalInstance = bootstrap.Modal.getOrCreateInstance(modalEl);
         const bodyContent = document.getElementById('modalDetalhesBody');
 
+        // Escape universal para dados do banco (checkout público) renderizados via innerHTML
+        function escapeHtml(str) {
+            if (str === null || str === undefined) return '';
+            return String(str)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#39;');
+        }
+
         function renderDetalhesHtml(p) {
             const statusMap = {
                 'pago': '<span class="badge-status ativo"><i class="fa-solid fa-check me-1"></i> Aprovado</span>',
@@ -210,9 +230,9 @@ $mostrarPaginacao = $mostrarPaginacao ?? false;
                 'recusado': '<span class="badge-status inativo"><i class="fa-solid fa-xmark me-1"></i> Recusado</span>',
                 'cancelado': '<span class="badge-status inativo"><i class="fa-solid fa-xmark me-1"></i> Cancelado</span>'
             };
-            const statusBadge = statusMap[p.status?.toLowerCase()] || `<span class="badge-status inativo">${p.status || 'Desconhecido'}</span>`;
+            const statusBadge = statusMap[p.status?.toLowerCase()] || `<span class="badge-status inativo">${escapeHtml(p.status) || 'Desconhecido'}</span>`;
             const metodoBadge = (p.metodo_pagamento === 'cartao') 
-                ? `<span class="badge bg-info text-dark"><i class="fa-regular fa-credit-card me-1"></i> Cartão (${p.parcelas || 1}x)</span>`
+                ? `<span class="badge bg-info text-dark"><i class="fa-regular fa-credit-card me-1"></i> Cartão (${parseInt(p.parcelas) || 1}x)</span>`
                 : `<span class="badge bg-success"><i class="fa-brands fa-pix me-1"></i> PIX</span>`;
 
             const valorFormatado = parseFloat(p.valor || p.valor_pago || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
@@ -222,8 +242,8 @@ $mostrarPaginacao = $mostrarPaginacao ?? false;
                 <div class="p-3 bg-light border-bottom d-flex align-items-center gap-3">
                     <img src="https://mc-heads.net/avatar/${encodeURIComponent(p.nick)}/48" class="rounded border" width="48" height="48" alt="Skin" onerror="this.src='https://mc-heads.net/avatar/MHF_Steve/48'">
                     <div>
-                        <h5 class="fw-bold mb-0 text-dark">${p.nick}</h5>
-                        <small class="text-muted font-monospace">ID do Pedido: #${p.id}</small>
+                        <h5 class="fw-bold mb-0 text-dark">${escapeHtml(p.nick)}</h5>
+                        <small class="text-muted font-monospace">ID do Pedido: #${parseInt(p.id) || ''}</small>
                     </div>
                 </div>
                 <ul class="list-group list-group-flush small">
@@ -233,17 +253,17 @@ $mostrarPaginacao = $mostrarPaginacao ?? false;
                     </li>
                     <li class="list-group-item d-flex justify-content-between align-items-center">
                         <span class="text-muted">TXID / Transação:</span>
-                        <span class="font-monospace text-break" style="font-size: 0.78rem;">${p.txid || '—'}</span>
+                        <span class="font-monospace text-break" style="font-size: 0.78rem;">${escapeHtml(p.txid) || '—'}</span>
                     </li>
                     <li class="list-group-item d-flex justify-content-between align-items-center">
                         <span class="text-muted">Servidor:</span>
-                        <span class="fw-semibold">${p.servidor || p.servidor_nome || '—'}</span>
+                        <span class="fw-semibold">${escapeHtml(p.servidor || p.servidor_nome) || '—'}</span>
                     </li>
                     <li class="list-group-item d-flex justify-content-between align-items-center">
                         <span class="text-muted">Produto:</span>
                         <span class="badge bg-light text-dark border font-monospace fs-6">
                             <i class="fa-solid ${p.tipo_produto === 'chave' ? 'fa-key' : 'fa-crown'} text-warning me-1"></i>
-                            ${(p.tipo_produto === 'chave' && (parseInt(p.quantidade) || 1) > 1) ? `${p.quantidade}x ` : ''}${p.vip_nome || (p.tipo_produto === 'chave' ? 'Chaves' : 'Produto')}
+                            ${(p.tipo_produto === 'chave' && (parseInt(p.quantidade) || 1) > 1) ? `${parseInt(p.quantidade)}x ` : ''}${escapeHtml(p.vip_nome) || (p.tipo_produto === 'chave' ? 'Chaves' : 'Produto')}
                         </span>
                     </li>
                     <li class="list-group-item d-flex justify-content-between align-items-center">
@@ -253,22 +273,22 @@ $mostrarPaginacao = $mostrarPaginacao ?? false;
                     ${p.payer_email ? `
                     <li class="list-group-item d-flex justify-content-between align-items-center">
                         <span class="text-muted">E-mail Pagador:</span>
-                        <span>${p.payer_email}</span>
+                        <span>${escapeHtml(p.payer_email)}</span>
                     </li>` : ''}
                     ${p.payer_cpf ? `
                     <li class="list-group-item d-flex justify-content-between align-items-center">
                         <span class="text-muted">CPF Pagador:</span>
-                        <span class="font-monospace">${p.payer_cpf}</span>
+                        <span class="font-monospace">${escapeHtml(p.payer_cpf)}</span>
                     </li>` : ''}
                     ${p.card_first_six_digits ? `
                     <li class="list-group-item d-flex justify-content-between align-items-center">
                         <span class="text-muted">Cartão:</span>
-                        <span>${p.card_first_six_digits}••••••${p.card_last_four_digits}</span>
+                        <span>${escapeHtml(p.card_first_six_digits)}••••••${escapeHtml(p.card_last_four_digits)}</span>
                     </li>` : ''}
                     ${p.cupom_codigo ? `
                     <li class="list-group-item d-flex justify-content-between align-items-center">
                         <span class="text-muted">Cupom Aplicado:</span>
-                        <span class="badge bg-light text-dark border"><i class="fa-solid fa-tag me-1"></i>${p.cupom_codigo} (-R$ ${descontoFormatado})</span>
+                        <span class="badge bg-light text-dark border"><i class="fa-solid fa-tag me-1"></i>${escapeHtml(p.cupom_codigo)} (-R$ ${descontoFormatado})</span>
                     </li>` : ''}
                     <li class="list-group-item d-flex justify-content-between align-items-center">
                         <span class="text-muted">Valor Pago:</span>
@@ -276,12 +296,12 @@ $mostrarPaginacao = $mostrarPaginacao ?? false;
                     </li>
                     <li class="list-group-item d-flex justify-content-between align-items-center">
                         <span class="text-muted">Criado em:</span>
-                        <span>${p.criado_em || '—'}</span>
+                        <span>${escapeHtml(p.criado_em) || '—'}</span>
                     </li>
                     ${p.pago_em ? `
                     <li class="list-group-item d-flex justify-content-between align-items-center">
                         <span class="text-muted">Pago em:</span>
-                        <span>${p.pago_em}</span>
+                        <span>${escapeHtml(p.pago_em)}</span>
                     </li>` : ''}
                 </ul>
             `;
@@ -319,7 +339,7 @@ $mostrarPaginacao = $mostrarPaginacao ?? false;
                     }
                     bodyContent.innerHTML = renderDetalhesHtml(data.pedido);
                 } catch (err) {
-                    bodyContent.innerHTML = `<div class="alert alert-danger mb-0">${err.message}</div>`;
+                    bodyContent.innerHTML = `<div class="alert alert-danger mb-0">${escapeHtml(err.message)}</div>`;
                 }
             });
         });

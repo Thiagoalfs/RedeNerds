@@ -6,7 +6,15 @@ require_once __DIR__ . "/../../wiki/wiki_helper.php";
 
 $wikiHabilitada = isWikiHabilitada($pdo);
 $filtroServidor = isset($_GET['servidor_id']) ? (int)$_GET['servidor_id'] : 0;
-$servidores = $pdo->query("SELECT id, servername FROM servidores ORDER BY servername ASC")->fetchAll(PDO::FETCH_ASSOC);
+
+$servidores = [];
+try {
+    $stmtSrv = $pdo->query("SELECT id, servername FROM servidores ORDER BY servername ASC");
+    $servidores = $stmtSrv->fetchAll(PDO::FETCH_ASSOC);
+} catch (Exception $e) {
+    error_log("Erro ao buscar servidores (wiki): " . $e->getMessage());
+    $servidores = [];
+}
 
 $where = [];
 $params = [];
@@ -39,7 +47,7 @@ try {
 <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-3">
     <div>
         <h4 class="fw-bold mb-1">Wiki & Base de Conhecimento</h4>
-        <p class="text-muted small mb-0"><?php echo count($artigos); ?> artigo(s) cadastrado(s)</p>
+        <p class="text-muted small mb-0"><span data-item-counter><?php echo count($artigos); ?> artigo(s)</span> cadastrado(s)</p>
     </div>
     <div class="d-flex align-items-center flex-wrap gap-2">
         <!-- TOGGLE GERAL DA WIKI (PÚBLICA / NAVBAR) -->
@@ -144,20 +152,22 @@ try {
                                 <td class="text-end text-nowrap">
                                     <div class="d-inline-flex align-items-center justify-content-end gap-1">
                                         <a href="artigo_editar.php?id=<?php echo (int)$art['id']; ?>" class="btn btn-sm btn-primary">Editar</a>
-                                        <form method="POST" action="/admin/api/wiki/toggle.php" class="d-inline">
-                                            <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($csrfToken, ENT_QUOTES, 'UTF-8'); ?>">
-                                            <input type="hidden" name="id" value="<?php echo (int)$art['id']; ?>">
-                                            <button type="submit" class="btn btn-sm btn-outline-secondary" title="<?php echo $art['publicado'] ? 'Ocultar' : 'Publicar'; ?>">
-                                                <i class="fa-solid <?php echo $art['publicado'] ? 'fa-eye' : 'fa-eye-slash'; ?>"></i>
-                                            </button>
-                                        </form>
-                                        <form method="POST" action="/admin/api/wiki/deletar.php" class="d-inline" onsubmit="return confirm('Deletar este artigo da wiki?');">
-                                            <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($csrfToken, ENT_QUOTES, 'UTF-8'); ?>">
-                                            <input type="hidden" name="id" value="<?php echo (int)$art['id']; ?>">
-                                            <button type="submit" class="btn btn-sm btn-danger" title="Deletar">
-                                                <i class="fa-solid fa-trash"></i>
-                                            </button>
-                                        </form>
+                                        <button type="button" class="btn btn-sm btn-outline-secondary" 
+                                                data-action="async-toggle" 
+                                                data-url="/admin/api/wiki/toggle.php" 
+                                                data-id="<?php echo (int)$art['id']; ?>" 
+                                                title="<?php echo $art['publicado'] ? 'Ocultar' : 'Publicar'; ?>">
+                                            <i class="fa-solid <?php echo $art['publicado'] ? 'fa-eye' : 'fa-eye-slash'; ?>"></i>
+                                        </button>
+                                        <button type="button" class="btn btn-sm btn-danger" 
+                                                data-action="async-delete" 
+                                                data-url="/admin/api/wiki/deletar.php" 
+                                                data-id="<?php echo (int)$art['id']; ?>" 
+                                                data-name="<?php echo htmlspecialchars($art['titulo'], ENT_QUOTES, 'UTF-8'); ?>" 
+                                                data-confirm="Deletar o artigo <?php echo htmlspecialchars($art['titulo'], ENT_QUOTES, 'UTF-8'); ?> da wiki?" 
+                                                title="Deletar">
+                                            <i class="fa-solid fa-trash"></i>
+                                        </button>
                                     </div>
                                 </td>
                             </tr>

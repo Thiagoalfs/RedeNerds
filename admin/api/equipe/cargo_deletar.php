@@ -34,8 +34,8 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     exit;
 }
 
-// CSRF check
-$tokenRecebido = $_POST['csrf_token'] ?? '';
+// CSRF check (aceita campo do form, header X-CSRF-Token ou corpo JSON)
+$tokenRecebido = obterCsrfTokenRequisicao();
 if (!validarCsrfToken($tokenRecebido)) {
     if ($isAjax) {
         http_response_code(403);
@@ -57,6 +57,17 @@ if ($id <= 0) {
         exit;
     }
     header("Location: /admin/equipe/manage.php?erro=" . urlencode("ID do cargo inválido."));
+    exit;
+}
+
+if (!isset($pdo) || !$pdo instanceof PDO) {
+    if ($isAjax) {
+        http_response_code(500);
+        header('Content-Type: application/json; charset=utf-8');
+        echo json_encode(["success" => false, "erro" => "Erro de conexão com o banco de dados."]);
+        exit;
+    }
+    header("Location: /admin/equipe/manage.php?erro=" . urlencode("Erro de conexão com o banco de dados."));
     exit;
 }
 

@@ -37,14 +37,10 @@ $erro = $_GET['erro'] ?? '';
     </div>
     <div class="d-flex align-items-center flex-wrap gap-2">
         <!-- TOGGLE GERAL DA WIKI (PÚBLICA / NAVBAR) -->
-        <form method="POST" action="/admin/api/wiki/toggle_geral.php" class="d-inline m-0">
-            <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($csrfToken, ENT_QUOTES, 'UTF-8'); ?>">
-            <input type="hidden" name="wiki_habilitada" value="<?php echo $wikiHabilitada ? '0' : '1'; ?>">
-            <button type="submit" class="btn btn-sm <?php echo $wikiHabilitada ? 'btn-outline-success' : 'btn-outline-danger'; ?>" title="<?php echo $wikiHabilitada ? 'Clique para ocultar a Wiki no site' : 'Clique para ativar a visualização pública da Wiki'; ?>">
-                <i class="fa-solid <?php echo $wikiHabilitada ? 'fa-globe' : 'fa-eye-slash'; ?> me-1"></i>
-                Wiki: <?php echo $wikiHabilitada ? 'Ativa' : 'Oculta'; ?>
-            </button>
-        </form>
+        <button type="button" id="btn-toggle-wiki" class="btn btn-sm <?php echo $wikiHabilitada ? 'btn-outline-success' : 'btn-outline-danger'; ?>" data-wiki-ativa="<?php echo $wikiHabilitada ? '1' : '0'; ?>" title="<?php echo $wikiHabilitada ? 'Clique para ocultar a Wiki no site' : 'Clique para ativar a visualização pública da Wiki'; ?>" onclick="toggleWikiGeral(this)">
+            <i class="fa-solid <?php echo $wikiHabilitada ? 'fa-globe' : 'fa-eye-slash'; ?> me-1"></i>
+            Wiki: <?php echo $wikiHabilitada ? 'Ativa' : 'Oculta'; ?>
+        </button>
 
         <a href="/wiki/" target="_blank" class="btn btn-outline-secondary btn-sm"><i class="fa-solid fa-arrow-up-right-from-square me-1"></i> Ver Wiki Pública</a>
         <button type="button" class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#modalNovaCategoria">
@@ -277,6 +273,54 @@ $erro = $_GET['erro'] ?? '';
 </div>
 
 <script>
+function toggleWikiGeral(btn) {
+    if (btn.disabled) return;
+
+    const ativoAtual = btn.getAttribute('data-wiki-ativa') === '1';
+    const novoValor = ativoAtual ? '0' : '1';
+    const htmlOriginal = btn.innerHTML;
+
+    if (!window.AdminApi || !window.AdminToast) {
+        // Fallback: submit tradicional para manter a funcionalidade sem o admin_async.js
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = '/admin/api/wiki/toggle_geral.php';
+        form.innerHTML = '<input type="hidden" name="wiki_habilitada" value="' + novoValor + '">';
+        document.body.appendChild(form);
+        form.submit();
+        return;
+    }
+
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin me-1"></i> Salvando...';
+
+    window.AdminApi.post('/admin/api/wiki/toggle_geral.php', { wiki_habilitada: novoValor })
+        .then(function(data) {
+            const habilitada = (data && data.wiki_habilitada !== undefined)
+                ? Boolean(data.wiki_habilitada)
+                : (novoValor === '1');
+
+            btn.setAttribute('data-wiki-ativa', habilitada ? '1' : '0');
+            btn.className = 'btn btn-sm ' + (habilitada ? 'btn-outline-success' : 'btn-outline-danger');
+            btn.title = habilitada
+                ? 'Clique para ocultar a Wiki no site'
+                : 'Clique para ativar a visualização pública da Wiki';
+            btn.innerHTML = '<i class="fa-solid ' + (habilitada ? 'fa-globe' : 'fa-eye-slash') + ' me-1"></i> Wiki: ' + (habilitada ? 'Ativa' : 'Oculta');
+
+            window.AdminToast.success(habilitada
+                ? 'Visualização pública da Wiki ATIVADA com sucesso!'
+                : 'Visualização pública da Wiki DESATIVADA com sucesso (ocultada na navbar)!');
+        })
+        .catch(function(err) {
+            console.error('Erro ao alternar Wiki:', err);
+            btn.innerHTML = htmlOriginal;
+            window.AdminToast.error(err && err.message ? err.message : 'Erro ao alterar status da Wiki.');
+        })
+        .finally(function() {
+            btn.disabled = false;
+        });
+}
+
 function atualizarPreviewIcone(val, previewId) {
     const el = document.getElementById(previewId);
     if (!el) return;

@@ -101,7 +101,7 @@ try {
 <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-3">
     <div>
         <h4 class="fw-bold mb-1">Pedidos</h4>
-        <p class="text-muted small mb-0"><?php echo $totalPedidos; ?> pedido(s) registrado(s)</p>
+        <p class="text-muted small mb-0"><span data-item-counter><?php echo $totalPedidos; ?> pedido(s)</span> registrado(s)</p>
     </div>
     <div class="d-flex gap-2">
         <button type="button" class="btn btn-success btn-sm d-flex align-items-center gap-2" data-bs-toggle="modal" data-bs-target="#modalExportarPedidos">
@@ -170,7 +170,7 @@ try {
 <div class="modal fade" id="modalExportarPedidos" tabindex="-1" aria-labelledby="modalExportarPedidosLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
-            <form method="GET" action="exportar.php" target="_blank" id="formExportarPedidos">
+            <form method="GET" action="exportar.php" target="_self" id="formExportarPedidos">
                 <div class="modal-header">
                     <h5 class="modal-title fw-bold" id="modalExportarPedidosLabel">
                         <i class="fa-solid fa-file-excel text-success me-2"></i> Exportar Pedidos (.CSV)
@@ -219,6 +219,13 @@ try {
                     <!-- FILTROS ADICIONAIS -->
                     <div class="border-top pt-3">
                         <label class="form-label small text-muted mb-2 fw-semibold"><i class="fa-solid fa-sliders me-1"></i> Filtros Adicionais (Opcional):</label>
+
+                        <!-- Filtros ativos na listagem propagados para a exportação -->
+                        <input type="hidden" name="servidor" id="exportServidorHidden" value="<?php echo htmlspecialchars($filtroServidor, ENT_QUOTES, 'UTF-8'); ?>">
+                        <input type="hidden" name="status" id="exportStatusHidden" value="<?php echo htmlspecialchars($filtroStatus, ENT_QUOTES, 'UTF-8'); ?>">
+                        <input type="hidden" name="metodo" id="exportMetodoHidden" value="<?php echo htmlspecialchars($filtroMetodo, ENT_QUOTES, 'UTF-8'); ?>">
+                        <input type="hidden" name="busca" id="exportBuscaHidden" value="<?php echo htmlspecialchars($busca, ENT_QUOTES, 'UTF-8'); ?>">
+
                         <div class="row g-2">
                             <div class="col-6">
                                 <label for="exportServidor" class="form-label small text-muted">Servidor:</label>
@@ -261,6 +268,16 @@ document.addEventListener('DOMContentLoaded', function() {
     const inputDataFim = document.getElementById('exportDataFim');
     const checkApenasAprovados = document.getElementById('exportApenasAprovados');
     const selectStatus = document.getElementById('exportStatus');
+    const selectServidor = document.getElementById('exportServidor');
+    const statusHidden = document.getElementById('exportStatusHidden');
+
+    // Mantém o status oculto sempre alinhado ao select vigente,
+    // garantindo que a exportação reflita exatamente os filtros da listagem.
+    function sincronizarFiltrosOcultos() {
+        if (statusHidden && selectStatus && !selectStatus.disabled) {
+            statusHidden.value = selectStatus.value;
+        }
+    }
 
     if (checkTodoPeriodo && inputDataInicio && inputDataFim) {
         function toggleDatas() {
@@ -289,10 +306,35 @@ document.addEventListener('DOMContentLoaded', function() {
             } else {
                 selectStatus.classList.remove('bg-light');
             }
+            sincronizarFiltrosOcultos();
         }
 
         checkApenasAprovados.addEventListener('change', toggleStatus);
+        selectStatus.addEventListener('change', function() {
+            // Um status específico escolhido substitui o atalho "Apenas aprovados"
+            if (selectStatus.value) {
+                checkApenasAprovados.checked = false;
+            } else {
+                checkApenasAprovados.checked = true;
+            }
+            toggleStatus();
+        });
         toggleStatus();
+
+        // Se a listagem já está filtrada por um status específico, o atalho
+        // "Apenas aprovados" não deve substituir esse filtro na exportação.
+        if (selectStatus.value) {
+            checkApenasAprovados.checked = false;
+            toggleStatus();
+        }
+    }
+
+    if (selectServidor) {
+        // Espelha o servidor pré-selecionado no campo oculto do formulário
+        const servidorHidden = document.getElementById('exportServidorHidden');
+        if (servidorHidden && !servidorHidden.value && selectServidor.value) {
+            servidorHidden.value = selectServidor.value;
+        }
     }
 });
 </script>

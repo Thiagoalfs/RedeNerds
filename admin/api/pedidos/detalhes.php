@@ -34,6 +34,7 @@ try {
 
     echo json_encode(["success" => true, "pedido" => $pedido], JSON_UNESCAPED_UNICODE);
 } catch (PDOException $e) {
+    error_log("Erro ao buscar pedido: " . $e->getMessage());
     http_response_code(500);
-    echo json_encode(["erro" => "Erro no banco de dados: " . $e->getMessage()], JSON_UNESCAPED_UNICODE);
+    echo json_encode(["erro" => "Erro ao buscar dados do pedido."], JSON_UNESCAPED_UNICODE);
 }

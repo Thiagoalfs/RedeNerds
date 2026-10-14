@@ -3,7 +3,9 @@ $paginaAtiva = 'noticias';
 $tituloPagina = 'Novidades';
 require_once __DIR__ . "/../includes/admin_header.php";
 
-const POR_PAGINA = 10;
+if (!defined('POR_PAGINA')) {
+    define('POR_PAGINA', 15);
+}
 $pagina = isset($_GET['page']) ? max(1, (int)$_GET['page']) : 1;
 $offset = ($pagina - 1) * POR_PAGINA;
 
@@ -12,6 +14,7 @@ $whereSql = !empty($busca) ? "WHERE titulo LIKE :busca OR autor LIKE :busca OR c
 $params = !empty($busca) ? [':busca' => "%{$busca}%"] : [];
 
 $totalNoticias = 0;
+$totalPaginas = 1;
 $noticias = [];
 $servidoresMap = [];
 
@@ -55,7 +58,7 @@ try {
 <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-3">
     <div>
         <h4 class="fw-bold mb-1">Novidades</h4>
-        <p class="text-muted small mb-0"><?php echo $totalNoticias; ?> novidade(s) cadastrada(s)</p>
+        <p class="text-muted small mb-0"><span data-item-counter><?php echo $totalNoticias; ?> novidade(s)</span> cadastrada(s)</p>
     </div>
     <a href="criar.php" class="btn btn-success btn-sm"><i class="fa-solid fa-plus me-1"></i> Nova novidade</a>
 </div>
@@ -131,13 +134,15 @@ try {
                                 <td class="text-end text-nowrap">
                                     <div class="d-inline-flex align-items-center justify-content-end gap-1">
                                         <a href="editar.php?id=<?php echo (int)$n['id']; ?>" class="btn btn-sm btn-primary">Editar</a>
-                                        <form method="POST" action="/admin/api/noticias/deletar.php" class="d-inline" onsubmit="return confirm('Deletar esta novidade? Essa ação não pode ser desfeita.');">
-                                            <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($csrfToken, ENT_QUOTES, 'UTF-8'); ?>">
-                                            <input type="hidden" name="id" value="<?php echo (int)$n['id']; ?>">
-                                            <button type="submit" class="btn btn-sm btn-danger" title="Deletar">
-                                                <i class="fa-solid fa-trash"></i>
-                                            </button>
-                                        </form>
+                                        <button type="button" class="btn btn-sm btn-danger" 
+                                                data-action="async-delete" 
+                                                data-url="/admin/api/noticias/deletar.php" 
+                                                data-id="<?php echo (int)$n['id']; ?>" 
+                                                data-name="<?php echo htmlspecialchars($n['titulo'], ENT_QUOTES, 'UTF-8'); ?>" 
+                                                data-confirm="Deletar a novidade <?php echo htmlspecialchars($n['titulo'], ENT_QUOTES, 'UTF-8'); ?>? Essa ação não pode ser desfeita." 
+                                                title="Deletar">
+                                            <i class="fa-solid fa-trash"></i>
+                                        </button>
                                     </div>
                                 </td>
                             </tr>
@@ -150,22 +155,6 @@ try {
 </div>
 
 <!-- PAGINAÇÃO -->
-<?php if (isset($totalPaginas) && $totalPaginas > 1): ?>
-    <nav class="d-flex justify-content-center mt-3">
-        <ul class="pagination pagination-sm">
-            <li class="page-item <?php echo ($pagina <= 1) ? 'disabled' : ''; ?>">
-                <a class="page-link" href="?page=<?php echo max(1, $pagina - 1); ?>&busca=<?php echo urlencode($busca); ?>">‹ Anterior</a>
-            </li>
-            <?php for ($i = 1; $i <= $totalPaginas; $i++): ?>
-                <li class="page-item <?php echo ($i === $pagina) ? 'active' : ''; ?>">
-                    <a class="page-link" href="?page=<?php echo $i; ?>&busca=<?php echo urlencode($busca); ?>"><?php echo $i; ?></a>
-                </li>
-            <?php endfor; ?>
-            <li class="page-item <?php echo ($pagina >= $totalPaginas) ? 'disabled' : ''; ?>">
-                <a class="page-link" href="?page=<?php echo min($totalPaginas, $pagina + 1); ?>&busca=<?php echo urlencode($busca); ?>">Próxima ›</a>
-            </li>
-        </ul>
-    </nav>
-<?php endif; ?>
+<?php require_once __DIR__ . "/../includes/paginacao.php"; renderPaginacaoAdmin($pagina, $totalPaginas, ['busca' => $busca]); ?>
 
 <?php require_once __DIR__ . "/../includes/admin_footer.php"; ?>

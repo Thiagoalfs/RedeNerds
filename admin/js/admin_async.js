@@ -219,7 +219,8 @@
         const res = await AdminApi.post(url, { id, format: 'json' });
         const novoStatus = res.ativo !== undefined ? Boolean(res.ativo) : 
                            (res.enabled !== undefined ? Boolean(res.enabled) : 
-                           (res.novo_status !== undefined ? Boolean(res.novo_status) : true));
+                           (res.novo_status !== undefined ? Boolean(res.novo_status) :
+                           (res.publicado !== undefined ? Boolean(res.publicado) : true)));
 
         // Atualiza o badge de status na mesma linha da tabela
         const row = btn.closest('tr');
@@ -229,8 +230,14 @@
           const badge = row.querySelector('.badge-status, [data-status-badge]');
           if (badge) {
             isVisibilityType = badge.classList.contains('visivel') || badge.classList.contains('oculto') || badge.textContent.trim().toLowerCase().includes('vis');
-            
-            if (isVisibilityType) {
+            const ehPublicado = badge.dataset.statusPublicado !== undefined;
+
+            if (ehPublicado) {
+                badge.className = novoStatus ? 'badge-status ativo' : 'badge-status inativo';
+                badge.innerHTML = novoStatus
+                    ? '<i class="fa-solid fa-check me-1"></i> Publicado'
+                    : '<i class="fa-solid fa-eye-slash me-1"></i> Rascunho';
+            } else if (isVisibilityType) {
               badge.className = novoStatus ? 'badge-status visivel' : 'badge-status oculto';
               badge.textContent = novoStatus ? 'Visível' : 'Oculto';
             } else {
@@ -243,15 +250,19 @@
         }
 
         // Atualiza ícone e título do botão
+        const badgeEl = row ? row.querySelector('[data-status-badge]') : null;
+        const ehPublicado = badgeEl && badgeEl.dataset.statusPublicado !== undefined;
         if (novoStatus) {
-          btn.title = isVisibilityType ? 'Ocultar servidor' : 'Desativar da loja';
-          btn.innerHTML = '<i class="fa-solid fa-eye"></i>';
+          btn.title = ehPublicado ? 'Despublicar artigo' : (isVisibilityType ? 'Ocultar servidor' : 'Desativar da loja');
+          btn.innerHTML = '<i class="fa-solid ' + (ehPublicado ? 'fa-eye-slash' : 'fa-eye') + '"></i>';
         } else {
-          btn.title = isVisibilityType ? 'Exibir servidor' : 'Ativar na loja';
-          btn.innerHTML = '<i class="fa-solid fa-eye-slash"></i>';
+          btn.title = ehPublicado ? 'Publicar artigo' : (isVisibilityType ? 'Exibir servidor' : 'Ativar na loja');
+          btn.innerHTML = '<i class="fa-solid ' + (ehPublicado ? 'fa-eye' : 'fa-eye') + '"></i>';
         }
 
-        const msgSucesso = res.mensagem || (novoStatus ? (isVisibilityType ? 'Servidor visível!' : 'Status alterado para Ativo!') : (isVisibilityType ? 'Servidor oculto!' : 'Status alterado para Inativo!'));
+        const msgSucesso = res.mensagem || (novoStatus
+            ? (ehPublicado ? 'Artigo publicado!' : (isVisibilityType ? 'Servidor visível!' : 'Status alterado para Ativo!'))
+            : (ehPublicado ? 'Artigo despublicado!' : (isVisibilityType ? 'Servidor oculto!' : 'Status alterado para Inativo!')));
         AdminToast.success(msgSucesso);
       } catch (err) {
         console.error('Erro no toggle:', err);
