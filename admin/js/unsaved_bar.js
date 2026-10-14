@@ -121,10 +121,48 @@
       }
       savedState = capture();
       refresh();
+      // Notifica a página (ex: equipe/manage.php) para re-renderizar estados
+      // client-side que dependem dos campos (ex: ordem dos cargos)
+      form.dispatchEvent(new CustomEvent('unsaved:discarded', { bubbles: true }));
     });
 
-    // Salvar: submit nativo (respeita validação HTML5 do formulário)
+    // Salvar: se o formulário definir data-save-endpoint, o envio é feito via
+    // API (ex: reordenação de cargos) em vez de submit tradicional do formulário
     btnSave.addEventListener('click', function () {
+      var endpoint = form.dataset.saveEndpoint;
+      if (endpoint) {
+        if (!window.AdminApi || !window.AdminToast) {
+          window.AdminToast.error('Recursos assíncronos indisponíveis. Recarregue a página.');
+          return;
+        }
+
+        var rawIds = form.querySelector('[name="ordem_ids"]')?.value ?? '';
+        var ids = rawIds.split(',').filter(function(v) { return v !== ''; });
+        if (ids.length === 0) {
+          window.AdminToast.info('Nenhum cargo para salvar.');
+          return;
+        }
+
+        var data = new FormData();
+        ids.forEach(function(id) { data.append('ordem_ids[]', id); });
+
+        window.AdminApi.post(endpoint, data)
+          .then(function(res) {
+            if (res.success) {
+              savedState = capture();
+              snapshotFields();
+              refresh();
+              window.AdminToast.success(res.mensagem || 'Alterações salvas com sucesso!');
+            } else {
+              window.AdminToast.error(res.erro || 'Falha ao salvar.');
+            }
+          })
+          .catch(function(err) {
+            window.AdminToast.error(err && err.message ? err.message : 'Erro ao salvar.');
+          });
+        return;
+      }
+
       if (typeof form.requestSubmit === 'function') {
         form.requestSubmit();
       } else {

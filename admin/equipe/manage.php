@@ -360,7 +360,6 @@ function abrirModalEditarCargo(id, nome, cor, ordem) {
 }
 
 function reordenarCargo(id, acao) {
-    const label = (acao === 'subir') ? 'para cima' : 'para baixo';
     const row = document.querySelector('tr.cargo-row[data-id="' + id + '"]');
     if (!row) return;
 
@@ -370,29 +369,40 @@ function reordenarCargo(id, acao) {
         return;
     }
 
-    row.style.opacity = '0.4';
-    row.style.pointerEvents = 'none';
+    // Mudança apenas client-side; o envio ao backend acontece quando o
+    // usuário clica em "Salvar" na barra de alterações (unsaved_bar.php)
+    const tbody = document.getElementById('sortable-cargos');
+    if (acao === 'subir') {
+        tbody.insertBefore(row, sibling);
+    } else {
+        tbody.insertBefore(sibling, row);
+    }
+    atualizarHierarquiaCargos();
+    marcarOrdemAlterada();
+}
 
-    window.AdminApi.post('/admin/api/equipe/cargo_reordenar.php', { id: id, acao: acao })
-        .then(function(data) {
-            // Move a linha na tabela sem recarregar a página
-            const tbody = document.getElementById('sortable-cargos');
-            if (acao === 'subir') {
-                tbody.insertBefore(row, sibling);
-            } else {
-                tbody.insertBefore(sibling, row);
-            }
-            atualizarHierarquiaCargos();
-            window.AdminToast.success('Cargo movido ' + label + ' com sucesso!');
-        })
-        .catch(function(err) {
-            window.AdminToast.error(err && err.message ? err.message : 'Erro ao reordenar cargo.');
-        })
-        .finally(function() {
-            // Sempre restaura a linha (sucesso ou erro)
-            row.style.opacity = '';
-            row.style.pointerEvents = '';
-        });
+// Marca a ordem atual dos cargos no campo oculto, disparando a detecção de
+// alterações da barra flutuante (unsaved_bar.php)
+function marcarOrdemAlterada() {
+    const tbody = document.getElementById('sortable-cargos');
+    if (!tbody) return;
+    const ids = Array.from(tbody.querySelectorAll('tr.cargo-row')).map(r => r.dataset.id).join(',');
+    const input = document.getElementById('ordem-cargos-input');
+    if (input) {
+        input.value = ids;
+        input.dispatchEvent(new Event('input', { bubbles: true }));
+    }
+}
+
+// Re-renderiza a tabela a partir da ordem salva no campem oculto
+function aplicarOrdemCliente(ordemIds) {
+    const tbody = document.getElementById('sortable-cargos');
+    if (!tbody) return;
+    ordemIds.forEach(function(id) {
+        const row = tbody.querySelector('tr.cargo-row[data-id="' + id + '"]');
+        if (row) tbody.appendChild(row);
+    });
+    atualizarHierarquiaCargos();
 }
 
 // Atualiza badges de posição, coroa "Topo" e estados dos botões
@@ -538,41 +548,34 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     function salvarNovaOrdem() {
-        const rows = tbody.querySelectorAll('tr.cargo-row');
-        const ordemIds = [];
-        rows.forEach((r) => {
-            ordemIds.push(parseInt(r.dataset.id, 10));
-        });
-
-        if (ordemIds.length === 0) return;
-
-        fetch('/admin/api/equipe/cargo_reordenar.php', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-Requested-With': 'XMLHttpRequest'
-            },
-            body: JSON.stringify({
-                csrf_token: CSRF_TOKEN,
-                ordem_ids: ordemIds
-            })
-        })
-        .then(res => res.json())
-        .then(data => {
-            if (data.success) {
-                atualizarHierarquiaCargos();
-                AdminToast.success('Hierarquia reordenada com sucesso!');
-            } else {
-                AdminToast.error('Erro ao salvar hierarquia: ' + (data.erro || 'Falha na requisição'));
-            }
-        })
-        .catch(err => {
-            console.error('Erro ao reordenar:', err);
-            AdminToast.error('Erro ao salvar hierarquia. Tente novamente.');
-        });
+        // Apenas marca a ordem como alterada no campo oculto; o envio ao
+        // backend acontece quando o usuário clica em "Salvar" na barra de
+        // alterações (unsaved_bar.php)
+        marcarOrdemAlterada();
     }
 });
 </script>
 
-<?php require_once __DIR__ . "/../includes/admin_footer.php"; ?>
+<!-- Estado da ordem dos cargos (controlado pela barra de alterações) -->
+<form class="js-unsaved-form" id="form-ordem-cargos" data-save-endpoint="/admin/api/equipe/cargo_reordenar.php" style="display: none;">
+    <input type="hidden" name="ordem_ids" id="ordem-cargos-input" value="<?php echo htmlspecialchars(implode(',', array_column($cargos, 'id')), ENT_QUOTES, 'UTF-8'); ?>">
+</form>
+
+<script>
+// Ao descartar as alterações pela barra, volta a tabela de cargos para a ordem original
+document.addEventListener('DOMContentLoaded', function() {
+    const formOrdem = document.getElementById('form-ordem-cargos');
+    if (!formOrdem) return;
+    formOrdem.addEventListener('unsaved:discarded', function() {
+        const input = document.getElementById('ordem-cargos-input');
+        const ids = input ? input.value.split(',').filter(function(v) { return v !== ''; }) : [];
+        aplicarOrdemCliente(ids);
+        if (window.AdminToast) {
+            window.AdminToast.info('Alterações de ordem descartadas.');
+        }
+    });
+});
+</script>
+
+<?php require_once __DIR__ . "/../includes/unsaved_bar.php"; ?>
 
