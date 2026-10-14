@@ -67,10 +67,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         } elseif (empty($titulo) || empty($conteudo) || empty($autor)) {
             $mensagem_erro = "Preencha todos os campos obrigatórios.";
         } else {
+            // Envia o anúncio ao Discord ANTES de gravar, para já armazenar o
+            // ID da mensagem (usado na edição/exclusão sincronizadas)
+            $discordMsgId = null;
+            if ($enviar_webhook) {
+                $discordMsgId = enviarWebhookDiscord($categoria_envio, $titulo, $conteudo, $autor, $capa, $category, $marcar_everyone);
+            }
+
             try {
                 $stmt = $pdo->prepare("
-                    INSERT INTO novidades (titulo, conteudo, autor, capa, category, categoria_envio) 
-                    VALUES (:titulo, :conteudo, :autor, :capa, :category, :categoria_envio)
+                    INSERT INTO novidades (titulo, conteudo, autor, capa, category, categoria_envio, discord_msg_id) 
+                    VALUES (:titulo, :conteudo, :autor, :capa, :category, :categoria_envio, :discord_msg_id)
                 ");
                 $stmt->execute([
                     ':titulo'          => $titulo,
@@ -78,17 +85,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     ':autor'           => $autor,
                     ':capa'            => $capa,
                     ':category'        => $category,
-                    ':categoria_envio' => $categoria_envio
+                    ':categoria_envio' => $categoria_envio,
+                    ':discord_msg_id'  => $discordMsgId
                 ]);
-
-                $noticia_id = (int)$pdo->lastInsertId();
 
                 require_once __DIR__ . "/../../api/cache_helper.php";
                 invalidarCache('novidades');
-
-                if ($enviar_webhook) {
-                    enviarWebhookDiscord($categoria_envio, $titulo, $conteudo, $autor, $capa, $category, $marcar_everyone);
-                }
 
                 header("Location: index.php");
                 exit;

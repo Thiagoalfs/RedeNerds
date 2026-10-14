@@ -79,6 +79,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 require_once __DIR__ . "/../../api/cache_helper.php";
                 invalidarCache('novidades');
 
+                // Sincroniza a mensagem do Discord com o conteúdo editado
+                $discordMsgId = $noticia['discord_msg_id'] ?? null;
+                if (!empty($discordMsgId)) {
+                    editarWebhookDiscord($categoria_envio, $titulo, $conteudo, $autor, $capa, $category, $discordMsgId);
+                }
+
                 header("Location: index.php");
                 exit;
             } catch (PDOException $e) {

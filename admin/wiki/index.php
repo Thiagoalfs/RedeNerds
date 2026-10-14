@@ -50,15 +50,15 @@ try {
         <p class="text-muted small mb-0"><span data-item-counter><?php echo count($artigos); ?> artigo(s)</span> cadastrado(s)</p>
     </div>
     <div class="d-flex align-items-center flex-wrap gap-2">
-        <!-- TOGGLE GERAL DA WIKI (PÚBLICA / NAVBAR) -->
-        <form method="POST" action="/admin/api/wiki/toggle_geral.php" class="d-inline m-0">
-            <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($csrfToken, ENT_QUOTES, 'UTF-8'); ?>">
-            <input type="hidden" name="wiki_habilitada" value="<?php echo $wikiHabilitada ? '0' : '1'; ?>">
-            <button type="submit" class="btn btn-sm <?php echo $wikiHabilitada ? 'btn-outline-success' : 'btn-outline-danger'; ?>" title="<?php echo $wikiHabilitada ? 'Clique para ocultar a Wiki no site' : 'Clique para ativar a visualização pública da Wiki'; ?>">
-                <i class="fa-solid <?php echo $wikiHabilitada ? 'fa-globe' : 'fa-eye-slash'; ?> me-1"></i>
-                Wiki: <?php echo $wikiHabilitada ? 'Ativa' : 'Oculta'; ?>
-            </button>
-        </form>
+        <!-- TOGGLE GERAL DA WIKI (PÚBLICA / NAVBAR) - assíncrono -->
+        <button type="button" id="btn-toggle-wiki-geral"
+                class="btn btn-sm <?php echo $wikiHabilitada ? 'btn-outline-success' : 'btn-outline-danger'; ?>"
+                data-wiki-ativa="<?php echo $wikiHabilitada ? '1' : '0'; ?>"
+                title="<?php echo $wikiHabilitada ? 'Clique para ocultar a Wiki no site' : 'Clique para ativar a visualização pública da Wiki'; ?>"
+                onclick="alternarWikiGeral(this)">
+            <i class="fa-solid <?php echo $wikiHabilitada ? 'fa-globe' : 'fa-eye-slash'; ?> me-1"></i>
+            Wiki: <?php echo $wikiHabilitada ? 'Ativa' : 'Oculta'; ?>
+        </button>
 
         <a href="/wiki/" target="_blank" class="btn btn-outline-secondary btn-sm"><i class="fa-solid fa-arrow-up-right-from-square me-1"></i> Ver Wiki</a>
         <a href="artigo_criar.php" class="btn btn-success btn-sm"><i class="fa-solid fa-plus me-1"></i> Novo Artigo</a>
@@ -178,5 +178,41 @@ try {
         </div>
     </div>
 </div>
+
+<script>
+// Toggle geral da Wiki (ativa/oculta) de forma assíncrona, sem recarregar a página.
+function alternarWikiGeral(btn) {
+    if (!window.AdminApi || !window.AdminToast) {
+        // Fallback: submissão tradicional do formulário
+        alert('Recursos assíncronos indisponíveis. Recarregue a página.');
+        return;
+    }
+
+    const estavaAtiva = btn.dataset.wikiAtiva === '1';
+    const novoValor = estavaAtiva ? '0' : '1';
+    const label = estavaAtiva ? 'Wiki ocultada no site.' : 'Wiki ativada no site.';
+    const htmlOriginal = btn.innerHTML;
+
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin me-1"></i> Salvando...';
+
+    window.AdminApi.post('/admin/api/wiki/toggle_geral.php', { wiki_habilitada: novoValor })
+        .then(res => {
+            const ativa = res.wiki_habilitada !== undefined ? Boolean(res.wiki_habilitada) : !estavaAtiva;
+            btn.dataset.wikiAtiva = ativa ? '1' : '0';
+            btn.className = 'btn btn-sm ' + (ativa ? 'btn-outline-success' : 'btn-outline-danger');
+            btn.title = ativa ? 'Clique para ocultar a Wiki no site' : 'Clique para ativar a visualização pública da Wiki';
+            btn.innerHTML = '<i class="fa-solid ' + (ativa ? 'fa-globe' : 'fa-eye-slash') + ' me-1"></i> Wiki: ' + (ativa ? 'Ativa' : 'Oculta');
+            window.AdminToast.success(res.mensagem || label);
+        })
+        .catch(err => {
+            btn.innerHTML = htmlOriginal;
+            window.AdminToast.error(err && err.message ? err.message : 'Erro ao alterar status da Wiki.');
+        })
+        .finally(() => {
+            btn.disabled = false;
+        });
+}
+</script>
 
 <?php require_once __DIR__ . "/../includes/admin_footer.php"; ?>
