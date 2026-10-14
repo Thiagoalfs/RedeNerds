@@ -2,22 +2,6 @@
 require_once __DIR__ . "/../sessao.php";
 require_once __DIR__ . "/parceiro_upload.php";
 
-$configPaths = [
-    __DIR__ . "/../../../config.php",
-    __DIR__ . "/../../config.php",
-    __DIR__ . "/../config.php",
-    ($_SERVER['DOCUMENT_ROOT'] ?? '') . "/config.php"
-];
-$configPath = null;
-foreach ($configPaths as $cp) {
-    if (!empty($cp) && file_exists($cp)) {
-        $configPath = $cp;
-        break;
-    }
-}
-if ($configPath) {
-    require_once $configPath;
-}
 
 $erro = null;
 $nome = '';

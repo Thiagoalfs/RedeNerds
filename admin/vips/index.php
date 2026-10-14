@@ -2,24 +2,13 @@
 $paginaAtiva = 'vips';
 $tituloPagina = 'Pacotes VIP';
 require_once __DIR__ . "/../includes/admin_header.php";
+require_once __DIR__ . "/../includes/servidores_admin.php";
 
 $filtroServidor = trim($_GET['servidor'] ?? '');
 
-$servidores = [];
-$servidoresMap = [];
-try {
-    $stmtSrv = $pdo->query("SELECT id, servername, nome, themecolor, icon FROM servidores ORDER BY servername ASC");
-    $servidores = $stmtSrv->fetchAll(PDO::FETCH_ASSOC);
-    foreach ($servidores as $s) {
-        $servidoresMap[$s['id']] = $s;
-        $servidoresMap[$s['servername']] = $s;
-        if (!empty($s['nome'])) {
-            $servidoresMap[$s['nome']] = $s;
-        }
-    }
-} catch (PDOException $e) {
-    $servidores = [];
-}
+$servidoresData = carregarServidoresAdmin($pdo);
+$servidores = $servidoresData['lista'];
+$servidoresMap = $servidoresData['mapa'];
 
 $where = [];
 $params = [];

@@ -2,6 +2,7 @@
 $paginaAtiva = 'dashboard';
 $tituloPagina = 'Dashboard';
 require_once __DIR__ . "/includes/admin_header.php";
+require_once __DIR__ . "/includes/servidores_admin.php";
 
 // 1. Consulta Métricas & KPIs
 $totalFaturamento = 0.00;
@@ -17,14 +18,7 @@ $servidoresMap = [];
 
 try {
     if (isset($pdo) && $pdo instanceof PDO) {
-        $stmtSrv = $pdo->query("SELECT id, servername, nome, themecolor, icon FROM servidores ORDER BY servername ASC");
-        $servidoresList = $stmtSrv->fetchAll(PDO::FETCH_ASSOC);
-        foreach ($servidoresList as $s) {
-            $servidoresMap[$s['servername']] = $s;
-            if (!empty($s['nome'])) {
-                $servidoresMap[$s['nome']] = $s;
-            }
-        }
+        $servidoresMap = carregarServidoresAdmin($pdo)['mapa'];
 
         // Faturamento Total
         $totalFaturamento = (float)$pdo->query("SELECT COALESCE(SUM(valor), 0) FROM pedidos WHERE status = 'pago'")->fetchColumn();

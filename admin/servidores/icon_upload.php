@@ -301,15 +301,24 @@ function apagarIconeAntigoSeForUpload(?string $iconeAtual, string $iconeNovo): v
  * Retorna o tipo de ícone com base no valor salvo, para decidir como exibir no HTML.
  * 'fa'  -> classe FontAwesome (ex: "fa-solid fa-skull")
  * 'img' -> upload próprio ou link externo (renderizar como <img>)
+ *
+ * Lógica unificada com api/servidores_api.php e protegida contra
+ * redeclaração caso ambos os arquivos sejam carregados juntos.
  */
-function tipoDoIcone(?string $icone): string
-{
-    if (!$icone) {
+if (!function_exists('tipoDoIcone')) {
+    function tipoDoIcone(?string $icone): string
+    {
+        if (!$icone) {
+            return 'fa';
+        }
+        $iconeTrim = trim($icone);
+        if (strpos($iconeTrim, ICON_UPLOAD_DIR_PUBLICA) === 0
+            || strpos($iconeTrim, '/assets/') === 0
+            || preg_match('#^https?://#i', $iconeTrim)
+            || preg_match('/\.(png|jpe?g|webp|gif|svg)(\?.*)?$/i', $iconeTrim)) {
+            return 'img';
+        }
         return 'fa';
     }
-    if (strpos($icone, ICON_UPLOAD_DIR_PUBLICA) === 0 || preg_match('#^https?://#i', $icone)) {
-        return 'img';
-    }
-    return 'fa';
 }
 

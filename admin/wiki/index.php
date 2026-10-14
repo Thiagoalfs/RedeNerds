@@ -143,9 +143,9 @@ try {
                                 <td><span class="badge bg-light text-dark border font-monospace"><?php echo (int)$art['visualizacoes']; ?></span></td>
                                 <td>
                                     <?php if ($art['publicado']): ?>
-                                        <span class="badge-status ativo">Publicado</span>
+                                        <span class="badge-status ativo" data-status-badge="1" data-status-publicado="1">Publicado</span>
                                     <?php else: ?>
-                                        <span class="badge-status inativo">Oculto</span>
+                                        <span class="badge-status inativo" data-status-badge="1" data-status-publicado="1">Oculto</span>
                                     <?php endif; ?>
                                 </td>
                                 <td class="text-muted small"><?php echo date('d/m/Y H:i', strtotime($art['criado_em'])); ?></td>

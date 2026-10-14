@@ -1,7 +1,6 @@
 <?php
 ob_start();
 require_once __DIR__ . "/../../sessao.php";
-require_once __DIR__ . "/../../../config.php";
 ob_clean();
 
 header('Content-Type: application/json; charset=utf-8');

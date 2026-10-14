@@ -1,4 +1,12 @@
 <?php
+session_set_cookie_params([
+    'lifetime' => 0,
+    'path' => '/',
+    'domain' => '',
+    'secure' => (($_SERVER['HTTPS'] ?? '') === 'on' || ($_SERVER['HTTP_X_FORWARDED_PROTO'] ?? '') === 'https'),
+    'httponly' => true,
+    'samesite' => 'Lax',
+]);
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }

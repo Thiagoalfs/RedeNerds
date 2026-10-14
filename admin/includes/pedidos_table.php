@@ -133,54 +133,12 @@ $mostrarPaginacao = $mostrarPaginacao ?? false;
 
 <!-- PAGINAÇÃO (QUANDO HABILITADA) -->
 <?php if ($mostrarPaginacao && isset($totalPaginas) && $totalPaginas > 1): ?>
-    <?php
-    // Defaults para permitir reuso do componente em outras páginas
-    $filtroServidor = $filtroServidor ?? '';
-    $filtroStatus = $filtroStatus ?? '';
-    $filtroMetodo = $filtroMetodo ?? '';
-    $busca = $busca ?? '';
-
-    // Monta a URL de uma página preservando os filtros ativos
-    $urlPagina = function ($p) use ($filtroServidor, $filtroStatus, $filtroMetodo, $busca) {
-        return '?page=' . (int)$p
-            . '&servidor=' . urlencode($filtroServidor ?? '')
-            . '&status=' . urlencode($filtroStatus ?? '')
-            . '&metodo=' . urlencode($filtroMetodo ?? '')
-            . '&busca=' . urlencode($busca ?? '');
-    };
-
-    // Janela de páginas visíveis: 3 primeiras + página atual (se fora da janela) + última
-    $paginasVisiveis = [1, 2, 3];
-    if ($pagina > 3 && $pagina < $totalPaginas) {
-        $paginasVisiveis[] = (int)$pagina;
-    }
-    $paginasVisiveis[] = $totalPaginas;
-    $paginasVisiveis = array_values(array_unique(array_filter($paginasVisiveis, function ($p) use ($totalPaginas) {
-        return $p >= 1 && $p <= $totalPaginas;
-    })));
-    sort($paginasVisiveis);
-    ?>
-    <nav class="d-flex justify-content-center mt-3">
-        <ul class="pagination pagination-sm">
-            <li class="page-item <?php echo ($pagina <= 1) ? 'disabled' : ''; ?>">
-                <a class="page-link" href="<?php echo $urlPagina(max(1, $pagina - 1)); ?>">‹ Anterior</a>
-            </li>
-            <?php
-            $paginaAnteriorExibida = 0;
-            foreach ($paginasVisiveis as $p):
-                if ($p - $paginaAnteriorExibida > 1): ?>
-                    <li class="page-item disabled"><span class="page-link">…</span></li>
-                <?php endif; ?>
-                <li class="page-item <?php echo ($p === (int)$pagina) ? 'active' : ''; ?>">
-                    <a class="page-link" href="<?php echo $urlPagina($p); ?>"><?php echo $p; ?></a>
-                </li>
-                <?php $paginaAnteriorExibida = $p; ?>
-            <?php endforeach; ?>
-            <li class="page-item <?php echo ($pagina >= $totalPaginas) ? 'disabled' : ''; ?>">
-                <a class="page-link" href="<?php echo $urlPagina(min($totalPaginas, $pagina + 1)); ?>">Próxima ›</a>
-            </li>
-        </ul>
-    </nav>
+    <?php require_once __DIR__ . "/paginacao.php"; renderPaginacaoAdmin($pagina, $totalPaginas, [
+        'servidor' => $filtroServidor ?? '',
+        'status'   => $filtroStatus ?? '',
+        'metodo'   => $filtroMetodo ?? '',
+        'busca'    => $busca ?? '',
+    ]); ?>
 <?php endif; ?>
 
 <!-- MODAL DETALHES DO PEDIDO -->

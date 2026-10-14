@@ -6,19 +6,6 @@
 
 ob_start();
 require_once __DIR__ . "/../../sessao.php";
-
-$configPaths = [
-    __DIR__ . "/../../../../config.php",
-    __DIR__ . "/../../../config.php",
-    __DIR__ . "/../../config.php",
-    ($_SERVER['DOCUMENT_ROOT'] ?? '') . "/config.php"
-];
-foreach ($configPaths as $cp) {
-    if (!empty($cp) && file_exists($cp)) {
-        require_once $cp;
-        break;
-    }
-}
 ob_clean();
 
 header('Content-Type: application/json; charset=utf-8');

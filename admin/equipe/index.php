@@ -27,6 +27,7 @@ try {
 
 $gruposBrutos = [];
 foreach ($membros as $m) {
+    if (empty($m['cargo'])) continue;
     $gruposBrutos[$m['cargo']][] = $m;
 }
 

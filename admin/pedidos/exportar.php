@@ -15,23 +15,6 @@ require_once __DIR__ . "/../sessao.php";
 require_once __DIR__ . "/../../api/rate_limiter.php";
 exigirRateLimit('admin_exportar_pedidos', 10, 60);
 
-$configPaths = [
-    __DIR__ . "/../../../config.php",
-    __DIR__ . "/../../config.php",
-    __DIR__ . "/../config.php",
-    ($_SERVER['DOCUMENT_ROOT'] ?? '') . "/config.php"
-];
-$configPath = null;
-foreach ($configPaths as $cp) {
-    if (!empty($cp) && file_exists($cp)) {
-        $configPath = $cp;
-        break;
-    }
-}
-if ($configPath) {
-    require_once $configPath;
-}
-
 /**
  * Exibe uma mensagem de erro amigável ao usuário (sem vazar detalhes internos)
  * e encerra a execução sem gerar nenhum arquivo.
@@ -150,10 +133,7 @@ $whereSql = !empty($where) ? "WHERE " . implode(" AND ", $where) : "";
  */
 if (!function_exists('escaparCsv')) {
     function escaparCsv($valor) {
-        if (is_int($valor) || is_float($valor)) {
-            return $valor;
-        }
-        if ($valor === null || $valor === false || $valor === true || is_array($valor) || is_object($valor)) {
+        if ($valor === null || is_array($valor) || is_object($valor)) {
             return '';
         }
 

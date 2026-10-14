@@ -1,23 +1,6 @@
 <?php
 require_once __DIR__ . "/../../sessao.php";
 
-$configPaths = [
-    __DIR__ . "/config.php",
-    __DIR__ . "/../config.php",
-    __DIR__ . "/../../config.php",
-    __DIR__ . "/../../../config.php",
-    ($_SERVER['DOCUMENT_ROOT'] ?? '') . "/config.php"
-];
-$configPath = null;
-foreach ($configPaths as $cp) {
-    if (!empty($cp) && file_exists($cp)) {
-        $configPath = $cp;
-        break;
-    }
-}
-if ($configPath) {
-    require_once $configPath;
-}
 
 $isAjax = (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest') 
           || (isset($_SERVER['CONTENT_TYPE']) && strpos($_SERVER['CONTENT_TYPE'], 'application/json') !== false)

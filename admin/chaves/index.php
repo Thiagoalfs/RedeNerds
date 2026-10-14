@@ -2,47 +2,42 @@
 $paginaAtiva = 'chaves';
 $tituloPagina = 'Pacotes';
 require_once __DIR__ . "/../includes/admin_header.php";
+require_once __DIR__ . "/../includes/servidores_admin.php";
 
-// Auto-criação da tabela e colunas se não existirem
-try {
-    $pdo->exec("CREATE TABLE IF NOT EXISTS `chaves` (
-      `id` INT AUTO_INCREMENT PRIMARY KEY,
-      `servidor_id` INT NOT NULL DEFAULT 0,
-      `servidor` VARCHAR(100) NOT NULL DEFAULT '',
-      `nome` VARCHAR(100) NOT NULL,
-      `imagem` VARCHAR(255) NULL DEFAULT NULL,
-      `packageId` VARCHAR(100) NOT NULL,
-      `preco` DECIMAL(10,2) NOT NULL DEFAULT 0.00,
-      `destaque` TINYINT(1) NOT NULL DEFAULT 0,
-      `ativo` TINYINT(1) NOT NULL DEFAULT 1,
-      `cor1` VARCHAR(20) NOT NULL DEFAULT '#FFD700',
-      `cor2` VARCHAR(20) NOT NULL DEFAULT '#FFA500',
-      `vantagens` TEXT NULL,
-      `criado_em` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-      INDEX idx_srv (`servidor_id`, `ativo`)
-    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;");
+// Auto-criação da tabela e colunas se não existirem (uma vez por sessão;
+// DDL completo em migrations/2026_09_chaves_loja.sql)
+if (empty($_SESSION['chaves_schema_ok'])) {
+    try {
+        $pdo->exec("CREATE TABLE IF NOT EXISTS `chaves` (
+          `id` INT AUTO_INCREMENT PRIMARY KEY,
+          `servidor_id` INT NOT NULL DEFAULT 0,
+          `servidor` VARCHAR(100) NOT NULL DEFAULT '',
+          `nome` VARCHAR(100) NOT NULL,
+          `imagem` VARCHAR(255) NULL DEFAULT NULL,
+          `packageId` VARCHAR(100) NOT NULL,
+          `preco` DECIMAL(10,2) NOT NULL DEFAULT 0.00,
+          `destaque` TINYINT(1) NOT NULL DEFAULT 0,
+          `ativo` TINYINT(1) NOT NULL DEFAULT 1,
+          `cor1` VARCHAR(20) NOT NULL DEFAULT '#FFD700',
+          `cor2` VARCHAR(20) NOT NULL DEFAULT '#FFA500',
+          `vantagens` TEXT NULL,
+          `criado_em` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+          INDEX idx_srv (`servidor_id`, `ativo`)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;");
 
-    require_once __DIR__ . "/../../api/loja/config_loja.php";
-    garantirSchemaTabelaPedidos($pdo);
-} catch (Exception $e) {}
+        require_once __DIR__ . "/../../api/loja/config_loja.php";
+        garantirSchemaTabelaPedidos($pdo);
+        $_SESSION['chaves_schema_ok'] = true;
+    } catch (Exception $e) {
+        error_log("Erro ao preparar schema de chaves: " . $e->getMessage());
+    }
+}
 
 $filtroServidor = trim($_GET['servidor'] ?? '');
 
-$servidores = [];
-$servidoresMap = [];
-try {
-    $stmtSrv = $pdo->query("SELECT id, servername, nome, themecolor, icon FROM servidores ORDER BY servername ASC");
-    $servidores = $stmtSrv->fetchAll(PDO::FETCH_ASSOC);
-    foreach ($servidores as $s) {
-        $servidoresMap[$s['id']] = $s;
-        $servidoresMap[$s['servername']] = $s;
-        if (!empty($s['nome'])) {
-            $servidoresMap[$s['nome']] = $s;
-        }
-    }
-} catch (PDOException $e) {
-    $servidores = [];
-}
+$servidoresData = carregarServidoresAdmin($pdo);
+$servidores = $servidoresData['lista'];
+$servidoresMap = $servidoresData['mapa'];
 
 $where = [];
 $params = [];

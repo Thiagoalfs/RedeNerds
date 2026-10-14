@@ -44,20 +44,27 @@ verificarAcessoApi();
 require_once __DIR__ . "/cache_helper.php";
 verificarEtagCache('servidores');
 
-const ICON_UPLOAD_DIR_PUBLICA = '/assets/servidores/icons/';
+if (!defined('ICON_UPLOAD_DIR_PUBLICA')) {
+    define('ICON_UPLOAD_DIR_PUBLICA', '/assets/servidores/icons/');
+}
 
-function tipoDoIcone(?string $icone): string
-{
-    if (!$icone) {
+// Lógica unificada com admin/servidores/icon_upload.php (guarda evita
+// "cannot redeclare" caso ambos sejam carregados no mesmo request)
+if (!function_exists('tipoDoIcone')) {
+    function tipoDoIcone(?string $icone): string
+    {
+        if (!$icone) {
+            return 'fa';
+        }
+        $iconeTrim = trim($icone);
+        if (strpos($iconeTrim, ICON_UPLOAD_DIR_PUBLICA) === 0
+            || strpos($iconeTrim, '/assets/') === 0
+            || preg_match('#^https?://#i', $iconeTrim)
+            || preg_match('/\.(png|jpe?g|webp|gif|svg)(\?.*)?$/i', $iconeTrim)) {
+            return 'img';
+        }
         return 'fa';
     }
-    $iconeTrim = trim($icone);
-    if (preg_match('/\.(png|jpe?g|webp|gif|svg)(\?.*)?$/i', $iconeTrim) 
-        || strpos($iconeTrim, '/') !== false 
-        || preg_match('#^https?://#i', $iconeTrim)) {
-        return 'img';
-    }
-    return 'fa';
 }
 
 $servidoresFallback = [

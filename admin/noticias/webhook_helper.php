@@ -19,8 +19,23 @@ function formatarUrlCapaDiscord($capa) {
         return $capa;
     }
 
+    $baseUrl = defined('SITE_URL') ? rtrim(SITE_URL, '/') : 'https://redenerds.com.br';
     $caminhoLimpo = preg_replace('#^(\.\./|\./|/)+#', '', $capa);
-    return "https://redenerds.com.br/" . $caminhoLimpo;
+    return $baseUrl . "/" . $caminhoLimpo;
+}
+
+/**
+ * Timeout padrão (segundos) das chamadas cURL ao Discord, para não travar
+ * a requisição do administrador em instabilidades do Discord.
+ */
+const DISCORD_CURL_TIMEOUT = 10;
+const DISCORD_CURL_CONNECT_TIMEOUT = 5;
+
+/**
+ * Valida o ID de mensagem do Discord (snowflake numérico).
+ */
+function discordMensagemIdValido($mensagemID): bool {
+    return !empty($mensagemID) && preg_match('/^\d{10,25}$/', (string)$mensagemID) === 1;
 }
 
 /**
@@ -28,8 +43,8 @@ function formatarUrlCapaDiscord($capa) {
  */
 function enviarWebhookDiscord($categoriaEnvio, $titulo, $conteudo, $autor, $capa, $servidor, $marcarEveryone = false) {
     // 1. Verifica se a constante foi definida
-    if (!defined('DISCORD_WEBHOOKS') || empty(DISCORD_WEBHOOKS)) {
-        error_log("ERRO DISCORD: A constante DISCORD_WEBHOOKS está vazia ou não foi definida no config.php.");
+    if (empty(DISCORD_WEBHOOKS)) {
+        error_log("ERRO DISCORD: Nenhum webhook configurado no config.php.");
         return null;
     }
 
@@ -81,6 +96,8 @@ function enviarWebhookDiscord($categoriaEnvio, $titulo, $conteudo, $autor, $capa
         CURLOPT_POSTFIELDS => $payload,
         CURLOPT_RETURNTRANSFER => true,
         CURLOPT_SSL_VERIFYPEER => true, CURLOPT_SSL_VERIFYHOST => 2,
+        CURLOPT_CONNECTTIMEOUT => DISCORD_CURL_CONNECT_TIMEOUT,
+        CURLOPT_TIMEOUT => DISCORD_CURL_TIMEOUT,
     ]);
 
     $response = curl_exec($ch);
@@ -109,12 +126,16 @@ function enviarWebhookDiscord($categoriaEnvio, $titulo, $conteudo, $autor, $capa
  * Edita uma mensagem já enviada no Discord via Webhook.
  */
 function editarWebhookDiscord($categoriaEnvio, $mensagemID, $titulo, $conteudo, $autor, $capa, $servidor) {
-    $urlWebhook = DISCORD_WEBHOOKS[$categoriaEnvio] ?? null;
-    if (empty($urlWebhook) || empty($mensagemID)) {
+    if (empty(DISCORD_WEBHOOKS) || !isset(DISCORD_WEBHOOKS[$categoriaEnvio])) {
+        error_log("ERRO DISCORD: nenhuma URL de webhook para a categoria '{$categoriaEnvio}'.");
+        return false;
+    }
+    if (!discordMensagemIdValido($mensagemID)) {
+        error_log("ERRO DISCORD: ID de mensagem inválido para edição.");
         return false;
     }
 
-    $url = rtrim($urlWebhook, '/') . "/messages/" . $mensagemID;
+    $url = rtrim(DISCORD_WEBHOOKS[$categoriaEnvio], '/') . "/messages/" . $mensagemID;
 
     $embed = [
         "title" => $titulo,
@@ -139,6 +160,11 @@ function editarWebhookDiscord($categoriaEnvio, $mensagemID, $titulo, $conteudo, 
         "embeds" => [$embed]
     ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
 
+    if (!$payload) {
+        error_log("ERRO DISCORD: falha ao converter payload para JSON (edição).");
+        return false;
+    }
+
     $ch = curl_init($url);
     curl_setopt_array($ch, [
         CURLOPT_HTTPHEADER => [
@@ -149,26 +175,42 @@ function editarWebhookDiscord($categoriaEnvio, $mensagemID, $titulo, $conteudo, 
         CURLOPT_POSTFIELDS => $payload,
         CURLOPT_RETURNTRANSFER => true,
         CURLOPT_SSL_VERIFYPEER => true, CURLOPT_SSL_VERIFYHOST => 2,
+        CURLOPT_CONNECTTIMEOUT => DISCORD_CURL_CONNECT_TIMEOUT,
+        CURLOPT_TIMEOUT => DISCORD_CURL_TIMEOUT,
     ]);
 
     $response = curl_exec($ch);
     $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    $curlError = curl_error($ch);
     curl_close($ch);
 
-    return ($httpCode >= 200 && $httpCode < 300);
+    if ($curlError) {
+        error_log("ERRO cURL DISCORD (edição): " . $curlError);
+        return false;
+    }
+
+    if ($httpCode < 200 || $httpCode >= 300) {
+        error_log("ERRO DISCORD HTTP {$httpCode} (edição).");
+        return false;
+    }
+
+    return true;
 }
 
 /**
  * Deleta uma mensagem do Discord enviada previamente via Webhook.
  */
 function deletarWebhookDiscord($categoriaEnvio, $mensagemID) {
-    $urlWebhook = DISCORD_WEBHOOKS[$categoriaEnvio] ?? null;
-    
-    if (empty($urlWebhook) || empty($mensagemID)) {
+    if (empty(DISCORD_WEBHOOKS) || !isset(DISCORD_WEBHOOKS[$categoriaEnvio])) {
+        error_log("ERRO DISCORD: nenhuma URL de webhook para a categoria '{$categoriaEnvio}'.");
+        return false;
+    }
+    if (!discordMensagemIdValido($mensagemID)) {
+        error_log("ERRO DISCORD: ID de mensagem inválido para exclusão.");
         return false;
     }
 
-    $url = rtrim($urlWebhook, '/') . "/messages/" . $mensagemID;
+    $url = rtrim(DISCORD_WEBHOOKS[$categoriaEnvio], '/') . "/messages/" . $mensagemID;
 
     $ch = curl_init($url);
     curl_setopt_array($ch, [
@@ -178,11 +220,24 @@ function deletarWebhookDiscord($categoriaEnvio, $mensagemID) {
         CURLOPT_CUSTOMREQUEST => 'DELETE',
         CURLOPT_RETURNTRANSFER => true,
         CURLOPT_SSL_VERIFYPEER => true, CURLOPT_SSL_VERIFYHOST => 2,
+        CURLOPT_CONNECTTIMEOUT => DISCORD_CURL_CONNECT_TIMEOUT,
+        CURLOPT_TIMEOUT => DISCORD_CURL_TIMEOUT,
     ]);
 
     $response = curl_exec($ch);
     $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    $curlError = curl_error($ch);
     curl_close($ch);
 
-    return ($httpCode >= 200 && $httpCode < 300);
+    if ($curlError) {
+        error_log("ERRO cURL DISCORD (exclusão): " . $curlError);
+        return false;
+    }
+
+    if ($httpCode < 200 || $httpCode >= 300) {
+        error_log("ERRO DISCORD HTTP {$httpCode} (exclusão).");
+        return false;
+    }
+
+    return true;
 }

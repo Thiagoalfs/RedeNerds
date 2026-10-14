@@ -1,6 +1,20 @@
 <?php
 
+session_set_cookie_params([
+    'lifetime' => 0,
+    'path' => '/',
+    'domain' => '',
+    'secure' => (($_SERVER['HTTPS'] ?? '') === 'on' || ($_SERVER['HTTP_X_FORWARDED_PROTO'] ?? '') === 'https'),
+    'httponly' => true,
+    'samesite' => 'Lax',
+]);
 session_start();
+
+// Token CSRF do formulário de login
+if (empty($_SESSION['csrf_token'])) {
+    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+}
+
 $configPaths = [
     __DIR__ . "/../../config.php",
     __DIR__ . "/../config.php",
@@ -39,6 +53,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     require_once __DIR__ . "/../api/rate_limiter.php";
     exigirRateLimit('admin_login_post', 5, 300);
 
+    // CSRF do formulário de login
+    $csrfValido = !empty($_POST['csrf_token']) && hash_equals($_SESSION['csrf_token'], $_POST['csrf_token']);
+    if (!$csrfValido) {
+        $mensagem_erro = "Sessão expirada. Recarregue a página e tente novamente.";
+    } else {
+
     $usuario = trim($_POST['usuario'] ?? '');
     $senha = $_POST['senha'] ?? '';
 
@@ -67,21 +87,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $stmt->execute([':usuario' => $usuario]);
                 $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
-                if ($user && password_verify($senha, $user['senha'])) {
-                    if ((int)$user['admin'] === 1) {
-                        // Login OK -> limpa tentativas
-                        $pdo->prepare("DELETE FROM tentativas_login WHERE identificador = :id")
-                            ->execute([':id' => $identificador]);
+                if ($user && password_verify($senha, $user['senha']) && (int)$user['admin'] === 1) {
+                    // Login OK -> limpa tentativas
+                    $pdo->prepare("DELETE FROM tentativas_login WHERE identificador = :id")
+                        ->execute([':id' => $identificador]);
 
-                        $_SESSION['usuario_id'] = (int)$user['id'];
-                        $_SESSION['usuario_nome'] = $user['usuario'];
-                        $_SESSION['admin'] = 1;
-                        header("Location: dashboard.php");
-                        exit;
-                    } else {
-                        $mensagem_erro = "Este usuário não possui permissão de administrador.";
-                    }
+                    $_SESSION['usuario_id'] = (int)$user['id'];
+                    $_SESSION['usuario_nome'] = $user['usuario'];
+                    $_SESSION['admin'] = 1;
+                    header("Location: dashboard.php");
+                    exit;
                 } else {
+                    // Falha de credencial OU usuário sem permissão: mensagem genérica
+                    // (não revela a existência do usuário) e conta como tentativa
                     // Login falhou -> incrementa tentativas
                     $novasTentativas = ($registro['tentativas'] ?? 0) + 1;
 
@@ -113,6 +131,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $mensagem_erro = "Erro ao consultar o banco de dados.";
             }
         }
+    }
     }
 }
 ?>
@@ -167,6 +186,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <?php endif; ?>
 
                 <form method="POST" action="index.php" autocomplete="off">
+                    <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token'], ENT_QUOTES, 'UTF-8'); ?>">
                     <div class="mb-3">
                         <label for="usuario" class="form-label">Usuário</label>
                         <input type="text" class="form-control" id="usuario" name="usuario" required autofocus>

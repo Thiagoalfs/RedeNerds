@@ -4,12 +4,22 @@ $tituloPagina = 'Cupons';
 require_once __DIR__ . "/../includes/admin_header.php";
 
 $servidoresMap = [];
-try {
-    $colunasCupons = $pdo->query("SHOW COLUMNS FROM cupons")->fetchAll(PDO::FETCH_COLUMN);
-    if (!in_array('servidor_id', $colunasCupons, true)) {
-        $pdo->exec("ALTER TABLE cupons ADD COLUMN servidor_id INT NULL DEFAULT 0");
-    }
 
+// Garante a coluna servidor_id apenas uma vez por sessão
+// (DDL completo em migrations/2026_10_14_vips_cupons_equipe.sql)
+if (empty($_SESSION['cupons_schema_ok'])) {
+    try {
+        $colunasCupons = $pdo->query("SHOW COLUMNS FROM cupons")->fetchAll(PDO::FETCH_COLUMN);
+        if (!in_array('servidor_id', $colunasCupons, true)) {
+            $pdo->exec("ALTER TABLE cupons ADD COLUMN servidor_id INT NULL DEFAULT 0");
+        }
+        $_SESSION['cupons_schema_ok'] = true;
+    } catch (Exception $e) {
+        error_log("Erro ao preparar schema de cupons: " . $e->getMessage());
+    }
+}
+
+try {
     $stmtSrv = $pdo->query("SELECT id, servername, nome, themecolor FROM servidores ORDER BY servername ASC");
     $servidoresRows = $stmtSrv->fetchAll(PDO::FETCH_ASSOC);
     foreach ($servidoresRows as $s) {
