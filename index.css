@@ -887,7 +887,7 @@
     overflow: hidden;
     position: relative;
     text-decoration: none;
-    transition: transform 0.15s ease, filter 0.15s ease;
+    transition: transform 0.25s ease, filter 0.25s ease;
 }
 
 .patrocinador-banner-link:hover {
@@ -900,16 +900,22 @@
     height: auto;
     display: block;
     object-fit: cover;
-    -webkit-mask-image: linear-gradient(to bottom, #000 60%, rgba(0, 0, 0, 0.4) 85%, transparent 100%);
-    mask-image: linear-gradient(to bottom, #000 60%, rgba(0, 0, 0, 0.4) 85%, transparent 100%);
 }
 
+/* Degrade suave transparente para a cor do background na base */
 .patrocinador-banner-link::after {
     content: '';
     position: absolute;
     inset: 0;
     pointer-events: none;
-    background: linear-gradient(to bottom, transparent 55%, rgba(3, 4, 7, 0.45) 80%, #030407 100%);
+    background: linear-gradient(to bottom, transparent 45%, rgba(3, 4, 7, 0.45) 72%, rgba(3, 4, 7, 0.9) 88%, #030407 100%);
+    opacity: 1;
+    transition: opacity 0.35s ease;
+}
+
+/* Ao passar o cursor em cima (hover), o degradê some suavemente */
+.patrocinador-banner-link:hover::after {
+    opacity: 0;
 }
 
 .patrocinador-actions {
