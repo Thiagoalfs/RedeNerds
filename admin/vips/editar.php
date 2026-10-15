@@ -285,8 +285,8 @@ require_once __DIR__ . "/../includes/admin_header.php";
                         </div>
                         <div class="col-md-4 admin-form-group">
                             <div class="d-flex align-items-center justify-content-between mb-1">
-                                <label class="form-label mb-0 fw-semibold d-flex align-items-center gap-1" style="font-size: 0.88rem;">
-                                    <i class="fa-solid fa-palette text-primary"></i> Cor da Tag
+                                <label class="form-label mb-0 fw-semibold" style="font-size: 0.88rem;">
+                                    Cor da Tag
                                 </label>
 
                                 <!-- SWITCH COLORWHEEL / STRING -->
@@ -375,17 +375,11 @@ require_once __DIR__ . "/../includes/admin_header.php";
                                     </span>
                                     <input type="text" class="form-control font-monospace" id="cor_string" name="cor_string" 
                                            value="<?php echo htmlspecialchars($cor_string, ENT_QUOTES, 'UTF-8'); ?>"
-                                           placeholder="Ex: #FFE082&lC&#FFD76B&lO&#FFCE54&lM..."
+                                           placeholder="#HEX&amp;lLetra&#38;#HEX&amp;l..."
                                            autocomplete="off" style="font-size: 0.8rem;" oninput="onStringInputChange()">
                                     <button type="button" class="btn btn-outline-secondary btn-sm" title="Limpar string" onclick="limparCorString()">
                                         <i class="fa-solid fa-xmark"></i>
                                     </button>
-                                </div>
-                                <div class="d-flex align-items-center justify-content-between mt-1">
-                                    <small class="text-muted" style="font-size: 0.7rem; line-height: 1.2;">
-                                        Formato: <code>#HEX&amp;lLetra&#HEX&amp;l...</code>
-                                    </small>
-                                    <button type="button" class="btn btn-link btn-sm p-0 text-muted text-decoration-none" style="font-size: 0.7rem;" onclick="preencherExemploString()">Exemplo</button>
                                 </div>
                             </div>
 
