@@ -242,9 +242,9 @@ require_once __DIR__ . "/../includes/admin_header.php";
     background: rgba(255, 255, 255, 0.05);
 }
 .tag-switch-btn.active {
-    background: #8c52ff;
+    background: #2563eb;
     color: #ffffff;
-    box-shadow: 0 2px 8px rgba(140, 82, 255, 0.35);
+    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
 }
 #main-tag-preview-box:hover {
     border-color: #3b82f6 !important;
