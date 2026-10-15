@@ -80,7 +80,7 @@ foreach ($gruposBrutos as $cNome => $lista) {
                     <h6 class="fw-bold mb-0"><?php echo htmlspecialchars($cargo, ENT_QUOTES, 'UTF-8'); ?></h6>
                 </div>
                 <div class="d-flex align-items-center gap-2">
-                    <span class="badge bg-light text-dark border"><?php echo count($lista); ?> membro(s)</span>
+                    <span class="badge bg-light text-dark border contador-membros"><?php echo count($lista); ?> membro(s)</span>
                     <a href="criar.php?cargo=<?php echo urlencode($cargo); ?>" class="btn btn-sm btn-outline-success d-inline-flex align-items-center gap-1 py-1 px-2" style="font-size: 0.78rem;" title="Adicionar membro neste cargo">
                         <i class="fa-solid fa-plus"></i> Adicionar
                     </a>
@@ -94,9 +94,9 @@ foreach ($gruposBrutos as $cNome => $lista) {
                             <col>
                             <col style="width: 140px;">
                         </colgroup>
-                        <tbody>
+                        <tbody class="membros-dropzone" data-cargo="<?php echo htmlspecialchars($cargo, ENT_QUOTES, 'UTF-8'); ?>">
                             <?php foreach ($lista as $m): ?>
-                                <tr>
+                                <tr class="membro-row" data-id="<?php echo (int)$m['id']; ?>" draggable="true">
                                     <td>
                                         <img class="rounded border" src="https://mc-heads.net/avatar/<?php echo urlencode($m['nick']); ?>/32" width="32" height="32" alt="" onerror="this.src='https://mc-heads.net/avatar/MHF_Steve/32'">
                                     </td>
@@ -127,4 +127,114 @@ foreach ($gruposBrutos as $cNome => $lista) {
     <?php endforeach; ?>
 <?php endif; ?>
 
-<?php require_once __DIR__ . "/../includes/admin_footer.php"; ?>
+<!-- Estado membro -> cargo (controlado pela barra de alterações) -->
+<form class="js-unsaved-form" id="form-membros-cargos" data-save-endpoint="/admin/api/equipe/membros_cargos.php" style="display: none;">
+    <?php foreach ($membros as $m): ?>
+        <input type="hidden" name="membro_cargos[<?php echo (int)$m['id']; ?>]" value="<?php echo htmlspecialchars($m['cargo'], ENT_QUOTES, 'UTF-8'); ?>">
+    <?php endforeach; ?>
+</form>
+
+<script>
+// Drag and drop de membros entre cargos (somente client-side)
+(function() {
+    const draggedClass = 'membro-dragging';
+    const dragOverClass = 'membro-drop-hover';
+
+    document.querySelectorAll('tr.membro-row').forEach(function(row) {
+        row.addEventListener('dragstart', function(e) {
+            e.dataTransfer.effectAllowed = 'move';
+            e.dataTransfer.setData('text/plain', row.dataset.id);
+            row.classList.add(draggedClass);
+        });
+        row.addEventListener('dragend', function() {
+            row.classList.remove(draggedClass);
+            document.querySelectorAll('.' + dragOverClass).forEach(function(el) {
+                el.classList.remove(dragOverClass);
+            });
+        });
+    });
+
+    document.querySelectorAll('tbody.membros-dropzone').forEach(function(tbody) {
+        tbody.addEventListener('dragover', function(e) {
+            e.preventDefault();
+            e.dataTransfer.dropEffect = 'move';
+            tbody.classList.add(dragOverClass);
+        });
+        tbody.addEventListener('dragleave', function(e) {
+            if (!tbody.contains(e.relatedTarget)) {
+                tbody.classList.remove(dragOverClass);
+            }
+        });
+        tbody.addEventListener('drop', function(e) {
+            e.preventDefault();
+            tbody.classList.remove(dragOverClass);
+            const membroId = e.dataTransfer.getData('text/plain');
+            const row = document.querySelector('tr.membro-row[data-id="' + membroId + '"]');
+            if (row && row.closest('tbody') !== tbody) {
+                // Move a linha para o cargo de destino (client-side)
+                tbody.appendChild(row);
+                // Atualiza o campo oculto membro_cargos[id]
+                const input = document.querySelector('#form-membros-cargos input[name="membro_cargos[' + membroId + ']"]');
+                if (input) {
+                    input.value = tbody.dataset.cargo;
+                    input.dispatchEvent(new Event('input', { bubbles: true }));
+                }
+                atualizarContadoresMembros();
+            }
+        });
+    });
+})();
+
+// Atualiza o contador de membros de cada secao apos mover linhas
+function atualizarContadoresMembros() {
+    document.querySelectorAll('tbody.membros-dropzone').forEach(function(tbody) {
+        const card = tbody.closest('.admin-card');
+        if (!card) return;
+        const badge = card.querySelector('.badge.contador-membros');
+        if (badge) {
+            const qtd = tbody.querySelectorAll('tr.membro-row').length;
+            badge.textContent = qtd + ' membro(s)';
+        }
+    });
+}
+
+// Re-renderiza as secoes a partir dos campos ocultos quando a barra descarta
+function aplicarMembrosCargos() {
+    document.querySelectorAll('#form-membros-cargos input[name^="membro_cargos"]').forEach(function(input) {
+        const match = input.name.match(/\[(\d+)\]/);
+        if (!match) return;
+        const membroId = match[1];
+        const cargo = input.value;
+        const row = document.querySelector('tr.membro-row[data-id="' + membroId + '"]');
+        const tbody = document.querySelector('tbody.membros-dropzone[data-cargo="' + cargo + '"]');
+        if (row && tbody) {
+            tbody.appendChild(row);
+        }
+    });
+    atualizarContadoresMembros();
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    const formMembros = document.getElementById('form-membros-cargos');
+    if (!formMembros) return;
+    formMembros.addEventListener('unsaved:discarded', function() {
+        aplicarMembrosCargos();
+        if (window.AdminToast) {
+            window.AdminToast.info('Alterações de membros descartadas.');
+        }
+    });
+});
+</script>
+
+<style>
+tr.membro-row { cursor: grab; }
+tr.membro-row:active { cursor: grabbing; }
+tr.membro-row.membro-dragging { opacity: 0.4; }
+tbody.membros-dropzone.membro-drop-hover {
+    outline: 2px dashed #2563eb;
+    outline-offset: -2px;
+    background: rgba(37, 99, 235, 0.05);
+}
+</style>
+
+<?php require_once __DIR__ . "/../includes/unsaved_bar.php"; ?>

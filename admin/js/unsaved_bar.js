@@ -136,15 +136,18 @@
           return;
         }
 
-        var rawIds = form.querySelector('[name="ordem_ids"]')?.value ?? '';
-        var ids = rawIds.split(',').filter(function(v) { return v !== ''; });
-        if (ids.length === 0) {
-          window.AdminToast.info('Nenhum cargo para salvar.');
-          return;
-        }
-
+        // Envia todos os campos do formulário (ex: ordem_ids[], membro_cargos[])
         var data = new FormData();
-        ids.forEach(function(id) { data.append('ordem_ids[]', id); });
+        var fields = form.querySelectorAll('input, select, textarea');
+        fields.forEach(function(el) {
+          if (!el.name || el.disabled) return;
+          var type = (el.type || '').toLowerCase();
+          if (type === 'checkbox' || type === 'radio') {
+            if (el.checked) data.append(el.name, el.value);
+          } else if (type !== 'file' && type !== 'submit' && type !== 'button') {
+            data.append(el.name, el.value);
+          }
+        });
 
         window.AdminApi.post(endpoint, data)
           .then(function(res) {

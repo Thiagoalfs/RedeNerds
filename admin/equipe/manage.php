@@ -381,16 +381,22 @@ function reordenarCargo(id, acao) {
     marcarOrdemAlterada();
 }
 
-// Marca a ordem atual dos cargos no campo oculto, disparando a detecção de
-// alterações da barra flutuante (unsaved_bar.php)
+// Marca a ordem atual dos cargos nos campos ocultos, disparando a detecção
+// de alterações da barra flutuante (unsaved_bar.php)
 function marcarOrdemAlterada() {
     const tbody = document.getElementById('sortable-cargos');
     if (!tbody) return;
-    const ids = Array.from(tbody.querySelectorAll('tr.cargo-row')).map(r => r.dataset.id).join(',');
-    const input = document.getElementById('ordem-cargos-input');
-    if (input) {
-        input.value = ids;
-        input.dispatchEvent(new Event('input', { bubbles: true }));
+    const rows = tbody.querySelectorAll('tr.cargo-row');
+    const inputs = document.querySelectorAll('#form-ordem-cargos input[name="ordem_ids[]"]');
+    // Reordena os inputs conforme a ordem atual das linhas
+    inputs.forEach(function(input, idx) {
+        if (rows[idx]) {
+            input.value = rows[idx].dataset.id;
+        }
+    });
+    const firstInput = inputs[0];
+    if (firstInput) {
+        firstInput.dispatchEvent(new Event('input', { bubbles: true }));
     }
 }
 
@@ -558,7 +564,9 @@ document.addEventListener('DOMContentLoaded', function() {
 
 <!-- Estado da ordem dos cargos (controlado pela barra de alterações) -->
 <form class="js-unsaved-form" id="form-ordem-cargos" data-save-endpoint="/admin/api/equipe/cargo_reordenar.php" style="display: none;">
-    <input type="hidden" name="ordem_ids" id="ordem-cargos-input" value="<?php echo htmlspecialchars(implode(',', array_column($cargos, 'id')), ENT_QUOTES, 'UTF-8'); ?>">
+    <?php foreach ($cargos as $c): ?>
+        <input type="hidden" name="ordem_ids[]" value="<?php echo (int)$c['id']; ?>">
+    <?php endforeach; ?>
 </form>
 
 <script>
