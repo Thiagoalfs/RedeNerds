@@ -591,10 +591,15 @@
 
         const cor1 = (vip.cor1 || '#ffffff').trim();
         const cor2 = (vip.cor2 || '#ffffff').trim();
+        const corTipo = (vip.cor_tipo || 'colorwheel').toLowerCase();
+        const corString = (vip.cor_string || '').trim();
+
         const hasCustomGradient = cor1 && cor2 && (cor1.toLowerCase() !== cor2.toLowerCase()) && (cor1 !== '#ffffff' || cor2 !== '#ffffff');
         const tagTextStyle = hasCustomGradient 
           ? `style="background: linear-gradient(135deg, ${escapeHTML(cor1)}, ${escapeHTML(cor2)}); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; font-weight: 800;"`
           : `style="color: ${escapeHTML(cor1)}; font-weight: 800;"`;
+
+        const parsedTagStringHtml = (corTipo === 'string' && corString) ? parseMinecraftString(corString) : '';
 
         const vantagensHtml = (vip.vantagens || []).map((v, vIndex) => {
           let item = (v || '').trim();
@@ -610,7 +615,11 @@
           const isHero = (vIndex === 0 || item.toLowerCase().includes('tag ['));
 
           let itemHtml = escapeHTML(item);
-          itemHtml = itemHtml.replace(/\[(.*?)\]/g, `<span class="vip-tag-badge"><strong ${tagTextStyle}>$1</strong></span>`);
+          if (parsedTagStringHtml) {
+            itemHtml = itemHtml.replace(/\[(.*?)\]/g, `<span class="vip-tag-badge"><strong class="vip-tag-mc-string" style="font-weight: 800;">${parsedTagStringHtml}</strong></span>`);
+          } else {
+            itemHtml = itemHtml.replace(/\[(.*?)\]/g, `<span class="vip-tag-badge"><strong ${tagTextStyle}>$1</strong></span>`);
+          }
 
           let infoHtml = '';
           if (infoTexto) {
@@ -2008,6 +2017,105 @@
         return `<span class="benefit-info-text-part">${escapeHTML(val)}</span>`;
       }
     }).join('');
+  }
+
+  function parseMinecraftString(raw) {
+    if (!raw || typeof raw !== 'string') return '';
+    const legacyColors = {
+      '0': '#000000', '1': '#0000AA', '2': '#00AA00', '3': '#00AAAA',
+      '4': '#AA0000', '5': '#AA00AA', '6': '#FFAA00', '7': '#AAAAAA',
+      '8': '#555555', '9': '#5555FF', 'a': '#55FF55', 'b': '#55FFFF',
+      'c': '#FF5555', 'd': '#FF55FF', 'e': '#FFFF55', 'f': '#FFFFFF'
+    };
+    let currentColor = '';
+    let isBold = false, isItalic = false, isUnderline = false, isStrikethrough = false;
+    let i = 0;
+    let result = '';
+
+    while (i < raw.length) {
+      if (raw.substr(i, 2) === '&#' && i + 8 <= raw.length && /^[0-9A-Fa-f]{6}$/.test(raw.substr(i + 2, 6))) {
+        currentColor = '#' + raw.substr(i + 2, 6);
+        isBold = false; isItalic = false; isUnderline = false; isStrikethrough = false;
+        i += 8;
+        continue;
+      }
+      if (raw[i] === '#' && i + 7 <= raw.length && /^[0-9A-Fa-f]{6}$/.test(raw.substr(i + 1, 6))) {
+        currentColor = '#' + raw.substr(i + 1, 6);
+        isBold = false; isItalic = false; isUnderline = false; isStrikethrough = false;
+        i += 7;
+        continue;
+      }
+      if ((raw[i] === '&' || raw[i] === '§') && (raw[i+1] === 'x' || raw[i+1] === 'X')) {
+        let bungeeHex = '';
+        let k = i + 2;
+        for (let step = 0; step < 6; step++) {
+          if (k + 1 < raw.length && (raw[k] === '&' || raw[k] === '§') && /^[0-9A-Fa-f]$/.test(raw[k+1])) {
+            bungeeHex += raw[k+1];
+            k += 2;
+          } else {
+            break;
+          }
+        }
+        if (bungeeHex.length === 6) {
+          currentColor = '#' + bungeeHex;
+          isBold = false; isItalic = false; isUnderline = false; isStrikethrough = false;
+          i = k;
+          continue;
+        }
+      }
+      if ((raw[i] === '&' || raw[i] === '§') && i + 1 < raw.length) {
+        const code = raw[i + 1].toLowerCase();
+        if (legacyColors[code] !== undefined) {
+          currentColor = legacyColors[code];
+          isBold = false; isItalic = false; isUnderline = false; isStrikethrough = false;
+          i += 2;
+          continue;
+        } else if (code === 'l') {
+          isBold = true;
+          i += 2;
+          continue;
+        } else if (code === 'o') {
+          isItalic = true;
+          i += 2;
+          continue;
+        } else if (code === 'n') {
+          isUnderline = true;
+          i += 2;
+          continue;
+        } else if (code === 'm') {
+          isStrikethrough = true;
+          i += 2;
+          continue;
+        } else if (code === 'r') {
+          currentColor = '';
+          isBold = false; isItalic = false; isUnderline = false; isStrikethrough = false;
+          i += 2;
+          continue;
+        }
+      }
+
+      const char = raw[i];
+      let style = [];
+      if (currentColor) style.push('color:' + currentColor);
+      if (isBold) style.push('font-weight:800');
+      if (isItalic) style.push('font-style:italic');
+      if (isUnderline && isStrikethrough) {
+        style.push('text-decoration:underline line-through');
+      } else if (isUnderline) {
+        style.push('text-decoration:underline');
+      } else if (isStrikethrough) {
+        style.push('text-decoration:line-through');
+      }
+
+      const safeChar = char === '&' ? '&amp;' : (char === '<' ? '&lt;' : (char === '>' ? '&gt;' : char));
+      if (style.length > 0) {
+        result += `<span style="${style.join(';')}">${safeChar}</span>`;
+      } else {
+        result += safeChar;
+      }
+      i++;
+    }
+    return result;
   }
 
   function escapeHTML(str) {
