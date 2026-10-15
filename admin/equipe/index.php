@@ -56,21 +56,6 @@ foreach ($gruposBrutos as $cNome => $lista) {
     </div>
 </div>
 
-<!-- NAVEGAÇÃO DE SUB-ABAS -->
-<div class="d-flex gap-2 mb-3">
-    <a href="index.php" class="btn btn-primary btn-sm">
-        <i class="fa-solid fa-users me-1"></i> Membros da Equipe
-    </a>
-    <a href="manage.php" class="btn btn-outline-secondary btn-sm">
-        <i class="fa-solid fa-layer-group me-1"></i> Hierarquia de Cargos
-    </a>
-</div>
-
-<div class="alert alert-info d-flex align-items-center gap-2 mb-3 py-2" style="font-size: 0.85rem;">
-    <i class="fa-solid fa-hand-pointer text-primary"></i>
-    <span><strong>Dica:</strong> arraste membros entre os cargos usando a alça <i class="fa-solid fa-grip-vertical text-muted mx-1"></i> à esquerda. As mudanças só são salvas quando você clicar em <strong>Salvar</strong> na barra inferior.</span>
-</div>
-
 <?php if (empty($grupos)): ?>
     <div class="admin-card p-4 text-center text-muted">
         Nenhum membro cadastrado ainda.
