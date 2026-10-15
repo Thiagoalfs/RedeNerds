@@ -872,7 +872,7 @@
    ========================================= */
 .patrocinador-container {
     width: 100%;
-    max-width: 960px;
+    max-width: 620px;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -886,16 +886,13 @@
     border-radius: var(--radius-sm);
     overflow: hidden;
     position: relative;
-    border: 2px solid #000;
-    box-shadow: var(--shadow-hard);
-    background-color: var(--color-surface-card);
-    transition: transform 0.15s ease, box-shadow 0.15s ease;
     text-decoration: none;
+    transition: transform 0.15s ease, filter 0.15s ease;
 }
 
 .patrocinador-banner-link:hover {
-    transform: translate(-2px, -2px);
-    box-shadow: var(--shadow-hard-lg);
+    transform: translateY(-2px);
+    filter: brightness(1.05);
 }
 
 .patrocinador-banner-img {
@@ -903,6 +900,16 @@
     height: auto;
     display: block;
     object-fit: cover;
+    -webkit-mask-image: linear-gradient(to bottom, #000 60%, rgba(0, 0, 0, 0.4) 85%, transparent 100%);
+    mask-image: linear-gradient(to bottom, #000 60%, rgba(0, 0, 0, 0.4) 85%, transparent 100%);
+}
+
+.patrocinador-banner-link::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: linear-gradient(to bottom, transparent 55%, rgba(3, 4, 7, 0.45) 80%, #030407 100%);
 }
 
 .patrocinador-actions {
