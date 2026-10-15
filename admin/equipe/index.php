@@ -66,6 +66,11 @@ foreach ($gruposBrutos as $cNome => $lista) {
     </a>
 </div>
 
+<div class="alert alert-info d-flex align-items-center gap-2 mb-3 py-2" style="font-size: 0.85rem;">
+    <i class="fa-solid fa-hand-pointer text-primary"></i>
+    <span><strong>Dica:</strong> arraste membros entre os cargos usando a alça <i class="fa-solid fa-grip-vertical text-muted mx-1"></i> à esquerda. As mudanças só são salvas quando você clicar em <strong>Salvar</strong> na barra inferior.</span>
+</div>
+
 <?php if (empty($grupos)): ?>
     <div class="admin-card p-4 text-center text-muted">
         Nenhum membro cadastrado ainda.
@@ -90,16 +95,18 @@ foreach ($gruposBrutos as $cNome => $lista) {
                 <div class="table-responsive">
                     <table class="table table-admin align-middle mb-0">
                         <colgroup>
+                            <col style="width: 36px;">
                             <col style="width: 50px;">
                             <col>
                             <col style="width: 140px;">
                         </colgroup>
                         <tbody class="membros-dropzone" data-cargo="<?php echo htmlspecialchars($cargo, ENT_QUOTES, 'UTF-8'); ?>">
                             <?php if (empty($lista)): ?>
-                                <tr class="membro-vazio"><td colspan="3" class="text-center text-muted small py-3"><i class="fa-solid fa-arrows-up-down me-1"></i> Arraste membros para este cargo</td></tr>
+                                <tr class="membro-vazio"><td colspan="4" class="text-center text-muted small py-3"><i class="fa-solid fa-arrows-up-down me-1"></i> Arraste membros para este cargo</td></tr>
                             <?php else: ?>
                                 <?php foreach ($lista as $m): ?>
                                     <tr class="membro-row" data-id="<?php echo (int)$m['id']; ?>" draggable="true">
+                                        <td class="membro-drag-handle" title="Arrastar para outro cargo"><i class="fa-solid fa-grip-vertical text-muted"></i></td>
                                         <td>
                                             <img class="rounded border" src="https://mc-heads.net/avatar/<?php echo urlencode($m['nick']); ?>/32" width="32" height="32" alt="" onerror="this.src='https://mc-heads.net/avatar/MHF_Steve/32'">
                                         </td>
@@ -248,6 +255,27 @@ tbody.membros-dropzone.membro-drop-hover {
     outline: 2px dashed #2563eb;
     outline-offset: -2px;
     background: rgba(37, 99, 235, 0.05);
+}
+td.membro-drag-handle {
+    cursor: grab;
+    text-align: center;
+    width: 36px;
+    color: #cbd5e1;
+    transition: color 0.15s ease, transform 0.15s ease;
+    vertical-align: middle;
+}
+td.membro-drag-handle:hover {
+    color: #2563eb;
+    transform: scaleX(1.15);
+}
+tr.membro-row:hover td.membro-drag-handle {
+    color: #2563eb;
+}
+tr.membro-row:hover td {
+    background-color: #f1f5f9;
+}
+tr.membro-row.membro-dragging td.membro-drag-handle {
+    color: #2563eb;
 }
 </style>
 
