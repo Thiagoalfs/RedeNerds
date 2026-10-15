@@ -95,30 +95,34 @@ foreach ($gruposBrutos as $cNome => $lista) {
                             <col style="width: 140px;">
                         </colgroup>
                         <tbody class="membros-dropzone" data-cargo="<?php echo htmlspecialchars($cargo, ENT_QUOTES, 'UTF-8'); ?>">
-                            <?php foreach ($lista as $m): ?>
-                                <tr class="membro-row" data-id="<?php echo (int)$m['id']; ?>" draggable="true">
-                                    <td>
-                                        <img class="rounded border" src="https://mc-heads.net/avatar/<?php echo urlencode($m['nick']); ?>/32" width="32" height="32" alt="" onerror="this.src='https://mc-heads.net/avatar/MHF_Steve/32'">
-                                    </td>
-                                    <td>
-                                        <strong class="text-dark"><?php echo htmlspecialchars($m['nick'], ENT_QUOTES, 'UTF-8'); ?></strong>
-                                    </td>
-                                    <td class="text-end text-nowrap">
-                                        <div class="d-inline-flex align-items-center justify-content-end gap-1">
-                                            <a href="editar.php?id=<?php echo (int)$m['id']; ?>" class="btn btn-sm btn-primary">Editar</a>
-                                            <button type="button" class="btn btn-sm btn-danger" 
-                                                    data-action="async-delete" 
-                                                    data-url="/admin/api/equipe/deletar.php" 
-                                                    data-id="<?php echo (int)$m['id']; ?>" 
-                                                    data-name="<?php echo htmlspecialchars($m['nick'], ENT_QUOTES, 'UTF-8'); ?>" 
-                                                    data-confirm="Remover <?php echo htmlspecialchars($m['nick'], ENT_QUOTES, 'UTF-8'); ?> da equipe?" 
-                                                    title="Deletar">
-                                                <i class="fa-solid fa-trash"></i>
-                                            </button>
-                                        </div>
-                                    </td>
-                                </tr>
-                            <?php endforeach; ?>
+                            <?php if (empty($lista)): ?>
+                                <tr class="membro-vazio"><td colspan="3" class="text-center text-muted small py-3"><i class="fa-solid fa-arrows-up-down me-1"></i> Arraste membros para este cargo</td></tr>
+                            <?php else: ?>
+                                <?php foreach ($lista as $m): ?>
+                                    <tr class="membro-row" data-id="<?php echo (int)$m['id']; ?>" draggable="true">
+                                        <td>
+                                            <img class="rounded border" src="https://mc-heads.net/avatar/<?php echo urlencode($m['nick']); ?>/32" width="32" height="32" alt="" onerror="this.src='https://mc-heads.net/avatar/MHF_Steve/32'">
+                                        </td>
+                                        <td>
+                                            <strong class="text-dark"><?php echo htmlspecialchars($m['nick'], ENT_QUOTES, 'UTF-8'); ?></strong>
+                                        </td>
+                                        <td class="text-end text-nowrap">
+                                            <div class="d-inline-flex align-items-center justify-content-end gap-1">
+                                                <a href="editar.php?id=<?php echo (int)$m['id']; ?>" class="btn btn-sm btn-primary">Editar</a>
+                                                <button type="button" class="btn btn-sm btn-danger" 
+                                                        data-action="async-delete" 
+                                                        data-url="/admin/api/equipe/deletar.php" 
+                                                        data-id="<?php echo (int)$m['id']; ?>" 
+                                                        data-name="<?php echo htmlspecialchars($m['nick'], ENT_QUOTES, 'UTF-8'); ?>" 
+                                                        data-confirm="Remover <?php echo htmlspecialchars($m['nick'], ENT_QUOTES, 'UTF-8'); ?> da equipe?" 
+                                                        title="Deletar">
+                                                    <i class="fa-solid fa-trash"></i>
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                <?php endforeach; ?>
+                            <?php endif; ?>
                         </tbody>
                     </table>
                 </div>
@@ -171,6 +175,9 @@ foreach ($gruposBrutos as $cNome => $lista) {
             const membroId = e.dataTransfer.getData('text/plain');
             const row = document.querySelector('tr.membro-row[data-id="' + membroId + '"]');
             if (row && row.closest('tbody') !== tbody) {
+                // Remove o placeholder de secao vazia do destino
+                const placeholder = tbody.querySelector('tr.membro-vazio');
+                if (placeholder) placeholder.remove();
                 // Move a linha para o cargo de destino (client-side)
                 tbody.appendChild(row);
                 // Atualiza o campo oculto membro_cargos[id]
@@ -194,6 +201,13 @@ function atualizarContadoresMembros() {
         if (badge) {
             const qtd = tbody.querySelectorAll('tr.membro-row').length;
             badge.textContent = qtd + ' membro(s)';
+        }
+        // Garante o placeholder quando a secao fica vazia (area de drop)
+        if (tbody.querySelectorAll('tr.membro-row').length === 0 && !tbody.querySelector('tr.membro-vazio')) {
+            const tr = document.createElement('tr');
+            tr.className = 'membro-vazio';
+            tr.innerHTML = '<td colspan="3" class="text-center text-muted small py-3"><i class="fa-solid fa-arrows-up-down me-1"></i> Arraste membros para este cargo</td>';
+            tbody.appendChild(tr);
         }
     });
 }
