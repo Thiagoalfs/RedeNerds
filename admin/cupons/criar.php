@@ -88,8 +88,8 @@ require_once __DIR__ . "/../includes/admin_header.php";
     <div class="col-12 col-md-8 col-lg-6">
         <div class="admin-card">
             <div class="admin-card-header">
-                <h5 class="admin-card-title"><i class="fa-solid fa-plus text-success"></i> Criar Novo Cupom</h5>
-                <a href="index.php" class="btn btn-outline-secondary btn-sm">← Voltar</a>
+                <h5 class="admin-card-title">Criar Novo Cupom</h5>
+                <a href="index.php" class="btn btn-outline-secondary btn-sm">Voltar</a>
             </div>
             <div class="p-4">
                 <?php if ($erro): ?>

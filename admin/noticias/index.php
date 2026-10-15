@@ -58,7 +58,7 @@ try {
 <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-3">
     <div>
         <h4 class="fw-bold mb-1">Novidades</h4>
-        <p class="text-muted small mb-0"><span data-item-counter><?php echo $totalNoticias; ?> novidade(s)</span> cadastrada(s)</p>
+        <p class="text-muted small mb-0"><span data-item-counter><?php echo pluralizar($totalNoticias, 'novidade', 'novidades'); ?></span> <?php echo $totalNoticias === 1 ? 'cadastrada' : 'cadastradas'; ?></p>
     </div>
     <a href="criar.php" class="btn btn-success btn-sm"><i class="fa-solid fa-plus me-1"></i> Nova novidade</a>
 </div>

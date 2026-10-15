@@ -77,7 +77,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             if (strtotime($registro['bloqueado_ate']) > time()) {
                 $bloqueado = true;
                 $minutosRestantes = ceil((strtotime($registro['bloqueado_ate']) - time()) / 60);
-                $mensagem_erro = "Muitas tentativas. Tente novamente em {$minutosRestantes} minuto(s).";
+                $mensagem_erro = "Muitas tentativas. Tente novamente em {$minutosRestantes} " . ($minutosRestantes == 1 ? "minuto." : "minutos.");
             }
         }
 

@@ -120,3 +120,9 @@ if (!function_exists('exigirCSRF')) {
         return true;
     }
 }
+
+if (!function_exists('pluralizar')) {
+    function pluralizar(int $quantidade, string $singular, string $plural): string {
+        return $quantidade . ' ' . ($quantidade === 1 ? $singular : $plural);
+    }
+}

@@ -100,7 +100,7 @@ $artigosDaCategoriaAtiva = $artigosPorCategoria[$categoriaAtivaId] ?? [];
                             </h2>
                             <p class="text-muted small mb-0">Tutoriais e guias disponíveis nesta seção.</p>
                         </div>
-                        <span class="badge bg-light text-dark border font-monospace"><?php echo count($artigosDaCategoriaAtiva); ?> artigo(s)</span>
+                        <span class="badge bg-light text-dark border font-monospace"><?php echo count($artigosDaCategoriaAtiva) . ' ' . (count($artigosDaCategoriaAtiva) === 1 ? 'artigo' : 'artigos'); ?></span>
                     </div>
 
                     <?php if (empty($artigosDaCategoriaAtiva)): ?>
@@ -146,7 +146,7 @@ $artigosDaCategoriaAtiva = $artigosPorCategoria[$categoriaAtivaId] ?? [];
                         </h2>
                         <p class="text-muted small mb-0" id="wiki-search-label">Buscando tópicos...</p>
                     </div>
-                    <span class="badge bg-light text-dark border font-monospace" id="wiki-search-count">0 tópico(s)</span>
+                    <span class="badge bg-light text-dark border font-monospace" id="wiki-search-count">0 tópicos</span>
                 </div>
 
                 <div id="wiki-search-results-container" class="list-group"></div>
@@ -188,7 +188,7 @@ window.executarBuscaWiki = function(query) {
         searchLabel.innerHTML = `Mostrando resultados para: <strong>"${escapeHtml(query)}"</strong>`;
     }
     if (searchCount) {
-        searchCount.textContent = `${filtrados.length} tópico(s)`;
+        searchCount.textContent = `${filtrados.length} ${filtrados.length === 1 ? 'tópico' : 'tópicos'}`;
     }
 
     if (!resultsContainer) return;

@@ -143,8 +143,8 @@ require_once __DIR__ . "/../includes/admin_header.php";
     <div class="col-12 col-xl-10">
         <div class="admin-card">
             <div class="admin-card-header">
-                <h5 class="admin-card-title"><i class="fa-solid fa-key text-warning"></i> Editar Pacote #<?php echo (int)$id; ?></h5>
-                <a href="index.php" class="btn btn-outline-secondary btn-sm">← Voltar para Pacotes</a>
+                <h5 class="admin-card-title">Editar Pacote #<?php echo (int)$id; ?></h5>
+                <a href="index.php" class="btn btn-outline-secondary btn-sm">Voltar para Pacotes</a>
             </div>
             <div class="p-4">
                 <?php if ($mensagem_erro): ?>

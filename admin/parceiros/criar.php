@@ -91,9 +91,9 @@ require_once __DIR__ . "/../includes/admin_header.php";
         <div class="admin-card">
             <div class="admin-card-header d-flex justify-content-between align-items-center">
                 <h5 class="admin-card-title mb-0">
-                    <i class="fa-solid fa-user-plus text-success me-2"></i> Adicionar Novo Parceiro
+                    Adicionar Novo Parceiro
                 </h5>
-                <a href="index.php" class="btn btn-outline-secondary btn-sm"><i class="fa-solid fa-arrow-left me-1"></i> Voltar</a>
+                <a href="index.php" class="btn btn-outline-secondary btn-sm">Voltar</a>
             </div>
 
             <div class="p-4">

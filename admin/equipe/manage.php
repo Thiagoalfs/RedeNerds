@@ -97,10 +97,10 @@ $coresPredefinidas = [
 <div class="admin-card">
     <div class="admin-card-header d-flex justify-content-between align-items-center">
         <div>
-            <h6 class="fw-bold mb-0"><i class="fa-solid fa-sitemap me-1 text-primary"></i> Hierarquia de Cargos</h6>
+            <h6 class="fw-bold mb-0">Hierarquia de Cargos</h6>
             <span class="text-muted small">Arraste as linhas ou use as setas para ajustar a prioridade (do topo para a base).</span>
         </div>
-        <span class="badge bg-light text-dark border" data-item-counter><?php echo $totalCargos; ?> cargo(s)</span>
+        <span class="badge bg-light text-dark border" data-item-counter><?php echo pluralizar($totalCargos, 'cargo', 'cargos'); ?></span>
     </div>
     <div class="card-body p-0">
         <div class="table-responsive">
@@ -160,7 +160,7 @@ $coresPredefinidas = [
                                 </td>
                                 <td>
                                     <?php if ($c['total_membros'] > 0): ?>
-                                        <span class="badge bg-secondary"><?php echo (int)$c['total_membros']; ?> membro(s)</span>
+                                        <span class="badge bg-secondary"><?php echo pluralizar((int)$c['total_membros'], 'membro', 'membros'); ?></span>
                                     <?php else: ?>
                                         <span class="badge bg-light text-muted border">0 membros</span>
                                     <?php endif; ?>

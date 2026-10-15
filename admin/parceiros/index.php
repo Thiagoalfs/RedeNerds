@@ -52,8 +52,8 @@ $totalParceiros = count($parceiros);
 
 <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-3">
     <div>
-        <h4 class="fw-bold mb-1"><i class="fa-solid fa-handshake text-primary me-2"></i> Parceiros e Criadores de Conteúdo</h4>
-        <p class="text-muted small mb-0"><span data-item-counter><?php echo $totalParceiros; ?> parceiro(s)</span> cadastrado(s) (exibidos em ordem alfabética na página inicial)</p>
+        <h4 class="fw-bold mb-1">Parceiros e Criadores de Conteúdo</h4>
+        <p class="text-muted small mb-0"><span data-item-counter><?php echo pluralizar($totalParceiros, 'parceiro', 'parceiros'); ?></span> <?php echo $totalParceiros === 1 ? 'cadastrado' : 'cadastrados'; ?> (exibidos em ordem alfabética na página inicial)</p>
     </div>
     <div class="d-flex gap-2">
         <a href="/#parceiros-section" target="_blank" class="btn btn-outline-secondary btn-sm"><i class="fa-solid fa-arrow-up-right-from-square me-1"></i> Ver no Site</a>

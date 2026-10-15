@@ -115,8 +115,8 @@ $categoriasDisponiveis = getCategoriasServidorWiki($pdo, $servidor_id);
     <div class="col-12 col-xl-10">
         <div class="admin-card">
             <div class="admin-card-header">
-                <h5 class="admin-card-title"><i class="fa-solid fa-pen text-primary"></i> Editar Artigo: <?php echo htmlspecialchars($artigo['titulo'], ENT_QUOTES, 'UTF-8'); ?></h5>
-                <a href="index.php" class="btn btn-outline-secondary btn-sm">← Voltar</a>
+                <h5 class="admin-card-title">Editar Artigo: <?php echo htmlspecialchars($artigo['titulo'], ENT_QUOTES, 'UTF-8'); ?></h5>
+                <a href="index.php" class="btn btn-outline-secondary btn-sm">Voltar</a>
             </div>
             <div class="p-4">
                 <?php if ($erro): ?>

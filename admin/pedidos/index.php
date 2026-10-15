@@ -101,7 +101,7 @@ try {
 <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-3">
     <div>
         <h4 class="fw-bold mb-1">Pedidos</h4>
-        <p class="text-muted small mb-0"><span data-item-counter><?php echo $totalPedidos; ?> pedido(s)</span> registrado(s)</p>
+        <p class="text-muted small mb-0"><span data-item-counter><?php echo pluralizar($totalPedidos, 'pedido', 'pedidos'); ?></span> <?php echo $totalPedidos === 1 ? 'registrado' : 'registrados'; ?></p>
     </div>
     <div class="d-flex gap-2">
         <button type="button" class="btn btn-success btn-sm d-flex align-items-center gap-2" data-bs-toggle="modal" data-bs-target="#modalExportarPedidos">

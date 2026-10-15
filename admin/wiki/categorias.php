@@ -144,7 +144,7 @@ $erro = $_GET['erro'] ?? '';
                                     <span class="badge bg-light text-dark border"><?php echo (int)$cat['ordem']; ?></span>
                                 </td>
                                 <td>
-                                    <span class="badge bg-secondary"><?php echo (int)$cat['total_artigos']; ?> artigo(s)</span>
+                                    <span class="badge bg-secondary"><?php echo pluralizar((int)$cat['total_artigos'], 'artigo', 'artigos'); ?></span>
                                 </td>
                                 <td class="text-end text-nowrap">
                                     <div class="d-inline-flex align-items-center justify-content-end gap-1">

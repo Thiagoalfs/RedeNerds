@@ -14,7 +14,7 @@ if (!function_exists('carregarServidoresAdmin')) {
     function carregarServidoresAdmin(PDO $pdo): array
     {
         try {
-            $stmt = $pdo->query("SELECT id, servername, nome, themecolor, icon FROM servidores ORDER BY servername ASC");
+            $stmt = $pdo->query("SELECT id, servername, nome, themecolor, icon, enabled FROM servidores ORDER BY servername ASC");
             $lista = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
             $mapa = [];

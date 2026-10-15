@@ -48,7 +48,7 @@ foreach ($gruposBrutos as $cNome => $lista) {
 <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-3">
     <div>
         <h4 class="fw-bold mb-1">Equipe</h4>
-        <p class="text-muted small mb-0"><span data-item-counter><?php echo count($membros); ?> membro(s)</span> em <?php echo count($grupos); ?> categoria(s)</p>
+        <p class="text-muted small mb-0"><span data-item-counter><?php echo pluralizar(count($membros), 'membro', 'membros'); ?></span> em <?php echo pluralizar(count($grupos), 'categoria', 'categorias'); ?></p>
     </div>
     <div class="d-flex gap-2">
         <a href="manage.php" class="btn btn-outline-primary btn-sm"><i class="fa-solid fa-layer-group me-1"></i> Gerenciar Cargos</a>
@@ -70,7 +70,7 @@ foreach ($gruposBrutos as $cNome => $lista) {
                     <h6 class="fw-bold mb-0"><?php echo htmlspecialchars($cargo, ENT_QUOTES, 'UTF-8'); ?></h6>
                 </div>
                 <div class="d-flex align-items-center gap-2">
-                    <span class="badge bg-light text-dark border contador-membros"><?php echo count($lista); ?> membro(s)</span>
+                    <span class="badge bg-light text-dark border contador-membros"><?php echo pluralizar(count($lista), 'membro', 'membros'); ?></span>
                     <a href="criar.php?cargo=<?php echo urlencode($cargo); ?>" class="btn btn-sm btn-outline-success d-inline-flex align-items-center gap-1 py-1 px-2" style="font-size: 0.78rem;" title="Adicionar membro neste cargo">
                         <i class="fa-solid fa-plus"></i> Adicionar
                     </a>
@@ -192,7 +192,7 @@ function atualizarContadoresMembros() {
         const badge = card.querySelector('.badge.contador-membros');
         if (badge) {
             const qtd = tbody.querySelectorAll('tr.membro-row').length;
-            badge.textContent = qtd + ' membro(s)';
+            badge.textContent = qtd + (qtd === 1 ? ' membro' : ' membros');
         }
         // Garante o placeholder quando a secao fica vazia (area de drop)
         if (tbody.querySelectorAll('tr.membro-row').length === 0 && !tbody.querySelector('tr.membro-vazio')) {

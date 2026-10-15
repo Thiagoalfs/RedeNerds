@@ -240,9 +240,42 @@
             } else if (isVisibilityType) {
               badge.className = novoStatus ? 'badge-status visivel' : 'badge-status oculto';
               badge.textContent = novoStatus ? 'Visível' : 'Oculto';
+
+              const tabelaAtivos = document.querySelector('[id$="-ativos"] tbody');
+              const tabelaInativos = document.querySelector('[id$="-inativos"] tbody');
+              if (tabelaAtivos && tabelaInativos) {
+                if (novoStatus) {
+                  moverLinhaEntreTabelas(row, row.parentElement, tabelaAtivos);
+                } else {
+                  moverLinhaEntreTabelas(row, row.parentElement, tabelaInativos);
+                }
+              }
             } else {
-              badge.className = novoStatus ? 'badge-status ativo' : 'badge-status inativo';
-              badge.textContent = novoStatus ? 'Ativo' : 'Inativo';
+              // Verifica se estamos em uma página com divisão de tabelas (ativos e inativos)
+              const tabelaAtivos = document.querySelector('[id$="-ativos"] tbody');
+              const tabelaInativos = document.querySelector('[id$="-inativos"] tbody');
+              const hasSplitTables = tabelaAtivos && tabelaInativos;
+              const hasServidorOculto = row.textContent.includes('Servidor Oculto');
+
+              if (hasSplitTables) {
+                if (!novoStatus) {
+                  badge.className = 'badge-status inativo';
+                  badge.textContent = 'Inativo';
+                  moverLinhaEntreTabelas(row, row.parentElement, tabelaInativos);
+                } else {
+                  if (hasServidorOculto) {
+                    badge.className = 'badge-status pendente';
+                    badge.innerHTML = '<i class="fa-solid fa-triangle-exclamation me-1"></i> Servidor Oculto';
+                  } else {
+                    badge.className = 'badge-status ativo';
+                    badge.textContent = 'Ativo';
+                    moverLinhaEntreTabelas(row, row.parentElement, tabelaAtivos);
+                  }
+                }
+              } else {
+                badge.className = novoStatus ? 'badge-status ativo' : 'badge-status inativo';
+                badge.textContent = novoStatus ? 'Ativo' : 'Inativo';
+              }
             }
           }
           row.classList.add('table-row-highlight');
@@ -257,7 +290,7 @@
           btn.innerHTML = '<i class="fa-solid ' + (ehPublicado ? 'fa-eye-slash' : 'fa-eye') + '"></i>';
         } else {
           btn.title = ehPublicado ? 'Publicar artigo' : (isVisibilityType ? 'Exibir servidor' : 'Ativar na loja');
-          btn.innerHTML = '<i class="fa-solid ' + (ehPublicado ? 'fa-eye' : 'fa-eye') + '"></i>';
+          btn.innerHTML = '<i class="fa-solid ' + (ehPublicado ? 'fa-eye' : 'fa-eye-slash') + '"></i>';
         }
 
         const msgSucesso = res.mensagem || (novoStatus
@@ -301,7 +334,17 @@
           row.style.opacity = '0';
           row.style.transform = 'scale(0.96)';
           setTimeout(() => {
+            const parentTable = row.parentElement;
             row.remove();
+            if (parentTable) {
+              const restantes = parentTable.querySelectorAll('tr:not(.empty-row)');
+              if (restantes.length === 0) {
+                const trEmpty = document.createElement('tr');
+                trEmpty.className = 'empty-row';
+                trEmpty.innerHTML = `<td colspan="8" class="text-center py-4 text-muted">Nenhum item nesta seção.</td>`;
+                parentTable.appendChild(trEmpty);
+              }
+            }
             atualizarContadorTabela();
           }, 300);
         }
@@ -316,13 +359,112 @@
     });
   }
 
+  function moverLinhaEntreTabelas(row, tabelaOrigem, tabelaDestino) {
+    if (!row || !tabelaDestino || row.parentElement === tabelaDestino) return;
+
+    // Remove empty row da tabela de destino se houver
+    const emptyDest = tabelaDestino.querySelector('.empty-row');
+    if (emptyDest) emptyDest.remove();
+
+    // Anima saída e insere no destino
+    row.style.transition = 'all 0.25s ease';
+    row.style.opacity = '0.3';
+    setTimeout(() => {
+      tabelaDestino.appendChild(row);
+      row.style.opacity = '1';
+      
+      // Verifica se a tabela de origem ficou vazia
+      if (tabelaOrigem) {
+        const restantesOrigem = tabelaOrigem.querySelectorAll('tr:not(.empty-row)');
+        if (restantesOrigem.length === 0) {
+          const colCount = row.children.length || 7;
+          const trEmpty = document.createElement('tr');
+          trEmpty.className = 'empty-row';
+          trEmpty.innerHTML = `<td colspan="${colCount}" class="text-center py-4 text-muted">Nenhum item nesta seção.</td>`;
+          tabelaOrigem.appendChild(trEmpty);
+        }
+      }
+
+      atualizarContadorTabela();
+    }, 250);
+  }
+
   function atualizarContadorTabela() {
-    const table = document.querySelector('.table-admin tbody');
-    if (!table) return;
-    const remainingRows = table.querySelectorAll('tr').length;
+    function pluralizar(count, singular, plural) {
+      return `${count} ${count === 1 ? singular : plural}`;
+    }
+
+    function obterNomes(el) {
+      const txt = (el ? el.textContent : '').toLowerCase();
+      if (txt.includes('servidor')) return ['servidor', 'servidores'];
+      if (txt.includes('pacote')) return ['pacote', 'pacotes'];
+      if (txt.includes('cupom') || txt.includes('cupon')) return ['cupom', 'cupons'];
+      if (txt.includes('membro')) return ['membro', 'membros'];
+      if (txt.includes('cargo')) return ['cargo', 'cargos'];
+      if (txt.includes('artigo')) return ['artigo', 'artigos'];
+      if (txt.includes('novidade')) return ['novidade', 'novidades'];
+      if (txt.includes('parceiro')) return ['parceiro', 'parceiros'];
+      if (txt.includes('pedido')) return ['pedido', 'pedidos'];
+      return ['item', 'itens'];
+    }
+
+    // Contador global (se existir)
+    const allRows = document.querySelectorAll('.table-admin tbody tr:not(.empty-row)');
     const counterBadge = document.querySelector('[data-item-counter]');
     if (counterBadge) {
-      counterBadge.textContent = `${remainingRows} item(ns)`;
+      const [sing, plur] = obterNomes(counterBadge);
+      counterBadge.textContent = pluralizar(allRows.length, sing, plur);
+
+      const parentP = counterBadge.closest('p');
+      if (parentP) {
+        if (allRows.length === 1) {
+          parentP.innerHTML = parentP.innerHTML
+            .replace(/\bcadastrados\b/g, 'cadastrado')
+            .replace(/\bregistrados\b/g, 'registrado')
+            .replace(/\bcadastradas\b/g, 'cadastrada');
+        } else {
+          parentP.innerHTML = parentP.innerHTML
+            .replace(/\bcadastrado\b/g, 'cadastrados')
+            .replace(/\bregistrado\b/g, 'registrados')
+            .replace(/\bcadastrada\b/g, 'cadastradas');
+        }
+      }
+    }
+
+    // Contadores divididos (Ativos / Inativos)
+    const tabAtivos = document.querySelector('[id$="-ativos"] tbody');
+    const countAtivos = tabAtivos ? tabAtivos.querySelectorAll('tr:not(.empty-row)').length : 0;
+
+    const tabInativos = document.querySelector('[id$="-inativos"] tbody');
+    const countInativos = tabInativos ? tabInativos.querySelectorAll('tr:not(.empty-row)').length : 0;
+
+    const counterAtivos = document.querySelector('[data-item-counter-ativos]');
+    if (counterAtivos) {
+      const [sing, plur] = obterNomes(counterAtivos);
+      counterAtivos.textContent = pluralizar(countAtivos, sing, plur);
+    }
+
+    const counterInativos = document.querySelector('[data-item-counter-inativos]');
+    if (counterInativos) {
+      const [sing, plur] = obterNomes(counterInativos);
+      counterInativos.textContent = pluralizar(countInativos, sing, plur);
+    }
+
+    // Contadores do cabeçalho resumo (se existirem)
+    const summaryAtivos = document.querySelector('[data-item-counter-ativos-summary]');
+    if (summaryAtivos) {
+      const isServ = summaryAtivos.textContent.includes('visível') || summaryAtivos.textContent.includes('visíveis');
+      summaryAtivos.textContent = isServ 
+        ? pluralizar(countAtivos, 'visível', 'visíveis')
+        : pluralizar(countAtivos, 'ativo', 'ativos');
+    }
+
+    const summaryInativos = document.querySelector('[data-item-counter-inativos-summary]');
+    if (summaryInativos) {
+      const isServ = summaryInativos.textContent.includes('oculto') || summaryInativos.textContent.includes('ocultos');
+      summaryInativos.textContent = isServ
+        ? pluralizar(countInativos, 'oculto', 'ocultos')
+        : pluralizar(countInativos, 'inativo', 'inativos');
     }
   }
 

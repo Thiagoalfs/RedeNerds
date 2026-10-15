@@ -78,7 +78,7 @@ try {
         <div class="kpi-info">
             <span class="kpi-label">Vendas Aprovadas</span>
             <div class="kpi-value"><?php echo $totalPedidosPagos; ?></div>
-            <span class="kpi-subtext text-warning fw-semibold"><?php echo $totalPedidosPendentes; ?> pedido(s) pendente(s)</span>
+            <span class="kpi-subtext text-warning fw-semibold"><?php echo pluralizar($totalPedidosPendentes, 'pedido pendente', 'pedidos pendentes'); ?></span>
         </div>
         <div class="kpi-icon-box kpi-icon-blue">
             <i class="fa-solid fa-receipt"></i>
@@ -90,7 +90,7 @@ try {
         <div class="kpi-info">
             <span class="kpi-label">Cupons Ativos</span>
             <div class="kpi-value text-purple"><?php echo $totalCuponsAtivos; ?></div>
-            <span class="kpi-subtext"><?php echo $totalUsosCupons; ?> desconto(s) aplicado(s)</span>
+            <span class="kpi-subtext"><?php echo pluralizar($totalUsosCupons, 'desconto aplicado', 'descontos aplicados'); ?></span>
         </div>
         <div class="kpi-icon-box kpi-icon-purple">
             <i class="fa-solid fa-tags"></i>
@@ -102,7 +102,7 @@ try {
         <div class="kpi-info">
             <span class="kpi-label">Servidores Online</span>
             <div class="kpi-value"><?php echo $totalServidores; ?></div>
-            <span class="kpi-subtext"><?php echo $totalNoticias; ?> novidade(s) no site</span>
+            <span class="kpi-subtext"><?php echo pluralizar($totalNoticias, 'novidade', 'novidades'); ?> no site</span>
         </div>
         <div class="kpi-icon-box kpi-icon-yellow">
             <i class="fa-solid fa-server"></i>
@@ -114,7 +114,6 @@ try {
 <div class="admin-card">
     <div class="admin-card-header">
         <h5 class="admin-card-title">
-            <i class="fa-solid fa-clock-rotate-left text-primary"></i>
             Últimos Pedidos da Loja
         </h5>
         <a href="/admin/pedidos/" class="btn btn-outline-primary btn-sm">Ver todos os pedidos →</a>

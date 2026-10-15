@@ -47,7 +47,7 @@ try {
 <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-3">
     <div>
         <h4 class="fw-bold mb-1">Wiki & Base de Conhecimento</h4>
-        <p class="text-muted small mb-0"><span data-item-counter><?php echo count($artigos); ?> artigo(s)</span> cadastrado(s)</p>
+        <p class="text-muted small mb-0"><span data-item-counter><?php echo pluralizar(count($artigos), 'artigo', 'artigos'); ?></span> <?php echo count($artigos) === 1 ? 'cadastrado' : 'cadastrados'; ?></p>
     </div>
     <div class="d-flex align-items-center flex-wrap gap-2">
         <!-- TOGGLE GERAL DA WIKI (PÚBLICA / NAVBAR) - assíncrono -->
