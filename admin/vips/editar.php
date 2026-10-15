@@ -228,7 +228,7 @@ require_once __DIR__ . "/../includes/admin_header.php";
     position: absolute;
     top: calc(100% + 6px);
     right: 0;
-    z-index: 1050;
+    z-index: 1070;
     background: #ffffff;
     border: 1px solid #cbd5e1;
     border-radius: 8px;
@@ -246,6 +246,40 @@ require_once __DIR__ . "/../includes/admin_header.php";
 }
 .scratch-preset-btn:hover {
     transform: scale(1.2);
+}
+.tag-minimal-switch {
+    display: inline-flex;
+    background: #0f172a;
+    padding: 4px;
+    border-radius: 9999px;
+    border: 1px solid #1e293b;
+    gap: 4px;
+}
+.tag-switch-btn {
+    border: none;
+    background: transparent;
+    color: #94a3b8;
+    padding: 6px 18px;
+    border-radius: 9999px;
+    font-size: 0.82rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+.tag-switch-btn:hover {
+    color: #f8fafc;
+    background: rgba(255, 255, 255, 0.05);
+}
+.tag-switch-btn.active {
+    background: #8c52ff;
+    color: #ffffff;
+    box-shadow: 0 2px 8px rgba(140, 82, 255, 0.35);
+}
+#main-tag-preview-box:hover {
+    border-color: #3b82f6 !important;
 }
 </style>
 
@@ -284,111 +318,20 @@ require_once __DIR__ . "/../includes/admin_header.php";
                                    placeholder="Ex: VIP Netherite" required oninput="atualizarPreviewTag()">
                         </div>
                         <div class="col-md-4 admin-form-group">
-                            <div class="d-flex align-items-center justify-content-between mb-1">
-                                <label class="form-label mb-0 fw-semibold" style="font-size: 0.88rem;">
-                                    Cor da Tag
-                                </label>
-
-                                <!-- SWITCH COLORWHEEL / STRING -->
-                                <div class="d-flex align-items-center gap-1" title="Alternar entre Colorwheel (Gradiente) e String (formato Minecraft)">
-                                    <span class="small mode-toggle-label <?php echo ($cor_tipo !== 'string') ? 'text-primary fw-bold' : 'text-muted'; ?>" id="label-mode-colorwheel" style="font-size: 0.72rem; cursor: pointer;" onclick="definirModoCor('colorwheel')">Colorwheel</span>
-                                    <div class="form-check form-switch m-0 d-inline-flex align-items-center" style="min-height: auto; padding-left: 2rem;">
-                                        <input class="form-check-input m-0" type="checkbox" role="switch" id="cor_tipo_switch" style="cursor: pointer;" <?php echo ($cor_tipo === 'string') ? 'checked' : ''; ?> onchange="onSwitchModoCor(this.checked)">
-                                    </div>
-                                    <span class="small mode-toggle-label <?php echo ($cor_tipo === 'string') ? 'text-primary fw-bold' : 'text-muted'; ?>" id="label-mode-string" style="font-size: 0.72rem; cursor: pointer;" onclick="definirModoCor('string')">String</span>
+                            <label class="form-label mb-1 fw-semibold" style="font-size: 0.88rem;">Cor da Tag</label>
+                            <div class="input-group">
+                                <div class="form-control d-flex align-items-center justify-content-between font-monospace px-3" 
+                                     id="main-tag-preview-box"
+                                     style="background: #0f172a; border-color: #1e293b; cursor: pointer; min-height: 42px; border-top-right-radius: 0; border-bottom-right-radius: 0; user-select: none;"
+                                     data-bs-toggle="modal" data-bs-target="#modalCorTag"
+                                     title="Clique para editar a cor da tag">
+                                    <span id="main-tag-preview-content" class="fw-bold" style="font-size: 0.95rem; letter-spacing: 0.5px;"></span>
+                                    <span class="badge bg-secondary text-uppercase" id="main-tag-mode-badge" style="font-size: 0.62rem; font-family: sans-serif; letter-spacing: 0.5px;">Colorwheel</span>
                                 </div>
-                            </div>
-
-                            <!-- Hidden input capturado pelo form e unsaved_bar -->
-                            <input type="hidden" id="cor_tipo" name="cor_tipo" value="<?php echo htmlspecialchars($cor_tipo, ENT_QUOTES, 'UTF-8'); ?>">
-
-                            <!-- PAINEL 1: COLORWHEEL -->
-                            <div id="panel-colorwheel" style="<?php echo ($cor_tipo === 'string') ? 'display: none;' : ''; ?>">
-                                <div class="scratch-gradient-wrapper position-relative">
-                                    <div class="d-flex align-items-center gap-2 p-1 bg-white border rounded" style="min-height: 42px;">
-                                        <!-- Swatch Cor 1 -->
-                                        <div class="scratch-swatch-box" id="swatch-cor1-btn" onclick="abrirSeletorCor('cor1', event)" title="Cor inicial (clique para escolher)">
-                                            <span class="scratch-swatch" id="preview-swatch-cor1" style="background-color: <?php echo htmlspecialchars($cor1, ENT_QUOTES, 'UTF-8'); ?>;"></span>
-                                        </div>
-
-                                        <!-- Swap Button -->
-                                        <button type="button" class="scratch-swap-btn" onclick="trocarCoresGradiente(event)" title="Inverter cores">
-                                            <i class="fa-solid fa-arrow-right-arrow-left"></i>
-                                        </button>
-
-                                        <!-- Swatch Cor 2 -->
-                                        <div class="scratch-swatch-box" id="swatch-cor2-btn" onclick="abrirSeletorCor('cor2', event)" title="Cor final (clique para escolher)">
-                                            <span class="scratch-swatch" id="preview-swatch-cor2" style="background-color: <?php echo htmlspecialchars($cor2, ENT_QUOTES, 'UTF-8'); ?>;"></span>
-                                        </div>
-
-                                        <!-- Live Mini Gradient Bar -->
-                                        <div class="flex-grow-1 px-1">
-                                            <div id="scratch-mini-gradient-bar" class="rounded border" style="height: 18px; width: 100%;"></div>
-                                        </div>
-
-                                        <!-- Reset button -->
-                                        <button type="button" class="btn btn-link btn-sm p-1 text-muted" title="Resetar cores para padrão (#ffffff)" onclick="resetarCoresPadrao()" style="font-size: 0.72rem;">
-                                            <i class="fa-solid fa-rotate-left"></i>
-                                        </button>
-                                    </div>
-
-                                    <input type="hidden" id="cor1" name="cor1" value="<?php echo htmlspecialchars($cor1, ENT_QUOTES, 'UTF-8'); ?>">
-                                    <input type="hidden" id="cor2" name="cor2" value="<?php echo htmlspecialchars($cor2, ENT_QUOTES, 'UTF-8'); ?>">
-
-                                    <!-- Floating Popover Picker -->
-                                    <div id="scratch-popover" class="scratch-popover shadow-lg" style="display: none;" onclick="event.stopPropagation()">
-                                        <div class="d-flex justify-content-between align-items-center pb-2 mb-2 border-bottom">
-                                            <span class="small fw-bold text-dark" id="scratch-popover-title">Selecionar Cor</span>
-                                            <button type="button" class="btn-close btn-sm" onclick="fecharSeletorCor()"></button>
-                                        </div>
-                                        
-                                        <div class="mb-2">
-                                            <input type="color" id="scratch-native-picker" class="form-control form-control-color w-100 mb-2" style="height: 42px; cursor: pointer;" oninput="onNativeColorChange(this.value)">
-                                            <div class="d-flex flex-wrap gap-1 mb-2">
-                                                <button type="button" class="scratch-preset-btn" style="background:#ffffff;" title="Branco / Padrão" onclick="setPresetColor('#ffffff')"></button>
-                                                <button type="button" class="scratch-preset-btn" style="background:#9945FF;" title="Roxo" onclick="setPresetColor('#9945FF')"></button>
-                                                <button type="button" class="scratch-preset-btn" style="background:#14F195;" title="Verde Esmeralda" onclick="setPresetColor('#14F195')"></button>
-                                                <button type="button" class="scratch-preset-btn" style="background:#FF8C00;" title="Laranja Ouro" onclick="setPresetColor('#FF8C00')"></button>
-                                                <button type="button" class="scratch-preset-btn" style="background:#F1C40F;" title="Amarelo" onclick="setPresetColor('#F1C40F')"></button>
-                                                <button type="button" class="scratch-preset-btn" style="background:#00D2FF;" title="Ciano Diamante" onclick="setPresetColor('#00D2FF')"></button>
-                                                <button type="button" class="scratch-preset-btn" style="background:#FF416C;" title="Rosa Rubi" onclick="setPresetColor('#FF416C')"></button>
-                                                <button type="button" class="scratch-preset-btn" style="background:#B971DA;" title="Roxo Claro" onclick="setPresetColor('#B971DA')"></button>
-                                            </div>
-                                        </div>
-
-                                        <div class="pt-2 border-top">
-                                            <label class="small text-muted mb-1 d-block fw-semibold" style="font-size: 0.72rem;">Código HEX:</label>
-                                            <div class="input-group input-group-sm">
-                                                <span class="input-group-text font-monospace">#</span>
-                                                <input type="text" id="scratch-hex-input" class="form-control font-monospace" maxlength="7" placeholder="FFFFFF" oninput="onHexInputChange(this.value)">
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- PAINEL 2: STRING (MINECRAFT) -->
-                            <div id="panel-string" style="<?php echo ($cor_tipo === 'string') ? '' : 'display: none;'; ?>">
-                                <div class="input-group">
-                                    <span class="input-group-text bg-white text-muted font-monospace" style="font-size: 0.78rem;">
-                                        <i class="fa-solid fa-code"></i>
-                                    </span>
-                                    <input type="text" class="form-control font-monospace" id="cor_string" name="cor_string" 
-                                           value="<?php echo htmlspecialchars($cor_string, ENT_QUOTES, 'UTF-8'); ?>"
-                                           placeholder="#HEX&amp;lLetra&#38;#HEX&amp;l..."
-                                           autocomplete="off" style="font-size: 0.8rem;" oninput="onStringInputChange()">
-                                    <button type="button" class="btn btn-outline-secondary btn-sm" title="Limpar string" onclick="limparCorString()">
-                                        <i class="fa-solid fa-xmark"></i>
-                                    </button>
-                                </div>
-                            </div>
-
-                            <!-- PREVIEW AO VIVO DA TAG -->
-                            <div class="vip-tag-live-card mt-2 p-2 rounded border d-flex align-items-center justify-content-between" style="background: #0f172a; min-height: 38px; border-color: #1e293b !important;">
-                                <span class="badge bg-dark text-muted border border-secondary" style="font-size: 0.65rem; letter-spacing: 0.5px;">PREVIEW</span>
-                                <div id="vip-tag-preview-content" class="text-center flex-grow-1 px-2 fw-bold font-monospace" style="font-size: 0.95rem; letter-spacing: 0.5px;">
-                                    <!-- Atualizado dinamicamente via JS -->
-                                </div>
+                                <button type="button" class="btn btn-outline-secondary px-3 d-flex align-items-center gap-1" id="btn-abrir-modal-cor" data-bs-toggle="modal" data-bs-target="#modalCorTag" title="Editar cor da tag">
+                                    <i class="fa-solid fa-pen-to-square"></i>
+                                    <span>Editar</span>
+                                </button>
                             </div>
                         </div>
                     </div>
@@ -458,6 +401,137 @@ require_once __DIR__ . "/../includes/admin_header.php";
                                 <label class="form-check-label fw-semibold" for="ativo">
                                     <i class="fa-solid fa-circle-check text-success me-1"></i> Pacote VIP Ativo e Disponível para Compra
                                 </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- MODAL FLUTUANTE DE PERSONALIZAÇÃO DA COR DA TAG -->
+                    <div class="modal fade" id="modalCorTag" tabindex="-1" aria-labelledby="modalCorTagLabel" aria-hidden="true">
+                        <div class="modal-dialog modal-dialog-centered">
+                            <div class="modal-content shadow-lg border-0" style="background: #1e293b; color: #f8fafc; border-radius: 12px; overflow: visible;">
+                                <div class="modal-header border-secondary border-opacity-25 pb-3">
+                                    <h6 class="modal-title fw-bold d-flex align-items-center gap-2" id="modalCorTagLabel" style="font-size: 1rem;">
+                                        <i class="fa-solid fa-palette text-primary"></i> Personalizar Cor da Tag
+                                    </h6>
+                                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Fechar"></button>
+                                </div>
+                                <div class="modal-body p-4" style="overflow: visible;">
+                                    <!-- Preview em tempo real dentro do modal -->
+                                    <div class="mb-4">
+                                        <label class="form-label text-muted small text-uppercase fw-semibold" style="letter-spacing: 0.5px; font-size: 0.72rem;">Preview em Tempo Real</label>
+                                        <div class="p-3 rounded border text-center font-monospace" style="background: #0f172a; border-color: #334155 !important; min-height: 52px; display: flex; align-items: center; justify-content: center;">
+                                            <div id="modal-tag-preview-content" class="fw-bold" style="font-size: 1.15rem; letter-spacing: 0.5px;">
+                                                <!-- Atualizado dinamicamente -->
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Switch Minimalista Customizado -->
+                                    <div class="d-flex justify-content-center mb-4">
+                                        <div class="tag-minimal-switch">
+                                            <button type="button" class="tag-switch-btn <?php echo ($cor_tipo !== 'string') ? 'active' : ''; ?>" id="btn-mode-colorwheel" onclick="definirModoCor('colorwheel')">
+                                                <i class="fa-solid fa-circle-half-stroke"></i> Colorwheel
+                                            </button>
+                                            <button type="button" class="tag-switch-btn <?php echo ($cor_tipo === 'string') ? 'active' : ''; ?>" id="btn-mode-string" onclick="definirModoCor('string')">
+                                                <i class="fa-solid fa-code"></i> String
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                    <!-- Hidden Input para cor_tipo -->
+                                    <input type="hidden" id="cor_tipo" name="cor_tipo" value="<?php echo htmlspecialchars($cor_tipo, ENT_QUOTES, 'UTF-8'); ?>">
+
+                                    <!-- PAINEL COLORWHEEL -->
+                                    <div id="panel-colorwheel" style="<?php echo ($cor_tipo === 'string') ? 'display: none;' : ''; ?>">
+                                        <label class="form-label text-muted small fw-semibold mb-2" style="font-size: 0.75rem;">GRADIENTE DA TAG</label>
+                                        <div class="scratch-gradient-wrapper position-relative">
+                                            <div class="d-flex align-items-center gap-2 p-2 rounded border" style="background: #0f172a; border-color: #334155; min-height: 48px;">
+                                                <!-- Swatch Cor 1 -->
+                                                <div class="scratch-swatch-box" id="swatch-cor1-btn" onclick="abrirSeletorCor('cor1', event)" title="Cor inicial (clique para escolher)">
+                                                    <span class="scratch-swatch" id="preview-swatch-cor1" style="background-color: <?php echo htmlspecialchars($cor1, ENT_QUOTES, 'UTF-8'); ?>;"></span>
+                                                </div>
+
+                                                <!-- Swap Button -->
+                                                <button type="button" class="scratch-swap-btn" onclick="trocarCoresGradiente(event)" title="Inverter cores">
+                                                    <i class="fa-solid fa-arrow-right-arrow-left"></i>
+                                                </button>
+
+                                                <!-- Swatch Cor 2 -->
+                                                <div class="scratch-swatch-box" id="swatch-cor2-btn" onclick="abrirSeletorCor('cor2', event)" title="Cor final (clique para escolher)">
+                                                    <span class="scratch-swatch" id="preview-swatch-cor2" style="background-color: <?php echo htmlspecialchars($cor2, ENT_QUOTES, 'UTF-8'); ?>;"></span>
+                                                </div>
+
+                                                <!-- Live Mini Gradient Bar -->
+                                                <div class="flex-grow-1 px-2">
+                                                    <div id="scratch-mini-gradient-bar" class="rounded border border-secondary" style="height: 20px; width: 100%;"></div>
+                                                </div>
+
+                                                <!-- Reset button -->
+                                                <button type="button" class="btn btn-outline-secondary btn-sm p-1 text-muted" title="Resetar cores para padrão (#ffffff)" onclick="resetarCoresPadrao()" style="width: 28px; height: 28px;">
+                                                    <i class="fa-solid fa-rotate-left"></i>
+                                                </button>
+                                            </div>
+
+                                            <input type="hidden" id="cor1" name="cor1" value="<?php echo htmlspecialchars($cor1, ENT_QUOTES, 'UTF-8'); ?>">
+                                            <input type="hidden" id="cor2" name="cor2" value="<?php echo htmlspecialchars($cor2, ENT_QUOTES, 'UTF-8'); ?>">
+
+                                            <!-- Floating Popover Picker -->
+                                            <div id="scratch-popover" class="scratch-popover shadow-lg" style="display: none;" onclick="event.stopPropagation()">
+                                                <div class="d-flex justify-content-between align-items-center pb-2 mb-2 border-bottom">
+                                                    <span class="small fw-bold text-dark" id="scratch-popover-title">Selecionar Cor</span>
+                                                    <button type="button" class="btn-close btn-sm" onclick="fecharSeletorCor()"></button>
+                                                </div>
+                                                
+                                                <div class="mb-2">
+                                                    <input type="color" id="scratch-native-picker" class="form-control form-control-color w-100 mb-2" style="height: 42px; cursor: pointer;" oninput="onNativeColorChange(this.value)">
+                                                    <div class="d-flex flex-wrap gap-1 mb-2">
+                                                        <button type="button" class="scratch-preset-btn" style="background:#ffffff;" title="Branco / Padrão" onclick="setPresetColor('#ffffff')"></button>
+                                                        <button type="button" class="scratch-preset-btn" style="background:#9945FF;" title="Roxo" onclick="setPresetColor('#9945FF')"></button>
+                                                        <button type="button" class="scratch-preset-btn" style="background:#14F195;" title="Verde Esmeralda" onclick="setPresetColor('#14F195')"></button>
+                                                        <button type="button" class="scratch-preset-btn" style="background:#FF8C00;" title="Laranja Ouro" onclick="setPresetColor('#FF8C00')"></button>
+                                                        <button type="button" class="scratch-preset-btn" style="background:#F1C40F;" title="Amarelo" onclick="setPresetColor('#F1C40F')"></button>
+                                                        <button type="button" class="scratch-preset-btn" style="background:#00D2FF;" title="Ciano Diamante" onclick="setPresetColor('#00D2FF')"></button>
+                                                        <button type="button" class="scratch-preset-btn" style="background:#FF416C;" title="Rosa Rubi" onclick="setPresetColor('#FF416C')"></button>
+                                                        <button type="button" class="scratch-preset-btn" style="background:#B971DA;" title="Roxo Claro" onclick="setPresetColor('#B971DA')"></button>
+                                                    </div>
+                                                </div>
+
+                                                <div class="pt-2 border-top">
+                                                    <label class="small text-muted mb-1 d-block fw-semibold" style="font-size: 0.72rem;">Código HEX:</label>
+                                                    <div class="input-group input-group-sm">
+                                                        <span class="input-group-text font-monospace">#</span>
+                                                        <input type="text" id="scratch-hex-input" class="form-control font-monospace" maxlength="7" placeholder="FFFFFF" oninput="onHexInputChange(this.value)">
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- PAINEL STRING (MINECRAFT) -->
+                                    <div id="panel-string" style="<?php echo ($cor_tipo === 'string') ? '' : 'display: none;'; ?>">
+                                        <label class="form-label text-muted small fw-semibold mb-2" style="font-size: 0.75rem;">STRING DA TAG (FORMATO SERVIDOR)</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text font-monospace" style="background: #0f172a; border-color: #334155; color: #94a3b8; font-size: 0.85rem;">
+                                                <i class="fa-solid fa-code"></i>
+                                            </span>
+                                            <input type="text" class="form-control font-monospace" id="cor_string" name="cor_string" 
+                                                   value="<?php echo htmlspecialchars($cor_string, ENT_QUOTES, 'UTF-8'); ?>"
+                                                   placeholder="#HEX&amp;lLetra&#38;#HEX&amp;l..."
+                                                   autocomplete="off" style="background: #0f172a; border-color: #334155; color: #f8fafc; font-size: 0.82rem;" oninput="onStringInputChange()">
+                                            <button type="button" class="btn btn-outline-secondary btn-sm" title="Limpar string" onclick="limparCorString()" style="border-color: #334155;">
+                                                <i class="fa-solid fa-xmark"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="modal-footer border-secondary border-opacity-25 d-flex justify-content-between">
+                                    <span class="text-muted small" style="font-size: 0.75rem;">
+                                        <i class="fa-solid fa-circle-info me-1"></i> As alterações são salvas na barra inferior.
+                                    </span>
+                                    <button type="button" class="btn btn-primary btn-sm px-4 fw-semibold" data-bs-dismiss="modal">
+                                        Concluir
+                                    </button>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -576,24 +650,31 @@ function parseMinecraftString(raw) {
 }
 
 function atualizarPreviewTag() {
-    const previewEl = document.getElementById('vip-tag-preview-content');
-    if (!previewEl) return;
-
+    const mainPreviewEl = document.getElementById('main-tag-preview-content');
+    const modalPreviewEl = document.getElementById('modal-tag-preview-content');
+    const modeBadge = document.getElementById('main-tag-mode-badge');
+    
     const modo = document.getElementById('cor_tipo')?.value || 'colorwheel';
+    if (modeBadge) {
+        modeBadge.textContent = modo === 'string' ? 'String' : 'Colorwheel';
+        modeBadge.className = modo === 'string' ? 'badge bg-info text-dark text-uppercase' : 'badge bg-secondary text-uppercase';
+    }
+
+    let previewHtml = '';
 
     if (modo === 'string') {
         const str = (document.getElementById('cor_string')?.value || '').trim();
         if (!str) {
-            previewEl.innerHTML = '<span class="text-muted" style="font-weight: 400; font-size: 0.76rem; font-style: italic;">Cole ou digite a string da tag...</span>';
-            return;
+            previewHtml = '<span class="text-muted" style="font-weight: 400; font-size: 0.8rem; font-style: italic;">Sem cor definida</span>';
+        } else {
+            const parsed = parseMinecraftString(str);
+            if (!parsed) {
+                previewHtml = '<span class="text-warning" style="font-size: 0.78rem;">Formato inválido</span>';
+            } else {
+                const hasBrackets = str.includes('[') || str.includes(']');
+                previewHtml = hasBrackets ? parsed : `<span style="color: #94a3b8; font-weight: normal;">[</span>${parsed}<span style="color: #94a3b8; font-weight: normal;">]</span>`;
+            }
         }
-        const parsed = parseMinecraftString(str);
-        if (!parsed) {
-            previewEl.innerHTML = '<span class="text-warning" style="font-size: 0.76rem;">Formato inválido</span>';
-            return;
-        }
-        const hasBrackets = str.includes('[') || str.includes(']');
-        previewEl.innerHTML = hasBrackets ? parsed : `<span style="color: #94a3b8; font-weight: normal;">[</span>${parsed}<span style="color: #94a3b8; font-weight: normal;">]</span>`;
     } else {
         const c1 = document.getElementById('cor1')?.value || '#ffffff';
         const c2 = document.getElementById('cor2')?.value || '#ffffff';
@@ -605,45 +686,34 @@ function atualizarPreviewTag() {
             ? `background: linear-gradient(135deg, ${c1}, ${c2}); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-weight: 800;`
             : `color: ${c1}; font-weight: 800;`;
 
-        previewEl.innerHTML = `<span style="color: #94a3b8; font-weight: normal;">[</span><span style="${tagStyle}">${tagName}</span><span style="color: #94a3b8; font-weight: normal;">]</span>`;
+        previewHtml = `<span style="color: #94a3b8; font-weight: normal;">[</span><span style="${tagStyle}">${tagName}</span><span style="color: #94a3b8; font-weight: normal;">]</span>`;
     }
+
+    if (mainPreviewEl) mainPreviewEl.innerHTML = previewHtml;
+    if (modalPreviewEl) modalPreviewEl.innerHTML = previewHtml;
 }
 
 function aplicarModoCor(modo, dispararEvento) {
     if (dispararEvento === undefined) dispararEvento = true;
     const inputModo = document.getElementById('cor_tipo');
-    const switchEl = document.getElementById('cor_tipo_switch');
     const panelColorwheel = document.getElementById('panel-colorwheel');
     const panelString = document.getElementById('panel-string');
-    const labelColorwheel = document.getElementById('label-mode-colorwheel');
-    const labelString = document.getElementById('label-mode-string');
+    const btnColorwheel = document.getElementById('btn-mode-colorwheel');
+    const btnString = document.getElementById('btn-mode-string');
 
     if (inputModo) inputModo.value = modo;
-    if (switchEl) switchEl.checked = (modo === 'string');
 
     if (modo === 'string') {
         if (panelColorwheel) panelColorwheel.style.display = 'none';
         if (panelString) panelString.style.display = 'block';
-        if (labelColorwheel) {
-            labelColorwheel.classList.remove('text-primary', 'fw-bold');
-            labelColorwheel.classList.add('text-muted');
-        }
-        if (labelString) {
-            labelString.classList.remove('text-muted');
-            labelString.classList.add('text-primary', 'fw-bold');
-        }
+        if (btnColorwheel) btnColorwheel.classList.remove('active');
+        if (btnString) btnString.classList.add('active');
         fecharSeletorCor();
     } else {
         if (panelColorwheel) panelColorwheel.style.display = 'block';
         if (panelString) panelString.style.display = 'none';
-        if (labelColorwheel) {
-            labelColorwheel.classList.remove('text-muted');
-            labelColorwheel.classList.add('text-primary', 'fw-bold');
-        }
-        if (labelString) {
-            labelString.classList.remove('text-primary', 'fw-bold');
-            labelString.classList.add('text-muted');
-        }
+        if (btnColorwheel) btnColorwheel.classList.add('active');
+        if (btnString) btnString.classList.remove('active');
     }
 
     atualizarPreviewTag();
@@ -652,10 +722,6 @@ function aplicarModoCor(modo, dispararEvento) {
         inputModo.dispatchEvent(new Event('input', { bubbles: true }));
         inputModo.dispatchEvent(new Event('change', { bubbles: true }));
     }
-}
-
-function onSwitchModoCor(isChecked) {
-    aplicarModoCor(isChecked ? 'string' : 'colorwheel', true);
 }
 
 function definirModoCor(modo) {
