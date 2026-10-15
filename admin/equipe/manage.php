@@ -63,16 +63,6 @@ $coresPredefinidas = [
     </div>
 </div>
 
-<!-- NAVEGAÇÃO DE SUB-ABAS -->
-<div class="d-flex gap-2 mb-3">
-    <a href="index.php" class="btn btn-outline-secondary btn-sm">
-        <i class="fa-solid fa-users me-1"></i> Membros da Equipe
-    </a>
-    <a href="manage.php" class="btn btn-primary btn-sm">
-        <i class="fa-solid fa-layer-group me-1"></i> Hierarquia de Cargos
-    </a>
-</div>
-
 <!-- FEEDBACK ALERTS -->
 <?php if ($sucesso === 'criado'): ?>
     <div class="alert alert-success alert-dismissible fade show small" role="alert">
