@@ -251,7 +251,6 @@ require_once __DIR__ . "/../includes/admin_header.php";
     display: inline-flex;
     background: #0f172a;
     padding: 4px;
-    border-radius: 9999px;
     border: 1px solid #1e293b;
     gap: 4px;
 }
@@ -260,7 +259,6 @@ require_once __DIR__ . "/../includes/admin_header.php";
     background: transparent;
     color: #94a3b8;
     padding: 6px 18px;
-    border-radius: 9999px;
     font-size: 0.82rem;
     font-weight: 600;
     cursor: pointer;
@@ -322,11 +320,9 @@ require_once __DIR__ . "/../includes/admin_header.php";
                             <div class="input-group">
                                 <div class="form-control d-flex align-items-center justify-content-between font-monospace px-3" 
                                      id="main-tag-preview-box"
-                                     style="background: #0f172a; border-color: #1e293b; cursor: pointer; min-height: 42px; border-top-right-radius: 0; border-bottom-right-radius: 0; user-select: none;"
-                                     data-bs-toggle="modal" data-bs-target="#modalCorTag"
-                                     title="Clique para editar a cor da tag">
+                                     style="background: #0f172a; border-color: #1e293b; min-height: 42px; border-top-right-radius: 0; border-bottom-right-radius: 0; user-select: none;">
                                     <span id="main-tag-preview-content" class="fw-bold" style="font-size: 0.95rem; letter-spacing: 0.5px;"></span>
-                                    <span class="badge bg-secondary text-uppercase" id="main-tag-mode-badge" style="font-size: 0.62rem; font-family: sans-serif; letter-spacing: 0.5px;">Colorwheel</span>
+                                    <span class="badge bg-secondary text-uppercase" id="main-tag-mode-badge" style="font-size: 0.62rem; font-family: sans-serif; letter-spacing: 0.5px;">Degradê</span>
                                 </div>
                                 <button type="button" class="btn btn-outline-secondary px-3 d-flex align-items-center gap-1" id="btn-abrir-modal-cor" data-bs-toggle="modal" data-bs-target="#modalCorTag" title="Editar cor da tag">
                                     <i class="fa-solid fa-pen-to-square"></i>
@@ -410,12 +406,12 @@ require_once __DIR__ . "/../includes/admin_header.php";
                         <div class="modal-dialog modal-dialog-centered">
                             <div class="modal-content shadow-lg border-0" style="background: #1e293b; color: #f8fafc; border-radius: 12px; overflow: visible;">
                                 <div class="modal-header border-secondary border-opacity-25 pb-3">
-                                    <h6 class="modal-title fw-bold d-flex align-items-center gap-2" id="modalCorTagLabel" style="font-size: 1rem;">
-                                        <i class="fa-solid fa-palette text-primary"></i> Personalizar Cor da Tag
+                                    <h6 class="modal-title fw-bold" id="modalCorTagLabel" style="font-size: 1rem;">
+                                        Personalizar Cor da Tag
                                     </h6>
                                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Fechar"></button>
                                 </div>
-                                <div class="modal-body p-4" style="overflow: visible;">
+                                <div class="modal-body p-4" style="overflow: visible; min-height: 320px;">
                                     <!-- Preview em tempo real dentro do modal -->
                                     <div class="mb-4">
                                         <label class="form-label text-muted small text-uppercase fw-semibold" style="letter-spacing: 0.5px; font-size: 0.72rem;">Preview em Tempo Real</label>
@@ -430,10 +426,10 @@ require_once __DIR__ . "/../includes/admin_header.php";
                                     <div class="d-flex justify-content-center mb-4">
                                         <div class="tag-minimal-switch">
                                             <button type="button" class="tag-switch-btn <?php echo ($cor_tipo !== 'string') ? 'active' : ''; ?>" id="btn-mode-colorwheel" onclick="definirModoCor('colorwheel')">
-                                                <i class="fa-solid fa-circle-half-stroke"></i> Colorwheel
+                                                Degradê
                                             </button>
                                             <button type="button" class="tag-switch-btn <?php echo ($cor_tipo === 'string') ? 'active' : ''; ?>" id="btn-mode-string" onclick="definirModoCor('string')">
-                                                <i class="fa-solid fa-code"></i> String
+                                                String
                                             </button>
                                         </div>
                                     </div>
@@ -656,7 +652,7 @@ function atualizarPreviewTag() {
     
     const modo = document.getElementById('cor_tipo')?.value || 'colorwheel';
     if (modeBadge) {
-        modeBadge.textContent = modo === 'string' ? 'String' : 'Colorwheel';
+        modeBadge.textContent = modo === 'string' ? 'String' : 'Degradê';
         modeBadge.className = modo === 'string' ? 'badge bg-info text-dark text-uppercase' : 'badge bg-secondary text-uppercase';
     }
 
