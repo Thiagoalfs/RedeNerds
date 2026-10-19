@@ -512,10 +512,14 @@
 
         const cor1 = (chave.cor1 || '#ffffff').trim();
         const cor2 = (chave.cor2 || '#ffffff').trim();
+        const corTipo = (chave.cor_tipo || 'colorwheel').toLowerCase();
+        const corString = (chave.cor_string || '').trim();
         const hasCustomGradient = cor1 && cor2 && (cor1.toLowerCase() !== cor2.toLowerCase()) && (cor1 !== '#ffffff' || cor2 !== '#ffffff');
         const tagTextStyle = hasCustomGradient 
           ? `style="background: linear-gradient(135deg, ${escapeHTML(cor1)}, ${escapeHTML(cor2)}); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; font-weight: 800;"`
           : `style="color: ${escapeHTML(cor1)}; font-weight: 800;"`;
+
+        const parsedTagStringHtml = (corTipo === 'string' && corString) ? parseMinecraftString(corString) : '';
 
         const imagemUrl = (chave.imagem || '').trim() || '/assets/images/logo.webp';
 
@@ -531,7 +535,11 @@
 
           const iconeCls = obterIconeVantagem(item);
           let itemHtml = escapeHTML(item);
-          itemHtml = itemHtml.replace(/\[(.*?)\]/g, `<span class="vip-tag-badge"><strong ${tagTextStyle}>$1</strong></span>`);
+          if (parsedTagStringHtml) {
+            itemHtml = itemHtml.replace(/\[(.*?)\]/g, `<span class="vip-tag-badge"><strong class="vip-tag-mc-string" style="font-weight: 800;">${parsedTagStringHtml}</strong></span>`);
+          } else {
+            itemHtml = itemHtml.replace(/\[(.*?)\]/g, `<span class="vip-tag-badge"><strong ${tagTextStyle}>$1</strong></span>`);
+          }
 
           let infoHtml = '';
           if (infoTexto) {
@@ -549,6 +557,10 @@
           return `<li><i class="${iconeCls}"></i> <span>${itemHtml}${infoHtml}</span></li>`;
         }).join('');
 
+        const chaveTituloHtml = (corTipo === 'string' && corString)
+          ? parsedTagStringHtml
+          : (hasCustomGradient ? `<span ${tagTextStyle}>${escapeHTML(chave.nome)}</span>` : escapeHTML(chave.nome));
+
         return `
           <div class="vip-card key-card ${isFeatured ? 'is-featured' : ''}" style="animation-delay: ${delay}s;">
             <!-- IMAGEM EM DESTAQUE NO TOPO -->
@@ -561,7 +573,7 @@
               ${isFeatured ? `<span class="featured-pill">Mais Escolhido</span>` : ''}
             </div>
 
-            <h3 class="vip-title key-title">${escapeHTML(chave.nome)}</h3>
+            <h3 class="vip-title key-title">${chaveTituloHtml}</h3>
 
             <!-- PREÇO UNITÁRIO SEM DURAÇÃO -->
             <div class="vip-price-container key-price-container">

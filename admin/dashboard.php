@@ -53,9 +53,9 @@ try {
         <p class="text-muted small mb-0">Aqui está o resumo em tempo real da saúde da Rede Nerds.</p>
     </div>
     <div class="d-flex gap-2 flex-wrap">
-        <a href="/admin/noticias/criar.php" class="btn btn-primary btn-sm"><i class="fa-solid fa-plus me-1"></i> Nova Novidade</a>
-        <a href="/admin/cupons/criar.php" class="btn btn-success btn-sm"><i class="fa-solid fa-tags me-1"></i> Novo Cupom</a>
-        <a href="/admin/servidores/criar.php" class="btn btn-outline-secondary btn-sm"><i class="fa-solid fa-server me-1"></i> Novo Servidor</a>
+        <a href="/admin/noticias/?action=novo" class="btn btn-primary btn-sm"><i class="fa-solid fa-plus me-1"></i> Nova Novidade</a>
+        <a href="/admin/cupons/?action=novo" class="btn btn-success btn-sm"><i class="fa-solid fa-tags me-1"></i> Novo Cupom</a>
+        <a href="/admin/servidores/?action=novo" class="btn btn-outline-secondary btn-sm"><i class="fa-solid fa-server me-1"></i> Novo Servidor</a>
     </div>
 </div>
 

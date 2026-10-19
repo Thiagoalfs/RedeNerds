@@ -71,7 +71,7 @@
             </div>
         </a>
 
-        <?php $isWikiAtiva = in_array($paginaAtiva, ['wiki', 'wiki_categorias', 'wiki_artigo_criar', 'wiki_artigo_editar']); ?>
+        <?php $isWikiAtiva = in_array($paginaAtiva, ['wiki', 'wiki_categorias']); ?>
         <a href="/admin/wiki/" class="nav-item-link <?php echo $isWikiAtiva ? 'active' : ''; ?>">
             <div class="icon-wrap">
                 <i class="fa-solid fa-book-open"></i>
@@ -80,7 +80,7 @@
         </a>
         <?php if ($isWikiAtiva): ?>
             <div class="sidebar-subnav ps-4 my-1 d-flex flex-column gap-1">
-                <a href="/admin/wiki/" class="small text-decoration-none py-1 px-2 rounded d-flex align-items-center <?php echo ($paginaAtiva === 'wiki' || $paginaAtiva === 'wiki_artigo_criar' || $paginaAtiva === 'wiki_artigo_editar') ? 'bg-primary text-white fw-semibold' : ''; ?>" style="<?php echo ($paginaAtiva === 'wiki' || $paginaAtiva === 'wiki_artigo_criar' || $paginaAtiva === 'wiki_artigo_editar') ? '' : 'color: rgb(148, 163, 184);'; ?>">
+                <a href="/admin/wiki/" class="small text-decoration-none py-1 px-2 rounded d-flex align-items-center <?php echo ($paginaAtiva === 'wiki') ? 'bg-primary text-white fw-semibold' : ''; ?>" style="<?php echo ($paginaAtiva === 'wiki') ? '' : 'color: rgb(148, 163, 184);'; ?>">
                     <i class="fa-regular fa-file-lines me-2"></i> <span>Artigos</span>
                 </a>
                 <a href="/admin/wiki/categorias.php" class="small text-decoration-none py-1 px-2 rounded d-flex align-items-center <?php echo ($paginaAtiva === 'wiki_categorias') ? 'bg-primary text-white fw-semibold' : ''; ?>" style="<?php echo ($paginaAtiva === 'wiki_categorias') ? '' : 'color: rgb(148, 163, 184);'; ?>">

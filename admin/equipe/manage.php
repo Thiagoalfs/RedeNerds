@@ -554,6 +554,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 <!-- Estado da ordem dos cargos (controlado pela barra de alterações) -->
 <form class="js-unsaved-form" id="form-ordem-cargos" data-save-endpoint="/admin/api/equipe/cargo_reordenar.php" style="display: none;">
+    <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($csrfToken, ENT_QUOTES, 'UTF-8'); ?>">
     <?php foreach ($cargos as $c): ?>
         <input type="hidden" name="ordem_ids[]" value="<?php echo (int)$c['id']; ?>">
     <?php endforeach; ?>
@@ -565,8 +566,8 @@ document.addEventListener('DOMContentLoaded', function() {
     const formOrdem = document.getElementById('form-ordem-cargos');
     if (!formOrdem) return;
     formOrdem.addEventListener('unsaved:discarded', function() {
-        const input = document.getElementById('ordem-cargos-input');
-        const ids = input ? input.value.split(',').filter(function(v) { return v !== ''; }) : [];
+        const inputs = formOrdem.querySelectorAll('input[name="ordem_ids[]"]');
+        const ids = Array.from(inputs).map(function(input) { return input.value; }).filter(function(v) { return v !== ''; });
         aplicarOrdemCliente(ids);
         if (window.AdminToast) {
             window.AdminToast.info('Alterações de ordem descartadas.');
@@ -576,4 +577,5 @@ document.addEventListener('DOMContentLoaded', function() {
 </script>
 
 <?php require_once __DIR__ . "/../includes/unsaved_bar.php"; ?>
+<?php require_once __DIR__ . "/../includes/admin_footer.php"; ?>
 

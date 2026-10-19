@@ -346,6 +346,7 @@
               }
             }
             atualizarContadorTabela();
+            document.dispatchEvent(new CustomEvent('admin:row-deleted', { detail: { id, url, row } }));
           }, 300);
         }
 

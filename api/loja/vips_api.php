@@ -294,6 +294,8 @@ if (!empty($servidoresDoBanco) && (!empty($vipsDoBanco) || !empty($chavesDoBanco
                     "destaque" => !empty($c['destaque']),
                     "cor1" => !empty($c['cor1']) ? $c['cor1'] : '#ffffff',
                     "cor2" => !empty($c['cor2']) ? $c['cor2'] : '#ffffff',
+                    "cor_tipo" => !empty($c['cor_tipo']) ? $c['cor_tipo'] : 'colorwheel',
+                    "cor_string" => !empty($c['cor_string']) ? $c['cor_string'] : '',
                     "vantagens" => $vantagens
                 ];
             }

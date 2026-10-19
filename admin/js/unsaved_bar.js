@@ -132,22 +132,68 @@
       var endpoint = form.dataset.saveEndpoint;
       if (endpoint) {
         if (!window.AdminApi || !window.AdminToast) {
-          window.AdminToast.error('Recursos assíncronos indisponíveis. Recarregue a página.');
+          if (window.AdminToast && typeof window.AdminToast.error === 'function') {
+            window.AdminToast.error('Recursos assíncronos indisponíveis. Recarregue a página.');
+          } else {
+            alert('Recursos assíncronos indisponíveis. Recarregue a página.');
+          }
           return;
         }
 
-        // Envia todos os campos do formulário (ex: ordem_ids[], membro_cargos[])
+        var originalBtnHtml = btnSave.innerHTML;
+        btnSave.disabled = true;
+        btnSave.innerHTML = '<i class="fa-solid fa-spinner fa-spin me-1"></i> Salvando...';
+
+        // Envia campos do formulário (suporta envio exclusivo de diff quando configurado)
         var data = new FormData();
         var fields = form.querySelectorAll('input, select, textarea');
+        var sendDiffOnly = form.dataset.saveMode === 'diff';
+        var hasChanges = false;
+
         fields.forEach(function(el) {
           if (!el.name || el.disabled) return;
           var type = (el.type || '').toLowerCase();
+
+          // No modo diff, pula campos inalterados em relação ao estado inicial (mantém tokens de segurança)
+          if (sendDiffOnly && el.name !== 'csrf_token') {
+            var initial = null;
+            for (var k = 0; k < initialStates.length; k++) {
+              if (initialStates[k].el === el) {
+                initial = initialStates[k];
+                break;
+              }
+            }
+            if (initial) {
+              if (type === 'checkbox' || type === 'radio') {
+                if (el.checked === initial.value) return;
+              } else if (el.value === initial.value) {
+                return;
+              }
+            }
+          }
+
           if (type === 'checkbox' || type === 'radio') {
-            if (el.checked) data.append(el.name, el.value);
+            data.append(el.name, el.value);
+            hasChanges = true;
           } else if (type !== 'file' && type !== 'submit' && type !== 'button') {
             data.append(el.name, el.value);
+            if (el.name !== 'csrf_token') {
+              hasChanges = true;
+            }
           }
         });
+
+        // Se estiver em modo diff e nenhum campo real mudou
+        if (sendDiffOnly && !hasChanges) {
+          btnSave.disabled = false;
+          btnSave.innerHTML = originalBtnHtml;
+          savedState = capture();
+          refresh();
+          if (window.AdminToast) {
+            window.AdminToast.info('Nenhuma alteração pendente para salvar.');
+          }
+          return;
+        }
 
         window.AdminApi.post(endpoint, data)
           .then(function(res) {
@@ -162,6 +208,10 @@
           })
           .catch(function(err) {
             window.AdminToast.error(err && err.message ? err.message : 'Erro ao salvar.');
+          })
+          .finally(function() {
+            btnSave.disabled = false;
+            btnSave.innerHTML = originalBtnHtml;
           });
         return;
       }

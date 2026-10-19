@@ -50,18 +50,25 @@ try {
     $ordemIds = $_POST['ordem_ids'] ?? $jsonData['ordem_ids'] ?? null;
     if (is_array($ordemIds) && !empty($ordemIds)) {
         $pdo->beginTransaction();
-        $stmt = $pdo->prepare("UPDATE equipe_cargos SET ordem = :ordem WHERE id = :id");
+        $stmt = $pdo->prepare("UPDATE equipe_cargos SET ordem = :ordem WHERE id = :id AND ordem != :ordem_check");
         $pos = 1;
+        $alterados = 0;
         foreach ($ordemIds as $cid) {
             $cid = (int)$cid;
             if ($cid > 0) {
-                $stmt->execute([':ordem' => $pos++, ':id' => $cid]);
+                $stmt->execute([':ordem' => $pos, ':id' => $cid, ':ordem_check' => $pos]);
+                if ($stmt->rowCount() > 0) {
+                    $alterados++;
+                }
+                $pos++;
             }
         }
         $pdo->commit();
 
-        require_once __DIR__ . "/../../../api/cache_helper.php";
-        invalidarCache('equipe');
+        if ($alterados > 0) {
+            require_once __DIR__ . "/../../../api/cache_helper.php";
+            invalidarCache('equipe');
+        }
 
         if ($isAjax) {
             header('Content-Type: application/json; charset=utf-8');
