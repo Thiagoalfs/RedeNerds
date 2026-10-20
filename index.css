@@ -176,38 +176,138 @@
 }
 
 /* =========================================
-   Grid de servidores (cards na landing)
-   Mobile: Carrossel horizontal deslizável
+   Carrossel de Servidores (Desktop & Mobile)
    ========================================= */
+.servers-carousel-wrapper {
+    position: relative;
+    width: 100%;
+    max-width: 1240px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 10px;
+    box-sizing: border-box;
+}
+
 .servers-grid {
     display: flex;
     flex-wrap: nowrap;
     overflow-x: auto;
     scroll-snap-type: x mandatory;
+    scroll-behavior: smooth;
     -webkit-overflow-scrolling: touch;
     justify-content: flex-start;
     align-items: stretch;
-    gap: 16px;
+    gap: 20px;
     width: 100%;
-    max-width: 100%;
-    padding: 10px 16px 20px 16px;
+    padding: 14px 10px 24px 10px;
     margin: 0 auto;
     box-sizing: border-box;
-    scrollbar-width: thin;
-    scrollbar-color: rgba(125, 185, 223, 0.25) transparent;
+    scrollbar-width: none;
 }
 
 .servers-grid::-webkit-scrollbar {
-    height: 4px;
+    display: none;
 }
 
-.servers-grid::-webkit-scrollbar-track {
-    background: transparent;
+/* Quando não há overflow, centraliza perfeitamente */
+.servers-carousel-wrapper:not(.has-overflow) .servers-grid {
+    justify-content: center;
 }
 
-.servers-grid::-webkit-scrollbar-thumb {
-    background: rgba(125, 185, 223, 0.25);
+/* Botões de Navegação Desktop (Setas < e >) */
+.servers-carousel-btn {
+    display: none;
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: rgba(15, 20, 29, 0.88);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    color: #FFFFFF;
+    font-size: 16px;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 10;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6);
+}
+
+.servers-carousel-btn.prev {
+    left: -20px;
+}
+
+.servers-carousel-btn.next {
+    right: -20px;
+}
+
+.servers-carousel-btn:hover:not(:disabled) {
+    background: #1e293b;
+    border-color: #B971DA;
+    color: #B971DA;
+    transform: translateY(-50%) scale(1.1);
+    box-shadow: 0 0 20px rgba(185, 113, 218, 0.45);
+}
+
+.servers-carousel-btn:active:not(:disabled) {
+    transform: translateY(-50%) scale(0.95);
+}
+
+.servers-carousel-btn:disabled {
+    opacity: 0.15;
+    cursor: not-allowed;
+    pointer-events: none;
+    box-shadow: none;
+}
+
+/* Indicadores / Dots */
+.servers-carousel-dots {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+    margin-top: 4px;
+    margin-bottom: 12px;
+}
+
+.servers-carousel-dot {
+    width: 8px;
+    height: 8px;
     border-radius: 4px;
+    background: rgba(255, 255, 255, 0.2);
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.servers-carousel-dot:hover {
+    background: rgba(255, 255, 255, 0.5);
+}
+
+.servers-carousel-dot.active {
+    width: 24px;
+    background: #B971DA;
+    box-shadow: 0 0 10px rgba(185, 113, 218, 0.5);
+}
+
+/* Estado de arraste com mouse */
+.servers-grid.is-dragging {
+    cursor: grabbing;
+    cursor: -webkit-grabbing;
+    user-select: none;
+    scroll-snap-type: none;
+    scroll-behavior: auto;
+}
+
+.servers-grid.is-dragging .server-card {
+    pointer-events: none;
 }
 
 .server-card {
@@ -371,28 +471,55 @@
     transform: translateX(3px);
 }
 
-/* ----- Desktop & Tablet (≥ 768px): Grid fixo e centralizado ----- */
+/* ----- Desktop & Tablet (>= 768px): Carrossel fluído com cards e botões ----- */
 @media (min-width: 768px) {
+    .servers-carousel-btn {
+        display: flex;
+    }
+
+    .servers-carousel-wrapper {
+        padding: 0 24px;
+    }
+
+    .servers-carousel-btn.prev {
+        left: -12px;
+    }
+
+    .servers-carousel-btn.next {
+        right: -12px;
+    }
+
     .servers-grid {
-        flex-wrap: wrap;
-        justify-content: center;
-        overflow-x: visible;
-        gap: 30px;
-        max-width: 800px;
-        padding: 10px 0;
+        gap: 24px;
+        padding: 16px 6px 26px 6px;
     }
 
     .server-card {
-        width: 360px;
-        height: 400px;
-        min-height: 400px;
-        flex: 0 0 auto;
-        scroll-snap-align: none;
+        width: 350px;
+        flex: 0 0 350px;
+        height: 410px;
+        min-height: 410px;
+        scroll-snap-align: start;
     }
 
     .server-card-content {
         padding: 24px;
         height: 290px;
+    }
+}
+
+@media (min-width: 1280px) {
+    .servers-carousel-btn.prev {
+        left: -22px;
+    }
+
+    .servers-carousel-btn.next {
+        right: -22px;
+    }
+
+    .server-card {
+        width: 360px;
+        flex: 0 0 360px;
     }
 }
 
@@ -984,4 +1111,4 @@
     .btn-patrocinador {
         width: 100%;
     }
-}
+}

@@ -78,41 +78,54 @@
                 </section>
 
                 <!-- Grid: Servidores -->
+                <!-- Carrossel de Servidores -->
                 <section id="servers-section">
-                <div class="centered-content">
-                    <h2 class="subtitle">Nossos Servidores</h2>
-                </div>
+                    <div class="centered-content">
+                        <h2 class="subtitle">Nossos Servidores</h2>
+                    </div>
 
-                <div class="servers-grid">
-                    <!-- Card 1 - Potato Nerd -->
-                    <a href="servidores/?servidor=xomaps" class="server-card server-card-2" style="--card-color: #7DB9DF; --card-hover-shadow: rgba(125, 185, 223, 0.35);">
-                        <div class="server-card-banner banner-2">
-                            <img src="assets/images/xomaps.png" alt="Potato Nerd">
-                        </div>
-                        <div class="server-card-content">
-                            <h3>Potato Nerd</h3>
-                            <p>Sobrevivência semi-vanilla com qualidade de vida, sistema de claims, economia entre jogadores e mapa interativo.</p>
-                            <span class="server-card-link">
-                                VER DETALHES <i class="fa-solid fa-arrow-right"></i>
-                            </span>
-                        </div>
-                    </a>
+                    <div class="servers-carousel-wrapper">
+                        <button type="button" class="servers-carousel-btn prev" id="servers-carousel-prev" aria-label="Servidor anterior">
+                            <i class="fa-solid fa-chevron-left"></i>
+                        </button>
 
-                    <!-- Card 2 - Nerd Dead -->
-                    <a href="servidores/?servidor=nerddead" class="server-card server-card-3" style="--card-color: #E85D5D; --card-hover-shadow: rgba(232, 93, 93, 0.35);">
-                        <div class="server-card-banner banner-3">
-                            <img src="assets/images/nerddead.webp" alt="Nerd Dead">
+                        <div class="servers-grid" id="servers-carousel-track">
+                            <!-- Card 1 - Potato Nerd -->
+                            <a href="servidores/?servidor=xomaps" class="server-card server-card-2" style="--card-color: #7DB9DF; --card-hover-shadow: rgba(125, 185, 223, 0.35);">
+                                <div class="server-card-banner banner-2">
+                                    <img src="assets/images/xomaps.png" alt="Potato Nerd">
+                                </div>
+                                <div class="server-card-content">
+                                    <h3>Potato Nerd</h3>
+                                    <p>Sobrevivência semi-vanilla com qualidade de vida, sistema de claims, economia entre jogadores e mapa interativo.</p>
+                                    <span class="server-card-link">
+                                        VER DETALHES <i class="fa-solid fa-arrow-right"></i>
+                                    </span>
+                                </div>
+                            </a>
+
+                            <!-- Card 2 - Nerd Dead -->
+                            <a href="servidores/?servidor=nerddead" class="server-card server-card-3" style="--card-color: #E85D5D; --card-hover-shadow: rgba(232, 93, 93, 0.35);">
+                                <div class="server-card-banner banner-3">
+                                    <img src="assets/images/nerddead.webp" alt="Nerd Dead">
+                                </div>
+                                <div class="server-card-content">
+                                    <h3>Nerd Dead</h3>
+                                    <p>Sobreviva em um mundo pós-apocalíptico cheio de desafios, hordas de mobs e mecânicas únicas de sobrevivência...</p>
+                                    <span class="server-card-link">
+                                        VER DETALHES <i class="fa-solid fa-arrow-right"></i>
+                                    </span>
+                                </div>
+                            </a>
                         </div>
-                        <div class="server-card-content">
-                            <h3>Nerd Dead</h3>
-                            <p>Sobreviva em um mundo pós-apocalíptico cheio de desafios, hordas de mobs e mecânicas únicas de sobrevivência...</p>
-                            <span class="server-card-link">
-                                VER DETALHES <i class="fa-solid fa-arrow-right"></i>
-                            </span>
-                        </div>
-                    </a>
-                </div>
-            </section>
+
+                        <button type="button" class="servers-carousel-btn next" id="servers-carousel-next" aria-label="Próximo servidor">
+                            <i class="fa-solid fa-chevron-right"></i>
+                        </button>
+                    </div>
+
+                    <div class="servers-carousel-dots" id="servers-carousel-dots" aria-hidden="true"></div>
+                </section>
 
             <!-- Patrocinador Oficial -->
             <section id="patrocinador-section">
@@ -270,7 +283,7 @@
 <div id="footer"></div>
 <script src="/shared/app_cache.js?v=1"></script>
 <script src="/shared/navbar.js?v=1"></script>
-<script src="/index.js?v=7"></script>
+<script src="/index.js?v=8"></script>
 <script src="/novidades/js/novidades.js?v=8"></script>
 </body>
 </html>

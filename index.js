@@ -11,6 +11,7 @@ const PARCEIROS_API_URL = '/api/parceiros_api.php';
 document.addEventListener('DOMContentLoaded', () => {
     carregarServidores();
     carregarParceiros();
+    inicializarCarrosselServidores();
 });
 
 
@@ -29,6 +30,7 @@ async function carregarServidores() {
             const cardEl = criarCardServidor(servidor);
             grid.appendChild(cardEl);
         });
+        inicializarCarrosselServidores();
     };
 
     if (window.AppCache) {
@@ -247,4 +249,173 @@ function escurecer(hex, porcentagem) {
     const { r, g, b } = hexParaRgb(hex);
     const ajustar = (canal) => Math.round(canal * (1 - porcentagem / 100));
     return `rgb(${ajustar(r)}, ${ajustar(g)}, ${ajustar(b)})`;
+}
+
+/**
+ * Inicializa o Carrossel interativo de servidores para Desktop e Mobile
+ */
+function inicializarCarrosselServidores() {
+    const track = document.getElementById('servers-carousel-track') || document.querySelector('.servers-grid');
+    const prevBtn = document.getElementById('servers-carousel-prev');
+    const nextBtn = document.getElementById('servers-carousel-next');
+    const dotsContainer = document.getElementById('servers-carousel-dots');
+    const wrapper = document.querySelector('.servers-carousel-wrapper');
+
+    if (!track) return;
+
+    const cards = track.querySelectorAll('.server-card');
+    if (cards.length === 0) return;
+
+    function atualizarEstadoCarrossel() {
+        const maxScroll = Math.max(0, track.scrollWidth - track.clientWidth);
+        const canScroll = maxScroll > 10;
+
+        if (wrapper) {
+            if (canScroll) {
+                wrapper.classList.add('has-overflow');
+            } else {
+                wrapper.classList.remove('has-overflow');
+            }
+        }
+
+        if (prevBtn) {
+            prevBtn.disabled = track.scrollLeft <= 5;
+            prevBtn.style.display = canScroll && window.innerWidth >= 768 ? 'flex' : 'none';
+        }
+        if (nextBtn) {
+            nextBtn.disabled = track.scrollLeft >= maxScroll - 5;
+            nextBtn.style.display = canScroll && window.innerWidth >= 768 ? 'flex' : 'none';
+        }
+
+        if (dotsContainer) {
+            if (!canScroll) {
+                dotsContainer.style.display = 'none';
+            } else {
+                dotsContainer.style.display = 'flex';
+                atualizarDots();
+            }
+        }
+    }
+
+    function criarDots() {
+        if (!dotsContainer) return;
+        dotsContainer.innerHTML = '';
+        cards.forEach((card, index) => {
+            const dot = document.createElement('button');
+            dot.type = 'button';
+            dot.className = 'servers-carousel-dot' + (index === 0 ? ' active' : '');
+            dot.setAttribute('aria-label', `Ir para o servidor ${index + 1}`);
+            dot.addEventListener('click', () => {
+                const cardLeft = card.offsetLeft - track.offsetLeft;
+                track.scrollTo({ left: cardLeft, behavior: 'smooth' });
+            });
+            dotsContainer.appendChild(dot);
+        });
+    }
+
+    function atualizarDots() {
+        if (!dotsContainer) return;
+        const dots = dotsContainer.querySelectorAll('.servers-carousel-dot');
+        if (!dots.length) return;
+
+        let activeIndex = 0;
+        let minDiff = Infinity;
+        const currentScroll = track.scrollLeft;
+
+        cards.forEach((card, index) => {
+            const cardLeft = card.offsetLeft - track.offsetLeft;
+            const diff = Math.abs(cardLeft - currentScroll);
+            if (diff < minDiff) {
+                minDiff = diff;
+                activeIndex = index;
+            }
+        });
+
+        dots.forEach((dot, idx) => {
+            if (idx === activeIndex) {
+                dot.classList.add('active');
+            } else {
+                dot.classList.remove('active');
+            }
+        });
+    }
+
+    function getScrollStep() {
+        if (cards.length > 0) {
+            const card = cards[0];
+            const style = window.getComputedStyle(track);
+            const gap = parseFloat(style.gap) || 24;
+            return card.offsetWidth + gap;
+        }
+        return 360;
+    }
+
+    if (prevBtn && !prevBtn.dataset.listenerAttached) {
+        prevBtn.dataset.listenerAttached = 'true';
+        prevBtn.addEventListener('click', () => {
+            const step = getScrollStep();
+            track.scrollBy({ left: -step, behavior: 'smooth' });
+        });
+    }
+
+    if (nextBtn && !nextBtn.dataset.listenerAttached) {
+        nextBtn.dataset.listenerAttached = 'true';
+        nextBtn.addEventListener('click', () => {
+            const step = getScrollStep();
+            track.scrollBy({ left: step, behavior: 'smooth' });
+        });
+    }
+
+    if (!track.dataset.carouselEventsAttached) {
+        track.dataset.carouselEventsAttached = 'true';
+
+        track.addEventListener('scroll', () => {
+            atualizarEstadoCarrossel();
+        }, { passive: true });
+
+        // Arraste com o mouse no Desktop
+        let isDown = false;
+        let startX = 0;
+        let scrollLeftStart = 0;
+        let hasDragged = false;
+
+        track.addEventListener('mousedown', (e) => {
+            if (e.button !== 0) return;
+            isDown = true;
+            hasDragged = false;
+            track.classList.add('is-dragging');
+            startX = e.pageX - track.offsetLeft;
+            scrollLeftStart = track.scrollLeft;
+        });
+
+        window.addEventListener('mouseup', () => {
+            if (!isDown) return;
+            isDown = false;
+            track.classList.remove('is-dragging');
+        });
+
+        track.addEventListener('mousemove', (e) => {
+            if (!isDown) return;
+            const x = e.pageX - track.offsetLeft;
+            const walk = (x - startX) * 1.3;
+            if (Math.abs(walk) > 6) hasDragged = true;
+            track.scrollLeft = scrollLeftStart - walk;
+        });
+
+        cards.forEach(card => {
+            card.addEventListener('click', (e) => {
+                if (hasDragged) {
+                    e.preventDefault();
+                    hasDragged = false;
+                }
+            });
+        });
+
+        window.addEventListener('resize', () => {
+            atualizarEstadoCarrossel();
+        });
+    }
+
+    criarDots();
+    atualizarEstadoCarrossel();
 }
