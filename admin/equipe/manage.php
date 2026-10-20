@@ -197,7 +197,7 @@ $coresPredefinidas = [
 
                 <div class="modal-header">
                     <h5 class="modal-title fw-bold" id="modalNovoCargoLabel">
-                        <i class="fa-solid fa-plus-circle text-success me-2"></i> Criar Novo Cargo
+                        Criar Novo Cargo
                     </h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
                 </div>
@@ -255,7 +255,7 @@ $coresPredefinidas = [
 
                 <div class="modal-header">
                     <h5 class="modal-title fw-bold" id="modalEditarCargoLabel">
-                        <i class="fa-solid fa-pen-to-square text-primary me-2"></i> Editar Cargo
+                        Editar Cargo
                     </h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
                 </div>

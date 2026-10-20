@@ -312,7 +312,7 @@ function renderIconeTable(?string $icone): string {
                         <label class="form-label fw-bold d-flex align-items-center justify-content-between mb-2">
                             <span>Destaques / Features</span>
                             <button type="button" class="btn btn-outline-primary btn-sm" id="btn-add-feature-criar-srv">
-                                <i class="fa-solid fa-plus me-1"></i> Adicionar Feature
+                                Adicionar Feature
                             </button>
                         </label>
                         <div id="container-features-criar-srv" class="d-flex flex-column gap-2">
@@ -417,7 +417,7 @@ function renderIconeTable(?string $icone): string {
                         <label class="form-label fw-bold d-flex align-items-center justify-content-between mb-2">
                             <span>Destaques / Features</span>
                             <button type="button" class="btn btn-outline-primary btn-sm" id="btn-add-feature-edit-srv">
-                                <i class="fa-solid fa-plus me-1"></i> Adicionar Feature
+                                Adicionar Feature
                             </button>
                         </label>
                         <div id="container-features-edit-srv" class="d-flex flex-column gap-2"></div>

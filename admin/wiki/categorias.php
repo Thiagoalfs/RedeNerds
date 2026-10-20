@@ -179,7 +179,7 @@ $erro = $_GET['erro'] ?? '';
 
                 <div class="modal-header">
                     <h5 class="modal-title fw-bold" id="modalNovaCategoriaLabel">
-                        <i class="fa-solid fa-plus-circle text-success me-2"></i> Nova Categoria da Wiki
+                        Nova Categoria da Wiki
                     </h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
                 </div>
@@ -238,7 +238,7 @@ $erro = $_GET['erro'] ?? '';
 
                 <div class="modal-header">
                     <h5 class="modal-title fw-bold" id="modalEditarCategoriaLabel">
-                        <i class="fa-solid fa-pen-to-square text-primary me-2"></i> Editar Categoria
+                        Editar Categoria
                     </h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
                 </div>

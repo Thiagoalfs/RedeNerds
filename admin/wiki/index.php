@@ -252,7 +252,7 @@ $categoriasIniciais = $primeiroServidorId > 0 ? getCategoriasServidorWiki($pdo, 
                             <div class="d-flex align-items-center justify-content-between mb-1">
                                 <label for="criar-categoria_id" class="form-label fw-bold mb-0">Categoria <span class="text-danger">*</span></label>
                                 <button type="button" class="btn btn-link btn-sm p-0 text-decoration-none" onclick="abrirModalNovaCategoria('criar')">
-                                    <i class="fa-solid fa-plus-circle me-1"></i> Nova Categoria
+                                    Nova Categoria
                                 </button>
                             </div>
                             <select class="form-select" id="criar-categoria_id" name="categoria_id" required>
@@ -285,7 +285,7 @@ $categoriasIniciais = $primeiroServidorId > 0 ? getCategoriasServidorWiki($pdo, 
                     <div class="mb-3">
                         <div class="d-flex align-items-center justify-content-between mb-1">
                             <label for="criar-conteudo" class="form-label fw-bold mb-0">Conteúdo do Artigo (Markdown) <span class="text-danger">*</span></label>
-                            <span class="badge bg-light text-dark border"><i class="fa-brands fa-markdown me-1"></i> Markdown suportado</span>
+                            <span class="badge bg-light text-dark border">Markdown suportado</span>
                         </div>
                         <?php 
                         $toolbarTarget = 'criar-conteudo';
@@ -342,7 +342,7 @@ $categoriasIniciais = $primeiroServidorId > 0 ? getCategoriasServidorWiki($pdo, 
                             <div class="d-flex align-items-center justify-content-between mb-1">
                                 <label for="edit-categoria_id" class="form-label fw-bold mb-0">Categoria <span class="text-danger">*</span></label>
                                 <button type="button" class="btn btn-link btn-sm p-0 text-decoration-none" onclick="abrirModalNovaCategoria('edit')">
-                                    <i class="fa-solid fa-plus-circle me-1"></i> Nova Categoria
+                                    Nova Categoria
                                 </button>
                             </div>
                             <select class="form-select" id="edit-categoria_id" name="categoria_id" required>
@@ -371,7 +371,7 @@ $categoriasIniciais = $primeiroServidorId > 0 ? getCategoriasServidorWiki($pdo, 
                     <div class="mb-3">
                         <div class="d-flex align-items-center justify-content-between mb-1">
                             <label for="edit-conteudo" class="form-label fw-bold mb-0">Conteúdo do Artigo (Markdown) <span class="text-danger">*</span></label>
-                            <span class="badge bg-light text-dark border"><i class="fa-brands fa-markdown me-1"></i> Markdown suportado</span>
+                            <span class="badge bg-light text-dark border">Markdown suportado</span>
                         </div>
                         <?php 
                         $toolbarTarget = 'edit-conteudo';
@@ -403,7 +403,7 @@ $categoriasIniciais = $primeiroServidorId > 0 ? getCategoriasServidorWiki($pdo, 
         <div class="modal-content shadow">
             <form id="form-nova-cat-rapida" onsubmit="criarCategoriaRapida(event)">
                 <div class="modal-header">
-                    <h6 class="modal-title fw-bold"><i class="fa-solid fa-plus-circle text-success me-1"></i> Nova Categoria</h6>
+                    <h6 class="modal-title fw-bold">Nova Categoria</h6>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
                 </div>
                 <div class="modal-body">

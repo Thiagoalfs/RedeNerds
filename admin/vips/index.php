@@ -666,7 +666,7 @@ try {
                         <label class="form-label fw-bold d-flex align-items-center justify-content-between mb-2">
                             <span>Benefícios do VIP</span>
                             <button type="button" class="btn btn-outline-primary btn-sm" id="btn-add-vantagem-criar-vip">
-                                <i class="fa-solid fa-plus me-1"></i> Adicionar Benefício
+                                Adicionar Benefício
                             </button>
                         </label>
                         <div id="container-vantagens-criar-vip" class="d-flex flex-column gap-2">
@@ -863,7 +863,7 @@ try {
                         <label class="form-label fw-bold d-flex align-items-center justify-content-between mb-2">
                             <span>Benefícios do VIP</span>
                             <button type="button" class="btn btn-outline-primary btn-sm" id="btn-add-vantagem-edit-vip">
-                                <i class="fa-solid fa-plus me-1"></i> Adicionar Benefício
+                                Adicionar Benefício
                             </button>
                         </label>
                         <div id="container-vantagens-edit-vip" class="d-flex flex-column gap-2"></div>

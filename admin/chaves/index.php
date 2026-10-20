@@ -717,7 +717,7 @@ try {
                         <label class="form-label fw-bold d-flex align-items-center justify-content-between mb-2">
                             <span>Recompensas / Vantagens da Caixa</span>
                             <button type="button" class="btn btn-outline-primary btn-sm" id="btn-adicionar-vantagem-criar">
-                                <i class="fa-solid fa-plus me-1"></i> Adicionar Item
+                                Adicionar Item
                             </button>
                         </label>
                         <div id="container-vantagens-criar" class="d-flex flex-column gap-2">
@@ -925,7 +925,7 @@ try {
                         <label class="form-label fw-bold d-flex align-items-center justify-content-between mb-2">
                             <span>Recompensas / Vantagens da Caixa</span>
                             <button type="button" class="btn btn-outline-primary btn-sm" id="btn-adicionar-vantagem-edit">
-                                <i class="fa-solid fa-plus me-1"></i> Adicionar Item
+                                Adicionar Item
                             </button>
                         </label>
                         <div id="container-vantagens-edit" class="d-flex flex-column gap-2"></div>

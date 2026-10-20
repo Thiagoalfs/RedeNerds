@@ -226,9 +226,7 @@ function gerarHtmlRedesParceiro(array $p): string {
                 <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($csrfToken, ENT_QUOTES, 'UTF-8'); ?>">
 
                 <div class="modal-header">
-                    <h5 class="modal-title fw-bold" id="modalCriarParceiroLabel">
-                        <i class="fa-solid fa-user-plus text-success me-2"></i> Adicionar Novo Parceiro
-                    </h5>
+                    <h5 class="modal-title fw-bold" id="modalCriarParceiroLabel">Adicionar Novo Parceiro</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
                 </div>
 
@@ -349,7 +347,7 @@ function gerarHtmlRedesParceiro(array $p): string {
 
                 <div class="modal-header">
                     <h5 class="modal-title fw-bold" id="modalEditarParceiroLabel">
-                        <i class="fa-solid fa-pen-to-square text-primary me-2"></i> Editar Parceiro: <span id="modalEditarParceiroNomeHeader" class="text-primary"></span>
+                        Editar Parceiro: <span id="modalEditarParceiroNomeHeader" class="text-primary"></span>
                     </h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
                 </div>

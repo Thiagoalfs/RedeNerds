@@ -173,7 +173,7 @@ try {
             <form method="GET" action="exportar.php" target="_self" id="formExportarPedidos">
                 <div class="modal-header">
                     <h5 class="modal-title fw-bold" id="modalExportarPedidosLabel">
-                        <i class="fa-solid fa-file-excel text-success me-2"></i> Exportar Pedidos (.CSV)
+                        Exportar Pedidos (.CSV)
                     </h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
                 </div>
@@ -218,7 +218,7 @@ try {
 
                     <!-- FILTROS ADICIONAIS -->
                     <div class="border-top pt-3">
-                        <label class="form-label small text-muted mb-2 fw-semibold"><i class="fa-solid fa-sliders me-1"></i> Filtros Adicionais (Opcional):</label>
+                        <label class="form-label small text-muted mb-2 fw-semibold">Filtros Adicionais (Opcional):</label>
 
                         <!-- Filtros ativos na listagem propagados para a exportação -->
                         <input type="hidden" name="servidor" id="exportServidorHidden" value="<?php echo htmlspecialchars($filtroServidor, ENT_QUOTES, 'UTF-8'); ?>">

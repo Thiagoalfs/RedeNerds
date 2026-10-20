@@ -147,7 +147,7 @@ $mostrarPaginacao = $mostrarPaginacao ?? false;
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title fw-bold" id="modalDetalhesPedidoLabel"><i class="fa-solid fa-receipt text-primary me-2"></i> Detalhes do Pedido</h5>
+                <h5 class="modal-title fw-bold" id="modalDetalhesPedidoLabel">Detalhes do Pedido</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body p-0" id="modalDetalhesBody">
