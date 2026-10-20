@@ -70,6 +70,15 @@ function initNovidades() {
         return await res.json();
     };
 
+    const sanitizeUrl = (url, fallback = "") => {
+        if (!url || typeof url !== "string") return fallback;
+        const trimmed = url.trim();
+        if (/^(https?:\/\/|\/|\.\.\/|data:image\/|#)/i.test(trimmed)) {
+            return trimmed;
+        }
+        return fallback;
+    };
+
     const escapeHTML = str => String(str ?? "")
         .replace(/&/g, "&amp;")
         .replace(/</g, "&lt;")
@@ -143,9 +152,9 @@ function initNovidades() {
             const dataFormatada = !isNaN(dataObj.getTime()) ? dataObj.toLocaleDateString("pt-BR") : "";
 
             return `
-            <a class="news-div" href="/novidades/novidade-page/?id=${news.id}" data-category="${categoryKey}">
+            <a class="news-div" href="/novidades/novidade-page/?id=${encodeURIComponent(parseInt(news.id, 10) || 0)}" data-category="${escapeHTML(categoryKey)}">
                 <div class="news-div-banner">
-                    <img class="news-img" src="${escapeHTML(news.capa)}" alt="${escapeHTML(news.titulo)}">
+                    <img class="news-img" src="${escapeHTML(sanitizeUrl(news.capa, '/assets/images/logo.webp'))}" alt="${escapeHTML(news.titulo)}">
                 </div>
                 <div class="news-div-content">
                     <div class="news-div-meta">
@@ -156,7 +165,7 @@ function initNovidades() {
                     <p class="news-div-desc">${escapeHTML(descSnippet)}</p>
                     <div class="news-div-footer">
                         <div class="author">
-                            <img class="author-head" src="https://mc-heads.net/avatar/${escapeHTML(news.autor)}" alt="${escapeHTML(news.autor)}">
+                            <img class="author-head" src="https://mc-heads.net/avatar/${encodeURIComponent(String(news.autor || 'Steve').trim())}/32" alt="${escapeHTML(news.autor)}">
                             <span>${escapeHTML(news.autor)}</span>
                         </div>
                     </div>
@@ -210,10 +219,20 @@ function initNovidades() {
     const escapeRegex = str => String(str).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
     const highlight = (text, terms) => {
-        if (!terms.length || !text) return escapeHTML(text);
-        const safe = escapeHTML(text);
-        const pattern = new RegExp("(" + terms.map(t => escapeRegex(t)).join("|") + ")", "gi");
-        return safe.replace(pattern, "<mark>$1</mark>");
+        if (!text) return "";
+        const validTerms = Array.isArray(terms) ? terms.map(t => String(t || "").trim()).filter(Boolean) : [];
+        if (!validTerms.length) return escapeHTML(text);
+
+        const pattern = new RegExp("(" + validTerms.map(escapeRegex).join("|") + ")", "gi");
+        const parts = String(text).split(pattern);
+
+        return parts.map(part => {
+            if (!part) return "";
+            if (validTerms.some(t => t.toLowerCase() === part.toLowerCase())) {
+                return `<mark>${escapeHTML(part)}</mark>`;
+            }
+            return escapeHTML(part);
+        }).join("");
     };
 
     const renderAllCards = (entries, terms) => {
@@ -231,9 +250,9 @@ function initNovidades() {
             const firstParagraph = stripMarkdownSnippet(news.conteudo);
 
             return `
-            <a class="all-news-card" href="/novidades/novidade-page/?id=${news.id}" data-category="${categoryKey}">
+            <a class="all-news-card" href="/novidades/novidade-page/?id=${encodeURIComponent(parseInt(news.id, 10) || 0)}" data-category="${escapeHTML(categoryKey)}">
                 <div class="all-news-image">
-                    <img src="${escapeHTML(news.capa)}" alt="${escapeHTML(news.titulo)}">
+                    <img src="${escapeHTML(sanitizeUrl(news.capa, '/assets/images/logo.webp'))}" alt="${escapeHTML(news.titulo)}">
                 </div>
                 <div class="all-news-content">
                     ${categoryLabel ? `<span class="all-news-tag" data-category="${categoryKey}">${escapeHTML(categoryLabel)}</span>` : ""}
@@ -241,7 +260,7 @@ function initNovidades() {
                     <p class="all-news-desc">${highlight(firstParagraph, terms)}</p>
                     <div class="all-news-footer">
                         <div class="all-news-author">
-                            <img class="all-news-author-head" src="https://mc-heads.net/avatar/${escapeHTML(news.autor)}" alt="${escapeHTML(news.autor)}">
+                            <img class="all-news-author-head" src="https://mc-heads.net/avatar/${encodeURIComponent(String(news.autor || 'Steve').trim())}/32" alt="${escapeHTML(news.autor)}">
                             <span class="all-news-author-name">${highlight(news.autor, terms)}</span>
                             <span class="all-news-date">${new Date(news.criado_em).toLocaleDateString("pt-BR")}</span>
                         </div>
