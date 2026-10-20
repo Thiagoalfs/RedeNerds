@@ -10,28 +10,48 @@ function escapeHTML(str) {
 function parseDescription(rawText) {
     if (!rawText) return "";
 
-    const text = String(rawText).replace(/\\n/g, "\n");
+    let text = String(rawText).replace(/\\n/g, "\n");
 
-    const imageRegex = /https?:\/\/[^\s]+\.(?:png|jpg|jpeg|gif|webp)(?:\?[^\s]*)?|(?<=\s|^)\.\.\/[^\s]+\.(?:png|jpg|jpeg|gif|webp)/gi;
+    // Processa Callouts (Dica, Aviso, Perigo, Comando) antes do parser Markdown
+    text = text.replace(/^>\s*\[!(TIP|DICA)\]\s*\n((?:>.*\n?)+)/gim, (match, type, content) => {
+        const body = content.replace(/^>\s?/gm, '').trim();
+        return `<div class="novidade-callout callout-tip"><div class="callout-header"><i class="fa-solid fa-lightbulb"></i> Dica</div><div class="callout-body">${body}</div></div>\n\n`;
+    }).replace(/^>\s*\[!(WARNING|AVISO|ATENCAO)\]\s*\n((?:>.*\n?)+)/gim, (match, type, content) => {
+        const body = content.replace(/^>\s?/gm, '').trim();
+        return `<div class="novidade-callout callout-warning"><div class="callout-header"><i class="fa-solid fa-triangle-exclamation"></i> Atenção</div><div class="callout-body">${body}</div></div>\n\n`;
+    }).replace(/^>\s*\[!(DANGER|PERIGO|BANIDO)\]\s*\n((?:>.*\n?)+)/gim, (match, type, content) => {
+        const body = content.replace(/^>\s?/gm, '').trim();
+        return `<div class="novidade-callout callout-danger"><div class="callout-header"><i class="fa-solid fa-shield-halved"></i> Perigo</div><div class="callout-body">${body}</div></div>\n\n`;
+    }).replace(/^>\s*\[!(COMMAND|COMANDO)\]\s*\n((?:>.*\n?)+)/gim, (match, type, content) => {
+        const body = content.replace(/^>\s?/gm, '').trim();
+        return `<div class="novidade-callout callout-command"><div class="callout-header"><i class="fa-solid fa-terminal"></i> Comando In-game</div><div class="callout-body"><code>${body}</code></div></div>\n\n`;
+    });
 
-    const images = [];
-    const textWithoutImages = text.replace(imageRegex, match => {
-        const url = match.trim();
-        if (url) images.push(url);
+    // Detecta imagens soltas (linhas que contêm apenas uma URL de imagem avulsa, para retrocompatibilidade)
+    const standaloneImgRegex = /^\s*(https?:\/\/[^\s\)]+\.(?:png|jpg|jpeg|gif|webp)(?:\?[^\s\)]*)?|\.\.\/[^\s\)]+\.(?:png|jpg|jpeg|gif|webp))\s*$/gim;
+    const standaloneImages = [];
+    text = text.replace(standaloneImgRegex, (match, url) => {
+        if (url) standaloneImages.push(url.trim());
         return "";
     });
 
-    // Força quebra de linha: adiciona 2 espaços no fim de cada linha (sintaxe markdown para <br>)
-    const textFormatted = textWithoutImages
-        .split("\n")
-        .map(line => line.trimEnd() + "  ")
-        .join("\n");
+    if (typeof marked !== "undefined") {
+        if (typeof marked.setOptions === "function") {
+            marked.setOptions({ breaks: true, gfm: true });
+        } else if (typeof marked.use === "function") {
+            marked.use({ breaks: true, gfm: true });
+        }
+    }
 
-    let html = marked.parse(textFormatted);
+    let html = typeof marked !== "undefined" && typeof marked.parse === "function" 
+        ? marked.parse(text) 
+        : text;
 
-    html += images.map(url =>
-        `<div class="img-container"><img src="${escapeHTML(url)}" alt="Imagem da notícia" loading="lazy"></div>`
-    ).join("");
+    if (standaloneImages.length > 0) {
+        html += standaloneImages.map(url =>
+            `<div class="img-container"><img src="${escapeHTML(url)}" alt="Imagem da notícia" loading="lazy"></div>`
+        ).join("");
+    }
 
     return html;
 }

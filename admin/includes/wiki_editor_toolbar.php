@@ -82,7 +82,7 @@ $btnUploadId = 'btnUploadImgWiki_' . preg_replace('/[^a-zA-Z0-9_-]/', '', $toolb
 
 <div id="<?php echo $feedbackId; ?>" class="uploadFeedbackWiki small text-primary mb-2 d-none align-items-center gap-2">
     <div class="spinner-border spinner-border-sm" role="status"></div>
-    <span>Enviando e otimizando imagem para o artigo...</span>
+    <span>Enviando e otimizando imagem...</span>
 </div>
 
 <?php if (!defined('WIKI_EDITOR_TOOLBAR_JS_LOADED')): define('WIKI_EDITOR_TOOLBAR_JS_LOADED', true); ?>
@@ -200,7 +200,7 @@ async function fazerUploadImagemWiki(file, ref = null) {
 
         if (data.success && data.url) {
             if (targetTextarea) {
-                const alt = data.filename || 'Imagem do Artigo';
+                const alt = data.filename || 'Imagem';
                 const markdownImg = `\n![${alt}](${data.url})\n\n`;
                 targetTextarea.focus();
                 document.execCommand('insertText', false, markdownImg);

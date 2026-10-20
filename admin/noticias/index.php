@@ -281,9 +281,16 @@ try {
                         </div>
                     </div>
 
-                    <div class="mb-3">
-                        <label for="criar-noticia-conteudo" class="form-label fw-bold">Conteúdo (Markdown suportado) <span class="text-danger">*</span></label>
-                        <textarea class="form-control font-monospace" id="criar-noticia-conteudo" name="conteudo" rows="6" placeholder="Escreva a novidade aqui..." required></textarea>
+                    <div class="mb-2">
+                        <div class="d-flex align-items-center justify-content-between mb-1">
+                            <label for="criar-noticia-conteudo" class="form-label fw-bold mb-0">Conteúdo (Markdown suportado) <span class="text-danger">*</span></label>
+                            <span class="badge bg-light text-dark border">Markdown suportado</span>
+                        </div>
+                        <?php 
+                        $toolbarTarget = 'criar-noticia-conteudo';
+                        require __DIR__ . "/../includes/wiki_editor_toolbar.php"; 
+                        ?>
+                        <textarea class="form-control font-monospace" id="criar-noticia-conteudo" name="conteudo" rows="8" placeholder="Escreva a novidade aqui..." required></textarea>
                     </div>
 
                     <div class="mb-3">
@@ -377,9 +384,16 @@ try {
                         </div>
                     </div>
 
-                    <div class="mb-3">
-                        <label for="edit-noticia-conteudo" class="form-label fw-bold">Conteúdo (Markdown suportado) <span class="text-danger">*</span></label>
-                        <textarea class="form-control font-monospace" id="edit-noticia-conteudo" name="conteudo" rows="6" required></textarea>
+                    <div class="mb-2">
+                        <div class="d-flex align-items-center justify-content-between mb-1">
+                            <label for="edit-noticia-conteudo" class="form-label fw-bold mb-0">Conteúdo (Markdown suportado) <span class="text-danger">*</span></label>
+                            <span class="badge bg-light text-dark border">Markdown suportado</span>
+                        </div>
+                        <?php 
+                        $toolbarTarget = 'edit-noticia-conteudo';
+                        require __DIR__ . "/../includes/wiki_editor_toolbar.php"; 
+                        ?>
+                        <textarea class="form-control font-monospace" id="edit-noticia-conteudo" name="conteudo" rows="8" required></textarea>
                     </div>
 
                     <div class="mb-3">

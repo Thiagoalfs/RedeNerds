@@ -34,6 +34,20 @@ function initNovidades() {
 
     const toCategoryKey = value => String(value || "").trim();
 
+    const stripMarkdownSnippet = (text) => {
+        return String(text || "")
+            .replace(/<[^>]+>/g, "")
+            .replace(/\\n/g, "\n")
+            .replace(/^>\s*\[!.*?\]\s*/gim, "")
+            .replace(/!\[.*?\]\(.*?\)/g, "")
+            .replace(/\[(.*?)\]\(.*?\)/g, "$1")
+            .replace(/^#+\s+/gm, "")
+            .replace(/[*_~`]/g, "")
+            .replace(/\s+/g, " ")
+            .trim();
+    };
+
+
     const state = {
         category: "all",
         query: "",
@@ -123,7 +137,7 @@ function initNovidades() {
         newsContainer.innerHTML = entries.map(news => {
             const categoryKey = toCategoryKey(news.category);
             const categoryLabel = categoryLabels[categoryKey] || news.category || "";
-            const rawDesc = String(news.conteudo || "").replace(/<[^>]+>/g, "").replace(/\\n/g, " ").trim();
+            const rawDesc = stripMarkdownSnippet(news.conteudo);
             const descSnippet = rawDesc || "Clique para ver todos os detalhes e informações desta atualização.";
             const dataObj = news.criado_em ? new Date(String(news.criado_em).replace(" ", "T")) : new Date();
             const dataFormatada = !isNaN(dataObj.getTime()) ? dataObj.toLocaleDateString("pt-BR") : "";
@@ -214,7 +228,7 @@ function initNovidades() {
         allNewsContainer.innerHTML = entries.map(news => {
             const categoryKey = toCategoryKey(news.category);
             const categoryLabel = categoryLabels[categoryKey] || news.category || "";
-            const firstParagraph = String(news.conteudo || "").replace(/\\n/g, "\n").split("\n")[0].trim();
+            const firstParagraph = stripMarkdownSnippet(news.conteudo);
 
             return `
             <a class="all-news-card" href="/novidades/novidade-page/?id=${news.id}" data-category="${categoryKey}">
