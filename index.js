@@ -30,7 +30,9 @@ async function carregarServidores() {
             const cardEl = criarCardServidor(servidor);
             grid.appendChild(cardEl);
         });
-        inicializarCarrosselServidores();
+        requestAnimationFrame(() => {
+            inicializarCarrosselServidores();
+        });
     };
 
     if (window.AppCache) {
@@ -263,20 +265,53 @@ function inicializarCarrosselServidores() {
 
     if (!track) return;
 
-    const cards = track.querySelectorAll('.server-card');
-    if (cards.length === 0) return;
+    function getCards() {
+        return track.querySelectorAll('.server-card');
+    }
+
+    function getScrollStep() {
+        const currentCards = getCards();
+        if (currentCards.length > 0) {
+            const card = currentCards[0];
+            const style = window.getComputedStyle(track);
+            const gap = parseFloat(style.gap) || 24;
+            return (card.offsetWidth || 350) + gap;
+        }
+        return 360;
+    }
 
     function atualizarEstadoCarrossel() {
-        const maxScroll = Math.max(0, track.scrollWidth - track.clientWidth);
-        const canScroll = maxScroll > 10;
+        const currentCards = getCards();
+        if (currentCards.length === 0) return;
+
+        // Medição precisa da largura total demandada pelos cards (incluindo gaps)
+        const style = window.getComputedStyle(track);
+        const gap = parseFloat(style.gap) || 24;
+        let totalCardsWidth = 0;
+        currentCards.forEach((c, idx) => {
+            totalCardsWidth += c.offsetWidth;
+            if (idx > 0) totalCardsWidth += gap;
+        });
+
+        const availableWidth = track.clientWidth;
+        // Há overflow se a largura demandada pelos cards for maior que o container disponível
+        const canScroll = totalCardsWidth > (availableWidth + 5);
 
         if (wrapper) {
             if (canScroll) {
+                const eraSemOverflow = !wrapper.classList.contains('has-overflow');
                 wrapper.classList.add('has-overflow');
+                // Se acabou de mudar para overflow, garante início no primeiro card
+                if (eraSemOverflow && track.scrollLeft !== 0) {
+                    track.scrollLeft = 0;
+                }
             } else {
                 wrapper.classList.remove('has-overflow');
+                track.scrollLeft = 0;
             }
         }
+
+        const maxScroll = Math.max(0, track.scrollWidth - track.clientWidth);
 
         if (prevBtn) {
             prevBtn.disabled = track.scrollLeft <= 5;
@@ -300,7 +335,10 @@ function inicializarCarrosselServidores() {
     function criarDots() {
         if (!dotsContainer) return;
         dotsContainer.innerHTML = '';
-        cards.forEach((card, index) => {
+        const currentCards = getCards();
+        if (currentCards.length <= 1) return;
+
+        currentCards.forEach((card, index) => {
             const dot = document.createElement('button');
             dot.type = 'button';
             dot.className = 'servers-carousel-dot' + (index === 0 ? ' active' : '');
@@ -316,13 +354,14 @@ function inicializarCarrosselServidores() {
     function atualizarDots() {
         if (!dotsContainer) return;
         const dots = dotsContainer.querySelectorAll('.servers-carousel-dot');
-        if (!dots.length) return;
+        const currentCards = getCards();
+        if (!dots.length || !currentCards.length) return;
 
         let activeIndex = 0;
         let minDiff = Infinity;
         const currentScroll = track.scrollLeft;
 
-        cards.forEach((card, index) => {
+        currentCards.forEach((card, index) => {
             const cardLeft = card.offsetLeft - track.offsetLeft;
             const diff = Math.abs(cardLeft - currentScroll);
             if (diff < minDiff) {
@@ -340,16 +379,7 @@ function inicializarCarrosselServidores() {
         });
     }
 
-    function getScrollStep() {
-        if (cards.length > 0) {
-            const card = cards[0];
-            const style = window.getComputedStyle(track);
-            const gap = parseFloat(style.gap) || 24;
-            return card.offsetWidth + gap;
-        }
-        return 360;
-    }
-
+    // Botões Anterior / Próximo (atribui listeners uma única vez com passo dinâmico)
     if (prevBtn && !prevBtn.dataset.listenerAttached) {
         prevBtn.dataset.listenerAttached = 'true';
         prevBtn.addEventListener('click', () => {
@@ -381,6 +411,7 @@ function inicializarCarrosselServidores() {
 
         track.addEventListener('mousedown', (e) => {
             if (e.button !== 0) return;
+            if (!wrapper || !wrapper.classList.contains('has-overflow')) return;
             isDown = true;
             hasDragged = false;
             track.classList.add('is-dragging');
@@ -392,6 +423,9 @@ function inicializarCarrosselServidores() {
             if (!isDown) return;
             isDown = false;
             track.classList.remove('is-dragging');
+            setTimeout(() => {
+                hasDragged = false;
+            }, 60);
         });
 
         track.addEventListener('mousemove', (e) => {
@@ -402,14 +436,14 @@ function inicializarCarrosselServidores() {
             track.scrollLeft = scrollLeftStart - walk;
         });
 
-        cards.forEach(card => {
-            card.addEventListener('click', (e) => {
-                if (hasDragged) {
-                    e.preventDefault();
-                    hasDragged = false;
-                }
-            });
-        });
+        // Delegação de evento: intercepta cliques para não navegar se tiver ocorrido arraste
+        track.addEventListener('click', (e) => {
+            if (hasDragged) {
+                e.preventDefault();
+                e.stopPropagation();
+                hasDragged = false;
+            }
+        }, true);
 
         window.addEventListener('resize', () => {
             atualizarEstadoCarrossel();

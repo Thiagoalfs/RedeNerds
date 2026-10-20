@@ -197,7 +197,7 @@
     scroll-snap-type: x mandatory;
     scroll-behavior: smooth;
     -webkit-overflow-scrolling: touch;
-    justify-content: flex-start;
+    justify-content: safe center;
     align-items: stretch;
     gap: 20px;
     width: 100%;
@@ -211,9 +211,26 @@
     display: none;
 }
 
-/* Quando não há overflow, centraliza perfeitamente */
+/* Quando não há overflow: centraliza perfeitamente e desativa scroll-snap */
 .servers-carousel-wrapper:not(.has-overflow) .servers-grid {
     justify-content: center;
+    scroll-snap-type: none;
+}
+
+/* Quando há overflow: começa a partir do primeiro card */
+.servers-carousel-wrapper.has-overflow .servers-grid {
+    justify-content: flex-start;
+    scroll-snap-type: x mandatory;
+}
+
+/* Se não há overflow: oculta botões e dots */
+.servers-carousel-wrapper:not(.has-overflow) .servers-carousel-btn {
+    display: none !important;
+}
+
+.servers-carousel-wrapper:not(.has-overflow) + .servers-carousel-dots,
+.servers-carousel-wrapper:not(.has-overflow) ~ .servers-carousel-dots {
+    display: none !important;
 }
 
 /* Botões de Navegação Desktop (Setas < e >) */
@@ -320,7 +337,11 @@
     overflow: hidden;
     border: 1px solid rgba(255, 255, 255, 0.08);
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
-    transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+    transition: scale 0.4s cubic-bezier(0.25, 1, 0.5, 1),
+                opacity 0.4s cubic-bezier(0.25, 1, 0.5, 1),
+                transform 0.25s ease,
+                box-shadow 0.25s ease,
+                border-color 0.25s ease;
     cursor: pointer;
     position: relative;
     width: 82vw;
@@ -331,12 +352,37 @@
     box-sizing: border-box;
     flex-shrink: 0;
     scroll-snap-align: center;
+    scroll-snap-stop: always;
 }
 
 .server-card:hover {
     transform: translateY(-5px);
     border-color: var(--card-color, #7DB9DF);
     box-shadow: 0 16px 36px rgba(0, 0, 0, 0.5), 0 0 24px var(--card-hover-shadow, rgba(125, 185, 223, 0.25));
+}
+
+@keyframes serverCardSlideTransition {
+    0% {
+        opacity: 0.65;
+        scale: 0.94;
+    }
+    50% {
+        opacity: 1;
+        scale: 1;
+    }
+    100% {
+        opacity: 0.65;
+        scale: 0.94;
+    }
+}
+
+@supports ((animation-timeline: view()) and (animation-range: entry)) {
+    @media (prefers-reduced-motion: no-preference) {
+        .servers-carousel-wrapper.has-overflow .server-card {
+            animation: serverCardSlideTransition auto cubic-bezier(0.25, 1, 0.5, 1) both;
+            animation-timeline: view(inline);
+        }
+    }
 }
 
 /* Fallback estático de cores */

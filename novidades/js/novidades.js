@@ -179,6 +179,10 @@ function initNovidades() {
             atualizacoesSec.removeAttribute("hidden");
             atualizacoesSec.hidden = false;
         }
+
+        requestAnimationFrame(() => {
+            inicializarCarrosselNovidades();
+        });
     };
 
     const loadTopNews = () => {
@@ -490,3 +494,198 @@ if (document.readyState === "loading") {
 } else {
     initNovidades();
 }
+
+function inicializarCarrosselNovidades() {
+    const track = document.getElementById("news-container");
+    const prevBtn = document.getElementById("news-carousel-prev");
+    const nextBtn = document.getElementById("news-carousel-next");
+    const dotsContainer = document.getElementById("news-carousel-dots");
+    const wrapper = document.querySelector(".news-carousel-wrapper");
+
+    if (!track) return;
+
+    function getCards() {
+        return track.querySelectorAll(".news-div");
+    }
+
+    function getScrollStep() {
+        const currentCards = getCards();
+        if (currentCards.length > 0) {
+            const card = currentCards[0];
+            const style = window.getComputedStyle(track);
+            const gap = parseFloat(style.gap) || 24;
+            return (card.offsetWidth || 350) + gap;
+        }
+        return 360;
+    }
+
+    function atualizarEstadoCarrossel() {
+        const currentCards = getCards();
+        if (currentCards.length === 0) return;
+
+        const style = window.getComputedStyle(track);
+        const gap = parseFloat(style.gap) || 24;
+        let totalCardsWidth = 0;
+        currentCards.forEach((c, idx) => {
+            totalCardsWidth += c.offsetWidth;
+            if (idx > 0) totalCardsWidth += gap;
+        });
+
+        const availableWidth = track.clientWidth;
+        const canScroll = totalCardsWidth > (availableWidth + 5);
+
+        if (wrapper) {
+            if (canScroll) {
+                const eraSemOverflow = !wrapper.classList.contains("has-overflow");
+                wrapper.classList.add("has-overflow");
+                if (eraSemOverflow && track.scrollLeft !== 0) {
+                    track.scrollLeft = 0;
+                }
+            } else {
+                wrapper.classList.remove("has-overflow");
+                track.scrollLeft = 0;
+            }
+        }
+
+        const maxScroll = Math.max(0, track.scrollWidth - track.clientWidth);
+
+        if (prevBtn) {
+            prevBtn.disabled = track.scrollLeft <= 5;
+            prevBtn.style.display = canScroll && window.innerWidth >= 768 ? "flex" : "none";
+        }
+        if (nextBtn) {
+            nextBtn.disabled = track.scrollLeft >= maxScroll - 5;
+            nextBtn.style.display = canScroll && window.innerWidth >= 768 ? "flex" : "none";
+        }
+
+        if (dotsContainer) {
+            if (!canScroll) {
+                dotsContainer.style.display = "none";
+            } else {
+                dotsContainer.style.display = "flex";
+                atualizarDots();
+            }
+        }
+    }
+
+    function criarDots() {
+        if (!dotsContainer) return;
+        dotsContainer.innerHTML = "";
+        const currentCards = getCards();
+        if (currentCards.length <= 1) return;
+
+        currentCards.forEach((card, index) => {
+            const dot = document.createElement("button");
+            dot.type = "button";
+            dot.className = "news-carousel-dot" + (index === 0 ? " active" : "");
+            dot.setAttribute("aria-label", `Ir para a notícia ${index + 1}`);
+            dot.addEventListener("click", () => {
+                const cardLeft = card.offsetLeft - track.offsetLeft;
+                track.scrollTo({ left: cardLeft, behavior: "smooth" });
+            });
+            dotsContainer.appendChild(dot);
+        });
+    }
+
+    function atualizarDots() {
+        if (!dotsContainer) return;
+        const dots = dotsContainer.querySelectorAll(".news-carousel-dot");
+        const currentCards = getCards();
+        if (!dots.length || !currentCards.length) return;
+
+        let activeIndex = 0;
+        let minDiff = Infinity;
+        const currentScroll = track.scrollLeft;
+
+        currentCards.forEach((card, index) => {
+            const cardLeft = card.offsetLeft - track.offsetLeft;
+            const diff = Math.abs(cardLeft - currentScroll);
+            if (diff < minDiff) {
+                minDiff = diff;
+                activeIndex = index;
+            }
+        });
+
+        dots.forEach((dot, idx) => {
+            if (idx === activeIndex) {
+                dot.classList.add("active");
+            } else {
+                dot.classList.remove("active");
+            }
+        });
+    }
+
+    if (prevBtn && !prevBtn.dataset.listenerAttached) {
+        prevBtn.dataset.listenerAttached = "true";
+        prevBtn.addEventListener("click", () => {
+            const step = getScrollStep();
+            track.scrollBy({ left: -step, behavior: "smooth" });
+        });
+    }
+
+    if (nextBtn && !nextBtn.dataset.listenerAttached) {
+        nextBtn.dataset.listenerAttached = "true";
+        nextBtn.addEventListener("click", () => {
+            const step = getScrollStep();
+            track.scrollBy({ left: step, behavior: "smooth" });
+        });
+    }
+
+    if (!track.dataset.carouselEventsAttached) {
+        track.dataset.carouselEventsAttached = "true";
+
+        track.addEventListener("scroll", () => {
+            atualizarEstadoCarrossel();
+        }, { passive: true });
+
+        // Arraste com o mouse no Desktop
+        let isDown = false;
+        let startX = 0;
+        let scrollLeftStart = 0;
+        let hasDragged = false;
+
+        track.addEventListener("mousedown", (e) => {
+            if (e.button !== 0) return;
+            if (!wrapper || !wrapper.classList.contains("has-overflow")) return;
+            isDown = true;
+            hasDragged = false;
+            track.classList.add("is-dragging");
+            startX = e.pageX - track.offsetLeft;
+            scrollLeftStart = track.scrollLeft;
+        });
+
+        window.addEventListener("mouseup", () => {
+            if (!isDown) return;
+            isDown = false;
+            track.classList.remove("is-dragging");
+            setTimeout(() => {
+                hasDragged = false;
+            }, 60);
+        });
+
+        track.addEventListener("mousemove", (e) => {
+            if (!isDown) return;
+            const x = e.pageX - track.offsetLeft;
+            const walk = (x - startX) * 1.3;
+            if (Math.abs(walk) > 6) hasDragged = true;
+            track.scrollLeft = scrollLeftStart - walk;
+        });
+
+        // Delegação de evento para prevenir clique acidental após arrastar
+        track.addEventListener("click", (e) => {
+            if (hasDragged) {
+                e.preventDefault();
+                e.stopPropagation();
+                hasDragged = false;
+            }
+        }, true);
+
+        window.addEventListener("resize", () => {
+            atualizarEstadoCarrossel();
+        });
+    }
+
+    criarDots();
+    atualizarEstadoCarrossel();
+}
+
