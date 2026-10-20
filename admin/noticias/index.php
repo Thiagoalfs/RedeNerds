@@ -36,7 +36,15 @@ try {
             $servidoresList = ['NerdSky', 'Potato Nerds', 'Nerd Dead'];
         }
 
-        $cargosPermitidos = ['Fundadores', 'Fundador', 'Diretores', 'Diretor', 'Coordenadores', 'Coordenador', 'Administradores', 'Administrador'];
+        $cargosPermitidos = [
+            'Fundadores', 'Fundador',
+            'Diretores', 'Diretor',
+            'Coordenadores', 'Coordenador',
+            'Administradores', 'Administrador',
+            'Desenvolvedores', 'Desenvolvedor',
+            'Developers', 'Developer',
+            'Devs', 'Dev'
+        ];
         $placeholders = implode(',', array_fill(0, count($cargosPermitidos), '?'));
         $stmtEquipe = $pdo->prepare("
             SELECT DISTINCT nick 
@@ -48,6 +56,9 @@ try {
                   OR LOWER(cargo) LIKE '%direto%' 
                   OR LOWER(cargo) LIKE '%coordena%' 
                   OR LOWER(cargo) LIKE '%admin%'
+                  OR LOWER(cargo) LIKE '%desenvolv%'
+                  OR LOWER(cargo) LIKE '%developer%'
+                  OR LOWER(cargo) LIKE '%dev%'
               )
             ORDER BY nick ASC
         ");
@@ -421,7 +432,24 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('modalEditarNoticiaTituloHeader').textContent = d.titulo || '';
         document.getElementById('edit-noticia-category').value = d.category || '';
         document.getElementById('edit-noticia-categoria-envio').value = d.categoriaEnvio || 'Anúncios';
-        document.getElementById('edit-noticia-autor').value = d.autor || '';
+        const autorSelect = document.getElementById('edit-noticia-autor');
+        if (autorSelect) {
+            let found = false;
+            for (let opt of autorSelect.options) {
+                if (opt.value === d.autor) {
+                    opt.selected = true;
+                    found = true;
+                    break;
+                }
+            }
+            if (!found && d.autor) {
+                const newOpt = document.createElement('option');
+                newOpt.value = d.autor;
+                newOpt.textContent = d.autor;
+                newOpt.selected = true;
+                autorSelect.appendChild(newOpt);
+            }
+        }
         document.getElementById('edit-noticia-conteudo').value = d.conteudo || '';
         document.getElementById('edit-noticia-capa-url').value = '';
         document.getElementById('edit-noticia-capa-upload').value = '';

@@ -18,7 +18,15 @@ try {
 
 $nicksEquipe = [];
 try {
-    $cargosPermitidos = ['Fundadores', 'Fundador', 'Diretores', 'Diretor', 'Coordenadores', 'Coordenador', 'Administradores', 'Administrador'];
+    $cargosPermitidos = [
+        'Fundadores', 'Fundador',
+        'Diretores', 'Diretor',
+        'Coordenadores', 'Coordenador',
+        'Administradores', 'Administrador',
+        'Desenvolvedores', 'Desenvolvedor',
+        'Developers', 'Developer',
+        'Devs', 'Dev'
+    ];
     $placeholders = implode(',', array_fill(0, count($cargosPermitidos), '?'));
     $stmtEquipe = $pdo->prepare("
         SELECT DISTINCT nick 
@@ -30,6 +38,9 @@ try {
               OR LOWER(cargo) LIKE '%direto%' 
               OR LOWER(cargo) LIKE '%coordena%' 
               OR LOWER(cargo) LIKE '%admin%'
+              OR LOWER(cargo) LIKE '%desenvolv%'
+              OR LOWER(cargo) LIKE '%developer%'
+              OR LOWER(cargo) LIKE '%dev%'
           )
         ORDER BY nick ASC
     ");
