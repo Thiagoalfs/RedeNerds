@@ -245,12 +245,13 @@ if (!function_exists('parseMarkdownWiki')) {
         }, $markdown);
 
         // 5. Imagens com suporte a Zoom / Lightbox
+        // Valida esquema http(s) ou caminho local (/), escapa src e alt contra XSS.
         $markdown = preg_replace_callback('/!\[(.*?)\]\((https?:\/\/[^\s\)]+|\/[^\s\)]+)\)/', function($matches) {
-            $alt = $matches[1];
-            $src = $matches[2];
+            $alt = htmlspecialchars($matches[1], ENT_QUOTES, 'UTF-8');
+            $src = htmlspecialchars($matches[2], ENT_QUOTES, 'UTF-8');
             $caption = !empty($alt) ? '<figcaption class="wiki-figcaption">' . $alt . '</figcaption>' : '';
             return "\n\n" . '<figure class="wiki-figure">
-                <img src="' . $src . '" alt="' . $alt . '" class="wiki-zoomable-img" loading="lazy" onclick="abrirLightboxWiki(this.src, this.alt)" title="Clique para ampliar">
+                <img src="' . $src . '" alt="' . $alt . '" class="wiki-zoomable-img" loading="lazy" onclick="abrirLightboxWiki(\'' . addslashes($src) . '\', \'' . addslashes($alt) . '\')" title="Clique para ampliar">
                 ' . $caption . '
             </figure>' . "\n\n";
         }, $markdown);
@@ -260,8 +261,17 @@ if (!function_exists('parseMarkdownWiki')) {
         $markdown = preg_replace('/\*(.+?)\*/', '<em>$1</em>', $markdown);
 
         // 7. Links externos e internos
-        $markdown = preg_replace('/\[(.+?)\]\((https?:\/\/[^\s\)]+)\)/', '<a href="$2" target="_blank" rel="noopener" class="wiki-link">$1 <i class="fa-solid fa-arrow-up-right-from-square text-xs" style="font-size: 0.75rem;"></i></a>', $markdown);
-        $markdown = preg_replace('/\[(.+?)\]\((\/[^\s\)]+)\)/', '<a href="$2" class="wiki-link">$1</a>', $markdown);
+        // Valida esquema http(s) e escapa texto e href contra XSS.
+        $markdown = preg_replace_callback('/\[(.+?)\]\((https?:\/\/[^\s\)]+)\)/', function($matches) {
+            $text = htmlspecialchars($matches[1], ENT_QUOTES, 'UTF-8');
+            $href = htmlspecialchars($matches[2], ENT_QUOTES, 'UTF-8');
+            return '<a href="' . $href . '" target="_blank" rel="noopener noreferrer" class="wiki-link">' . $text . ' <i class="fa-solid fa-arrow-up-right-from-square text-xs" style="font-size: 0.75rem;"></i></a>';
+        }, $markdown);
+        $markdown = preg_replace_callback('/\[(.+?)\]\((\/[^\s\)]+)\)/', function($matches) {
+            $text = htmlspecialchars($matches[1], ENT_QUOTES, 'UTF-8');
+            $href = htmlspecialchars($matches[2], ENT_QUOTES, 'UTF-8');
+            return '<a href="' . $href . '" class="wiki-link">' . $text . '</a>';
+        }, $markdown);
 
         // 8. Tabelas em Markdown
         $markdown = preg_replace_callback('/((?:^\|.+\|\r?\n)+)/m', function($matches) {
@@ -288,13 +298,13 @@ if (!function_exists('parseMarkdownWiki')) {
                 if ($isHeader && $i === 0) {
                     $htmlTable .= '<thead><tr>';
                     foreach ($cells as $cell) {
-                        $htmlTable .= '<th>' . $cell . '</th>';
+                        $htmlTable .= '<th>' . htmlspecialchars($cell, ENT_QUOTES, 'UTF-8') . '</th>';
                     }
                     $htmlTable .= '</tr></thead><tbody>';
                 } else {
                     $htmlTable .= '<tr>';
                     foreach ($cells as $cell) {
-                        $htmlTable .= '<td>' . $cell . '</td>';
+                        $htmlTable .= '<td>' . htmlspecialchars($cell, ENT_QUOTES, 'UTF-8') . '</td>';
                     }
                     $htmlTable .= '</tr>';
                 }
