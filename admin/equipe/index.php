@@ -139,20 +139,20 @@ $todosCargos = array_unique(array_merge($cargosOrdem, array_keys($grupos)));
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
                 </div>
 
-                <div class="modal-body p-4">
-                    <div class="mb-3">
-                        <label for="criar-membro-nick" class="form-label fw-bold">Nick do Jogador (Minecraft) <span class="text-danger">*</span></label>
+                <div class="modal-body p-3 p-md-4">
+                    <div class="mb-2">
+                        <label for="criar-membro-nick" class="form-label fw-bold mb-1">Nick do Jogador (Minecraft) <span class="text-danger">*</span></label>
                         <div class="input-group">
                             <span class="input-group-text p-1">
                                 <img id="criar-membro-preview" src="https://mc-heads.net/avatar/MHF_Steve/32" width="32" height="32" class="rounded" alt="Avatar" onerror="this.src='https://mc-heads.net/avatar/MHF_Steve/32'">
                             </span>
                             <input type="text" class="form-control" id="criar-membro-nick" name="nick" placeholder="Ex: Steve" required maxlength="16" autofocus>
                         </div>
-                        <div class="form-text small">Nick de 2 a 16 caracteres alfanuméricos. A skin é buscada automaticamente.</div>
+                        <div class="form-text small mt-1 mb-0" style="font-size: 0.75rem;">Nick de 2 a 16 caracteres alfanuméricos. A skin é buscada automaticamente.</div>
                     </div>
 
-                    <div class="mb-3">
-                        <label for="criar-membro-cargo" class="form-label fw-bold">Cargo / Grupo <span class="text-danger">*</span></label>
+                    <div class="mb-2">
+                        <label for="criar-membro-cargo" class="form-label fw-bold mb-1">Cargo / Grupo <span class="text-danger">*</span></label>
                         <select class="form-select" id="criar-membro-cargo" name="cargo" required>
                             <option value="">Selecione um cargo...</option>
                             <?php foreach ($todosCargos as $cNome): ?>
@@ -188,9 +188,9 @@ $todosCargos = array_unique(array_merge($cargosOrdem, array_keys($grupos)));
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
                 </div>
 
-                <div class="modal-body p-4">
-                    <div class="mb-3">
-                        <label for="edit-membro-nick" class="form-label fw-bold">Nick do Jogador (Minecraft) <span class="text-danger">*</span></label>
+                <div class="modal-body p-3 p-md-4">
+                    <div class="mb-2">
+                        <label for="edit-membro-nick" class="form-label fw-bold mb-1">Nick do Jogador (Minecraft) <span class="text-danger">*</span></label>
                         <div class="input-group">
                             <span class="input-group-text p-1">
                                 <img id="edit-membro-preview" src="https://mc-heads.net/avatar/MHF_Steve/32" width="32" height="32" class="rounded" alt="Avatar" onerror="this.src='https://mc-heads.net/avatar/MHF_Steve/32'">
@@ -199,8 +199,8 @@ $todosCargos = array_unique(array_merge($cargosOrdem, array_keys($grupos)));
                         </div>
                     </div>
 
-                    <div class="mb-3">
-                        <label for="edit-membro-cargo" class="form-label fw-bold">Cargo / Grupo <span class="text-danger">*</span></label>
+                    <div class="mb-2">
+                        <label for="edit-membro-cargo" class="form-label fw-bold mb-1">Cargo / Grupo <span class="text-danger">*</span></label>
                         <select class="form-select" id="edit-membro-cargo" name="cargo" required>
                             <option value="">Selecione um cargo...</option>
                             <?php foreach ($todosCargos as $cNome): ?>
