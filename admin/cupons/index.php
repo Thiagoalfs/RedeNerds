@@ -231,7 +231,16 @@ function renderLinhaCupom(array $c, array $servidoresMap): string {
                 <tbody id="lista-cupons-ativos">
                     <?php if (empty($cuponsAtivos)): ?>
                         <tr class="empty-row" id="linha-sem-cupons-ativos">
-                            <td colspan="8" class="text-center py-4 text-muted">Nenhum cupom ativo no momento.</td>
+                            <td colspan="8" class="text-center py-4">
+                                <div class="admin-empty-state py-3">
+                                    <div class="empty-icon"><i class="fa-solid fa-ticket"></i></div>
+                                    <h6 class="empty-title">Nenhum cupom ativo</h6>
+                                    <p class="empty-desc">Crie um cupom para oferecer descontos aos jogadores.</p>
+                                    <button type="button" class="btn btn-primary btn-sm mt-2" data-bs-toggle="modal" data-bs-target="#modalCriarCupom">
+                                        <i class="fa-solid fa-plus me-1"></i> Criar Cupom
+                                    </button>
+                                </div>
+                            </td>
                         </tr>
                     <?php else: ?>
                         <?php foreach ($cuponsAtivos as $c): ?>
@@ -272,7 +281,13 @@ function renderLinhaCupom(array $c, array $servidoresMap): string {
                 <tbody id="lista-cupons-inativos">
                     <?php if (empty($cuponsInativos)): ?>
                         <tr class="empty-row" id="linha-sem-cupons-inativos">
-                            <td colspan="8" class="text-center py-4 text-muted">Nenhum cupom inativo.</td>
+                            <td colspan="8" class="text-center py-4">
+                                <div class="admin-empty-state py-3">
+                                    <div class="empty-icon"><i class="fa-regular fa-folder-open"></i></div>
+                                    <h6 class="empty-title">Nenhum cupom inativo</h6>
+                                    <p class="empty-desc">Todos os cupons cadastrados estão válidos e ativos.</p>
+                                </div>
+                            </td>
                         </tr>
                     <?php else: ?>
                         <?php foreach ($cuponsInativos as $c): ?>
@@ -287,7 +302,7 @@ function renderLinhaCupom(array $c, array $servidoresMap): string {
 
 <!-- MODAL: CRIAR CUPOM -->
 <div class="modal fade" id="modalCriarCupom" tabindex="-1" aria-labelledby="modalCriarCupomLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
         <div class="modal-content shadow">
             <form id="formCriarCupom">
                 <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($csrfToken, ENT_QUOTES, 'UTF-8'); ?>">
@@ -297,13 +312,13 @@ function renderLinhaCupom(array $c, array $servidoresMap): string {
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
                 </div>
 
-                <div class="modal-body p-4">
-                    <div class="mb-3">
+                <div class="modal-body p-3 p-md-4">
+                    <div class="mb-2">
                         <label for="criar-codigo" class="form-label fw-bold">Código do Cupom <span class="text-danger">*</span></label>
                         <input type="text" class="form-control font-monospace text-uppercase" id="criar-codigo" name="codigo" placeholder="Ex: PROMO10, NERD2026" required maxlength="50">
                     </div>
 
-                    <div class="row g-3 mb-3">
+                    <div class="row g-2 mb-2">
                         <div class="col-12 col-sm-6">
                             <label for="criar-porcentagem" class="form-label fw-bold">Desconto (%) <span class="text-danger">*</span></label>
                             <div class="input-group">
@@ -324,7 +339,7 @@ function renderLinhaCupom(array $c, array $servidoresMap): string {
                         </div>
                     </div>
 
-                    <div class="mb-3">
+                    <div class="mb-2">
                         <label for="criar-expira-em" class="form-label fw-bold">Data e Hora de Expiração <span class="text-danger">*</span></label>
                         <input type="datetime-local" class="form-control" id="criar-expira-em" name="expira_em" value="<?php echo date('Y-m-d\TH:i', strtotime('+30 days')); ?>" required>
                     </div>
@@ -350,7 +365,7 @@ function renderLinhaCupom(array $c, array $servidoresMap): string {
 
 <!-- MODAL: EDITAR CUPOM -->
 <div class="modal fade" id="modalEditarCupom" tabindex="-1" aria-labelledby="modalEditarCupomLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
         <div class="modal-content shadow">
             <form id="formEditarCupom">
                 <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($csrfToken, ENT_QUOTES, 'UTF-8'); ?>">
@@ -363,13 +378,13 @@ function renderLinhaCupom(array $c, array $servidoresMap): string {
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
                 </div>
 
-                <div class="modal-body p-4">
-                    <div class="mb-3">
+                <div class="modal-body p-3 p-md-4">
+                    <div class="mb-2">
                         <label for="edit-codigo" class="form-label fw-bold">Código do Cupom <span class="text-danger">*</span></label>
                         <input type="text" class="form-control font-monospace text-uppercase" id="edit-codigo" name="codigo" required maxlength="50">
                     </div>
 
-                    <div class="row g-3 mb-3">
+                    <div class="row g-2 mb-2">
                         <div class="col-12 col-sm-6">
                             <label for="edit-porcentagem" class="form-label fw-bold">Desconto (%) <span class="text-danger">*</span></label>
                             <div class="input-group">
@@ -390,7 +405,7 @@ function renderLinhaCupom(array $c, array $servidoresMap): string {
                         </div>
                     </div>
 
-                    <div class="mb-3">
+                    <div class="mb-2">
                         <label for="edit-expira-em" class="form-label fw-bold">Data e Hora de Expiração <span class="text-danger">*</span></label>
                         <input type="datetime-local" class="form-control" id="edit-expira-em" name="expira_em" required>
                     </div>

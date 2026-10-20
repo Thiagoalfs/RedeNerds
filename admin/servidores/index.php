@@ -89,7 +89,16 @@ function renderIconeTable(?string $icone): string {
                 <tbody id="lista-servidores-ativos">
                     <?php if (empty($servidoresVisiveis)): ?>
                         <tr class="empty-row" id="linha-sem-servidores-ativos">
-                            <td colspan="7" class="text-center py-4 text-muted">Nenhum servidor visível no momento.</td>
+                            <td colspan="7" class="text-center py-4">
+                                <div class="admin-empty-state py-3">
+                                    <div class="empty-icon"><i class="fa-solid fa-server"></i></div>
+                                    <h6 class="empty-title">Nenhum servidor ativo</h6>
+                                    <p class="empty-desc">Cadastre um novo servidor para ser exibido no site e na loja.</p>
+                                    <button type="button" class="btn btn-primary btn-sm mt-2" data-bs-toggle="modal" data-bs-target="#modalCriarServidor">
+                                        <i class="fa-solid fa-plus me-1"></i> Cadastrar Servidor
+                                    </button>
+                                </div>
+                            </td>
                         </tr>
                     <?php else: ?>
                         <?php foreach ($servidoresVisiveis as $s): ?>
@@ -179,7 +188,13 @@ function renderIconeTable(?string $icone): string {
                 <tbody id="lista-servidores-inativos">
                     <?php if (empty($servidoresOcultos)): ?>
                         <tr class="empty-row" id="linha-sem-servidores-inativos">
-                            <td colspan="7" class="text-center py-4 text-muted">Nenhum servidor oculto no momento.</td>
+                            <td colspan="7" class="text-center py-4">
+                                <div class="admin-empty-state py-3">
+                                    <div class="empty-icon"><i class="fa-regular fa-folder-open"></i></div>
+                                    <h6 class="empty-title">Nenhum servidor oculto</h6>
+                                    <p class="empty-desc">Todos os servidores cadastrados estão públicos e visíveis.</p>
+                                </div>
+                            </td>
                         </tr>
                     <?php else: ?>
                         <?php foreach ($servidoresOcultos as $s): ?>
@@ -246,7 +261,7 @@ function renderIconeTable(?string $icone): string {
 
 <!-- MODAL: CRIAR SERVIDOR -->
 <div class="modal fade" id="modalCriarServidor" tabindex="-1" aria-labelledby="modalCriarServidorLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg">
         <div class="modal-content shadow">
             <form id="formCriarServidor" enctype="multipart/form-data">
                 <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($csrfToken, ENT_QUOTES, 'UTF-8'); ?>">
@@ -256,8 +271,8 @@ function renderIconeTable(?string $icone): string {
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
                 </div>
 
-                <div class="modal-body p-4">
-                    <div class="row g-3 mb-3">
+                <div class="modal-body p-3 p-md-4">
+                    <div class="row g-2 mb-2">
                         <div class="col-md-6">
                             <label for="criar-srv-servername" class="form-label fw-bold">Nome do Servidor <span class="text-danger">*</span></label>
                             <input type="text" class="form-control" id="criar-srv-servername" name="servername" placeholder="Ex: Potato Nerds" required>
@@ -268,12 +283,12 @@ function renderIconeTable(?string $icone): string {
                         </div>
                     </div>
 
-                    <div class="mb-3">
+                    <div class="mb-2">
                         <label for="criar-srv-descricao" class="form-label fw-bold">Descrição <span class="text-danger">*</span></label>
                         <textarea class="form-control" id="criar-srv-descricao" name="descricao" rows="2" placeholder="Descrição curta do servidor..." required></textarea>
                     </div>
 
-                    <div class="row g-3 mb-3">
+                    <div class="row g-2 mb-2">
                         <div class="col-md-8">
                             <label for="criar-srv-modpackurl" class="form-label fw-bold">URL do Modpack / Launcher <span class="text-danger">*</span></label>
                             <input type="url" class="form-control" id="criar-srv-modpackurl" name="modpackurl" placeholder="https://..." required>
@@ -287,7 +302,7 @@ function renderIconeTable(?string $icone): string {
                         </div>
                     </div>
 
-                    <div class="row g-3 mb-3">
+                    <div class="row g-2 mb-2">
                         <div class="col-md-6">
                             <label class="form-label fw-bold">Ícone do Servidor</label>
                             <div class="d-flex align-items-center gap-2">
@@ -344,7 +359,7 @@ function renderIconeTable(?string $icone): string {
 
 <!-- MODAL: EDITAR SERVIDOR -->
 <div class="modal fade" id="modalEditarServidor" tabindex="-1" aria-labelledby="modalEditarServidorLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg">
         <div class="modal-content shadow">
             <form id="formEditarServidor" enctype="multipart/form-data">
                 <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($csrfToken, ENT_QUOTES, 'UTF-8'); ?>">
@@ -357,8 +372,8 @@ function renderIconeTable(?string $icone): string {
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
                 </div>
 
-                <div class="modal-body p-4">
-                    <div class="row g-3 mb-3">
+                <div class="modal-body p-3 p-md-4">
+                    <div class="row g-2 mb-2">
                         <div class="col-md-6">
                             <label for="edit-srv-servername" class="form-label fw-bold">Nome do Servidor <span class="text-danger">*</span></label>
                             <input type="text" class="form-control" id="edit-srv-servername" name="servername" required>
@@ -369,12 +384,12 @@ function renderIconeTable(?string $icone): string {
                         </div>
                     </div>
 
-                    <div class="mb-3">
+                    <div class="mb-2">
                         <label for="edit-srv-descricao" class="form-label fw-bold">Descrição <span class="text-danger">*</span></label>
                         <textarea class="form-control" id="edit-srv-descricao" name="descricao" rows="2" required></textarea>
                     </div>
 
-                    <div class="row g-3 mb-3">
+                    <div class="row g-2 mb-2">
                         <div class="col-md-8">
                             <label for="edit-srv-modpackurl" class="form-label fw-bold">URL do Modpack / Launcher <span class="text-danger">*</span></label>
                             <input type="url" class="form-control" id="edit-srv-modpackurl" name="modpackurl" required>
@@ -388,7 +403,7 @@ function renderIconeTable(?string $icone): string {
                         </div>
                     </div>
 
-                    <div class="row g-3 mb-3">
+                    <div class="row g-2 mb-2">
                         <div class="col-md-6">
                             <label class="form-label fw-bold">Ícone do Servidor</label>
                             <div class="d-flex align-items-center gap-2">

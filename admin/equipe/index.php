@@ -59,8 +59,15 @@ $todosCargos = array_unique(array_merge($cargosOrdem, array_keys($grupos)));
 </div>
 
 <?php if (empty($grupos)): ?>
-    <div class="admin-card p-4 text-center text-muted">
-        Nenhum cargo ou membro cadastrado ainda.
+    <div class="admin-card p-4">
+        <div class="admin-empty-state py-3">
+            <div class="empty-icon"><i class="fa-solid fa-users"></i></div>
+            <h6 class="empty-title">Nenhum membro cadastrado</h6>
+            <p class="empty-desc">Cadastre os membros da equipe e organize-os por cargos.</p>
+            <button type="button" class="btn btn-primary btn-sm mt-2" data-bs-toggle="modal" data-bs-target="#modalCriarMembro">
+                <i class="fa-solid fa-plus me-1"></i> Adicionar Membro
+            </button>
+        </div>
     </div>
 <?php else: ?>
     <?php foreach ($grupos as $cargo => $lista): ?>
@@ -129,7 +136,7 @@ $todosCargos = array_unique(array_merge($cargosOrdem, array_keys($grupos)));
 
 <!-- MODAL: CRIAR MEMBRO -->
 <div class="modal fade" id="modalCriarMembro" tabindex="-1" aria-labelledby="modalCriarMembroLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
         <div class="modal-content shadow">
             <form id="formCriarMembro">
                 <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($csrfToken, ENT_QUOTES, 'UTF-8'); ?>">
@@ -175,7 +182,7 @@ $todosCargos = array_unique(array_merge($cargosOrdem, array_keys($grupos)));
 
 <!-- MODAL: EDITAR MEMBRO -->
 <div class="modal fade" id="modalEditarMembro" tabindex="-1" aria-labelledby="modalEditarMembroLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
         <div class="modal-content shadow">
             <form id="formEditarMembro">
                 <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($csrfToken, ENT_QUOTES, 'UTF-8'); ?>">

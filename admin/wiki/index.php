@@ -124,12 +124,18 @@ $categoriasIniciais = $primeiroServidorId > 0 ? getCategoriasServidorWiki($pdo, 
     </a>
 </div>
 
-<!-- FILTROS -->
+<!-- FILTROS E BUSCA EM TEMPO REAL -->
 <div class="admin-card mb-3">
     <div class="p-3">
-        <form method="GET" action="index.php" class="row g-2 align-items-center">
-            <div class="col-12 col-md-6">
-                <select name="servidor_id" class="form-select form-select-sm" onchange="this.form.submit()">
+        <form method="GET" action="index.php" id="form-filtro-wiki" class="row g-2 align-items-center" onsubmit="event.preventDefault();">
+            <div class="col-12 col-md-4">
+                <div class="input-group input-group-sm">
+                    <span class="input-group-text"><i class="fa-solid fa-magnifying-glass"></i></span>
+                    <input type="text" id="filtro-wiki-busca" class="form-control" placeholder="Buscar por título, autor...">
+                </div>
+            </div>
+            <div class="col-12 col-md-4">
+                <select name="servidor_id" id="filtro-wiki-servidor" class="form-select form-select-sm">
                     <option value="">Filtrar por Servidor: Todos</option>
                     <?php foreach ($servidores as $s): ?>
                         <option value="<?php echo (int)$s['id']; ?>" <?php echo ($filtroServidor === (int)$s['id']) ? 'selected' : ''; ?>>
@@ -164,9 +170,27 @@ $categoriasIniciais = $primeiroServidorId > 0 ? getCategoriasServidorWiki($pdo, 
                     </tr>
                 </thead>
                 <tbody id="lista-artigos-wiki">
+                    <tr id="linha-wiki-filtro-vazio" class="d-none">
+                        <td colspan="7" class="text-center py-4">
+                            <div class="admin-empty-state py-3">
+                                <div class="empty-icon"><i class="fa-solid fa-magnifying-glass"></i></div>
+                                <h6 class="empty-title">Nenhum artigo encontrado</h6>
+                                <p class="empty-desc">Nenhum artigo corresponde à pesquisa ou filtro selecionado.</p>
+                            </div>
+                        </td>
+                    </tr>
                     <?php if (empty($artigos)): ?>
                         <tr id="linha-artigos-vazia">
-                            <td colspan="7" class="text-center py-4 text-muted">Nenhum artigo cadastrado ainda. Clique em "+ Novo Artigo" para começar.</td>
+                            <td colspan="7" class="text-center py-4">
+                                <div class="admin-empty-state py-3">
+                                    <div class="empty-icon"><i class="fa-regular fa-folder-open"></i></div>
+                                    <h6 class="empty-title">Nenhum artigo cadastrado</h6>
+                                    <p class="empty-desc">Nenhum artigo cadastrado ainda para este servidor.</p>
+                                    <button type="button" class="btn btn-primary btn-sm mt-2" data-bs-toggle="modal" data-bs-target="#modalCriarArtigo">
+                                        <i class="fa-solid fa-plus me-1"></i> Criar Primeiro Artigo
+                                    </button>
+                                </div>
+                            </td>
                         </tr>
                     <?php else: ?>
                         <?php foreach ($artigos as $art): ?>
@@ -237,7 +261,7 @@ $categoriasIniciais = $primeiroServidorId > 0 ? getCategoriasServidorWiki($pdo, 
 
 <!-- MODAL: CRIAR ARTIGO -->
 <div class="modal fade" id="modalCriarArtigo" tabindex="-1" aria-labelledby="modalCriarArtigoLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered modal-xl">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-xl">
         <div class="modal-content shadow">
             <form id="formCriarArtigo">
                 <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($csrfToken, ENT_QUOTES, 'UTF-8'); ?>">
@@ -247,8 +271,8 @@ $categoriasIniciais = $primeiroServidorId > 0 ? getCategoriasServidorWiki($pdo, 
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
                 </div>
 
-                <div class="modal-body p-4">
-                    <div class="row g-3 mb-3">
+                <div class="modal-body p-3 p-md-4">
+                    <div class="row g-2 mb-2">
                         <div class="col-md-6">
                             <label for="criar-servidor_id" class="form-label fw-bold">Servidor de Destino <span class="text-danger">*</span></label>
                             <select class="form-select" id="criar-servidor_id" name="servidor_id" required onchange="carregarCategorias(this.value, 'criar-categoria_id')">
@@ -276,7 +300,7 @@ $categoriasIniciais = $primeiroServidorId > 0 ? getCategoriasServidorWiki($pdo, 
                         </div>
                     </div>
 
-                    <div class="row g-3 mb-3">
+                    <div class="row g-2 mb-2">
                         <div class="col-md-8">
                             <label for="criar-titulo" class="form-label fw-bold">Título do Artigo <span class="text-danger">*</span></label>
                             <input type="text" class="form-control" id="criar-titulo" name="titulo" placeholder="Ex: Como criar e proteger seu terreno" required>
@@ -324,7 +348,7 @@ $categoriasIniciais = $primeiroServidorId > 0 ? getCategoriasServidorWiki($pdo, 
 
 <!-- MODAL: EDITAR ARTIGO -->
 <div class="modal fade" id="modalEditarArtigo" tabindex="-1" aria-labelledby="modalEditarArtigoLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered modal-xl">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-xl">
         <div class="modal-content shadow">
             <form id="formEditarArtigo">
                 <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($csrfToken, ENT_QUOTES, 'UTF-8'); ?>">
@@ -337,8 +361,8 @@ $categoriasIniciais = $primeiroServidorId > 0 ? getCategoriasServidorWiki($pdo, 
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
                 </div>
 
-                <div class="modal-body p-4">
-                    <div class="row g-3 mb-3">
+                <div class="modal-body p-3 p-md-4">
+                    <div class="row g-2 mb-2">
                         <div class="col-md-6">
                             <label for="edit-servidor_id" class="form-label fw-bold">Servidor de Destino <span class="text-danger">*</span></label>
                             <select class="form-select" id="edit-servidor_id" name="servidor_id" required onchange="carregarCategorias(this.value, 'edit-categoria_id')">
@@ -362,7 +386,7 @@ $categoriasIniciais = $primeiroServidorId > 0 ? getCategoriasServidorWiki($pdo, 
                         </div>
                     </div>
 
-                    <div class="row g-3 mb-3">
+                    <div class="row g-2 mb-2">
                         <div class="col-md-8">
                             <label for="edit-titulo" class="form-label fw-bold">Título do Artigo <span class="text-danger">*</span></label>
                             <input type="text" class="form-control" id="edit-titulo" name="titulo" required>
@@ -454,7 +478,7 @@ function escapeHtml(str) {
 // Toggle geral da Wiki
 function alternarWikiGeral(btn) {
     if (!window.AdminApi || !window.AdminToast) {
-        alert('Recursos assíncronos indisponíveis. Recarregue a página.');
+        if (window.AdminToast) { window.AdminToast.error('Recursos assíncronos indisponíveis. Recarregue a página.'); }
         return;
     }
 
@@ -745,10 +769,10 @@ document.addEventListener('DOMContentLoaded', function() {
                     formCriar.reset();
                     if (bsModalCriar) bsModalCriar.hide();
                 } else {
-                    alert(data.erro || 'Erro ao criar artigo.');
+                    if (window.AdminToast) { window.AdminToast.error(data.erro || 'Erro ao criar artigo.'); }
                 }
             } catch (err) {
-                alert('Erro de conexão ao criar artigo.');
+                if (window.AdminToast) { window.AdminToast.error('Erro de conexão ao criar artigo.'); }
             } finally {
                 btn.disabled = false;
                 btn.innerHTML = originalHtml;
@@ -791,16 +815,56 @@ document.addEventListener('DOMContentLoaded', function() {
 
                     if (bsModalEditar) bsModalEditar.hide();
                 } else {
-                    alert(data.erro || 'Erro ao atualizar artigo.');
+                    if (window.AdminToast) { window.AdminToast.error(data.erro || 'Erro ao atualizar artigo.'); }
                 }
             } catch (err) {
-                alert('Erro de conexão ao atualizar artigo.');
+                if (window.AdminToast) { window.AdminToast.error('Erro de conexão ao atualizar artigo.'); }
             } finally {
                 btn.disabled = false;
                 btn.innerHTML = originalHtml;
             }
         });
     }
+
+        // Filtro instantâneo em tempo real (busca textual + servidor)
+    const buscaInput = document.getElementById('filtro-wiki-busca');
+    const servidorSelect = document.getElementById('filtro-wiki-servidor');
+    const emptyFilterRow = document.getElementById('linha-wiki-filtro-vazio');
+
+    function aplicarFiltroArtigos() {
+        const termo = buscaInput ? buscaInput.value.trim().toLowerCase() : '';
+        const servidorId = servidorSelect ? servidorSelect.value : '';
+        const rows = document.querySelectorAll('#lista-artigos-wiki tr[data-id]');
+        let visiveis = 0;
+
+        rows.forEach(r => {
+            const titulo = (r.dataset.titulo || '').toLowerCase();
+            const autor = (r.dataset.autor || '').toLowerCase();
+            const cat = (r.dataset.categoriaNome || '').toLowerCase();
+            const srvId = r.dataset.servidorId || '';
+
+            const matchTermo = !termo || titulo.includes(termo) || autor.includes(termo) || cat.includes(termo);
+            const matchServidor = !servidorId || srvId === servidorId;
+
+            if (matchTermo && matchServidor) {
+                r.style.display = '';
+                visiveis++;
+            } else {
+                r.style.display = 'none';
+            }
+        });
+
+        if (emptyFilterRow) {
+            if (visiveis === 0 && rows.length > 0) {
+                emptyFilterRow.classList.remove('d-none');
+            } else {
+                emptyFilterRow.classList.add('d-none');
+            }
+        }
+    }
+
+    if (buscaInput) buscaInput.addEventListener('input', aplicarFiltroArtigos);
+    if (servidorSelect) servidorSelect.addEventListener('change', aplicarFiltroArtigos);
 
     // Deep link para abrir modal diretamente via URL (?action=novo ou ?edit=ID)
     const urlParams = new URLSearchParams(window.location.search);

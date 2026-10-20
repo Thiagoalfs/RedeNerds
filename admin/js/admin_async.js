@@ -470,8 +470,36 @@
   }
 
   // Inicialização automática
+  // Inicialização automática e atalhos de produtividade nos modais
   document.addEventListener('DOMContentLoaded', () => {
     setupAsyncTableActions();
+
+    // Autofocus inteligente ao abrir qualquer modal do Bootstrap
+    document.addEventListener('shown.bs.modal', (e) => {
+      const modal = e.target;
+      if (!modal) return;
+      const firstInput = modal.querySelector('input:not([type="hidden"]):not([disabled]):not([readonly]), select:not([disabled]):not([readonly]), textarea:not([disabled]):not([readonly])');
+      if (firstInput) {
+        firstInput.focus();
+      }
+    });
+
+    // Atalho global de produtividade: Ctrl + Enter (ou Cmd + Enter) submete o formulário do modal ativo
+    document.addEventListener('keydown', (e) => {
+      if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+        const activeModal = document.querySelector('.modal.show');
+        if (activeModal) {
+          const form = activeModal.querySelector('form');
+          if (form) {
+            const submitBtn = form.querySelector('button[type="submit"]:not([disabled]), input[type="submit"]:not([disabled])');
+            if (submitBtn) {
+              e.preventDefault();
+              submitBtn.click();
+            }
+          }
+        }
+      }
+    });
   });
 
   // Exportação global

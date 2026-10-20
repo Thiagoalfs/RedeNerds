@@ -285,8 +285,15 @@ try {
                 <tbody id="lista-vips-ativos">
                     <?php if (empty($vipsAtivos)): ?>
                         <tr class="empty-row" id="linha-sem-vips-ativos">
-                            <td colspan="7" class="text-center py-4 text-muted">
-                                Nenhum pacote VIP ativo no momento<?php echo $filtroServidor ? ' para o servidor selecionado' : ''; ?>.
+                            <td colspan="7" class="text-center py-4">
+                                <div class="admin-empty-state py-3">
+                                    <div class="empty-icon"><i class="fa-solid fa-gem"></i></div>
+                                    <h6 class="empty-title">Nenhum pacote VIP ativo</h6>
+                                    <p class="empty-desc">Cadastre um novo plano VIP para começar a vender na loja.</p>
+                                    <button type="button" class="btn btn-primary btn-sm mt-2" data-bs-toggle="modal" data-bs-target="#modalCriarVip">
+                                        <i class="fa-solid fa-plus me-1"></i> Cadastrar Pacote VIP
+                                    </button>
+                                </div>
                             </td>
                         </tr>
                     <?php else: ?>
@@ -405,8 +412,12 @@ try {
                 <tbody id="lista-vips-inativos">
                     <?php if (empty($vipsInativos)): ?>
                         <tr class="empty-row" id="linha-sem-vips-inativos">
-                            <td colspan="7" class="text-center py-4 text-muted">
-                                Nenhum pacote VIP inativo<?php echo $filtroServidor ? ' para o servidor selecionado' : ''; ?>.
+                            <td colspan="7" class="text-center py-4">
+                                <div class="admin-empty-state py-3">
+                                    <div class="empty-icon"><i class="fa-regular fa-folder-open"></i></div>
+                                    <h6 class="empty-title">Nenhum pacote VIP inativo</h6>
+                                    <p class="empty-desc">Todos os pacotes VIP cadastrados estão ativos na loja.</p>
+                                </div>
                             </td>
                         </tr>
                     <?php else: ?>
@@ -513,7 +524,7 @@ try {
 
 <!-- MODAL: CRIAR PACOTE VIP -->
 <div class="modal fade" id="modalCriarVip" tabindex="-1" aria-labelledby="modalCriarVipLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg">
         <div class="modal-content shadow">
             <form id="formCriarVip">
                 <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($csrfToken, ENT_QUOTES, 'UTF-8'); ?>">
@@ -523,8 +534,8 @@ try {
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
                 </div>
 
-                <div class="modal-body p-4">
-                    <div class="row g-3 mb-3">
+                <div class="modal-body p-3 p-md-4">
+                    <div class="row g-2 mb-2">
                         <div class="col-md-4">
                             <label for="criar-vip-servidor" class="form-label fw-bold">Servidor <span class="text-danger">*</span></label>
                             <select class="form-select" id="criar-vip-servidor" name="servidor_id" required>
@@ -546,7 +557,7 @@ try {
                         </div>
                     </div>
 
-                    <div class="row g-3 mb-3">
+                    <div class="row g-2 mb-2">
                         <div class="col-md-6">
                             <label for="criar-vip-preco" class="form-label fw-bold">Preço (R$) <span class="text-danger">*</span></label>
                             <div class="input-group">
@@ -707,7 +718,7 @@ try {
 
 <!-- MODAL: EDITAR PACOTE VIP -->
 <div class="modal fade" id="modalEditarVip" tabindex="-1" aria-labelledby="modalEditarVipLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg">
         <div class="modal-content shadow">
             <form id="formEditarVip">
                 <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($csrfToken, ENT_QUOTES, 'UTF-8'); ?>">
@@ -720,8 +731,8 @@ try {
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
                 </div>
 
-                <div class="modal-body p-4">
-                    <div class="row g-3 mb-3">
+                <div class="modal-body p-3 p-md-4">
+                    <div class="row g-2 mb-2">
                         <div class="col-md-4">
                             <label for="edit-vip-servidor" class="form-label fw-bold">Servidor <span class="text-danger">*</span></label>
                             <select class="form-select" id="edit-vip-servidor" name="servidor_id" required>
@@ -743,7 +754,7 @@ try {
                         </div>
                     </div>
 
-                    <div class="row g-3 mb-3">
+                    <div class="row g-2 mb-2">
                         <div class="col-md-6">
                             <label for="edit-vip-preco" class="form-label fw-bold">Preço (R$) <span class="text-danger">*</span></label>
                             <div class="input-group">

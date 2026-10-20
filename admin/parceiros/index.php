@@ -220,7 +220,7 @@ function gerarHtmlRedesParceiro(array $p): string {
 
 <!-- MODAL: CRIAR PARCEIRO -->
 <div class="modal fade" id="modalCriarParceiro" tabindex="-1" aria-labelledby="modalCriarParceiroLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg">
         <div class="modal-content shadow">
             <form id="formCriarParceiro" enctype="multipart/form-data">
                 <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($csrfToken, ENT_QUOTES, 'UTF-8'); ?>">
@@ -230,7 +230,7 @@ function gerarHtmlRedesParceiro(array $p): string {
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
                 </div>
 
-                <div class="modal-body p-4">
+                <div class="modal-body p-3 p-md-4">
                     <!-- INFORMAÇÕES BÁSICAS -->
                     <div class="mb-3">
                         <label for="criar-nome" class="form-label fw-bold">Nome do Criador / Parceiro <span class="text-danger">*</span></label>
@@ -239,7 +239,7 @@ function gerarHtmlRedesParceiro(array $p): string {
                     </div>
 
                     <!-- CONTAINER INLINE: FOTO DE PERFIL LADO A LADO COM REDES SOCIAIS -->
-                    <div class="row g-4 pt-2">
+                    <div class="row g-3 pt-2">
                         <!-- COLUNA 1: FOTO DE PERFIL -->
                         <div class="col-12 col-md-4">
                             <h6 class="fw-bold mb-3 text-dark border-bottom pb-2">
@@ -339,7 +339,7 @@ function gerarHtmlRedesParceiro(array $p): string {
 
 <!-- MODAL: EDITAR PARCEIRO -->
 <div class="modal fade" id="modalEditarParceiro" tabindex="-1" aria-labelledby="modalEditarParceiroLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg">
         <div class="modal-content shadow">
             <form id="formEditarParceiro" enctype="multipart/form-data">
                 <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($csrfToken, ENT_QUOTES, 'UTF-8'); ?>">
@@ -352,7 +352,7 @@ function gerarHtmlRedesParceiro(array $p): string {
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
                 </div>
 
-                <div class="modal-body p-4">
+                <div class="modal-body p-3 p-md-4">
                     <!-- INFORMAÇÕES BÁSICAS -->
                     <div class="mb-3">
                         <label for="edit-nome" class="form-label fw-bold">Nome do Criador / Parceiro <span class="text-danger">*</span></label>
@@ -360,7 +360,7 @@ function gerarHtmlRedesParceiro(array $p): string {
                     </div>
 
                     <!-- CONTAINER INLINE: FOTO DE PERFIL LADO A LADO COM REDES SOCIAIS -->
-                    <div class="row g-4 pt-2">
+                    <div class="row g-3 pt-2">
                         <!-- COLUNA 1: FOTO DE PERFIL -->
                         <div class="col-12 col-md-4">
                             <h6 class="fw-bold mb-3 text-dark border-bottom pb-2">

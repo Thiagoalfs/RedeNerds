@@ -122,7 +122,7 @@ try {
             <div class="col-12 col-md-10">
                 <div class="input-group input-group-sm">
                     <span class="input-group-text bg-light"><i class="fa-solid fa-magnifying-glass"></i></span>
-                    <input type="text" name="busca" class="form-control form-control-sm" placeholder="Buscar por título, autor ou servidor..." value="<?php echo htmlspecialchars($busca, ENT_QUOTES, 'UTF-8'); ?>">
+                    <input type="text" name="busca" id="input-busca-noticias" class="form-control form-control-sm" placeholder="Buscar por título, autor ou servidor..." value="<?php echo htmlspecialchars($busca, ENT_QUOTES, 'UTF-8'); ?>">
                 </div>
             </div>
             <div class="col-12 col-md-2 d-flex gap-2">
@@ -154,7 +154,16 @@ try {
                 <tbody id="lista-noticias">
                     <?php if (empty($noticias)): ?>
                         <tr class="empty-row" id="linha-sem-noticias">
-                            <td colspan="7" class="text-center py-4 text-muted">Nenhuma novidade encontrada.</td>
+                            <td colspan="7" class="text-center py-4">
+                                <div class="admin-empty-state py-3">
+                                    <div class="empty-icon"><i class="fa-regular fa-newspaper"></i></div>
+                                    <h6 class="empty-title">Nenhuma novidade encontrada</h6>
+                                    <p class="empty-desc">Nenhuma novidade cadastrada ainda ou correspondente à busca.</p>
+                                    <button type="button" class="btn btn-primary btn-sm mt-2" data-bs-toggle="modal" data-bs-target="#modalCriarNoticia">
+                                        <i class="fa-solid fa-plus me-1"></i> Publicar Novidade
+                                    </button>
+                                </div>
+                            </td>
                         </tr>
                     <?php else: ?>
                         <?php foreach ($noticias as $n): 
@@ -222,7 +231,7 @@ try {
 
 <!-- MODAL: CRIAR NOVIDADE -->
 <div class="modal fade" id="modalCriarNoticia" tabindex="-1" aria-labelledby="modalCriarNoticiaLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg">
         <div class="modal-content shadow">
             <form id="formCriarNoticia" enctype="multipart/form-data">
                 <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($csrfToken, ENT_QUOTES, 'UTF-8'); ?>">
@@ -232,13 +241,13 @@ try {
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
                 </div>
 
-                <div class="modal-body p-4">
+                <div class="modal-body p-3 p-md-4">
                     <div class="mb-3">
                         <label for="criar-noticia-titulo" class="form-label fw-bold">Título da Novidade <span class="text-danger">*</span></label>
                         <input type="text" class="form-control" id="criar-noticia-titulo" name="titulo" placeholder="Ex: Inauguração do Novo Servidor" required>
                     </div>
 
-                    <div class="row g-3 mb-3">
+                    <div class="row g-2 mb-2">
                         <div class="col-md-4">
                             <label for="criar-noticia-category" class="form-label fw-bold">Servidor Relacionado</label>
                             <select class="form-select" id="criar-noticia-category" name="category">
@@ -279,7 +288,7 @@ try {
 
                     <div class="mb-3">
                         <label class="form-label fw-bold">Imagem de Capa (Opcional)</label>
-                        <div class="row g-3 align-items-center">
+                        <div class="row g-2 align-items-center">
                             <div class="col-md-6">
                                 <input type="file" class="form-control" id="criar-noticia-capa-upload" name="capa_upload" accept="image/*">
                             </div>
@@ -315,7 +324,7 @@ try {
 
 <!-- MODAL: EDITAR NOVIDADE -->
 <div class="modal fade" id="modalEditarNoticia" tabindex="-1" aria-labelledby="modalEditarNoticiaLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg">
         <div class="modal-content shadow">
             <form id="formEditarNoticia" enctype="multipart/form-data">
                 <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($csrfToken, ENT_QUOTES, 'UTF-8'); ?>">
@@ -328,13 +337,13 @@ try {
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
                 </div>
 
-                <div class="modal-body p-4">
+                <div class="modal-body p-3 p-md-4">
                     <div class="mb-3">
                         <label for="edit-noticia-titulo" class="form-label fw-bold">Título da Novidade <span class="text-danger">*</span></label>
                         <input type="text" class="form-control" id="edit-noticia-titulo" name="titulo" required>
                     </div>
 
-                    <div class="row g-3 mb-3">
+                    <div class="row g-2 mb-2">
                         <div class="col-md-4">
                             <label for="edit-noticia-category" class="form-label fw-bold">Servidor Relacionado</label>
                             <select class="form-select" id="edit-noticia-category" name="category">
@@ -375,7 +384,7 @@ try {
 
                     <div class="mb-3">
                         <label class="form-label fw-bold">Imagem de Capa (Opcional)</label>
-                        <div class="row g-3 align-items-center">
+                        <div class="row g-2 align-items-center">
                             <div class="col-md-6">
                                 <input type="file" class="form-control" id="edit-noticia-capa-upload" name="capa_upload" accept="image/*">
                             </div>
