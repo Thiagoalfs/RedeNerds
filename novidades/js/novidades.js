@@ -195,7 +195,7 @@ function initNovidades() {
         }
 
         if (window.AppCache) {
-            AppCache.fetchWithCache('novidades_limit_3', '/api/novidades_api.php?limit=3', {
+            AppCache.fetchWithCache('novidades_top_3_v4', '/api/novidades_api.php?limit=3', {
                 onCached: renderTopNews,
                 onFresh: renderTopNews,
                 onError: (err) => {
@@ -559,7 +559,8 @@ function inicializarCarrosselNovidades() {
         }
 
         if (dotsContainer) {
-            if (!canScroll) {
+            const isMobile = window.innerWidth < 768;
+            if (currentCards.length <= 1 || (!isMobile && !canScroll)) {
                 dotsContainer.style.display = "none";
             } else {
                 dotsContainer.style.display = "flex";
@@ -580,8 +581,9 @@ function inicializarCarrosselNovidades() {
             dot.className = "news-carousel-dot" + (index === 0 ? " active" : "");
             dot.setAttribute("aria-label", `Ir para a notícia ${index + 1}`);
             dot.addEventListener("click", () => {
-                const cardLeft = card.offsetLeft - track.offsetLeft;
-                track.scrollTo({ left: cardLeft, behavior: "smooth" });
+                const cardCenter = (card.offsetLeft - track.offsetLeft) + (card.offsetWidth / 2);
+                const targetScroll = cardCenter - (track.clientWidth / 2);
+                track.scrollTo({ left: targetScroll, behavior: "smooth" });
             });
             dotsContainer.appendChild(dot);
         });
@@ -595,11 +597,11 @@ function inicializarCarrosselNovidades() {
 
         let activeIndex = 0;
         let minDiff = Infinity;
-        const currentScroll = track.scrollLeft;
+        const viewCenter = track.scrollLeft + (track.clientWidth / 2);
 
         currentCards.forEach((card, index) => {
-            const cardLeft = card.offsetLeft - track.offsetLeft;
-            const diff = Math.abs(cardLeft - currentScroll);
+            const cardCenter = (card.offsetLeft - track.offsetLeft) + (card.offsetWidth / 2);
+            const diff = Math.abs(cardCenter - viewCenter);
             if (diff < minDiff) {
                 minDiff = diff;
                 activeIndex = index;

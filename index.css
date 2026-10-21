@@ -180,13 +180,14 @@
    ========================================= */
 .servers-carousel-wrapper {
     position: relative;
-    width: 100%;
-    max-width: 1240px;
-    margin: 0 auto;
+    width: 100vw;
+    max-width: 100vw;
+    margin-left: calc(-50vw + 50%);
+    margin-right: calc(-50vw + 50%);
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 0 10px;
+    padding: 0;
     box-sizing: border-box;
 }
 
@@ -197,11 +198,13 @@
     scroll-snap-type: x mandatory;
     scroll-behavior: smooth;
     -webkit-overflow-scrolling: touch;
-    justify-content: safe center;
+    justify-content: flex-start;
     align-items: stretch;
-    gap: 20px;
-    width: 100%;
-    padding: 14px 10px 24px 10px;
+    gap: 16px;
+    width: 100vw;
+    max-width: 100vw;
+    padding: 14px calc((100vw - min(76vw, 320px)) / 2) 24px calc((100vw - min(76vw, 320px)) / 2);
+    scroll-padding: 0 calc((100vw - min(76vw, 320px)) / 2);
     margin: 0 auto;
     box-sizing: border-box;
     scrollbar-width: none;
@@ -228,10 +231,7 @@
     display: none !important;
 }
 
-.servers-carousel-wrapper:not(.has-overflow) + .servers-carousel-dots,
-.servers-carousel-wrapper:not(.has-overflow) ~ .servers-carousel-dots {
-    display: none !important;
-}
+
 
 /* Botões de Navegação Desktop (Setas < e >) */
 .servers-carousel-btn {
@@ -344,13 +344,15 @@
                 border-color 0.25s ease;
     cursor: pointer;
     position: relative;
-    width: 82vw;
+    width: min(76vw, 320px);
     max-width: 320px;
-    min-width: 260px;
+    min-width: 250px;
     min-height: 380px;
     height: auto;
     box-sizing: border-box;
     flex-shrink: 0;
+    flex-grow: 0;
+    flex-basis: min(76vw, 320px);
     scroll-snap-align: center;
     scroll-snap-stop: always;
 }
@@ -524,7 +526,16 @@
     }
 
     .servers-carousel-wrapper {
+        width: 100%;
+        max-width: 1240px;
+        margin-left: auto;
+        margin-right: auto;
         padding: 0 24px;
+    }
+
+    .servers-carousel-wrapper:not(.has-overflow) + .servers-carousel-dots,
+    .servers-carousel-wrapper:not(.has-overflow) ~ .servers-carousel-dots {
+        display: none !important;
     }
 
     .servers-carousel-btn.prev {
@@ -536,8 +547,23 @@
     }
 
     .servers-grid {
+        width: 100%;
+        max-width: 100%;
         gap: 24px;
         padding: 16px 6px 26px 6px;
+        scroll-padding: 0;
+    }
+
+    /* Quando não há overflow no desktop: centraliza perfeitamente */
+    .servers-carousel-wrapper:not(.has-overflow) .servers-grid {
+        justify-content: center;
+        scroll-snap-type: none;
+    }
+
+    /* Quando há overflow no desktop: começa a partir do primeiro card */
+    .servers-carousel-wrapper.has-overflow .servers-grid {
+        justify-content: flex-start;
+        scroll-snap-type: x mandatory;
     }
 
     .server-card {

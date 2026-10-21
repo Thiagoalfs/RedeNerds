@@ -11,13 +11,14 @@
    ========================================= */
 .news-carousel-wrapper {
     position: relative;
-    width: 100%;
-    max-width: 1240px;
-    margin: 0 auto;
+    width: 100vw;
+    max-width: 100vw;
+    margin-left: calc(-50vw + 50%);
+    margin-right: calc(-50vw + 50%);
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 0 10px;
+    padding: 0;
     box-sizing: border-box;
 }
 
@@ -28,11 +29,13 @@
     scroll-snap-type: x mandatory;
     scroll-behavior: smooth;
     -webkit-overflow-scrolling: touch;
-    justify-content: safe center;
+    justify-content: flex-start;
     align-items: stretch;
-    gap: 20px;
-    width: 100%;
-    padding: 14px 10px 24px 10px;
+    gap: 16px;
+    width: 100vw;
+    max-width: 100vw;
+    padding: 14px calc((100vw - min(76vw, 320px)) / 2) 24px calc((100vw - min(76vw, 320px)) / 2);
+    scroll-padding: 0 calc((100vw - min(76vw, 320px)) / 2);
     margin: 0 auto;
     box-sizing: border-box;
     scrollbar-width: none;
@@ -59,10 +62,7 @@
     display: none !important;
 }
 
-.news-carousel-wrapper:not(.has-overflow) + .news-carousel-dots,
-.news-carousel-wrapper:not(.has-overflow) ~ .news-carousel-dots {
-    display: none !important;
-}
+
 
 /* Botões de Navegação Desktop (Setas < e >) */
 .news-carousel-btn {
@@ -191,10 +191,10 @@
     cursor: pointer;
     position: relative;
     box-sizing: border-box;
-    width: 82vw;
+    width: min(76vw, 320px);
     max-width: 320px;
-    min-width: 260px;
-    flex: 0 0 auto;
+    min-width: 250px;
+    flex: 0 0 min(76vw, 320px);
     scroll-snap-align: center;
     scroll-snap-stop: always;
 }
@@ -993,7 +993,16 @@
     }
 
     .news-carousel-wrapper {
+        width: 100%;
+        max-width: 1240px;
+        margin-left: auto;
+        margin-right: auto;
         padding: 0 24px;
+    }
+
+    .news-carousel-wrapper:not(.has-overflow) + .news-carousel-dots,
+    .news-carousel-wrapper:not(.has-overflow) ~ .news-carousel-dots {
+        display: none !important;
     }
 
     .news-carousel-btn.prev {
@@ -1005,8 +1014,23 @@
     }
 
     #news-container {
+        width: 100%;
+        max-width: 100%;
         gap: 24px;
         padding: 16px 6px 26px 6px;
+        scroll-padding: 0;
+    }
+
+    /* Quando não há overflow no desktop: centraliza perfeitamente */
+    .news-carousel-wrapper:not(.has-overflow) #news-container {
+        justify-content: center;
+        scroll-snap-type: none;
+    }
+
+    /* Quando há overflow no desktop: começa a partir do primeiro card */
+    .news-carousel-wrapper.has-overflow #news-container {
+        justify-content: flex-start;
+        scroll-snap-type: x mandatory;
     }
 
     .news-div {
