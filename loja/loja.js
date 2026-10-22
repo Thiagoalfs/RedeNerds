@@ -43,12 +43,7 @@
     verificarLocalidadeEstrangeira();
     verificarRetornoUrlCheckout();
 
-    if (STATE.nick) {
-      liberarPainelLoja();
-    } else {
-      bloquearPainelLoja();
-      abrirModalNick(false);
-    }
+    atualizarBarraPerfil();
   });
 
   // 2. CONFIGURAÇÃO DE EVENTOS GERAIS
@@ -62,6 +57,23 @@
     if (btnTrocarNick) {
       btnTrocarNick.addEventListener('click', () => abrirModalNick(true));
     }
+
+    const btnBackServers = document.getElementById('btn-back-to-servers');
+    if (btnBackServers) {
+      btnBackServers.addEventListener('click', (e) => {
+        e.preventDefault();
+        voltarParaSelecaoServidores(true);
+      });
+    }
+
+    window.addEventListener('popstate', () => {
+      const match = getServidorFromUrl();
+      if (match) {
+        abrirLojaDoServidor(match.id, false);
+      } else {
+        voltarParaSelecaoServidores(false);
+      }
+    });
 
     const btnCloseNick = document.getElementById('btn-close-nick-modal');
     if (btnCloseNick) {
@@ -272,31 +284,30 @@
     liberarPainelLoja();
   }
 
-  // 4. CONTROLE DE ESTADO DA PÁGINA (BLOQUEADO / LIBERADO)
-  function liberarPainelLoja() {
+  // 4. CONTROLE DE ESTADO DA BARRA DE PERFIL
+  function atualizarBarraPerfil() {
     const bar = document.getElementById('loja-profile-bar');
-    const banner = document.getElementById('loja-locked-banner');
-    const panel = document.getElementById('loja-panel');
-
     const avatar = document.getElementById('profile-avatar-img');
     const nickDisplay = document.getElementById('profile-nick-display');
+    const banner = document.getElementById('loja-locked-banner');
 
-    if (avatar) avatar.src = `https://mc-heads.net/avatar/${encodeURIComponent(STATE.nick)}/64`;
-    if (nickDisplay) nickDisplay.textContent = STATE.nick;
-
-    if (bar) bar.hidden = false;
     if (banner) banner.hidden = true;
-    if (panel) panel.hidden = false;
+
+    if (STATE.nick) {
+      if (avatar) avatar.src = `https://mc-heads.net/avatar/${encodeURIComponent(STATE.nick)}/64`;
+      if (nickDisplay) nickDisplay.textContent = STATE.nick;
+      if (bar) bar.hidden = false;
+    } else {
+      if (bar) bar.hidden = true;
+    }
+  }
+
+  function liberarPainelLoja() {
+    atualizarBarraPerfil();
   }
 
   function bloquearPainelLoja() {
-    const bar = document.getElementById('loja-profile-bar');
-    const banner = document.getElementById('loja-locked-banner');
-    const panel = document.getElementById('loja-panel');
-
-    if (bar) bar.hidden = true;
-    if (banner) banner.hidden = false;
-    if (panel) panel.hidden = true;
+    atualizarBarraPerfil();
   }
 
   // 5. CARREGAMENTO DO CATÁLOGO DE VIPS
@@ -310,15 +321,60 @@
     if (container) container.hidden = true;
 
     try {
-      const res = await fetch('/api/loja/vips_api.php');
-      if (!res.ok) throw new Error(`Falha na requisição (${res.status})`);
+      const [resVips, resServidores] = await Promise.allSettled([
+        fetch('/api/loja/vips_api.php'),
+        fetch('/api/servidores_api.php')
+      ]);
 
-      const data = await res.json();
+      if (resVips.status !== 'fulfilled' || !resVips.value.ok) {
+        throw new Error(`Falha na requisição da loja (${resVips.status === 'fulfilled' ? resVips.value.status : 'erro'})`);
+      }
+
+      const data = await resVips.value.json();
       if (!data.success || !Array.isArray(data.servidores)) {
         throw new Error(data.erro || 'Formato de resposta inválido.');
       }
 
-      STATE.servidores = data.servidores;
+      let servidoresDb = [];
+      if (resServidores.status === 'fulfilled' && resServidores.value.ok) {
+        try {
+          const srvData = await resServidores.value.json();
+          if (srvData && srvData.success && Array.isArray(srvData.servidores)) {
+            servidoresDb = srvData.servidores;
+          }
+        } catch (e) {
+          console.warn('Aviso: Não foi possível obter dados adicionais de /api/servidores_api.php', e);
+        }
+      }
+
+      // Sincroniza dados do banco com a mesma lógica do index.html (#servers-section)
+      STATE.servidores = data.servidores.map(srv => {
+        const srvNomeNorm = String(srv.nome || '').trim().toLowerCase();
+        const srvIdNorm = String(srv.id || '').trim().toLowerCase();
+
+        const matchDb = servidoresDb.find(dbS => {
+          const dbNomeNorm = String(dbS.servername || dbS.title || '').trim().toLowerCase();
+          const dbSlugNorm = String(dbS.nome || '').trim().toLowerCase();
+          const dbId = String(dbS.id || '');
+          const srvDbId = String(srv.servidor_id || '');
+          return (srvDbId && srvDbId === dbId) ||
+                 (dbSlugNorm && (dbSlugNorm === srvIdNorm || dbSlugNorm === srvNomeNorm)) ||
+                 (dbNomeNorm && (dbNomeNorm === srvNomeNorm || dbNomeNorm === srvIdNorm));
+        });
+
+        if (matchDb) {
+          return {
+            ...srv,
+            icon: matchDb.icon || srv.icon,
+            icon_type: matchDb.icon_type || srv.icon_type,
+            bg_image: matchDb.bg_image || srv.bg_image,
+            cor: matchDb.themecolor || srv.cor || '#38BDF8',
+            nome: matchDb.servername || srv.nome
+          };
+        }
+        return srv;
+      });
+
       STATE.mpPublicKey = data.mercadopago_public_key || '';
 
       // Inicializa Mercado Pago SDK se disponível
@@ -330,12 +386,16 @@
         }
       }
 
-      renderQuickNav();
-      renderCategoryNav();
-      renderServerSectionsWithDividers();
+      renderServersGrid();
+
+      const match = getServidorFromUrl();
+      if (match) {
+        abrirLojaDoServidor(match.id, false);
+      } else {
+        voltarParaSelecaoServidores(false);
+      }
 
       if (loadingBox) loadingBox.hidden = true;
-      if (container) container.hidden = false;
 
     } catch (err) {
       console.error('Erro ao carregar catálogo VIP:', err);
@@ -348,60 +408,150 @@
     }
   }
 
-  // 6. SELETOR DE ABAS POR SERVIDOR
-  function renderQuickNav() {
-    const navBox = document.getElementById('loja-server-quicknav');
-    if (!navBox) return;
+  // 6. NAVEGAÇÃO ENTRE VISUALIZAÇÃO DE SERVIDORES E LOJA DO SERVIDOR
+  function getServidorFromUrl() {
+    const params = new URLSearchParams(window.location.search);
+    const urlSrv = (params.get('servidor') || params.get('server') || '').toLowerCase().trim();
+    if (!urlSrv || !Array.isArray(STATE.servidores)) return null;
 
-    if (!STATE.selectedServer && STATE.servidores.length > 0) {
-      const params = new URLSearchParams(window.location.search);
-      const urlSrv = (params.get('servidor') || params.get('server') || '').toLowerCase().trim();
-      const match = STATE.servidores.find(s => s.id.toLowerCase() === urlSrv || s.nome.toLowerCase() === urlSrv);
-      STATE.selectedServer = match ? match.id : STATE.servidores[0].id;
+    return STATE.servidores.find(s => {
+      const sId = String(s.id || '').toLowerCase().trim();
+      const sNome = String(s.nome || '').toLowerCase().trim();
+      const cleanNome = sNome.replace(/[^a-z0-9]/g, '');
+      const cleanUrl = urlSrv.replace(/[^a-z0-9]/g, '');
+      return sId === urlSrv || sNome === urlSrv || cleanNome === cleanUrl;
+    }) || null;
+  }
+
+  function renderServersGrid() {
+    const grid = document.getElementById('loja-servers-grid');
+    if (!grid) return;
+
+    if (!Array.isArray(STATE.servidores) || STATE.servidores.length === 0) {
+      grid.innerHTML = `
+        <div class="state-feedback" style="grid-column: 1 / -1;">
+          <p>Nenhum servidor ativo disponível no momento.</p>
+        </div>
+      `;
+      return;
     }
 
-    let html = '';
+    grid.innerHTML = '';
+
     STATE.servidores.forEach(srv => {
-      const isSelected = srv.id === STATE.selectedServer;
       const srvColor = srv.cor || '#38BDF8';
+      const isImg = (srv.icon_type === 'img') ||
+                    Boolean(srv.icon && (srv.icon.includes('/') || srv.icon.includes('.') || srv.icon.startsWith('data:'))) ||
+                    Boolean(srv.bg_image && (srv.bg_image.includes('/') || srv.bg_image.includes('.')));
+      const imgSrc = (srv.icon && (srv.icon.includes('/') || srv.icon.includes('.') || srv.icon.startsWith('data:')))
+                    ? srv.icon
+                    : (srv.bg_image || '');
 
-      html += `
-        <button type="button" class="server-tab ${isSelected ? 'active' : ''}" data-server-id="${escapeHTML(srv.id)}" style="--server-color: ${escapeHTML(srvColor)};" role="tab" aria-selected="${isSelected ? 'true' : 'false'}">
-          <span>${escapeHTML(srv.nome)}</span>
-        </button>
+      const card = document.createElement('article');
+      card.className = 'loja-server-card';
+      card.style.setProperty('--server-theme', srvColor);
+      card.setAttribute('role', 'button');
+      card.setAttribute('tabindex', '0');
+      card.setAttribute('aria-label', `Acessar loja do servidor ${srv.nome}`);
+
+      let bannerContent = '';
+      if (isImg && imgSrc) {
+        bannerContent = `
+          <img src="${escapeHTML(imgSrc)}" alt="${escapeHTML(srv.nome)}" class="loja-server-card-bg" loading="lazy" onerror="this.style.display='none'; const fb = this.nextElementSibling; if(fb) fb.style.display='inline-block';">
+          <i class="${escapeHTML(srv.icon && !srv.icon.includes('/') ? srv.icon : 'fa-solid fa-server')}" style="display:none;"></i>
+        `;
+      } else {
+        bannerContent = `
+          <i class="${escapeHTML(srv.icon || 'fa-solid fa-server')}"></i>
+        `;
+      }
+
+      card.innerHTML = `
+        <div class="loja-server-card-banner">
+          ${bannerContent}
+        </div>
+        <div class="loja-server-card-body">
+          <h3 class="loja-server-name">${escapeHTML(srv.nome)}</h3>
+          <div class="loja-server-card-footer">
+            <span class="btn-enter-store">
+              <span>Acessar Loja</span>
+              <i class="fa-solid fa-arrow-right"></i>
+            </span>
+          </div>
+        </div>
       `;
-    });
 
-    navBox.innerHTML = html;
+      const navigateToSrv = () => {
+        abrirLojaDoServidor(srv.id, true);
+      };
 
-    navBox.querySelectorAll('.server-tab').forEach(btn => {
-      btn.addEventListener('click', () => {
-        const srvId = btn.dataset.serverId;
-        if (srvId && srvId !== STATE.selectedServer) {
-          selecionarServidor(srvId);
+      card.addEventListener('click', navigateToSrv);
+      card.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          navigateToSrv();
         }
       });
+
+      grid.appendChild(card);
     });
   }
 
-  function selecionarServidor(serverId) {
-    STATE.selectedServer = serverId;
+  function abrirLojaDoServidor(serverId, pushState = true) {
+    const srv = STATE.servidores.find(s => s.id === serverId) || STATE.servidores[0];
+    if (!srv) return;
 
-    const buttons = document.querySelectorAll('.server-tab');
-    buttons.forEach(btn => {
-      const isCurrent = btn.dataset.serverId === serverId;
-      btn.classList.toggle('active', isCurrent);
-      btn.setAttribute('aria-selected', isCurrent ? 'true' : 'false');
-    });
+    STATE.selectedServer = srv.id;
 
-    try {
-      const url = new URL(window.location);
-      url.searchParams.set('servidor', serverId);
-      window.history.replaceState({}, '', url);
-    } catch (e) {}
+    if (pushState) {
+      try {
+        const url = new URL(window.location);
+        url.searchParams.set('servidor', srv.id);
+        window.history.pushState({ servidor: srv.id }, '', url);
+      } catch (e) {}
+    }
+
+    const titleEl = document.getElementById('selected-server-title');
+    if (titleEl) titleEl.textContent = srv.nome;
+
+    const serversView = document.getElementById('loja-servers-view');
+    const productsView = document.getElementById('loja-products-view');
+    const productsContainer = document.getElementById('loja-servers-container');
+
+    if (serversView) serversView.hidden = true;
+    if (productsView) productsView.hidden = false;
+    if (productsContainer) productsContainer.hidden = false;
 
     renderCategoryNav();
     renderServerSectionsWithDividers();
+
+    const panel = document.getElementById('loja-panel');
+    if (panel && window.scrollY > panel.offsetTop + 100) {
+      panel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  }
+
+  function voltarParaSelecaoServidores(pushState = true) {
+    STATE.selectedServer = null;
+
+    if (pushState) {
+      try {
+        const url = new URL(window.location);
+        url.searchParams.delete('servidor');
+        url.searchParams.delete('server');
+        window.history.pushState({}, '', url);
+      } catch (e) {}
+    }
+
+    const serversView = document.getElementById('loja-servers-view');
+    const productsView = document.getElementById('loja-products-view');
+    if (serversView) serversView.hidden = false;
+    if (productsView) productsView.hidden = true;
+
+    const panel = document.getElementById('loja-panel');
+    if (panel && window.scrollY > panel.offsetTop + 100) {
+      panel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
   }
 
   // 6.1 SELETOR DE CATEGORIAS (VIPS VS CHAVES)
@@ -434,10 +584,10 @@
 
       let html = `
         <button type="button" class="category-tab ${isVipsActive ? 'active' : ''}" data-category="vips" role="tab" aria-selected="${isVipsActive ? 'true' : 'false'}">
-          <i class="fa-solid fa-gem"></i> <span>Pacotes VIP</span>
+          <i class="fa-solid fa-gem"></i> <span>VIPs</span>
         </button>
         <button type="button" class="category-tab ${isChavesActive ? 'active' : ''}" data-category="chaves" role="tab" aria-selected="${isChavesActive ? 'true' : 'false'}">
-          <i class="fa-solid fa-key"></i> <span>Pacotes</span>
+          <i class="fa-solid fa-box-open"></i> <span>Pacotes</span>
         </button>
       `;
       navBox.innerHTML = html;

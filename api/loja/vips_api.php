@@ -39,6 +39,22 @@ require_once $configPath;
 require_once __DIR__ . "/../auth_api.php";
 verificarAcessoApi();
 
+if (!function_exists('tipoDoIcone')) {
+    function tipoDoIcone(?string $icone): string
+    {
+        if (!$icone) {
+            return 'fa';
+        }
+        $iconeTrim = trim($icone);
+        if (strpos($iconeTrim, '/assets/') === 0
+            || preg_match('#^https?://#i', $iconeTrim)
+            || preg_match('/\.(png|jpe?g|webp|gif|svg)(\?.*)?$/i', $iconeTrim)) {
+            return 'img';
+        }
+        return 'fa';
+    }
+}
+
 // Servidores padrão de fallback caso o banco esteja indisponível
 $servidoresDefault = [
     [
@@ -172,7 +188,7 @@ $chavesDoBanco = [];
 // 1. Consulta os servidores ativos e os VIPs/Chaves cadastrados no banco
 try {
     if (isset($pdo) && $pdo instanceof PDO) {
-        $stmtSrv = $pdo->query("SELECT id, servername, nome, themecolor, icon, descricao FROM servidores WHERE enabled = 1 ORDER BY id ASC");
+        $stmtSrv = $pdo->query("SELECT id, servername, nome, themecolor, icon, bg_image, descricao FROM servidores WHERE enabled = 1 ORDER BY id ASC");
         $servidoresDoBanco = $stmtSrv->fetchAll(PDO::FETCH_ASSOC);
 
         $stmtVips = $pdo->query("SELECT * FROM vips WHERE ativo = 1 ORDER BY preco ASC");
@@ -185,7 +201,7 @@ try {
             $chavesDoBanco = [];
         }
     } elseif (isset($conn) && $conn instanceof mysqli) {
-        $resSrv = $conn->query("SELECT id, servername, nome, themecolor, icon, descricao FROM servidores WHERE enabled = 1 ORDER BY id ASC");
+        $resSrv = $conn->query("SELECT id, servername, nome, themecolor, icon, bg_image, descricao FROM servidores WHERE enabled = 1 ORDER BY id ASC");
         if ($resSrv) {
             while ($row = $resSrv->fetch_assoc()) $servidoresDoBanco[] = $row;
         }
@@ -308,8 +324,12 @@ if (!empty($servidoresDoBanco) && (!empty($vipsDoBanco) || !empty($chavesDoBanco
                 "servidor_id" => (int)$srv['id'],
                 "nome" => $srv['servername'], // Nome oficial do servidor
                 "badge" => !empty($srv['descricao']) ? mb_strimwidth(strip_tags($srv['descricao']), 0, 45, '...') : 'Servidor Oficial',
+                "descricao" => !empty($srv['descricao']) ? trim($srv['descricao']) : '',
                 "cor" => $srv['themecolor'] ?: '#7DB9DF',
+                "themecolor" => $srv['themecolor'] ?: '#7DB9DF',
                 "icon" => $srv['icon'] ?: 'fa-solid fa-server',
+                "icon_type" => tipoDoIcone($srv['icon']),
+                "bg_image" => !empty($srv['bg_image']) ? $srv['bg_image'] : '',
                 "vips" => $vipsDoServidor,
                 "chaves" => $chavesDoServidor
             ];

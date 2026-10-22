@@ -25,7 +25,7 @@
     <link rel="stylesheet" href="/shared/shared.css?v=2">
     <link rel="stylesheet" href="/shared/navbar.css?v=2">
     <link rel="stylesheet" href="/shared/footer.css?v=6">
-    <link rel="stylesheet" href="loja.css?v=20">
+    <link rel="stylesheet" href="loja.css?v=27">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
     <!-- MERCADO PAGO SDK & SECURITY DEVICE ID -->
     <script src="https://www.mercadopago.com/v2/security.js" view="checkout"></script>
@@ -77,23 +77,12 @@
             </section>
 
             <!-- PAINEL PRINCIPAL DA LOJA -->
-            <section id="loja-panel" class="loja-panel" hidden>
+            <section id="loja-panel" class="loja-panel">
                 
-                <!-- SELETOR DE SERVIDORES (SEGMENTED TABS) -->
-                <div class="server-selector-container">
-                    <span class="section-label">Selecione o servidor:</span>
-                    <nav id="loja-server-quicknav" class="server-tabs-bar" role="tablist" aria-label="Seletor de Servidor"></nav>
-                </div>
-
-                <!-- SELETOR DE CATEGORIA (VIPS / CHAVES) -->
-                <div class="category-selector-container" id="loja-category-selector-container" hidden>
-                    <nav id="loja-category-tabs" class="category-tabs-bar" role="tablist" aria-label="Categorias de Produtos"></nav>
-                </div>
-
                 <!-- ESTADOS DE FEEDBACK -->
                 <div id="loja-loading" class="state-feedback">
                     <div class="ui-spinner"></div>
-                    <span>Carregando pacotes disponíveis...</span>
+                    <span>Carregando loja e servidores...</span>
                 </div>
 
                 <div id="loja-error" class="state-feedback state-error" hidden>
@@ -104,8 +93,38 @@
                     </button>
                 </div>
 
-                <!-- GRADE DE PRODUTOS DO SERVIDOR ATIVO -->
-                <div id="loja-servers-container" class="loja-servers-container" hidden></div>
+                <!-- VIEW 1: SELETOR VISUAL DE SERVIDORES (HUB DA LOJA) -->
+                <div id="loja-servers-view" class="loja-servers-view" hidden>
+                    <div class="servers-view-header">
+                        <h1 class="servers-view-title">Escolha seu Servidor</h1>
+                    </div>
+
+                    <div id="loja-servers-grid" class="loja-servers-grid">
+                        <!-- Cards visuais dos servidores ativos renderizados dinamicamente via JS -->
+                    </div>
+                </div>
+
+                <!-- VIEW 2: LOJA DO SERVIDOR SELECIONADO (VIPS & PACOTES) -->
+                <div id="loja-products-view" class="loja-products-view" hidden>
+                    <!-- CABEÇALHO DO SERVIDOR SELECIONADO COM BOTÃO VOLTAR -->
+                    <div class="selected-server-header">
+                        <button type="button" id="btn-back-to-servers" class="btn-back-servers" aria-label="Voltar para seleção de servidores">
+                            <i class="fa-solid fa-arrow-left"></i>
+                            <span>Escolher outro servidor</span>
+                        </button>
+                        <div class="selected-server-details">
+                            <h2 class="selected-server-title" id="selected-server-title">Servidor</h2>
+                        </div>
+                    </div>
+
+                    <!-- SELETOR DE CATEGORIA (VIPS / PACOTES) -->
+                    <div class="category-selector-container" id="loja-category-selector-container" hidden>
+                        <nav id="loja-category-tabs" class="category-tabs-bar" role="tablist" aria-label="Categorias de Produtos"></nav>
+                    </div>
+
+                    <!-- GRADE DE PRODUTOS DO SERVIDOR ATIVO -->
+                    <div id="loja-servers-container" class="loja-servers-container" hidden></div>
+                </div>
 
                 <!-- RODAPÉ DE INFORMAÇÕES E GARANTIAS -->
                 <footer class="loja-info-footer">
@@ -745,6 +764,6 @@
 
     <div id="footer"></div>
     <script src="/shared/navbar.js?v=2"></script>
-    <script src="loja.js?v=20"></script>
+    <script src="loja.js?v=27"></script>
 </body>
 </html>

@@ -223,6 +223,297 @@
 /* ======================================================== */
 /* 4. SELETOR DE SERVIDORES                                 */
 /* ======================================================== */
+
+/* ======================================================== */
+/* 4. SELETOR VISUAL DE SERVIDORES (HUB DA LOJA)            */
+/* ======================================================== */
+.loja-servers-view {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  animation: fadeInLoja 0.25s ease-out;
+}
+
+.servers-view-header {
+  text-align: center;
+  max-width: 680px;
+  margin: 0 auto 2.5rem auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.servers-view-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 4px 12px;
+  border-radius: 999px;
+  background: rgba(56, 189, 248, 0.1);
+  border: 1px solid rgba(56, 189, 248, 0.25);
+  color: #38bdf8;
+  font-size: 0.76rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+}
+
+.servers-view-title {
+  font-family: 'Outfit', var(--font-main);
+  font-size: clamp(1.8rem, 3.5vw, 2.6rem);
+  font-weight: 900;
+  color: #FFFFFF;
+  margin: 0;
+  line-height: 1.15;
+  letter-spacing: -0.5px;
+}
+
+.servers-view-subtitle {
+  font-size: clamp(0.92rem, 1.3vw, 1.05rem);
+  color: var(--color-text-muted);
+  line-height: 1.55;
+  margin: 0;
+}
+
+/* GRADE DE SERVIDORES DA LOJA */
+.loja-servers-grid {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: stretch;
+  gap: 22px;
+  width: 100%;
+  max-width: 860px;
+  margin: 0 auto 3rem auto;
+  box-sizing: border-box;
+}
+
+@media (max-width: 680px) {
+  .loja-servers-grid {
+    gap: 16px;
+  }
+}
+
+.loja-server-card {
+  display: flex;
+  flex-direction: column;
+  background: #0d111a;
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  overflow: hidden;
+  cursor: pointer;
+  position: relative;
+  transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1),
+              border-color 0.25s ease,
+              box-shadow 0.25s ease;
+  user-select: none;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+  width: 250px;
+  max-width: calc(100vw - 40px);
+}
+
+.loja-server-card:hover,
+.loja-server-card:focus-visible {
+  transform: translateY(-5px);
+  border-color: var(--server-theme, #38BDF8);
+  box-shadow: 0 14px 32px rgba(0, 0, 0, 0.6), 0 0 20px var(--server-theme, rgba(56, 189, 248, 0.28));
+  outline: none;
+}
+
+.loja-server-card-banner {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  overflow: hidden;
+  background-color: #07090e;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.loja-server-card-bg {
+  width: 100%;
+  height: 100%;
+  aspect-ratio: 1 / 1;
+  object-fit: cover;
+  transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  display: block;
+}
+
+.loja-server-card:hover .loja-server-card-bg {
+  transform: scale(1.05);
+}
+
+.loja-server-card-banner i {
+  font-size: 3.5rem;
+  color: var(--server-theme, #38BDF8);
+  position: relative;
+  z-index: 1;
+  transition: transform 0.3s ease;
+}
+
+.loja-server-card:hover .loja-server-card-banner i {
+  transform: scale(1.1);
+}
+
+.loja-server-card-body {
+  padding: 14px 16px 16px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  flex: 1;
+}
+
+.loja-server-name {
+  font-family: 'Outfit', var(--font-main);
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: #FFFFFF;
+  margin: 0;
+  line-height: 1.2;
+  text-align: center;
+}
+
+.loja-server-card-footer {
+  margin-top: auto;
+  padding-top: 6px;
+}
+
+.btn-enter-store {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  width: 100%;
+  padding: 8px 14px;
+  border-radius: var(--radius-sm);
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #FFFFFF;
+  font-family: 'Outfit', var(--font-main);
+  font-size: 0.82rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  transition: all 0.2s ease;
+  box-sizing: border-box;
+}
+
+.loja-server-card:hover .btn-enter-store {
+  background: var(--server-theme, #38BDF8);
+  color: #0b0f19;
+  border-color: var(--server-theme, #38BDF8);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+}
+
+.loja-server-card:hover .btn-enter-store i {
+  transform: translateX(4px);
+}
+
+.btn-enter-store i {
+  font-size: 0.82rem;
+  transition: transform 0.2s ease;
+}
+
+/* ======================================================== */
+/* 4.1 VIEW 2: LOJA DO SERVIDOR SELECIONADO                 */
+/* ======================================================== */
+.loja-products-view {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  animation: fadeInLoja 0.25s ease-out;
+}
+
+.selected-server-header {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 18px;
+  margin-bottom: 1.8rem;
+  padding-bottom: 1.2rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+  flex-wrap: wrap;
+}
+
+.btn-back-servers {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  border-radius: var(--radius-sm);
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: #E2E8F0;
+  font-family: 'Outfit', var(--font-main);
+  font-size: 0.86rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  user-select: none;
+}
+
+.btn-back-servers:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.25);
+  color: #FFFFFF;
+  transform: translateX(-3px);
+}
+
+.btn-back-servers i {
+  font-size: 0.82rem;
+  transition: transform 0.2s ease;
+}
+
+.selected-server-details {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.selected-server-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.selected-server-badge {
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #38bdf8;
+}
+
+.selected-server-title {
+  font-family: 'Outfit', var(--font-main);
+  font-size: clamp(1.4rem, 2.5vw, 1.85rem);
+  font-weight: 900;
+  color: #FFFFFF;
+  margin: 0;
+  line-height: 1.2;
+}
+
+.selected-server-lead {
+  font-size: 0.88rem;
+  color: var(--color-text-muted);
+  margin: 0;
+  line-height: 1.4;
+}
+
+@keyframes fadeInLoja {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 .server-selector-container {
   display: flex;
   flex-direction: column;
