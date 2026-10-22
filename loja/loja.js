@@ -7,7 +7,7 @@
   'use strict';
 
   const STORAGE_KEY_NICK = 'redenerds_loja_nick';
-  const DEFAULT_AVATAR = 'https://mc-heads.net/avatar/MHF_Steve/128';
+  const DEFAULT_AVATAR = 'https://mc-heads.net/avatar/MHF_Steve';
 
   const STATE = {
     nick: localStorage.getItem(STORAGE_KEY_NICK) || '',
@@ -306,14 +306,12 @@
     const avatar = document.getElementById('profile-avatar-img');
     const nickDisplay = document.getElementById('profile-nick-display');
     const banner = document.getElementById('loja-locked-banner');
-    const captionEl = bar ? bar.querySelector('.profile-caption') : null;
 
     if (banner) banner.hidden = true;
 
     if (STATE.nick) {
-      if (avatar) avatar.src = `https://mc-heads.net/avatar/${encodeURIComponent(STATE.nick)}/64`;
+      if (avatar) avatar.src = `https://mc-heads.net/avatar/${encodeURIComponent(STATE.nick)}`;
       if (nickDisplay) nickDisplay.textContent = STATE.nick;
-      if (captionEl) captionEl.textContent = 'Entregar para:';
       if (bar) {
         bar.classList.add('has-nick');
         bar.classList.remove('no-nick');
@@ -322,7 +320,6 @@
     } else {
       if (avatar) avatar.src = DEFAULT_AVATAR;
       if (nickDisplay) nickDisplay.textContent = 'Informar Nick';
-      if (captionEl) captionEl.textContent = 'Personagem:';
       if (bar) {
         bar.classList.add('no-nick');
         bar.classList.remove('has-nick');
@@ -972,7 +969,7 @@
     if (orderSummaryBox) orderSummaryBox.hidden = false;
     if (couponBox) couponBox.hidden = false;
     if (methodsNav) methodsNav.hidden = false;
-    if (summaryAvatar) summaryAvatar.src = `https://mc-heads.net/avatar/${encodeURIComponent(STATE.nick)}/64`;
+    if (summaryAvatar) summaryAvatar.src = `https://mc-heads.net/avatar/${encodeURIComponent(STATE.nick)}`;
     if (summaryNick) summaryNick.textContent = STATE.nick;
     
     // Controle do seletor de quantidade (apenas para chaves)

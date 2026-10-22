@@ -25,7 +25,7 @@
     <link rel="stylesheet" href="/shared/shared.css?v=2">
     <link rel="stylesheet" href="/shared/navbar.css?v=2">
     <link rel="stylesheet" href="/shared/footer.css?v=6">
-    <link rel="stylesheet" href="loja.css?v=34">
+    <link rel="stylesheet" href="loja.css?v=37">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
     <!-- MERCADO PAGO SDK & SECURITY DEVICE ID -->
     <script src="https://www.mercadopago.com/v2/security.js" view="checkout"></script>
@@ -99,23 +99,25 @@
 
                     <!-- SELETOR DE CATEGORIA (VIPS / PACOTES), BOTÃO VOLTAR E PERFIL INLINE -->
                     <div class="category-selector-container" id="loja-category-selector-container">
-                        <button type="button" id="btn-back-to-servers" class="btn-back-servers" aria-label="Voltar para seleção de servidores">
-                            <i class="fa-solid fa-arrow-left"></i>
-                            <span>Escolher outro servidor</span>
-                        </button>
-                        <nav id="loja-category-tabs" class="category-tabs-bar" role="tablist" aria-label="Categorias de Produtos"></nav>
-                        <div id="loja-profile-bar" class="loja-profile-pill" role="button" tabindex="0" title="Clique para trocar de nickname" aria-label="Perfil do Jogador">
-                            <div class="profile-info-group">
-                                <img id="profile-avatar-img" src="https://mc-heads.net/avatar/MHF_Steve/64" alt="Skin" class="profile-avatar">
-                                <div class="profile-meta-text">
-                                    <span class="profile-caption">Entregar para:</span>
-                                    <span id="profile-nick-display" class="profile-nick">Jogador</span>
-                                </div>
-                            </div>
-                            <button type="button" id="btn-trocar-nick" class="btn-trocar-nick-icon" title="Trocar Nick" aria-label="Trocar Nickname">
-                                <i class="fa-solid fa-arrows-rotate"></i>
+                        <div class="loja-toolbar-context-row">
+                            <button type="button" id="btn-back-to-servers" class="btn-back-servers" aria-label="Voltar para seleção de servidores">
+                                <i class="fa-solid fa-arrow-left"></i>
+                                <span class="btn-back-text-desktop">Escolher outro servidor</span>
+                                <span class="btn-back-text-mobile">Servidores</span>
                             </button>
+                            <div id="loja-profile-bar" class="loja-profile-pill" role="button" tabindex="0" title="Clique para trocar de nickname" aria-label="Perfil do Jogador">
+                                <div class="profile-info-group">
+                                    <img id="profile-avatar-img" src="https://mc-heads.net/avatar/MHF_Steve" alt="Skin" class="profile-avatar">
+                                    <div class="profile-meta-text">
+                                        <span id="profile-nick-display" class="profile-nick">Jogador</span>
+                                    </div>
+                                </div>
+                                <button type="button" id="btn-trocar-nick" class="btn-trocar-nick-icon" title="Trocar Nick" aria-label="Trocar Nickname">
+                                    <i class="fa-solid fa-arrows-rotate"></i>
+                                </button>
+                            </div>
                         </div>
+                        <nav id="loja-category-tabs" class="category-tabs-bar" role="tablist" aria-label="Categorias de Produtos"></nav>
                     </div>
 
                     <!-- GRADE DE PRODUTOS DO SERVIDOR ATIVO -->
@@ -190,7 +192,7 @@
                 <!-- Sumário do Pedido -->
                 <div id="pix-order-summary-box" class="order-summary-box">
                     <div class="summary-player-col">
-                        <img id="summary-avatar-img" src="https://mc-heads.net/avatar/MHF_Steve/64" alt="Skin">
+                        <img id="summary-avatar-img" src="https://mc-heads.net/avatar/MHF_Steve" alt="Skin">
                         <div>
                             <span class="summary-caption">Recebedor</span>
                             <strong id="summary-nick-display" class="summary-title">Nick</strong>
@@ -760,6 +762,6 @@
 
     <div id="footer"></div>
     <script src="/shared/navbar.js?v=2"></script>
-    <script src="loja.js?v=34"></script>
+    <script src="loja.js?v=37"></script>
 </body>
 </html>

@@ -594,6 +594,14 @@
 /* ======================================================== */
 /* 4.1 SELETOR DE CATEGORIAS (VIPS VS CHAVES)               */
 /* ======================================================== */
+.loja-toolbar-context-row {
+  display: contents;
+}
+
+.btn-back-servers .btn-back-text-mobile {
+  display: none;
+}
+
 .category-selector-container {
   display: flex;
   flex-direction: row;
@@ -2288,87 +2296,145 @@ dialog.loja-dialog[hidden],
 
 
 /* ======================================================== */
-/* TOOLBAR MOBILE: REORDENAÇÃO DAS PÍLULAS                  */
+/* TOOLBAR MOBILE: BARRA DE CONTEXTO E CATEGORIAS           */
 /* ======================================================== */
 @media (max-width: 768px) {
   .category-selector-container {
-    gap: 8px;
-    margin-bottom: 1.5rem;
-    max-width: 460px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 1.6rem;
+    width: 100%;
+    max-width: 480px;
     margin-left: auto;
     margin-right: auto;
     padding: 0 4px;
     box-sizing: border-box;
   }
 
+  /* Linha Superior: Barra de Contexto Leve (Navegação + Identidade) */
+  .loja-toolbar-context-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    gap: 8px;
+    box-sizing: border-box;
+  }
+
+  /* Botão sutil de voltar aos servidores */
   .btn-back-servers {
-    order: 1;
-    flex: 1 1 calc(50% - 4px);
+    order: unset;
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
     width: auto;
-    max-width: calc(50% - 4px);
-    min-width: 0;
-    height: 40px;
-    padding: 0 8px;
-    font-size: 0.78rem;
-    gap: 6px;
+    max-width: none;
+    height: 36px;
+    padding: 0 12px 0 10px;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: var(--color-text-muted);
+    font-size: 0.82rem;
+    font-weight: 600;
+    transition: all 0.2s ease;
+  }
+
+  .btn-back-servers:hover,
+  .btn-back-servers:active {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: rgba(255, 255, 255, 0.22);
+    color: #FFFFFF;
   }
 
   .btn-back-servers i {
-    flex-shrink: 0;
-    font-size: 0.78rem;
+    font-size: 0.76rem;
+    color: var(--color-text-muted);
+    transition: transform 0.2s ease;
   }
 
-  .btn-back-servers span {
-    overflow: hidden;
-    text-overflow: ellipsis;
+  .btn-back-servers:hover i {
+    transform: translateX(-2px);
+  }
+
+  .btn-back-servers .btn-back-text-desktop {
+    display: none;
+  }
+
+  .btn-back-servers .btn-back-text-mobile {
+    display: inline;
     white-space: nowrap;
   }
 
+  /* Chip leve de perfil do jogador */
   .loja-profile-pill {
-    order: 2;
-    flex: 1 1 calc(50% - 4px);
+    order: unset;
+    display: inline-flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 7px;
     width: auto;
-    max-width: calc(50% - 4px);
-    min-width: 0;
-    height: 40px;
-    padding: 0 8px 0 6px;
+    max-width: 185px;
+    height: 36px;
+    padding: 0 8px 0 5px;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    transition: all 0.2s ease;
+  }
+
+  .loja-profile-pill:hover,
+  .loja-profile-pill:active {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: rgba(255, 255, 255, 0.22);
+  }
+
+  .loja-profile-pill .profile-info-group {
+    display: flex;
+    align-items: center;
     gap: 6px;
+    min-width: 0;
   }
 
   .loja-profile-pill .profile-avatar {
-    width: 26px;
-    height: 26px;
+    width: 24px;
+    height: 24px;
+    border: 1px solid rgba(255, 255, 255, 0.18);
   }
 
   .loja-profile-pill .profile-meta-text {
+    line-height: 1.1;
     min-width: 0;
   }
 
   .loja-profile-pill .profile-caption {
-    font-size: 0.58rem;
+    font-size: 0.55rem;
+    letter-spacing: 0.2px;
   }
 
   .loja-profile-pill .profile-nick {
     font-size: 0.8rem;
+    max-width: 85px;
   }
 
   .loja-profile-pill .btn-trocar-nick-icon {
     padding: 2px;
-    font-size: 0.72rem;
+    font-size: 0.7rem;
     flex-shrink: 0;
   }
 
+  /* Linha Inferior: Abas de categorias centralizadas e em destaque */
   .category-tabs-bar {
-    order: 3;
-    width: auto;
+    order: unset;
+    width: fit-content;
     max-width: 100%;
-    height: 40px;
-    margin-top: 2px;
-    flex-shrink: 0;
+    height: 42px;
+    margin: 0 auto;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.2);
   }
 
   .category-tab {
-    padding: 0.45rem 0.9rem;
-    font-size: 0.82rem;
+    padding: 0.5rem 1.2rem;
+    font-size: 0.88rem;
   }
 }
