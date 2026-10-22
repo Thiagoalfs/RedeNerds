@@ -2377,16 +2377,37 @@
       return;
     }
 
+    // Identifica o primeiro card em destaque (se houver) para inicializar focado nele
+    let targetIdx = Array.from(cards).findIndex(c => c.classList.contains('is-featured'));
+    if (targetIdx === -1) targetIdx = 0;
+
+    function scrollToCard(idx, smooth = false) {
+      const card = cards[idx];
+      if (!card) return;
+      const gridRect = grid.getBoundingClientRect();
+      const cardRect = card.getBoundingClientRect();
+      const cardLeftInGrid = (cardRect.left - gridRect.left) + grid.scrollLeft;
+      const cardCenter = cardLeftInGrid + (cardRect.width / 2);
+      const targetScroll = cardCenter - (gridRect.width / 2);
+
+      if (!smooth) {
+        const prevBehavior = grid.style.scrollBehavior;
+        grid.style.scrollBehavior = 'auto';
+        grid.scrollLeft = targetScroll;
+        grid.style.scrollBehavior = prevBehavior;
+      } else {
+        grid.scrollTo({ left: targetScroll, behavior: 'smooth' });
+      }
+    }
+
     dotsBox.innerHTML = '';
     cards.forEach((card, idx) => {
       const dot = document.createElement('button');
       dot.type = 'button';
-      dot.className = 'loja-vips-dot' + (idx === 0 ? ' active' : '');
+      dot.className = 'loja-vips-dot' + (idx === targetIdx ? ' active' : '');
       dot.setAttribute('aria-label', `Ir para o pacote ${idx + 1}`);
       dot.addEventListener('click', () => {
-        const cardCenter = (card.offsetLeft - grid.offsetLeft) + (card.offsetWidth / 2);
-        const targetScroll = cardCenter - (grid.clientWidth / 2);
-        grid.scrollTo({ left: targetScroll, behavior: 'smooth' });
+        scrollToCard(idx, true);
       });
       dotsBox.appendChild(dot);
     });
@@ -2394,12 +2415,14 @@
     function updateActiveDot() {
       const dots = dotsBox.querySelectorAll('.loja-vips-dot');
       if (!dots.length || !cards.length) return;
-      const viewCenter = grid.scrollLeft + (grid.clientWidth / 2);
+      const gridRect = grid.getBoundingClientRect();
+      const gridCenter = gridRect.left + (gridRect.width / 2);
       let activeIdx = 0;
       let minDiff = Infinity;
       cards.forEach((card, idx) => {
-        const cardCenter = (card.offsetLeft - grid.offsetLeft) + (card.offsetWidth / 2);
-        const diff = Math.abs(cardCenter - viewCenter);
+        const cardRect = card.getBoundingClientRect();
+        const cardCenter = cardRect.left + (cardRect.width / 2);
+        const diff = Math.abs(cardCenter - gridCenter);
         if (diff < minDiff) {
           minDiff = diff;
           activeIdx = idx;
@@ -2413,6 +2436,16 @@
     grid.addEventListener('scroll', () => {
       window.requestAnimationFrame(updateActiveDot);
     }, { passive: true });
+
+    // Foca imediatamente no primeiro VIP em destaque ao renderizar
+    if (targetIdx > 0) {
+      const performInitialScroll = () => {
+        scrollToCard(targetIdx, false);
+        updateActiveDot();
+      };
+      requestAnimationFrame(performInitialScroll);
+      setTimeout(performInitialScroll, 60);
+    }
   }
 
 })();
