@@ -1539,7 +1539,7 @@ dialog.loja-dialog[hidden],
 
 .checkout-methods-nav {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 6px;
   background: #0A0D14;
   padding: 5px;
@@ -1547,12 +1547,7 @@ dialog.loja-dialog[hidden],
   border: var(--border-width-sm) solid var(--color-border);
   box-sizing: border-box;
   margin-bottom: 0.25rem;
-}
-
-@media (max-width: 480px) {
-  .checkout-methods-nav {
-    grid-template-columns: 1fr;
-  }
+  width: 100%;
 }
 
 .method-nav-btn {
@@ -1561,7 +1556,10 @@ dialog.loja-dialog[hidden],
   justify-content: center;
   gap: 6px;
   min-height: 42px;
-  padding: 0.5rem 0.4rem;
+  padding: 0.5rem 0.3rem;
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
   background: transparent;
   border: 1px solid transparent;
   border-radius: 6px;
@@ -1572,6 +1570,12 @@ dialog.loja-dialog[hidden],
   cursor: pointer;
   transition: all 0.15s ease;
   user-select: none;
+}
+
+.method-nav-btn span {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .method-nav-btn:hover:not(.active) {
@@ -1795,15 +1799,18 @@ dialog.loja-dialog[hidden],
   }
 
   .checkout-methods-nav {
-    gap: 6px;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 4px;
     padding: 4px;
   }
 
   .method-nav-btn {
     min-height: 38px;
-    font-size: 0.78rem;
-    padding: 0.4rem 0.5rem;
-    gap: 6px;
+    font-size: 0.75rem;
+    padding: 0.4rem 0.25rem;
+    gap: 5px;
+    width: 100%;
+    min-width: 0;
   }
 
   .method-badge-instant {
