@@ -47,6 +47,7 @@
 /* 2. PÍLULA DE PERFIL DO JOGADOR NO TOOLBAR                  */
 /* ======================================================== */
 .loja-profile-pill {
+  order: 3;
   display: inline-flex;
   align-items: center;
   justify-content: space-between;
@@ -476,6 +477,7 @@
 }
 
 .btn-back-servers {
+  order: 1;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -605,6 +607,7 @@
 }
 
 .category-tabs-bar {
+  order: 2;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -2280,5 +2283,92 @@ dialog.loja-dialog[hidden],
     width: 24px;
     background: var(--color-primary, #38BDF8);
     box-shadow: 0 0 10px rgba(56, 189, 248, 0.5);
+  }
+}
+
+
+/* ======================================================== */
+/* TOOLBAR MOBILE: REORDENAÇÃO DAS PÍLULAS                  */
+/* ======================================================== */
+@media (max-width: 768px) {
+  .category-selector-container {
+    gap: 8px;
+    margin-bottom: 1.5rem;
+    max-width: 460px;
+    margin-left: auto;
+    margin-right: auto;
+    padding: 0 4px;
+    box-sizing: border-box;
+  }
+
+  .btn-back-servers {
+    order: 1;
+    flex: 1 1 calc(50% - 4px);
+    width: auto;
+    max-width: calc(50% - 4px);
+    min-width: 0;
+    height: 40px;
+    padding: 0 8px;
+    font-size: 0.78rem;
+    gap: 6px;
+  }
+
+  .btn-back-servers i {
+    flex-shrink: 0;
+    font-size: 0.78rem;
+  }
+
+  .btn-back-servers span {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .loja-profile-pill {
+    order: 2;
+    flex: 1 1 calc(50% - 4px);
+    width: auto;
+    max-width: calc(50% - 4px);
+    min-width: 0;
+    height: 40px;
+    padding: 0 8px 0 6px;
+    gap: 6px;
+  }
+
+  .loja-profile-pill .profile-avatar {
+    width: 26px;
+    height: 26px;
+  }
+
+  .loja-profile-pill .profile-meta-text {
+    min-width: 0;
+  }
+
+  .loja-profile-pill .profile-caption {
+    font-size: 0.58rem;
+  }
+
+  .loja-profile-pill .profile-nick {
+    font-size: 0.8rem;
+  }
+
+  .loja-profile-pill .btn-trocar-nick-icon {
+    padding: 2px;
+    font-size: 0.72rem;
+    flex-shrink: 0;
+  }
+
+  .category-tabs-bar {
+    order: 3;
+    width: auto;
+    max-width: 100%;
+    height: 40px;
+    margin-top: 2px;
+    flex-shrink: 0;
+  }
+
+  .category-tab {
+    padding: 0.45rem 0.9rem;
+    font-size: 0.82rem;
   }
 }
