@@ -7,6 +7,7 @@ require_once __DIR__ . "/../includes/servidores_admin.php";
 if (empty($_SESSION['vips_schema_multiservidor_ok'])) {
     try {
         $pdo->exec("ALTER TABLE vips MODIFY COLUMN servidor_id INT NULL DEFAULT NULL");
+        $pdo->exec("ALTER TABLE vips MODIFY COLUMN packageId VARCHAR(100) NULL DEFAULT NULL");
         $_SESSION['vips_schema_multiservidor_ok'] = true;
     } catch (Exception $e) {}
 }

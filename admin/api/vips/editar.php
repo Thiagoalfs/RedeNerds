@@ -136,6 +136,48 @@ try {
     ], JSON_UNESCAPED_UNICODE);
     exit;
 } catch (PDOException $e) {
+    if (strpos($e->getMessage(), '3105') !== false || stripos($e->getMessage(), 'generated column') !== false) {
+        try {
+            $pdo->exec("ALTER TABLE vips MODIFY COLUMN packageId VARCHAR(100) NULL DEFAULT NULL");
+            $stmtUp = $pdo->prepare("
+                UPDATE vips 
+                SET servidor_id = :servidor_id, nome = :nome, packageId = :packageId, preco = :preco, 
+                    duracao_dias = :duracao_dias, destaque = :destaque, 
+                    vantagens = :vantagens, ativo = :ativo, cor1 = :cor1, cor2 = :cor2,
+                    cor_tipo = :cor_tipo, cor_string = :cor_string
+                WHERE id = :id
+            ");
+            $stmtUp->execute([
+                ':servidor_id'  => ($servidor_id > 0 ? $servidor_id : null),
+                ':nome'         => $nome,
+                ':packageId'    => $packageId,
+                ':preco'        => $preco,
+                ':duracao_dias' => $duracao_dias,
+                ':destaque'     => $destaque,
+                ':vantagens'    => $vantagensJson,
+                ':ativo'        => $ativo,
+                ':cor1'         => $cor1,
+                ':cor2'         => $cor2,
+                ':cor_tipo'     => $cor_tipo,
+                ':cor_string'   => $cor_string,
+                ':id'           => $id,
+            ]);
+            require_once __DIR__ . "/../../../api/cache_helper.php";
+            invalidarCache('vips');
+            $busca = $pdo->prepare("SELECT * FROM vips WHERE id = :id LIMIT 1");
+            $busca->execute([':id' => $id]);
+            $vipAtualizado = $busca->fetch(PDO::FETCH_ASSOC);
+            header('Content-Type: application/json; charset=utf-8');
+            echo json_encode([
+                "success" => true,
+                "mensagem" => "Pacote VIP '{$nome}' atualizado com sucesso!",
+                "vip" => $vipAtualizado
+            ], JSON_UNESCAPED_UNICODE);
+            exit;
+        } catch (Exception $e2) {
+            error_log("Erro no fallback de edição de VIP: " . $e2->getMessage());
+        }
+    }
     error_log("Erro ao atualizar pacote VIP: " . $e->getMessage());
     http_response_code(500);
     header('Content-Type: application/json; charset=utf-8');

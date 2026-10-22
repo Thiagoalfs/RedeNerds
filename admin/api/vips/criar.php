@@ -110,6 +110,44 @@ try {
     ], JSON_UNESCAPED_UNICODE);
     exit;
 } catch (PDOException $e) {
+    if (strpos($e->getMessage(), '3105') !== false || stripos($e->getMessage(), 'generated column') !== false) {
+        try {
+            $pdo->exec("ALTER TABLE vips MODIFY COLUMN packageId VARCHAR(100) NULL DEFAULT NULL");
+            $stmt = $pdo->prepare("
+                INSERT INTO vips (servidor_id, nome, packageId, preco, duracao_dias, destaque, vantagens, ativo, cor1, cor2, cor_tipo, cor_string)
+                VALUES (:servidor_id, :nome, :packageId, :preco, :duracao_dias, :destaque, :vantagens, :ativo, :cor1, :cor2, :cor_tipo, :cor_string)
+            ");
+            $stmt->execute([
+                ':servidor_id'  => ($servidor_id > 0 ? $servidor_id : null),
+                ':nome'         => $nome,
+                ':packageId'    => $packageId,
+                ':preco'        => $preco,
+                ':duracao_dias' => $duracao_dias,
+                ':destaque'     => $destaque,
+                ':vantagens'    => $vantagensJson,
+                ':ativo'        => $ativo,
+                ':cor1'         => $cor1,
+                ':cor2'         => $cor2,
+                ':cor_tipo'     => $cor_tipo,
+                ':cor_string'   => $cor_string,
+            ]);
+            $novoId = (int)$pdo->lastInsertId();
+            require_once __DIR__ . "/../../../api/cache_helper.php";
+            invalidarCache('vips');
+            $busca = $pdo->prepare("SELECT * FROM vips WHERE id = :id LIMIT 1");
+            $busca->execute([':id' => $novoId]);
+            $vip = $busca->fetch(PDO::FETCH_ASSOC);
+            header('Content-Type: application/json; charset=utf-8');
+            echo json_encode([
+                "success" => true,
+                "mensagem" => "Pacote VIP '{$nome}' cadastrado com sucesso!",
+                "vip" => $vip
+            ], JSON_UNESCAPED_UNICODE);
+            exit;
+        } catch (Exception $e2) {
+            error_log("Erro no fallback de criação de VIP: " . $e2->getMessage());
+        }
+    }
     error_log("Erro ao criar pacote VIP: " . $e->getMessage());
     http_response_code(500);
     header('Content-Type: application/json; charset=utf-8');
