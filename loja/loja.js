@@ -521,6 +521,8 @@
 
       grid.appendChild(card);
     });
+
+    initServersMobileCarousel();
   }
 
   function atualizarNomeServidorNavbar(nome) {
@@ -613,6 +615,7 @@
     const productsView = document.getElementById('loja-products-view');
     if (serversView) serversView.hidden = false;
     if (productsView) productsView.hidden = true;
+    initServersMobileCarousel();
 
     const panel = document.getElementById('loja-panel');
     if (panel && window.scrollY > panel.offsetTop + 100) {
@@ -2443,6 +2446,65 @@
       requestAnimationFrame(performInitialScroll);
       setTimeout(performInitialScroll, 60);
     }
+  }
+
+
+  // 7.3 CARROSSEL MOBILE DE ESCOLHA DE SERVIDORES
+  function initServersMobileCarousel() {
+    const grid = document.getElementById('loja-servers-grid');
+    const dotsBox = document.getElementById('loja-servers-dots');
+    if (!grid || !dotsBox) return;
+
+    const cards = grid.querySelectorAll('.loja-server-card');
+    if (cards.length <= 1) {
+      dotsBox.innerHTML = '';
+      dotsBox.style.display = 'none';
+      return;
+    }
+
+    dotsBox.innerHTML = '';
+    dotsBox.style.display = '';
+
+    cards.forEach((card, idx) => {
+      const dot = document.createElement('button');
+      dot.type = 'button';
+      dot.className = 'loja-servers-dot' + (idx === 0 ? ' active' : '');
+      dot.setAttribute('aria-label', `Ir para o servidor ${idx + 1}`);
+      dot.addEventListener('click', () => {
+        const gridRect = grid.getBoundingClientRect();
+        const cardRect = card.getBoundingClientRect();
+        const cardLeftInGrid = (cardRect.left - gridRect.left) + grid.scrollLeft;
+        const cardCenter = cardLeftInGrid + (cardRect.width / 2);
+        const targetScroll = cardCenter - (gridRect.width / 2);
+        grid.scrollTo({ left: targetScroll, behavior: 'smooth' });
+      });
+      dotsBox.appendChild(dot);
+    });
+
+    function updateActiveDot() {
+      const dots = dotsBox.querySelectorAll('.loja-servers-dot');
+      if (!dots.length || !cards.length) return;
+      const gridRect = grid.getBoundingClientRect();
+      const gridCenter = gridRect.left + (gridRect.width / 2);
+      let activeIdx = 0;
+      let minDiff = Infinity;
+      cards.forEach((card, idx) => {
+        const cardRect = card.getBoundingClientRect();
+        const cardCenter = cardRect.left + (cardRect.width / 2);
+        const diff = Math.abs(cardCenter - gridCenter);
+        if (diff < minDiff) {
+          minDiff = diff;
+          activeIdx = idx;
+        }
+      });
+      dots.forEach((dot, idx) => {
+        dot.classList.toggle('active', idx === activeIdx);
+      });
+    }
+
+    grid.addEventListener('scroll', () => {
+      window.requestAnimationFrame(updateActiveDot);
+    }, { passive: true });
   }
 
 })();
