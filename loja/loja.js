@@ -2395,17 +2395,17 @@
     function scrollToCard(idx, smooth = false) {
       const card = cards[idx];
       if (!card) return;
-      const gridRect = grid.getBoundingClientRect();
-      const cardRect = card.getBoundingClientRect();
-      const cardLeftInGrid = (cardRect.left - gridRect.left) + grid.scrollLeft;
-      const cardCenter = cardLeftInGrid + (cardRect.width / 2);
-      const targetScroll = cardCenter - (gridRect.width / 2);
+
+      const targetScroll = card.offsetLeft - ((grid.clientWidth - card.clientWidth) / 2);
 
       if (!smooth) {
-        const prevBehavior = grid.style.scrollBehavior;
+        grid.style.scrollSnapType = 'none';
         grid.style.scrollBehavior = 'auto';
         grid.scrollLeft = targetScroll;
-        grid.style.scrollBehavior = prevBehavior;
+        requestAnimationFrame(() => {
+          grid.style.scrollSnapType = '';
+          grid.style.scrollBehavior = '';
+        });
       } else {
         grid.scrollTo({ left: targetScroll, behavior: 'smooth' });
       }
@@ -2426,13 +2426,11 @@
     function updateActiveDot() {
       const dots = dotsBox.querySelectorAll('.loja-vips-dot');
       if (!dots.length || !cards.length) return;
-      const gridRect = grid.getBoundingClientRect();
-      const gridCenter = gridRect.left + (gridRect.width / 2);
+      const gridCenter = grid.scrollLeft + (grid.clientWidth / 2);
       let activeIdx = 0;
       let minDiff = Infinity;
       cards.forEach((card, idx) => {
-        const cardRect = card.getBoundingClientRect();
-        const cardCenter = cardRect.left + (cardRect.width / 2);
+        const cardCenter = card.offsetLeft + (card.clientWidth / 2);
         const diff = Math.abs(cardCenter - gridCenter);
         if (diff < minDiff) {
           minDiff = diff;
@@ -2448,14 +2446,17 @@
       window.requestAnimationFrame(updateActiveDot);
     }, { passive: true });
 
-    // Foca imediatamente no primeiro VIP em destaque ao renderizar
-    if (targetIdx > 0) {
-      const performInitialScroll = () => {
+    // Foca no primeiro VIP em destaque (ou primeiro card) se houver no mobile
+    if (targetIdx > 0 && window.innerWidth <= 768) {
+      const focusFeatured = () => {
         scrollToCard(targetIdx, false);
         updateActiveDot();
       };
-      requestAnimationFrame(performInitialScroll);
-      setTimeout(performInitialScroll, 60);
+      focusFeatured();
+      requestAnimationFrame(focusFeatured);
+      setTimeout(focusFeatured, 50);
+      setTimeout(focusFeatured, 150);
+      setTimeout(focusFeatured, 350);
     }
   }
 

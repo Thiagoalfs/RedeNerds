@@ -281,14 +281,8 @@ if (!empty($servidoresDoBanco) && (!empty($vipsDoBanco) || !empty($chavesDoBanco
             }
         }
 
-        // Ordenação inteligente: Destaque primeiro, depois Multiservidor, depois por preço
+        // Ordenação dos VIPs sempre por ordem de preço crescente (preco ASC)
         usort($vipsDoServidor, function($a, $b) {
-            if (!empty($a['destaque']) !== !empty($b['destaque'])) {
-                return !empty($b['destaque']) ? 1 : -1;
-            }
-            if (!empty($a['multiservidor']) !== !empty($b['multiservidor'])) {
-                return !empty($b['multiservidor']) ? 1 : -1;
-            }
             return ($a['preco'] <=> $b['preco']);
         });
 
