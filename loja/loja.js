@@ -825,7 +825,9 @@
       // RENDERIZAÇÃO DOS CARDS VIP (COM DURAÇÃO)
       cardsHtml = itemsList.map((vip, index) => {
         const isFeatured = !!vip.destaque;
-        const duracao = vip.duracao_dias ? `${vip.duracao_dias} dias` : '30 dias';
+        const isMultiservidor = !!vip.multiservidor || !vip.servidor_id || vip.servidor_id === 0;
+        const duracaoDias = (vip.duracao_dias !== undefined && vip.duracao_dias !== null) ? parseInt(vip.duracao_dias, 10) : 30;
+        const duracao = (duracaoDias === 0) ? 'Permanente' : `${duracaoDias} dias`;
         const precoFormatado = Number(vip.preco).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
         const delay = (index * 0.05).toFixed(2);
 
@@ -879,9 +881,12 @@
         }).join('');
 
         return `
-          <div class="vip-card ${isFeatured ? 'is-featured' : ''}" style="animation-delay: ${delay}s;">
+          <div class="vip-card ${isFeatured ? 'is-featured' : ''} ${isMultiservidor ? 'is-multiservidor' : ''}" style="animation-delay: ${delay}s;">
             <div class="vip-title-row">
-              <h3 class="vip-title">${escapeHTML(vip.nome)}</h3>
+              <h3 class="vip-title">
+                <span>${escapeHTML(vip.nome)}</span>
+                ${isMultiservidor ? `<span class="multiservidor-pill" title="Válido em todos os servidores da rede"><i class="fa-solid fa-globe"></i> Rede Toda</span>` : ''}
+              </h3>
               ${isFeatured ? `<span class="featured-pill">Mais Escolhido</span>` : ''}
             </div>
 

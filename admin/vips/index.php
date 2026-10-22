@@ -4,6 +4,13 @@ $tituloPagina = 'Pacotes VIP';
 require_once __DIR__ . "/../includes/admin_header.php";
 require_once __DIR__ . "/../includes/servidores_admin.php";
 
+if (empty($_SESSION['vips_schema_multiservidor_ok'])) {
+    try {
+        $pdo->exec("ALTER TABLE vips MODIFY COLUMN servidor_id INT NULL DEFAULT NULL");
+        $_SESSION['vips_schema_multiservidor_ok'] = true;
+    } catch (Exception $e) {}
+}
+
 $filtroServidor = trim($_GET['servidor'] ?? '');
 
 $servidoresData = carregarServidoresAdmin($pdo);
@@ -14,7 +21,9 @@ $where = [];
 $params = [];
 
 if ($filtroServidor !== '') {
-    if (is_numeric($filtroServidor)) {
+    if ($filtroServidor === 'multi' || $filtroServidor === '0') {
+        $where[] = "(v.servidor_id = 0 OR v.servidor_id IS NULL OR v.servidor = 'todos' OR v.servidor = 'global' OR v.servidor = 'rede')";
+    } elseif (is_numeric($filtroServidor)) {
         $where[] = "(v.servidor_id = :servidor_id OR v.servidor = :servidor_nome)";
         $params[':servidor_id'] = (int)$filtroServidor;
         $srvObj = $servidoresMap[$filtroServidor] ?? null;
@@ -244,6 +253,7 @@ try {
             <div class="col-12 col-md-6">
                 <select name="servidor" class="form-select form-select-sm" onchange="this.form.submit()">
                     <option value="">Filtrar por Servidor: Todos os Servidores</option>
+                    <option value="multi" <?php echo ($filtroServidor === 'multi' || $filtroServidor === '0') ? 'selected' : ''; ?>>🌐 Apenas Pacotes Multiservidor (Rede)</option>
                     <?php foreach ($servidores as $s): ?>
                         <option value="<?php echo (int)$s['id']; ?>" <?php echo ((string)$filtroServidor === (string)$s['id'] || $filtroServidor === $s['servername'] || $filtroServidor === $s['nome']) ? 'selected' : ''; ?>>
                             <?php echo htmlspecialchars($s['servername'], ENT_QUOTES, 'UTF-8'); ?>
@@ -298,8 +308,9 @@ try {
                         </tr>
                     <?php else: ?>
                         <?php foreach ($vipsAtivos as $v): 
-                            $srvNome = $v['servidor_nome_oficial'] ?: ($servidoresMap[$v['servidor_id']]['servername'] ?? ($v['servidor'] ?: 'Servidor'));
-                            $srvCor = $v['servidor_cor'] ?: ($servidoresMap[$v['servidor_id'] ?? $v['servidor']]['themecolor'] ?? '#B971DA');
+                            $isMulti = empty($v['servidor_id']) || (int)$v['servidor_id'] === 0 || in_array(strtolower(trim($v['servidor'] ?? '')), ['todos', 'global', 'rede']);
+                            $srvNome = $isMulti ? 'Todos os Servidores' : ($v['servidor_nome_oficial'] ?: ($servidoresMap[$v['servidor_id']]['servername'] ?? ($v['servidor'] ?: 'Servidor')));
+                            $srvCor = $isMulti ? '#0284c7' : ($v['servidor_cor'] ?: ($servidoresMap[$v['servidor_id'] ?? $v['servidor']]['themecolor'] ?? '#B971DA'));
                             $cor1 = !empty($v['cor1']) ? $v['cor1'] : '#ffffff';
                             $cor2 = !empty($v['cor2']) ? $v['cor2'] : '#ffffff';
                         ?>
@@ -319,7 +330,7 @@ try {
                                 data-vantagens="<?php echo htmlspecialchars($v['vantagens'] ?? '[]', ENT_QUOTES, 'UTF-8'); ?>">
                                 <td>
                                     <span class="badge js-vip-servidor" style="background-color: <?php echo htmlspecialchars($srvCor, ENT_QUOTES, 'UTF-8'); ?>; color: #fff; font-weight: 600;">
-                                        <i class="fa-solid fa-server me-1"></i>
+                                        <i class="fa-solid <?php echo $isMulti ? 'fa-globe' : 'fa-server'; ?> me-1"></i>
                                         <?php echo htmlspecialchars($srvNome, ENT_QUOTES, 'UTF-8'); ?>
                                     </span>
                                 </td>
@@ -349,7 +360,14 @@ try {
                                 </td>
                                 <td>
                                     <span class="text-muted small js-vip-duracao">
-                                        <?php echo (int)($v['duracao_dias'] ?? 30); ?> dias
+                                        <?php 
+                                        $d = isset($v['duracao_dias']) ? (int)$v['duracao_dias'] : 30;
+                                        if ($d === 0) {
+                                            echo '<span class="badge bg-success-subtle text-success border border-success-subtle">Permanente</span>';
+                                        } else {
+                                            echo $d . ' dias';
+                                        }
+                                        ?>
                                     </span>
                                 </td>
                                 <td>
@@ -422,8 +440,9 @@ try {
                         </tr>
                     <?php else: ?>
                         <?php foreach ($vipsInativos as $v): 
-                            $srvNome = $v['servidor_nome_oficial'] ?: ($servidoresMap[$v['servidor_id']]['servername'] ?? ($v['servidor'] ?: 'Servidor'));
-                            $srvCor = $v['servidor_cor'] ?: ($servidoresMap[$v['servidor_id'] ?? $v['servidor']]['themecolor'] ?? '#B971DA');
+                            $isMulti = empty($v['servidor_id']) || (int)$v['servidor_id'] === 0 || in_array(strtolower(trim($v['servidor'] ?? '')), ['todos', 'global', 'rede']);
+                            $srvNome = $isMulti ? 'Todos os Servidores' : ($v['servidor_nome_oficial'] ?: ($servidoresMap[$v['servidor_id']]['servername'] ?? ($v['servidor'] ?: 'Servidor')));
+                            $srvCor = $isMulti ? '#0284c7' : ($v['servidor_cor'] ?: ($servidoresMap[$v['servidor_id'] ?? $v['servidor']]['themecolor'] ?? '#B971DA'));
                             $cor1 = !empty($v['cor1']) ? $v['cor1'] : '#ffffff';
                             $cor2 = !empty($v['cor2']) ? $v['cor2'] : '#ffffff';
                         ?>
@@ -443,7 +462,7 @@ try {
                                 data-vantagens="<?php echo htmlspecialchars($v['vantagens'] ?? '[]', ENT_QUOTES, 'UTF-8'); ?>">
                                 <td>
                                     <span class="badge js-vip-servidor" style="background-color: <?php echo htmlspecialchars($srvCor, ENT_QUOTES, 'UTF-8'); ?>; color: #fff; font-weight: 600;">
-                                        <i class="fa-solid fa-server me-1"></i>
+                                        <i class="fa-solid <?php echo $isMulti ? 'fa-globe' : 'fa-server'; ?> me-1"></i>
                                         <?php echo htmlspecialchars($srvNome, ENT_QUOTES, 'UTF-8'); ?>
                                     </span>
                                 </td>
@@ -473,7 +492,14 @@ try {
                                 </td>
                                 <td>
                                     <span class="text-muted small js-vip-duracao">
-                                        <?php echo (int)($v['duracao_dias'] ?? 30); ?> dias
+                                        <?php 
+                                        $d = isset($v['duracao_dias']) ? (int)$v['duracao_dias'] : 30;
+                                        if ($d === 0) {
+                                            echo '<span class="badge bg-success-subtle text-success border border-success-subtle">Permanente</span>';
+                                        } else {
+                                            echo $d . ' dias';
+                                        }
+                                        ?>
                                     </span>
                                 </td>
                                 <td>
@@ -540,6 +566,7 @@ try {
                             <label for="criar-vip-servidor" class="form-label fw-bold">Servidor <span class="text-danger">*</span></label>
                             <select class="form-select" id="criar-vip-servidor" name="servidor_id" required>
                                 <option value="">Selecione o servidor...</option>
+                                <option value="0" <?php echo ($filtroServidor === 'multi' || (string)$filtroServidor === '0') ? 'selected' : ''; ?>>🌐 Todos os Servidores (Multiservidor)</option>
                                 <?php foreach ($servidores as $s): ?>
                                     <option value="<?php echo (int)$s['id']; ?>" <?php echo ((string)$filtroServidor === (string)$s['id']) ? 'selected' : ''; ?>>
                                         <?php echo htmlspecialchars($s['servername'], ENT_QUOTES, 'UTF-8'); ?>
@@ -566,8 +593,8 @@ try {
                             </div>
                         </div>
                         <div class="col-md-6">
-                            <label for="criar-vip-duracao" class="form-label fw-bold">Duração (dias)</label>
-                            <input type="number" min="1" max="3650" class="form-control" id="criar-vip-duracao" name="duracao_dias" value="30">
+                            <label for="criar-vip-duracao" class="form-label fw-bold">Duração (dias) <span class="text-muted fw-normal small">(0 = Permanente)</span></label>
+                            <input type="number" min="0" max="3650" class="form-control" id="criar-vip-duracao" name="duracao_dias" value="30">
                         </div>
                     </div>
 
@@ -736,7 +763,7 @@ try {
                         <div class="col-md-4">
                             <label for="edit-vip-servidor" class="form-label fw-bold">Servidor <span class="text-danger">*</span></label>
                             <select class="form-select" id="edit-vip-servidor" name="servidor_id" required>
-                                <option value="">Selecione o servidor...</option>
+                                <option value="0">🌐 Todos os Servidores (Multiservidor)</option>
                                 <?php foreach ($servidores as $s): ?>
                                     <option value="<?php echo (int)$s['id']; ?>">
                                         <?php echo htmlspecialchars($s['servername'], ENT_QUOTES, 'UTF-8'); ?>
@@ -763,8 +790,8 @@ try {
                             </div>
                         </div>
                         <div class="col-md-6">
-                            <label for="edit-vip-duracao" class="form-label fw-bold">Duração (dias)</label>
-                            <input type="number" min="1" max="3650" class="form-control" id="edit-vip-duracao" name="duracao_dias">
+                            <label for="edit-vip-duracao" class="form-label fw-bold">Duração (dias) <span class="text-muted fw-normal small">(0 = Permanente)</span></label>
+                            <input type="number" min="0" max="3650" class="form-control" id="edit-vip-duracao" name="duracao_dias">
                         </div>
                     </div>
 
@@ -1323,10 +1350,10 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('edit-vip-id').value = d.id || '';
         document.getElementById('edit-vip-nome').value = d.nome || '';
         document.getElementById('modalEditarVipNomeHeader').textContent = d.nome || '';
-        document.getElementById('edit-vip-servidor').value = d.servidorId || '';
+        document.getElementById('edit-vip-servidor').value = (d.servidorId !== undefined && d.servidorId !== '') ? d.servidorId : '0';
         document.getElementById('edit-vip-packageId').value = d.packageId || '';
         document.getElementById('edit-vip-preco').value = d.preco || '';
-        document.getElementById('edit-vip-duracao').value = d.duracaoDias || 30;
+        document.getElementById('edit-vip-duracao').value = (d.duracaoDias !== undefined && d.duracaoDias !== '') ? d.duracaoDias : 30;
         document.getElementById('edit-vip-destaque').checked = (d.destaque === '1');
         document.getElementById('edit-vip-ativo').checked = (d.ativo === '1');
 
@@ -1381,7 +1408,7 @@ document.addEventListener('DOMContentLoaded', function() {
         tr.dataset.nome = v.nome || '';
         tr.dataset.packageId = v.packageId || '';
         tr.dataset.preco = Number(v.preco || 0).toFixed(2);
-        tr.dataset.duracaoDias = v.duracao_dias || 30;
+        tr.dataset.duracaoDias = (v.duracao_dias !== undefined && v.duracao_dias !== null) ? parseInt(v.duracao_dias) : 30;
         tr.dataset.destaque = v.destaque ? '1' : '0';
         tr.dataset.ativo = v.ativo ? '1' : '0';
         tr.dataset.cor1 = v.cor1 || '#ffffff';
@@ -1391,9 +1418,10 @@ document.addEventListener('DOMContentLoaded', function() {
         tr.dataset.vantagens = v.vantagens || '[]';
 
         const sId = parseInt(v.servidor_id) || 0;
-        const srv = (sId > 0 && servidoresMap[sId]) ? servidoresMap[sId] : null;
-        const srvNome = srv ? (srv.servername || srv.nome) : (v.servidor || 'Servidor');
-        const srvCor = srv ? (srv.themecolor || '#B971DA') : '#B971DA';
+        const isMulti = (sId === 0);
+        const srv = (!isMulti && sId > 0 && servidoresMap[sId]) ? servidoresMap[sId] : null;
+        const srvNome = isMulti ? 'Todos os Servidores' : (srv ? (srv.servername || srv.nome) : (v.servidor || 'Servidor'));
+        const srvCor = isMulti ? '#0284c7' : (srv ? (srv.themecolor || '#B971DA') : '#B971DA');
         const srvEnabled = srv ? (parseInt(srv.enabled) !== 0) : true;
 
         const isAtivo = Boolean(Number(v.ativo));
@@ -1434,7 +1462,9 @@ document.addEventListener('DOMContentLoaded', function() {
             </td>
             <td>
                 <span class="text-muted small js-vip-duracao">
-                    ${parseInt(v.duracao_dias || 30)} dias
+                    ${((v.duracao_dias !== undefined && v.duracao_dias !== null && parseInt(v.duracao_dias) === 0) || v.duracao_dias === 0 || v.duracao_dias === '0') 
+                        ? '<span class="badge bg-success-subtle text-success border border-success-subtle">Permanente</span>' 
+                        : `${parseInt(v.duracao_dias || 30)} dias`}
                 </span>
             </td>
             <td>${statusBadge}</td>

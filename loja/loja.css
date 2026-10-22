@@ -785,6 +785,29 @@ button.category-tab.active i,
   flex-shrink: 0;
 }
 
+.multiservidor-pill {
+  font-family: 'Outfit', var(--font-main);
+  font-size: 0.64rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  background: rgba(56, 189, 248, 0.15);
+  color: #38BDF8;
+  padding: 3px 8px;
+  border-radius: 4px;
+  border: 1px solid rgba(56, 189, 248, 0.35);
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  white-space: nowrap;
+  vertical-align: middle;
+  flex-shrink: 0;
+}
+
+.vip-card.is-multiservidor {
+  border-color: rgba(56, 189, 248, 0.28);
+}
+
 .vip-title {
   font-family: 'Outfit', var(--font-main);
   font-size: 1.45rem;

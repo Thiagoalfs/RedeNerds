@@ -234,10 +234,15 @@ if (!empty($servidoresDoBanco) && (!empty($vipsDoBanco) || !empty($chavesDoBanco
         foreach ($vipsDoBanco as $v) {
             $vipSrvRaw = trim($v['servidor'] ?? '');
             $vipSrvLimpo = strtolower(preg_replace('/[^a-zA-Z0-9]/', '', $vipSrvRaw));
-            $vipServidorId = (int)($v['servidor_id'] ?? 0);
+            $vipServidorId = !empty($v['servidor_id']) ? (int)$v['servidor_id'] : 0;
 
-            // Correspondência direta por ID do servidor, com fallback por nome/slug
-            $pertenceAoServidor = (
+            $isMultiservidor = ($vipServidorId === 0 && (
+                $vipSrvRaw === '' ||
+                in_array(strtolower($vipSrvRaw), ['todos', 'global', 'rede', 'todos os servidores'], true)
+            ));
+
+            // Correspondência direta por ID do servidor, com fallback por nome/slug, OU se for multiservidor
+            $pertenceAoServidor = $isMultiservidor || (
                 ($vipServidorId > 0 && $vipServidorId === (int)$srv['id']) ||
                 ($vipServidorId === 0 && (
                     strcasecmp($vipSrvRaw, $srv['servername']) === 0 ||
@@ -260,8 +265,9 @@ if (!empty($servidoresDoBanco) && (!empty($vipsDoBanco) || !empty($chavesDoBanco
 
                 $vipsDoServidor[] = [
                     "id" => (int)$v['id'],
-                    "servidor_id" => (int)$srv['id'],
-                    "servidor" => $srv['servername'],
+                    "servidor_id" => $isMultiservidor ? 0 : (int)$srv['id'],
+                    "servidor" => $isMultiservidor ? "Todos os Servidores" : $srv['servername'],
+                    "multiservidor" => $isMultiservidor,
                     "nome" => $v['nome'],
                     "preco" => (float)$v['preco'],
                     "duracao_dias" => isset($v['duracao_dias']) ? (int)$v['duracao_dias'] : 30,
@@ -274,6 +280,17 @@ if (!empty($servidoresDoBanco) && (!empty($vipsDoBanco) || !empty($chavesDoBanco
                 ];
             }
         }
+
+        // Ordenação inteligente: Destaque primeiro, depois Multiservidor, depois por preço
+        usort($vipsDoServidor, function($a, $b) {
+            if (!empty($a['destaque']) !== !empty($b['destaque'])) {
+                return !empty($b['destaque']) ? 1 : -1;
+            }
+            if (!empty($a['multiservidor']) !== !empty($b['multiservidor'])) {
+                return !empty($b['multiservidor']) ? 1 : -1;
+            }
+            return ($a['preco'] <=> $b['preco']);
+        });
 
         foreach ($chavesDoBanco as $c) {
             $chaveSrvRaw = trim($c['servidor'] ?? '');

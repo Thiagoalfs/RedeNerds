@@ -8,8 +8,8 @@ $nome = trim($_POST['nome'] ?? '');
 $packageId = trim($_POST['packageId'] ?? '');
 $precoRaw = str_replace(',', '.', trim($_POST['preco'] ?? '0'));
 $preco = (float)$precoRaw;
-$duracao_dias = (int)($_POST['duracao_dias'] ?? 30);
-if ($duracao_dias <= 0) $duracao_dias = 30;
+$duracao_dias = isset($_POST['duracao_dias']) ? (int)$_POST['duracao_dias'] : 30;
+if ($duracao_dias < 0) $duracao_dias = 0;
 $destaque = !empty($_POST['destaque']) ? 1 : 0;
 $ativo = !empty($_POST['ativo']) ? 1 : 0;
 $cor_tipo = trim($_POST['cor_tipo'] ?? 'colorwheel');
@@ -31,15 +31,18 @@ if ($cor_tipo === 'string' && $cor_string !== '') {
     }
 }
 
-$stmtSrv = $pdo->prepare("SELECT id, servername FROM servidores WHERE id = :id LIMIT 1");
-$stmtSrv->execute([':id' => $servidor_id]);
-$srv = $stmtSrv->fetch(PDO::FETCH_ASSOC);
+$srv = null;
+if ($servidor_id > 0) {
+    $stmtSrv = $pdo->prepare("SELECT id, servername FROM servidores WHERE id = :id LIMIT 1");
+    $stmtSrv->execute([':id' => $servidor_id]);
+    $srv = $stmtSrv->fetch(PDO::FETCH_ASSOC);
 
-if (!$srv) {
-    http_response_code(400);
-    header('Content-Type: application/json; charset=utf-8');
-    echo json_encode(["success" => false, "erro" => "Selecione um servidor válido para este pacote VIP."], JSON_UNESCAPED_UNICODE);
-    exit;
+    if (!$srv) {
+        http_response_code(400);
+        header('Content-Type: application/json; charset=utf-8');
+        echo json_encode(["success" => false, "erro" => "Selecione um servidor válido para este pacote VIP."], JSON_UNESCAPED_UNICODE);
+        exit;
+    }
 }
 
 if ($nome === '' || mb_strlen($nome) < 2) {
@@ -76,7 +79,7 @@ try {
         VALUES (:servidor_id, :nome, :packageId, :preco, :duracao_dias, :destaque, :vantagens, :ativo, :cor1, :cor2, :cor_tipo, :cor_string)
     ");
     $stmt->execute([
-        ':servidor_id'  => $servidor_id,
+        ':servidor_id'  => ($servidor_id > 0 ? $servidor_id : null),
         ':nome'         => $nome,
         ':packageId'    => $packageId,
         ':preco'        => $preco,

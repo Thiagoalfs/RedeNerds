@@ -180,6 +180,30 @@ function enviarEntregaVip($pedido, $pdo = null) {
         $packageId = (string)($pedido['packageId'] ?? ($chaveId ?: ($vipId ?? '')));
     }
 
+    // Verifica se o item comprado é um VIP Multiservidor (Rede Toda)
+    $isMultiservidor = false;
+    if ($pdo instanceof PDO && !empty($vipId)) {
+        try {
+            $stmtVipCheck = $pdo->prepare("SELECT servidor_id, servidor FROM vips WHERE id = :id LIMIT 1");
+            $stmtVipCheck->execute([':id' => (int)$vipId]);
+            $vipRowCheck = $stmtVipCheck->fetch(PDO::FETCH_ASSOC);
+            if ($vipRowCheck) {
+                $vSrvId = !empty($vipRowCheck['servidor_id']) ? (int)$vipRowCheck['servidor_id'] : 0;
+                $vSrvRaw = strtolower(trim((string)($vipRowCheck['servidor'] ?? '')));
+                if ($vSrvId === 0 || in_array($vSrvRaw, ['todos', 'global', 'rede', 'todos os servidores'], true)) {
+                    $isMultiservidor = true;
+                }
+            }
+        } catch (Exception $e) {
+            error_log("AVISO DELIVERY: Erro ao checar VIP multiservidor: " . $e->getMessage());
+        }
+    }
+    if (!$isMultiservidor && ($servidorId === 0 || in_array(strtolower($rawServidor), ['todos', 'global', 'rede', 'todos os servidores'], true))) {
+        if ($tipoProduto === 'vip') {
+            $isMultiservidor = true;
+        }
+    }
+
     // Monta o payload JSON exatamente na estrutura requerida pela API
     $payload = [
         "server"    => (string)$serverSlug,
@@ -188,6 +212,82 @@ function enviarEntregaVip($pedido, $pdo = null) {
         "player"    => (string)$player,
         "quantity"  => (int)$quantidade
     ];
+
+    // 5. Se o VIP for Multiservidor, envia um POST para TODOS os endpoints configurados na rede
+    if ($isMultiservidor && defined('DELIVERY_SERVERS') && is_array(DELIVERY_SERVERS) && count(DELIVERY_SERVERS) > 0) {
+        $respostasMulti = [];
+        $codigosMulti = [];
+        $errosMulti = [];
+        $algumSucesso = false;
+
+        foreach (DELIVERY_SERVERS as $srvKey => $srvConfig) {
+            $targetUrl = is_array($srvConfig) ? trim((string)($srvConfig['url'] ?? '')) : '';
+            $targetToken = is_array($srvConfig) ? trim((string)($srvConfig['token'] ?? '')) : '';
+
+            if (empty($targetUrl)) continue;
+
+            $srvPayload = $payload;
+            $srvPayload['server'] = (string)$srvKey;
+
+            $jsonBody = json_encode($srvPayload, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+
+            $headers = [
+                'Content-Type: application/json',
+                'Accept: application/json'
+            ];
+            if (!empty($targetToken)) {
+                $headers[] = 'Authorization: Bearer ' . $targetToken;
+                $headers[] = 'Authorization: ' . $targetToken;
+                $headers[] = 'token: ' . $targetToken;
+                $headers[] = 'X-Token: ' . $targetToken;
+            }
+
+            $ch = curl_init($targetUrl);
+            curl_setopt_array($ch, [
+                CURLOPT_POST => true,
+                CURLOPT_POSTFIELDS => $jsonBody,
+                CURLOPT_HTTPHEADER => $headers,
+                CURLOPT_RETURNTRANSFER => true,
+                CURLOPT_TIMEOUT => 12,
+                CURLOPT_CONNECTTIMEOUT => 5,
+                CURLOPT_SSL_VERIFYPEER => true,
+                CURLOPT_SSL_VERIFYHOST => 2
+            ]);
+
+            $response = curl_exec($ch);
+            $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+            $curlError = curl_error($ch);
+            curl_close($ch);
+
+            $respostasMulti[$srvKey] = $response;
+            $codigosMulti[$srvKey] = $httpCode;
+            if ($curlError) $errosMulti[$srvKey] = $curlError;
+
+            $sucessoThis = ($httpCode >= 200 && $httpCode < 300);
+            if ($sucessoThis) {
+                $algumSucesso = true;
+                error_log("DELIVERY MULTISERVIDOR SUCESSO: Pedido #{$orderId} ativado em '{$srvKey}' para '{$player}' ({$packageId}) - HTTP {$httpCode}");
+            } else {
+                error_log("DELIVERY MULTISERVIDOR ERRO: Falha ao ativar em '{$srvKey}' para '{$player}' ({$packageId}): HTTP {$httpCode} - {$curlError} - {$response}");
+            }
+        }
+
+        if ($algumSucesso && $pdo instanceof PDO && !empty($orderId)) {
+            try {
+                $upEntregue = $pdo->prepare("UPDATE pedidos SET entregue = 1 WHERE txid = :txid OR id = :id");
+                $upEntregue->execute([':txid' => $orderId, ':id' => (int)$orderId]);
+            } catch (Exception $e) {
+                error_log("AVISO DELIVERY: Falha ao marcar entregue = 1: " . $e->getMessage());
+            }
+        }
+
+        return [
+            'success' => $algumSucesso,
+            'http_code' => $algumSucesso ? 200 : 502,
+            'response' => $respostasMulti,
+            'error' => !empty($errosMulti) ? json_encode($errosMulti) : null
+        ];
+    }
 
     // 5. Determina a URL e o Token específicos para o servidor de destino a partir do config.php
     $deliveryUrl = '';
@@ -276,4 +376,4 @@ function enviarEntregaVip($pedido, $pdo = null) {
         'response' => $response,
         'error' => $curlError ?: null
     ];
-}
+}
