@@ -77,11 +77,74 @@ function marcarLinkAtivo() {
     const currentPath = window.location.pathname.replace(/\/$/, '') || '/';
     const navLinks = document.querySelectorAll('#navbar li a');
     navLinks.forEach(link => {
-        const linkPath = new URL(link.href, window.location.origin).pathname.replace(/\/$/, '') || '/';
+        const url = new URL(link.href, window.location.origin);
+        const linkPath = url.pathname.replace(/\/$/, '') || '/';
+        const linkHash = url.hash;
+
+        // Se o link possui uma âncora/hash (ex: /#servers-section),
+        // ele não deve ser ativado apenas pela equivalência da rota '/'
+        if (linkHash) {
+            return;
+        }
+
         if (linkPath === currentPath) {
             link.parentElement.classList.add('active');
         }
     });
+
+    configurarScrollServersSection();
+}
+
+function configurarScrollServersSection() {
+    const serversSection = document.getElementById('servers-section');
+    const serversLink = document.querySelector('#navbar li a[href*="#servers-section"]');
+    if (!serversSection || !serversLink) return;
+
+    const serversLi = serversLink.parentElement;
+
+    function checkServersSectionActive() {
+        const rect = serversSection.getBoundingClientRect();
+        const windowHeight = window.innerHeight || document.documentElement.clientHeight;
+        const triggerPoint = Math.max(100, windowHeight * 0.35);
+
+        const isActive = (rect.top <= triggerPoint && rect.bottom >= triggerPoint);
+        if (isActive) {
+            serversLi.classList.add('active');
+        } else {
+            serversLi.classList.remove('active');
+        }
+    }
+
+    serversLink.addEventListener('click', function (e) {
+        const isRoot = window.location.pathname.replace(/\/$/, '') === '' || window.location.pathname === '/';
+        if (isRoot) {
+            e.preventDefault();
+            serversSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            if (window.history && window.history.pushState) {
+                window.history.pushState(null, '', '#servers-section');
+            } else {
+                window.location.hash = '#servers-section';
+            }
+            setTimeout(checkServersSectionActive, 200);
+        }
+    });
+
+    let ticking = false;
+    window.addEventListener('scroll', function () {
+        if (!ticking) {
+            window.requestAnimationFrame(function () {
+                checkServersSectionActive();
+                ticking = false;
+            });
+            ticking = true;
+        }
+    }, { passive: true });
+
+    window.addEventListener('resize', checkServersSectionActive, { passive: true });
+    window.addEventListener('hashchange', checkServersSectionActive);
+
+    // Verificação inicial
+    checkServersSectionActive();
 }
 
 function verificarStatusWikiNavbar() {

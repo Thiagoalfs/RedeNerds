@@ -710,6 +710,10 @@
     gap: 24px;
 }
 
+#servers-section {
+    scroll-margin-top: 80px;
+}
+
 /* =========================================
    Seção Parceiros (index.html)
    Mobile: Carrossel contínuo infinito (Marquee)
