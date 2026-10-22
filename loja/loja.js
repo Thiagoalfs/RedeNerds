@@ -902,7 +902,10 @@
       <div class="loja-vips-grid ${isChavesCat ? 'loja-keys-grid' : ''}">
         ${cardsHtml}
       </div>
+      <div class="loja-vips-dots" id="loja-vips-dots"></div>
     `;
+
+    initVipsMobileCarousel();
 
     container.querySelectorAll('.btn-purchase-card').forEach(btn => {
       btn.addEventListener('click', () => {
@@ -2357,6 +2360,59 @@
       .replace(/>/g, '&gt;')
       .replace(/"/g, '&quot;')
       .replace(/'/g, '&#039;');
+  }
+
+
+  // 7.2 CARROSSEL MOBILE DE VIPS
+  function initVipsMobileCarousel() {
+    const container = document.getElementById('loja-servers-container');
+    if (!container) return;
+    const grid = container.querySelector('.loja-vips-grid');
+    const dotsBox = document.getElementById('loja-vips-dots');
+    if (!grid || !dotsBox) return;
+
+    const cards = grid.querySelectorAll('.vip-card');
+    if (cards.length <= 1) {
+      dotsBox.innerHTML = '';
+      return;
+    }
+
+    dotsBox.innerHTML = '';
+    cards.forEach((card, idx) => {
+      const dot = document.createElement('button');
+      dot.type = 'button';
+      dot.className = 'loja-vips-dot' + (idx === 0 ? ' active' : '');
+      dot.setAttribute('aria-label', `Ir para o pacote ${idx + 1}`);
+      dot.addEventListener('click', () => {
+        const cardCenter = (card.offsetLeft - grid.offsetLeft) + (card.offsetWidth / 2);
+        const targetScroll = cardCenter - (grid.clientWidth / 2);
+        grid.scrollTo({ left: targetScroll, behavior: 'smooth' });
+      });
+      dotsBox.appendChild(dot);
+    });
+
+    function updateActiveDot() {
+      const dots = dotsBox.querySelectorAll('.loja-vips-dot');
+      if (!dots.length || !cards.length) return;
+      const viewCenter = grid.scrollLeft + (grid.clientWidth / 2);
+      let activeIdx = 0;
+      let minDiff = Infinity;
+      cards.forEach((card, idx) => {
+        const cardCenter = (card.offsetLeft - grid.offsetLeft) + (card.offsetWidth / 2);
+        const diff = Math.abs(cardCenter - viewCenter);
+        if (diff < minDiff) {
+          minDiff = diff;
+          activeIdx = idx;
+        }
+      });
+      dots.forEach((dot, idx) => {
+        dot.classList.toggle('active', idx === activeIdx);
+      });
+    }
+
+    grid.addEventListener('scroll', () => {
+      window.requestAnimationFrame(updateActiveDot);
+    }, { passive: true });
   }
 
 })();
