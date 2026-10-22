@@ -290,8 +290,8 @@ function renderIconeTable(?string $icone): string {
 
                     <div class="row g-2 mb-2">
                         <div class="col-md-8">
-                            <label for="criar-srv-modpackurl" class="form-label fw-bold">URL do Modpack / Launcher <span class="text-danger">*</span></label>
-                            <input type="url" class="form-control" id="criar-srv-modpackurl" name="modpackurl" placeholder="https://..." required>
+                            <label for="criar-srv-modpackurl" class="form-label fw-bold">URL do Modpack / Launcher</label>
+                            <input type="url" class="form-control" id="criar-srv-modpackurl" name="modpackurl" placeholder="https://...">
                         </div>
                         <div class="col-md-4">
                             <label for="criar-srv-themecolor" class="form-label fw-bold">Cor do Tema <span class="text-danger">*</span></label>
@@ -391,8 +391,8 @@ function renderIconeTable(?string $icone): string {
 
                     <div class="row g-2 mb-2">
                         <div class="col-md-8">
-                            <label for="edit-srv-modpackurl" class="form-label fw-bold">URL do Modpack / Launcher <span class="text-danger">*</span></label>
-                            <input type="url" class="form-control" id="edit-srv-modpackurl" name="modpackurl" required>
+                            <label for="edit-srv-modpackurl" class="form-label fw-bold">URL do Modpack / Launcher</label>
+                            <input type="url" class="form-control" id="edit-srv-modpackurl" name="modpackurl" placeholder="https://...">
                         </div>
                         <div class="col-md-4">
                             <label for="edit-srv-themecolor" class="form-label fw-bold">Cor do Tema <span class="text-danger">*</span></label>

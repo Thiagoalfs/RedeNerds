@@ -52,13 +52,6 @@ if ($descricao === '') {
     exit;
 }
 
-if ($modpackurl === '') {
-    http_response_code(400);
-    header('Content-Type: application/json; charset=utf-8');
-    echo json_encode(["success" => false, "erro" => "Informe a URL do Modpack ou Launcher."], JSON_UNESCAPED_UNICODE);
-    exit;
-}
-
 if (!preg_match('/^#[0-9A-Fa-f]{6}$/', $themecolor)) {
     $themecolor = $srvAtual['themecolor'] ?? '#B971DA';
 }
