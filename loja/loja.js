@@ -55,7 +55,23 @@
 
     const btnTrocarNick = document.getElementById('btn-trocar-nick');
     if (btnTrocarNick) {
-      btnTrocarNick.addEventListener('click', () => abrirModalNick(true));
+      btnTrocarNick.addEventListener('click', (e) => {
+        e.stopPropagation();
+        abrirModalNick(Boolean(STATE.nick));
+      });
+    }
+
+    const profilePill = document.getElementById('loja-profile-bar');
+    if (profilePill) {
+      profilePill.addEventListener('click', () => {
+        abrirModalNick(Boolean(STATE.nick));
+      });
+      profilePill.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          abrirModalNick(Boolean(STATE.nick));
+        }
+      });
     }
 
     const btnBackServers = document.getElementById('btn-back-to-servers');
@@ -290,15 +306,28 @@
     const avatar = document.getElementById('profile-avatar-img');
     const nickDisplay = document.getElementById('profile-nick-display');
     const banner = document.getElementById('loja-locked-banner');
+    const captionEl = bar ? bar.querySelector('.profile-caption') : null;
 
     if (banner) banner.hidden = true;
 
     if (STATE.nick) {
       if (avatar) avatar.src = `https://mc-heads.net/avatar/${encodeURIComponent(STATE.nick)}/64`;
       if (nickDisplay) nickDisplay.textContent = STATE.nick;
-      if (bar) bar.hidden = false;
+      if (captionEl) captionEl.textContent = 'Entregar para:';
+      if (bar) {
+        bar.classList.add('has-nick');
+        bar.classList.remove('no-nick');
+        bar.hidden = false;
+      }
     } else {
-      if (bar) bar.hidden = true;
+      if (avatar) avatar.src = DEFAULT_AVATAR;
+      if (nickDisplay) nickDisplay.textContent = 'Informar Nick';
+      if (captionEl) captionEl.textContent = 'Personagem:';
+      if (bar) {
+        bar.classList.add('no-nick');
+        bar.classList.remove('has-nick');
+        bar.hidden = false;
+      }
     }
   }
 
@@ -497,6 +526,44 @@
     });
   }
 
+  function atualizarNomeServidorNavbar(nome) {
+    const navContainer = document.getElementById('navbar-container');
+    if (!navContainer) return;
+
+    function apply() {
+      let titleEl = document.getElementById('navbar-mobile-server-title');
+      if (!titleEl) {
+        const nav = navContainer.querySelector('nav');
+        if (nav) {
+          titleEl = document.createElement('div');
+          titleEl.id = 'navbar-mobile-server-title';
+          titleEl.className = 'navbar-mobile-server-title';
+          const toggleBtn = document.getElementById('navbar-toggle');
+          if (toggleBtn) {
+            nav.insertBefore(titleEl, toggleBtn);
+          } else {
+            nav.appendChild(titleEl);
+          }
+        }
+      }
+      if (titleEl) {
+        titleEl.textContent = nome || '';
+        titleEl.style.display = nome ? '' : 'none';
+      }
+    }
+
+    apply();
+    if (!document.getElementById('navbar-mobile-server-title')) {
+      const observer = new MutationObserver(() => {
+        apply();
+        if (document.getElementById('navbar-mobile-server-title')) {
+          observer.disconnect();
+        }
+      });
+      observer.observe(navContainer, { childList: true, subtree: true });
+    }
+  }
+
   function abrirLojaDoServidor(serverId, pushState = true) {
     const srv = STATE.servidores.find(s => s.id === serverId) || STATE.servidores[0];
     if (!srv) return;
@@ -513,6 +580,7 @@
 
     const titleEl = document.getElementById('selected-server-title');
     if (titleEl) titleEl.textContent = srv.nome;
+    atualizarNomeServidorNavbar(srv.nome);
 
     const serversView = document.getElementById('loja-servers-view');
     const productsView = document.getElementById('loja-products-view');
@@ -533,6 +601,7 @@
 
   function voltarParaSelecaoServidores(pushState = true) {
     STATE.selectedServer = null;
+    atualizarNomeServidorNavbar('');
 
     if (pushState) {
       try {
@@ -563,7 +632,7 @@
     const srv = STATE.servidores.find(s => s.id === STATE.selectedServer) || STATE.servidores[0];
     if (!srv) {
       navBox.innerHTML = '';
-      if (container) container.hidden = true;
+      navBox.hidden = true;
       return;
     }
 
@@ -591,6 +660,7 @@
         </button>
       `;
       navBox.innerHTML = html;
+      navBox.hidden = false;
 
       navBox.querySelectorAll('.category-tab').forEach(btn => {
         btn.addEventListener('click', (e) => {
@@ -601,13 +671,13 @@
           }
         });
       });
-
-      if (container) container.hidden = false;
     } else {
-      // Oculta caso só haja uma ou nenhuma categoria cadastrada
+      // Oculta as abas caso só haja uma categoria cadastrada
       navBox.innerHTML = '';
-      if (container) container.hidden = true;
+      navBox.hidden = true;
     }
+
+    if (container) container.hidden = false;
   }
 
   function selecionarCategoria(categoria) {
