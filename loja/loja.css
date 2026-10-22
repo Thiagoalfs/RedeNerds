@@ -754,28 +754,25 @@ button.category-tab.active i,
   z-index: 30;
 }
 
-.vip-card-head {
+.vip-title-row {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 0.5rem;
+  gap: 8px;
+  margin-bottom: 0.65rem;
+  flex-wrap: wrap;
 }
 
-.vip-server-label {
-  font-family: 'Outfit', var(--font-main);
-  font-size: 0.72rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.8px;
-  color: var(--color-accent);
+.vip-title-row .vip-title {
+  margin: 0;
 }
 
 .featured-pill {
   font-family: 'Outfit', var(--font-main);
-  font-size: 0.68rem;
+  font-size: 0.66rem;
   font-weight: 800;
   text-transform: uppercase;
-  letter-spacing: 0.6px;
+  letter-spacing: 0.5px;
   background: rgba(245, 158, 11, 0.16);
   color: #fbbf24;
   padding: 3px 8px;
@@ -784,6 +781,8 @@ button.category-tab.active i,
   display: inline-flex;
   align-items: center;
   gap: 4px;
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 
 .vip-title {

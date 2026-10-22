@@ -798,12 +798,10 @@
               <img src="${escapeHTML(imagemUrl)}" alt="${escapeHTML(chave.nome)}" class="key-card-img" loading="lazy" onerror="this.onerror=null; this.src='/assets/images/logo.webp';">
             </div>
 
-            <div class="vip-card-head">
-              <span class="vip-server-label">${escapeHTML(srv.nome)}</span>
+            <div class="vip-title-row">
+              <h3 class="vip-title key-title">${chaveTituloHtml}</h3>
               ${isFeatured ? `<span class="featured-pill">Mais Escolhido</span>` : ''}
             </div>
-
-            <h3 class="vip-title key-title">${chaveTituloHtml}</h3>
 
             <!-- PREÇO UNITÁRIO SEM DURAÇÃO -->
             <div class="vip-price-container key-price-container">
@@ -882,12 +880,10 @@
 
         return `
           <div class="vip-card ${isFeatured ? 'is-featured' : ''}" style="animation-delay: ${delay}s;">
-            <div class="vip-card-head">
-              <span class="vip-server-label">${escapeHTML(srv.nome)}</span>
+            <div class="vip-title-row">
+              <h3 class="vip-title">${escapeHTML(vip.nome)}</h3>
               ${isFeatured ? `<span class="featured-pill">Mais Escolhido</span>` : ''}
             </div>
-
-            <h3 class="vip-title">${escapeHTML(vip.nome)}</h3>
 
             <div class="vip-price-container">
               <span class="price-currency">R$</span>
