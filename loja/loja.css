@@ -2189,23 +2189,43 @@ dialog.loja-dialog[hidden],
   }
 
   .navbar-mobile-server-title {
-    display: block;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
     position: absolute;
     left: 50%;
     top: 50%;
     transform: translate(-50%, -50%);
+    text-align: center;
+    pointer-events: none;
+    z-index: 5;
+    max-width: calc(100% - 130px);
+    line-height: 1.1;
+  }
+
+  .navbar-mobile-server-title .nav-title-eyebrow {
     font-family: 'Outfit', var(--font-main);
-    font-size: 1.15rem;
+    font-size: 0.62rem;
+    font-weight: 700;
+    color: var(--color-text-muted, #94A3B8);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    line-height: 1;
+    margin-bottom: 2px;
+  }
+
+  .navbar-mobile-server-title .nav-title-main {
+    font-family: 'Outfit', var(--font-main);
+    font-size: 1.05rem;
     font-weight: 800;
     color: #FFFFFF;
-    text-align: center;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    max-width: calc(100% - 130px);
-    pointer-events: none;
-    z-index: 5;
     letter-spacing: -0.2px;
+    line-height: 1.1;
+    max-width: 100%;
   }
 
   .selected-server-header {

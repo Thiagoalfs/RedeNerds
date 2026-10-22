@@ -546,8 +546,18 @@
         }
       }
       if (titleEl) {
-        titleEl.textContent = nome || '';
-        titleEl.style.display = nome ? '' : 'none';
+        if (nome) {
+          titleEl.innerHTML = `
+            <span class="nav-title-eyebrow">Loja</span>
+            <span class="nav-title-main">${escapeHTML(nome)}</span>
+          `;
+          titleEl.style.display = '';
+        } else {
+          titleEl.innerHTML = `
+            <span class="nav-title-main">Loja</span>
+          `;
+          titleEl.style.display = '';
+        }
       }
     }
 
