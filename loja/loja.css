@@ -1,3 +1,19 @@
+@font-face {
+  font-family: 'Minecraft';
+  src: url('/assets/fonts/Minecraft-Regular.woff') format('woff');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Minecraft';
+  src: url('/assets/fonts/Minecraft-Bold.woff') format('woff');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
 @import url('/shared/tokens.css');
 /**
  * loja.css - Design System da Loja Oficial (Rede Nerds)
@@ -181,7 +197,7 @@
   padding: 3rem 1.5rem;
   text-align: center;
   margin-bottom: 2rem;
-  box-shadow: 0 8px 24px -4px rgba(0, 0, 0, 0.5);
+  box-shadow: none;
 }
 
 .locked-card-body {
@@ -243,7 +259,7 @@
 
 .btn-solid-primary:hover {
   background: #7dd3fc;
-  box-shadow: 0 4px 16px rgba(56, 189, 248, 0.35);
+  box-shadow: none;
   transform: translateY(-1px);
 }
 
@@ -349,10 +365,9 @@
   cursor: pointer;
   position: relative;
   transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1),
-              border-color 0.25s ease,
-              box-shadow 0.25s ease;
+              border-color 0.25s ease;
   user-select: none;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+  box-shadow: none;
   width: 250px;
   max-width: calc(100vw - 40px);
 }
@@ -361,7 +376,7 @@
 .loja-server-card:focus-visible {
   transform: translateY(-5px);
   border-color: var(--server-theme, #38BDF8);
-  box-shadow: 0 14px 32px rgba(0, 0, 0, 0.6), 0 0 20px var(--server-theme, rgba(56, 189, 248, 0.28));
+  box-shadow: none;
   outline: none;
 }
 
@@ -448,7 +463,7 @@
   background: var(--server-theme, #38BDF8);
   color: #0b0f19;
   border-color: var(--server-theme, #38BDF8);
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+  box-shadow: none;
 }
 
 .loja-server-card:hover .btn-enter-store i {
@@ -600,7 +615,7 @@
   background: var(--color-surface-subtle);
   border-color: var(--server-color, var(--color-border-strong));
   color: #FFFFFF;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+  box-shadow: none;
 }
 
 /* ======================================================== */
@@ -629,12 +644,12 @@
 .category-tabs-bar {
   order: 2;
   display: inline-flex;
-  align-items: center;
+  align-items: stretch;
   justify-content: center;
   gap: 0.35rem;
   background: var(--color-surface);
   border: var(--border-width-sm) solid var(--color-border);
-  padding: 4px;
+  padding: 3px;
   border-radius: var(--radius-md);
   width: fit-content;
   max-width: 100%;
@@ -651,8 +666,10 @@ button.category-tab,
   font-family: 'Outfit', var(--font-main);
   font-size: 0.9rem;
   font-weight: 700;
-  padding: 0.5rem 1.25rem;
-  border-radius: 6px;
+  height: 100%;
+  padding: 0 1.25rem;
+  box-sizing: border-box;
+  border-radius: calc(var(--radius-md) - 3px);
   cursor: pointer;
   display: inline-flex;
   align-items: center;
@@ -682,7 +699,7 @@ button.category-tab.active,
   background: var(--color-surface-subtle) !important;
   border-color: #38bdf8 !important;
   color: #FFFFFF !important;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.3) !important;
+  box-shadow: none !important;
 }
 
 button.category-tab.active i,
@@ -703,6 +720,7 @@ button.category-tab.active i,
   flex-wrap: wrap;
   justify-content: center;
   gap: 1.35rem;
+  padding-top: 14px;
 }
 
 @keyframes slideDownCard {
@@ -732,9 +750,10 @@ button.category-tab.active i,
   opacity: 0;
   position: relative;
   z-index: 1;
-  box-shadow: 0 8px 24px -4px rgba(0, 0, 0, 0.5);
+  box-shadow: none;
   animation: slideDownCard 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-  transition: border-color 0.2s ease, background-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease, z-index 0s;
+  transition: border-color 0.2s ease, background-color 0.2s ease, transform 0.2s ease, z-index 0s;
+  font-family: 'Minecraft', monospace;
 }
 
 @media (max-width: 640px) {
@@ -748,7 +767,7 @@ button.category-tab.active i,
 .vip-card:focus-within {
   border-color: rgba(255, 255, 255, 0.22);
   border-top-color: rgba(255, 255, 255, 0.38);
-  box-shadow: 0 16px 36px -4px rgba(0, 0, 0, 0.7);
+  box-shadow: none;
   z-index: 30;
 }
 
@@ -756,13 +775,13 @@ button.category-tab.active i,
   border: 1px solid rgba(245, 158, 11, 0.35);
   border-top: 2px solid #f59e0b;
   background: linear-gradient(180deg, #161c28 0%, #0c1017 100%);
-  box-shadow: 0 10px 32px -4px rgba(245, 158, 11, 0.12), 0 8px 24px -4px rgba(0, 0, 0, 0.5);
+  box-shadow: none;
 }
 
 .vip-card.is-featured:hover {
   border-color: rgba(245, 158, 11, 0.55);
   border-top-color: #fbbf24;
-  box-shadow: 0 16px 40px -4px rgba(245, 158, 11, 0.22), 0 12px 32px -4px rgba(0, 0, 0, 0.7);
+  box-shadow: none;
   z-index: 30;
 }
 
@@ -780,27 +799,37 @@ button.category-tab.active i,
 }
 
 .featured-pill {
-  font-family: 'Outfit', var(--font-main);
-  font-size: 0.66rem;
-  font-weight: 800;
+  position: absolute;
+  top: -12px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-family: 'Minecraft', monospace;
+  font-size: 0.72rem;
+  font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.5px;
-  background: rgba(245, 158, 11, 0.16);
+  background: #111622;
   color: #fbbf24;
-  padding: 3px 8px;
+  padding: 3px 10px;
   border-radius: 4px;
-  border: 1px solid rgba(245, 158, 11, 0.4);
+  border: 1px solid #f59e0b;
   display: inline-flex;
   align-items: center;
   gap: 4px;
   white-space: nowrap;
   flex-shrink: 0;
+  z-index: 10;
+}
+
+.vip-card.is-featured:hover .featured-pill {
+  border-color: #fbbf24;
+  color: #fde68a;
 }
 
 .multiservidor-pill {
-  font-family: 'Outfit', var(--font-main);
-  font-size: 0.64rem;
-  font-weight: 800;
+  font-family: 'Minecraft', monospace;
+  font-size: 0.7rem;
+  font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.5px;
   background: rgba(56, 189, 248, 0.15);
@@ -816,14 +845,17 @@ button.category-tab.active i,
   flex-shrink: 0;
 }
 
-.vip-card.is-multiservidor {
+.vip-card.is-multiservidor,
+.vip-card.is-multiservidor:hover,
+.vip-card.is-multiservidor:focus-within {
   border-color: rgba(56, 189, 248, 0.28);
+  box-shadow: none !important;
 }
 
 .vip-title {
-  font-family: 'Outfit', var(--font-main);
+  font-family: 'Minecraft', monospace;
   font-size: 1.45rem;
-  font-weight: 800;
+  font-weight: 700;
   color: #FFFFFF;
   letter-spacing: -0.2px;
   margin: 0 0 0.5rem 0;
@@ -839,23 +871,23 @@ button.category-tab.active i,
 }
 
 .price-currency {
-  font-family: 'Outfit', var(--font-main);
-  font-size: 0.95rem;
+  font-family: 'Minecraft', monospace;
+  font-size: 1rem;
   font-weight: 700;
   color: var(--color-text-muted);
 }
 
 .price-val {
-  font-family: 'Outfit', var(--font-main);
-  font-size: 2.1rem;
-  font-weight: 800;
+  font-family: 'Minecraft', monospace;
+  font-size: 2rem;
+  font-weight: 700;
   color: #FFFFFF;
   letter-spacing: -0.5px;
 }
 
 .price-period {
-  font-family: var(--font-mono);
-  font-size: 0.76rem;
+  font-family: 'Minecraft', monospace;
+  font-size: 0.78rem;
   color: var(--color-text-dim);
   margin-left: 2px;
 }
@@ -868,10 +900,12 @@ button.category-tab.active i,
   flex-direction: column;
   gap: 0.7rem;
   flex: 1;
+  font-family: 'Minecraft', monospace;
 }
 
 .vip-benefits li {
-  font-size: 0.85rem;
+  font-family: 'Minecraft', monospace;
+  font-size: 0.88rem;
   color: #cbd5e1;
   display: flex;
   align-items: center;
@@ -880,9 +914,10 @@ button.category-tab.active i,
 }
 
 .vip-benefits li.vip-benefit-hero {
+  font-family: 'Minecraft', monospace;
   color: #FFFFFF;
   font-weight: 700;
-  font-size: 0.88rem;
+  font-size: 0.92rem;
   padding: 0.75rem 0;
   border-bottom: 1px solid rgba(255, 255, 255, 0.08);
   margin-bottom: 0.75rem;
@@ -893,22 +928,22 @@ button.category-tab.active i,
 }
 
 .vip-tag-badge {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  padding: 1px 7px;
-  border-radius: 4px;
-  background: rgba(255, 255, 255, 0.09);
-  font-family: 'Outfit', var(--font-mono);
-  font-size: 0.82rem;
-  font-weight: 800;
-  letter-spacing: 0.5px;
+  display: inline;
+  font-family: inherit;
+  font-size: 1em;
+  font-weight: 700;
+  letter-spacing: 0.4px;
   text-transform: uppercase;
-  line-height: 1.2;
-  vertical-align: middle;
+  line-height: inherit;
+  vertical-align: baseline;
   margin: 0 4px;
-  position: relative;
-  top: -1px;
+}
+
+.vip-tag-badge strong {
+  font-family: inherit;
+  font-size: inherit;
+  line-height: inherit;
+  vertical-align: baseline;
 }
 
 .vip-benefits li i {
@@ -932,8 +967,8 @@ button.category-tab.active i,
   background: #182234;
   border: 1px solid rgba(255, 255, 255, 0.12);
   color: #FFFFFF;
-  font-family: 'Outfit', var(--font-main);
-  font-size: 0.9rem;
+  font-family: 'Minecraft', monospace;
+  font-size: 0.95rem;
   font-weight: 700;
   padding: 0.8rem 1.1rem;
   border-radius: 6px;
@@ -956,7 +991,7 @@ button.category-tab.active i,
   border-color: #38bdf8;
   color: #07090e;
   font-weight: 800;
-  box-shadow: 0 4px 16px rgba(56, 189, 248, 0.35);
+  box-shadow: none;
 }
 
 .btn-purchase-card:hover i {
@@ -974,7 +1009,7 @@ button.category-tab.active i,
   background: #fbbf24;
   border-color: #fbbf24;
   color: #07090e;
-  box-shadow: 0 4px 18px rgba(245, 158, 11, 0.4);
+  box-shadow: none;
 }
 
 /* CARDS ESPECÍFICOS DE CHAVES E ITENS */
@@ -996,7 +1031,7 @@ button.category-tab.active i,
   max-width: 90px;
   max-height: 90px;
   object-fit: contain;
-  filter: drop-shadow(0 6px 14px rgba(0, 0, 0, 0.65));
+  filter: none;
   transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
@@ -1114,7 +1149,7 @@ dialog.loja-dialog[hidden],
   width: 100%;
   max-width: 440px;
   max-height: min(92vh, 760px);
-  box-shadow: 0 20px 50px -10px rgba(0, 0, 0, 0.8), 0 0 0 1px rgba(255, 255, 255, 0.05);
+  box-shadow: none;
   display: flex;
   flex-direction: column;
   box-sizing: border-box;
@@ -1216,7 +1251,7 @@ dialog.loja-dialog[hidden],
   border: 2px solid rgba(56, 189, 248, 0.35);
   background: #000;
   image-rendering: pixelated;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5);
+  box-shadow: none;
 }
 
 .preview-nick-name {
@@ -1267,7 +1302,7 @@ dialog.loja-dialog[hidden],
 
 .form-field input[type="text"]:focus {
   border-color: #38bdf8;
-  box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.2);
+  box-shadow: none;
 }
 
 .field-error {
@@ -1446,7 +1481,7 @@ dialog.loja-dialog[hidden],
   background: #38bdf8;
   color: #07090e;
   border-color: #38bdf8;
-  box-shadow: 0 0 10px rgba(56, 189, 248, 0.4);
+  box-shadow: none;
 }
 
 .btn-qty-step:active {
@@ -1865,7 +1900,240 @@ dialog.loja-dialog[hidden],
 /* 11. CHECKOUT MULTI-MÉTODO (PIX & CARTÃO DE CRÉDITO)      */
 /* ======================================================== */
 .checkout-dialog-card {
-  max-width: 480px;
+  max-width: 860px;
+  width: 95vw;
+  transition: max-width 0.25s ease;
+}
+
+.checkout-split-layout {
+  display: grid;
+  grid-template-columns: 290px minmax(0, 1fr);
+  gap: 1.5rem;
+  align-items: start;
+  width: 100%;
+}
+
+.checkout-left-col {
+  position: sticky;
+  top: 0;
+  align-self: start;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  justify-content: flex-start;
+  gap: 0.85rem;
+  box-sizing: border-box;
+  width: 100%;
+}
+
+/* Box 1: Preview da Skin 3D e Cargo/Nick */
+.checkout-preview-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  background: #0A0D14;
+  border: var(--border-width-sm) solid var(--color-border);
+  border-radius: var(--radius-sm);
+  padding: 1.1rem 1rem 0.85rem 1rem;
+  box-shadow: none;
+  box-sizing: border-box;
+  overflow: hidden;
+  gap: 0.5rem;
+  width: 100%;
+}
+
+.checkout-player-tag-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  font-family: 'Minecraft', monospace;
+  font-size: 1.18rem;
+  line-height: 1.25;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  width: 100%;
+  padding-bottom: 0.25rem;
+  border-bottom: none !important; /* Divisória removida como solicitado */
+}
+
+.checkout-tag-text {
+  font-family: 'Minecraft', monospace;
+  font-weight: 700; /* Weight maior */
+  letter-spacing: 0.4px;
+  display: inline-flex;
+  align-items: center;
+  text-shadow: none;
+}
+
+.checkout-nick-text {
+  font-family: 'Minecraft', monospace;
+  font-weight: 400;
+  letter-spacing: 0.2px;
+  display: inline-flex;
+  align-items: center;
+  text-shadow: none;
+}
+
+.checkout-skin-stage {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 0.25rem 0;
+  width: 100%;
+  flex: 1;
+}
+
+.checkout-skin-3d {
+  height: 230px;
+  width: auto;
+  max-width: 180px;
+  object-fit: contain;
+  filter: none;
+  z-index: 2;
+  image-rendering: -webkit-optimize-contrast;
+}
+
+.checkout-skin-pedestal {
+  width: 140px;
+  height: 16px;
+  background: radial-gradient(ellipse at center, rgba(0, 0, 0, 0.65) 0%, rgba(0, 0, 0, 0) 72%);
+  border-radius: 50%;
+  margin-top: -8px;
+  z-index: 1;
+}
+
+.checkout-skin-glow {
+  display: none !important;
+}
+
+/* Box 2: Card de Informação Estruturado em Linhas (Opção B) */
+.checkout-summary-card {
+  width: 100%;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 0.65rem;
+  background: #0A0D14;
+  border: var(--border-width-sm) solid var(--color-border);
+  border-radius: var(--radius-sm);
+  padding: 0.85rem 1rem;
+  box-sizing: border-box;
+  margin: 0 !important;
+}
+
+.summary-item-row {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  width: 100%;
+  font-family: 'Outfit', var(--font-main);
+  font-size: 0.95rem;
+  line-height: 1.35;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.summary-server-vip-text {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.summary-divider-line {
+  width: 100%;
+  height: 1px;
+  background: var(--color-border);
+}
+
+.summary-price-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.summary-price-caption {
+  font-family: var(--font-main);
+  font-size: 0.82rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #94a3b8;
+}
+
+.summary-amount-val {
+  font-family: var(--font-main);
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: #10b981;
+  letter-spacing: -0.2px;
+  white-space: nowrap;
+}
+
+.summary-amount-val .summary-amount-original {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: #64748b;
+  text-decoration: line-through;
+  margin-right: 6px;
+}
+
+.summary-amount-val .summary-amount-discounted {
+  color: #10b981;
+}
+
+.checkout-right-col {
+  display: flex;
+  flex-direction: column;
+  gap: 1.1rem;
+  min-width: 0;
+  width: 100%;
+}
+
+/* No Desktop: oculta a caixa mobile e exibe a caixa desktop */
+@media (min-width: 769px) {
+  .checkout-summary-mobile {
+    display: none !important;
+  }
+  .checkout-summary-desktop {
+    display: flex !important;
+  }
+}
+
+/* No Mobile: oculta a coluna esquerda (preview e caixa desktop) e exibe o sumário antigo original */
+@media (max-width: 768px) {
+  .checkout-dialog-card {
+    max-width: 480px !important;
+    width: 100%;
+  }
+
+  .checkout-left-col,
+  .checkout-preview-card,
+  .checkout-summary-desktop {
+    display: none !important;
+  }
+
+  .checkout-split-layout {
+    display: contents !important;
+  }
+
+  .checkout-right-col {
+    display: contents !important;
+  }
+
+  .checkout-summary-mobile {
+    display: flex !important;
+  }
 }
 
 .checkout-methods-section {
@@ -1934,7 +2202,7 @@ dialog.loja-dialog[hidden],
   background: var(--color-surface-subtle);
   border-color: var(--color-border-strong);
   color: #FFFFFF;
-  box-shadow: var(--shadow-hard);
+  box-shadow: none;
 }
 
 .method-nav-btn i {
@@ -2344,7 +2612,7 @@ dialog.loja-dialog[hidden],
   .loja-vips-dot.active {
     width: 24px;
     background: var(--color-primary, #38BDF8);
-    box-shadow: 0 0 10px rgba(56, 189, 248, 0.5);
+    box-shadow: none;
   }
 }
 
@@ -2484,11 +2752,12 @@ dialog.loja-dialog[hidden],
     max-width: 100%;
     height: 42px;
     margin: 0 auto;
-    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.2);
+    box-shadow: none;
   }
 
   .category-tab {
-    padding: 0.5rem 1.2rem;
+    height: 100%;
+    padding: 0 1rem;
     font-size: 0.88rem;
   }
 }
@@ -2614,6 +2883,6 @@ dialog.loja-dialog[hidden],
   .loja-servers-dot.active {
     width: 24px;
     background: var(--color-primary, #38BDF8);
-    box-shadow: 0 0 10px rgba(56, 189, 248, 0.5);
+    box-shadow: none;
   }
 }

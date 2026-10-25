@@ -190,23 +190,59 @@
                 </button>
             </div>
             <div class="dialog-body">
-                <!-- Sumário do Pedido -->
-                <div id="pix-order-summary-box" class="order-summary-box">
-                    <div class="summary-player-col">
-                        <img id="summary-avatar-img" src="https://mc-heads.net/avatar/MHF_Steve" alt="Skin">
-                        <div>
-                            <span class="summary-caption">Recebedor</span>
-                            <strong id="summary-nick-display" class="summary-title">Nick</strong>
-                            <div id="summary-server-vip" class="summary-subtext">Servidor • VIP</div>
+                <div class="checkout-split-layout">
+                    <!-- COLUNA ESQUERDA (PC/DESKTOP): NICK/CARGO TOPO + RENDER 3D + CARD DESKTOP -->
+                    <div class="checkout-left-col" id="checkout-left-col">
+                        <!-- BOX 1: PREVIEW DA SKIN E CARGO/NICK NA FONTE MINECRAFT -->
+                        <div class="checkout-preview-card" id="checkout-preview-card">
+                            <div class="checkout-player-tag-row" id="checkout-player-tag-row">
+                                <span class="checkout-tag-text" id="checkout-tag-text">VIP</span>
+                                <span class="checkout-nick-text" id="checkout-nick-text">Jogador</span>
+                            </div>
+
+                            <div class="checkout-skin-stage">
+                                <div class="checkout-skin-glow" id="checkout-skin-glow"></div>
+                                <img id="checkout-skin-3d-img" class="checkout-skin-3d" src="https://mc-heads.net/body/MHF_Steve/right" alt="Skin 3D" onerror="this.onerror=null; this.src='https://mc-heads.net/body/MHF_Steve/right';">
+                                <div class="checkout-skin-pedestal"></div>
+                            </div>
+                        </div>
+
+                        <!-- BOX 2: CARD DE RESUMO DESKTOP (EM LINHAS, SEM AVATAR 2D) -->
+                        <div id="pix-order-summary-box" class="order-summary-box checkout-summary-card checkout-summary-desktop">
+                            <!-- Linha 1: Servidor • Produto VIP -->
+                            <div class="summary-item-row">
+                                <div id="summary-server-vip" class="summary-server-vip-text">Servidor • VIP</div>
+                            </div>
+
+                            <div class="summary-divider-line"></div>
+
+                            <!-- Linha 2: Total à vista • Preço -->
+                            <div class="summary-price-row">
+                                <span class="summary-price-caption">Total à vista</span>
+                                <strong id="summary-price-display" class="summary-amount-val">R$ 0,00</strong>
+                            </div>
                         </div>
                     </div>
-                    <div class="summary-price-col">
-                        <span class="summary-caption">Total à vista</span>
-                        <strong id="summary-price-display" class="summary-amount">R$ 0,00</strong>
-                    </div>
-                </div>
 
-                <!-- SELETOR DE QUANTIDADE (APENAS PARA CHAVES) -->
+                    <!-- COLUNA DIREITA: DADOS DO CHECKOUT & PAGAMENTO -->
+                    <div class="checkout-right-col" id="checkout-right-col">
+                        <!-- SUMÁRIO ANTIGO ORIGINAL PARA CELULAR (COM AVATAR HEAD 2D, RECEBEDOR E TOTAL) -->
+                        <div id="pix-order-summary-box-mobile" class="order-summary-box checkout-summary-mobile">
+                            <div class="summary-player-col">
+                                <img id="summary-avatar-img" class="summary-avatar-head" src="https://mc-heads.net/avatar/MHF_Steve" alt="Skin">
+                                <div>
+                                    <span class="summary-caption">Recebedor</span>
+                                    <strong id="summary-nick-display" class="summary-title">Nick</strong>
+                                    <div id="summary-server-vip-mobile" class="summary-subtext">Servidor • VIP</div>
+                                </div>
+                            </div>
+                            <div class="summary-price-col">
+                                <span class="summary-caption">Total à vista</span>
+                                <strong id="summary-price-display-mobile" class="summary-amount">R$ 0,00</strong>
+                            </div>
+                        </div>
+
+                        <!-- SELETOR DE QUANTIDADE (APENAS PARA CHAVES) -->
                 <div id="checkout-quantity-group" class="checkout-quantity-group" hidden>
                     <label for="input-item-quantity" class="quantity-label">
                         <i class="fa-solid fa-layer-group"></i> Quantidade:
@@ -218,6 +254,25 @@
                         <input type="number" id="input-item-quantity" class="input-quantity-val" min="1" max="100" value="1" readonly>
                         <button type="button" id="btn-qty-plus" class="btn-qty-step" aria-label="Aumentar quantidade">
                             <i class="fa-solid fa-plus"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- SELETOR MODULAR DE FORMAS DE PAGAMENTO -->
+                <div class="checkout-methods-section">
+                    <label class="checkout-methods-label">Selecione a forma de pagamento:</label>
+                    <div class="checkout-methods-nav" id="checkout-methods-nav">
+                        <button type="button" class="method-nav-btn" data-method="pix" id="nav-btn-pix">
+                            <i class="fa-brands fa-pix"></i>
+                            <span>PIX</span>
+                        </button>
+                        <button type="button" class="method-nav-btn" data-method="card" id="nav-btn-card">
+                            <i class="fa-solid fa-credit-card"></i>
+                            <span>Cartão</span>
+                        </button>
+                        <button type="button" class="method-nav-btn" data-method="international" id="nav-btn-international">
+                            <i class="fa-solid fa-globe"></i>
+                            <span>Internacional</span>
                         </button>
                     </div>
                 </div>
@@ -250,25 +305,6 @@
                     <div id="coupon-error-msg" class="coupon-error-text" hidden>
                         <i class="fa-solid fa-triangle-exclamation"></i>
                         <span id="coupon-error-label">Cupom inválido ou expirado.</span>
-                    </div>
-                </div>
-
-                <!-- SELETOR MODULAR DE FORMAS DE PAGAMENTO -->
-                <div class="checkout-methods-section">
-                    <label class="checkout-methods-label">Selecione a forma de pagamento:</label>
-                    <div class="checkout-methods-nav" id="checkout-methods-nav">
-                        <button type="button" class="method-nav-btn" data-method="pix" id="nav-btn-pix">
-                            <i class="fa-brands fa-pix"></i>
-                            <span>PIX</span>
-                        </button>
-                        <button type="button" class="method-nav-btn" data-method="card" id="nav-btn-card">
-                            <i class="fa-solid fa-credit-card"></i>
-                            <span>Cartão</span>
-                        </button>
-                        <button type="button" class="method-nav-btn" data-method="international" id="nav-btn-international">
-                            <i class="fa-solid fa-globe"></i>
-                            <span>Internacional</span>
-                        </button>
                     </div>
                 </div>
 
@@ -494,6 +530,8 @@
                         </button>
                     </div>
                 </div>
+                    </div><!-- /.checkout-right-col -->
+                </div><!-- /.checkout-split-layout -->
             </div>
         </div>
     </dialog>
@@ -762,7 +800,7 @@
     </dialog>
 
     <div id="footer"></div>
-    <script src="/shared/navbar.js?v=2"></script>
+    <script src="/shared/navbar.js?v=10"></script>
     <script src="loja.js?v=45"></script>
 </body>
 </html>

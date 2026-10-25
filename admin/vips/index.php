@@ -176,6 +176,11 @@ try {
 .scratch-preset-btn:hover {
     transform: scale(1.2);
 }
+.vip-cor-preview {
+    min-width: 150px;
+    max-width: 200px;
+    flex-shrink: 0;
+}
 .tag-minimal-switch {
     display: inline-flex;
     background: #0f172a;
@@ -281,16 +286,16 @@ try {
     </div>
     <div class="card-body p-0">
         <div class="table-responsive">
-            <table class="table table-admin align-middle mb-0" id="tabela-vips-ativos">
+            <table class="table table-admin table-sticky-mobile align-middle mb-0" id="tabela-vips-ativos">
                 <thead>
                     <tr>
-                        <th style="width: 160px;">Servidor</th>
                         <th>Pacote VIP</th>
+                        <th style="width: 160px;">Servidor</th>
                         <th style="width: 160px;">Package ID</th>
                         <th style="width: 140px;">Preço</th>
                         <th style="width: 120px;">Duração</th>
                         <th style="width: 110px;">Status</th>
-                        <th class="text-end" style="width: 150px;">Ações</th>
+                        <th class="text-end" style="width: 130px;">Ações</th>
                     </tr>
                 </thead>
                 <tbody id="lista-vips-ativos">
@@ -330,12 +335,6 @@ try {
                                 data-cor-string="<?php echo htmlspecialchars($v['cor_string'] ?? '', ENT_QUOTES, 'UTF-8'); ?>"
                                 data-vantagens="<?php echo htmlspecialchars($v['vantagens'] ?? '[]', ENT_QUOTES, 'UTF-8'); ?>">
                                 <td>
-                                    <span class="badge js-vip-servidor" style="background-color: <?php echo htmlspecialchars($srvCor, ENT_QUOTES, 'UTF-8'); ?>; color: #fff; font-weight: 600;">
-                                        <i class="fa-solid <?php echo $isMulti ? 'fa-globe' : 'fa-server'; ?> me-1"></i>
-                                        <?php echo htmlspecialchars($srvNome, ENT_QUOTES, 'UTF-8'); ?>
-                                    </span>
-                                </td>
-                                <td>
                                     <div class="d-flex flex-column">
                                         <div class="d-flex align-items-center gap-1">
                                             <strong class="text-dark js-vip-nome"><?php echo htmlspecialchars($v['nome'], ENT_QUOTES, 'UTF-8'); ?></strong>
@@ -348,6 +347,12 @@ try {
                                             </span>
                                         </div>
                                     </div>
+                                </td>
+                                <td>
+                                    <span class="badge js-vip-servidor" style="background-color: <?php echo htmlspecialchars($srvCor, ENT_QUOTES, 'UTF-8'); ?>; color: #fff; font-weight: 600;">
+                                        <i class="fa-solid <?php echo $isMulti ? 'fa-globe' : 'fa-server'; ?> me-1"></i>
+                                        <?php echo htmlspecialchars($srvNome, ENT_QUOTES, 'UTF-8'); ?>
+                                    </span>
                                 </td>
                                 <td>
                                     <span class="badge bg-light text-dark border font-monospace js-vip-package" style="font-size: 0.78rem;">
@@ -364,7 +369,7 @@ try {
                                         <?php 
                                         $d = isset($v['duracao_dias']) ? (int)$v['duracao_dias'] : 30;
                                         if ($d === 0) {
-                                            echo '<span class="badge bg-success-subtle text-success border border-success-subtle">Permanente</span>';
+                                            echo 'Permanente';
                                         } else {
                                             echo $d . ' dias';
                                         }
@@ -416,16 +421,16 @@ try {
     </div>
     <div class="card-body p-0">
         <div class="table-responsive">
-            <table class="table table-admin align-middle mb-0" id="tabela-vips-inativos">
+            <table class="table table-admin table-sticky-mobile align-middle mb-0" id="tabela-vips-inativos">
                 <thead>
                     <tr>
-                        <th style="width: 160px;">Servidor</th>
                         <th>Pacote VIP</th>
+                        <th style="width: 160px;">Servidor</th>
                         <th style="width: 160px;">Package ID</th>
                         <th style="width: 140px;">Preço</th>
                         <th style="width: 120px;">Duração</th>
                         <th style="width: 180px;">Status</th>
-                        <th class="text-end" style="width: 150px;">Ações</th>
+                        <th class="text-end" style="width: 130px;">Ações</th>
                     </tr>
                 </thead>
                 <tbody id="lista-vips-inativos">
@@ -462,12 +467,6 @@ try {
                                 data-cor-string="<?php echo htmlspecialchars($v['cor_string'] ?? '', ENT_QUOTES, 'UTF-8'); ?>"
                                 data-vantagens="<?php echo htmlspecialchars($v['vantagens'] ?? '[]', ENT_QUOTES, 'UTF-8'); ?>">
                                 <td>
-                                    <span class="badge js-vip-servidor" style="background-color: <?php echo htmlspecialchars($srvCor, ENT_QUOTES, 'UTF-8'); ?>; color: #fff; font-weight: 600;">
-                                        <i class="fa-solid <?php echo $isMulti ? 'fa-globe' : 'fa-server'; ?> me-1"></i>
-                                        <?php echo htmlspecialchars($srvNome, ENT_QUOTES, 'UTF-8'); ?>
-                                    </span>
-                                </td>
-                                <td>
                                     <div class="d-flex flex-column">
                                         <div class="d-flex align-items-center gap-1">
                                             <strong class="text-dark js-vip-nome"><?php echo htmlspecialchars($v['nome'], ENT_QUOTES, 'UTF-8'); ?></strong>
@@ -480,6 +479,12 @@ try {
                                             </span>
                                         </div>
                                     </div>
+                                </td>
+                                <td>
+                                    <span class="badge js-vip-servidor" style="background-color: <?php echo htmlspecialchars($srvCor, ENT_QUOTES, 'UTF-8'); ?>; color: #fff; font-weight: 600;">
+                                        <i class="fa-solid <?php echo $isMulti ? 'fa-globe' : 'fa-server'; ?> me-1"></i>
+                                        <?php echo htmlspecialchars($srvNome, ENT_QUOTES, 'UTF-8'); ?>
+                                    </span>
                                 </td>
                                 <td>
                                     <span class="badge bg-light text-dark border font-monospace js-vip-package" style="font-size: 0.78rem;">
@@ -496,7 +501,7 @@ try {
                                         <?php 
                                         $d = isset($v['duracao_dias']) ? (int)$v['duracao_dias'] : 30;
                                         if ($d === 0) {
-                                            echo '<span class="badge bg-success-subtle text-success border border-success-subtle">Permanente</span>';
+                                            echo 'Permanente';
                                         } else {
                                             echo $d . ' dias';
                                         }
@@ -577,11 +582,11 @@ try {
                         </div>
                         <div class="col-md-5">
                             <label for="criar-vip-nome" class="form-label fw-bold">Nome do Pacote VIP <span class="text-danger">*</span></label>
-                            <input type="text" class="form-control" id="criar-vip-nome" name="nome" placeholder="Ex: VIP Netherite" required oninput="atualizarPreviewTagVip('criar-vip')">
+                            <input type="text" class="form-control" id="criar-vip-nome" name="nome" placeholder="Ex: VIP Netherite" required oninput="aoAlterarNomeVip('criar-vip')">
                         </div>
                         <div class="col-md-3">
                             <label for="criar-vip-packageId" class="form-label fw-bold">Package ID</label>
-                            <input type="text" class="form-control font-monospace" id="criar-vip-packageId" name="packageId" placeholder="Ex: vip_netherite">
+                            <input type="text" class="form-control font-monospace" id="criar-vip-packageId" name="packageId" placeholder="vip_netherite" readonly tabindex="-1" style="cursor: not-allowed; background-color: var(--bs-secondary-bg, #f1f5f9);" title="Gerado automaticamente a partir do nome">
                         </div>
                     </div>
 
@@ -602,16 +607,16 @@ try {
                     <!-- SISTEMA DE COR DA TAG (DEGRADÊ OU STRING MINECRAFT) -->
                     <div class="mb-3">
                         <label class="form-label fw-bold mb-2">Cor da Tag</label>
-                        <div class="d-flex align-items-center gap-2">
+                        <div class="d-flex align-items-center gap-2 vip-cor-tag-container">
                             <!-- 1. PREVIEW NA ESQUERDA -->
-                            <div class="rounded border text-center font-monospace d-flex align-items-center justify-content-center px-3"
-                                 style="background: #0f172a; border-color: #334155 !important; height: 46px; min-width: 150px; max-width: 200px; flex-shrink: 0;"
+                            <div class="vip-cor-preview rounded border text-center font-monospace d-flex align-items-center justify-content-center px-3"
+                                 style="background: #0f172a; border-color: #334155 !important; height: 46px;"
                                  title="Prévia em tempo real">
                                 <div id="criar-vip-tag-preview-content" class="fw-bold" style="font-size: 1.05rem; letter-spacing: 0.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;"></div>
                             </div>
 
                             <!-- 2. INPUTFIELD NO MEIO -->
-                            <div class="flex-grow-1 position-relative" style="min-width: 0;">
+                            <div class="vip-cor-input flex-grow-1 position-relative" style="min-width: 0;">
                                 <!-- Painel Degradê -->
                                 <div id="criar-vip-panel-colorwheel" class="w-100">
                                     <div class="scratch-gradient-wrapper position-relative">
@@ -683,7 +688,7 @@ try {
                             </div>
 
                             <!-- 3. SWITCH NA DIREITA -->
-                            <div class="flex-shrink-0">
+                            <div class="vip-cor-switch flex-shrink-0">
                                 <div class="tag-minimal-switch">
                                     <button type="button" class="tag-switch-btn active" id="criar-vip-btn-mode-colorwheel" onclick="definirModoCorVip('criar-vip', 'colorwheel')">
                                         Degradê
@@ -774,11 +779,11 @@ try {
                         </div>
                         <div class="col-md-5">
                             <label for="edit-vip-nome" class="form-label fw-bold">Nome do Pacote VIP <span class="text-danger">*</span></label>
-                            <input type="text" class="form-control" id="edit-vip-nome" name="nome" required oninput="atualizarPreviewTagVip('edit-vip')">
+                            <input type="text" class="form-control" id="edit-vip-nome" name="nome" required oninput="aoAlterarNomeVip('edit-vip')">
                         </div>
                         <div class="col-md-3">
                             <label for="edit-vip-packageId" class="form-label fw-bold">Package ID</label>
-                            <input type="text" class="form-control font-monospace" id="edit-vip-packageId" name="packageId">
+                            <input type="text" class="form-control font-monospace" id="edit-vip-packageId" name="packageId" readonly tabindex="-1" style="cursor: not-allowed; background-color: var(--bs-secondary-bg, #f1f5f9);" title="Gerado automaticamente a partir do nome">
                         </div>
                     </div>
 
@@ -799,16 +804,16 @@ try {
                     <!-- SISTEMA DE COR DA TAG (DEGRADÊ OU STRING MINECRAFT) -->
                     <div class="mb-3">
                         <label class="form-label fw-bold mb-2">Cor da Tag</label>
-                        <div class="d-flex align-items-center gap-2">
+                        <div class="d-flex align-items-center gap-2 vip-cor-tag-container">
                             <!-- 1. PREVIEW NA ESQUERDA -->
-                            <div class="rounded border text-center font-monospace d-flex align-items-center justify-content-center px-3"
-                                 style="background: #0f172a; border-color: #334155 !important; height: 46px; min-width: 150px; max-width: 200px; flex-shrink: 0;"
+                            <div class="vip-cor-preview rounded border text-center font-monospace d-flex align-items-center justify-content-center px-3"
+                                 style="background: #0f172a; border-color: #334155 !important; height: 46px;"
                                  title="Prévia em tempo real">
                                 <div id="edit-vip-tag-preview-content" class="fw-bold" style="font-size: 1.05rem; letter-spacing: 0.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;"></div>
                             </div>
 
                             <!-- 2. INPUTFIELD NO MEIO -->
-                            <div class="flex-grow-1 position-relative" style="min-width: 0;">
+                            <div class="vip-cor-input flex-grow-1 position-relative" style="min-width: 0;">
                                 <!-- Painel Degradê -->
                                 <div id="edit-vip-panel-colorwheel" class="w-100">
                                     <div class="scratch-gradient-wrapper position-relative">
@@ -880,7 +885,7 @@ try {
                             </div>
 
                             <!-- 3. SWITCH NA DIREITA -->
-                            <div class="flex-shrink-0">
+                            <div class="vip-cor-switch flex-shrink-0">
                                 <div class="tag-minimal-switch">
                                     <button type="button" class="tag-switch-btn active" id="edit-vip-btn-mode-colorwheel" onclick="definirModoCorVip('edit-vip', 'colorwheel')">
                                         Degradê
@@ -1044,6 +1049,28 @@ function parseMinecraftString(raw) {
         i++;
     }
     return result;
+}
+
+function gerarPackageIdVip(nome) {
+    if (!nome) return '';
+    return nome
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .toLowerCase()
+        .trim()
+        .replace(/[\s\-]+/g, '_')
+        .replace(/[^a-z0-9_]/g, '')
+        .replace(/_+/g, '_')
+        .replace(/^_+|_+$/g, '');
+}
+
+function aoAlterarNomeVip(prefix) {
+    atualizarPreviewTagVip(prefix);
+    const nomeInput = document.getElementById(prefix + '-nome');
+    const packageInput = document.getElementById(prefix + '-packageId');
+    if (nomeInput && packageInput) {
+        packageInput.value = gerarPackageIdVip(nomeInput.value);
+    }
 }
 
 function atualizarPreviewTagVip(prefix) {
@@ -1352,7 +1379,7 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('edit-vip-nome').value = d.nome || '';
         document.getElementById('modalEditarVipNomeHeader').textContent = d.nome || '';
         document.getElementById('edit-vip-servidor').value = (d.servidorId !== undefined && d.servidorId !== '') ? d.servidorId : '0';
-        document.getElementById('edit-vip-packageId').value = d.packageId || '';
+        document.getElementById('edit-vip-packageId').value = d.packageId || gerarPackageIdVip(d.nome || '');
         document.getElementById('edit-vip-preco').value = d.preco || '';
         document.getElementById('edit-vip-duracao').value = (d.duracaoDias !== undefined && d.duracaoDias !== '') ? d.duracaoDias : 30;
         document.getElementById('edit-vip-destaque').checked = (d.destaque === '1');
@@ -1439,17 +1466,17 @@ document.addEventListener('DOMContentLoaded', function() {
 
         tr.innerHTML = `
             <td>
-                <span class="badge js-vip-servidor" style="background-color: ${escapeHtml(srvCor)}; color: #fff; font-weight: 600;">
-                    <i class="fa-solid fa-server me-1"></i>${escapeHtml(srvNome)}
-                </span>
-            </td>
-            <td>
                 <div class="d-flex flex-column">
                     <div class="d-flex align-items-center gap-1">
                         <strong class="text-dark js-vip-nome">${escapeHtml(v.nome)}</strong>
                         <span class="js-vip-destaque-badge">${destaqueBadge}</span>
                     </div>
                 </div>
+            </td>
+            <td>
+                <span class="badge js-vip-servidor" style="background-color: ${escapeHtml(srvCor)}; color: #fff; font-weight: 600;">
+                    <i class="fa-solid fa-server me-1"></i>${escapeHtml(srvNome)}
+                </span>
             </td>
             <td>
                 <span class="badge bg-light text-dark border font-monospace js-vip-package" style="font-size: 0.78rem;">
@@ -1464,7 +1491,7 @@ document.addEventListener('DOMContentLoaded', function() {
             <td>
                 <span class="text-muted small js-vip-duracao">
                     ${((v.duracao_dias !== undefined && v.duracao_dias !== null && parseInt(v.duracao_dias) === 0) || v.duracao_dias === 0 || v.duracao_dias === '0') 
-                        ? '<span class="badge bg-success-subtle text-success border border-success-subtle">Permanente</span>' 
+                        ? 'Permanente' 
                         : `${parseInt(v.duracao_dias || 30)} dias`}
                 </span>
             </td>

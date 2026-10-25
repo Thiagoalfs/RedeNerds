@@ -351,6 +351,7 @@ body {
 .btn-theme-toggle {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 0.45rem;
   font-size: 0.82rem;
   font-weight: 600;
@@ -358,15 +359,30 @@ body {
   background: var(--admin-surface);
   border: 1px solid var(--border-color);
   border-radius: var(--radius-sm);
-  padding: 0.45rem 0.75rem;
+  height: 36px;
+  padding: 0 0.75rem;
   cursor: pointer;
   transition: all 0.15s ease;
+  box-sizing: border-box;
+}
+
+@media (max-width: 1199.98px) {
+  .btn-theme-toggle {
+    width: 36px;
+    min-width: 36px;
+    padding: 0;
+  }
 }
 
 .btn-theme-toggle:hover {
   color: var(--color-primary);
   border-color: var(--color-primary);
   background: rgba(59, 130, 246, 0.08);
+}
+
+.theme-icon-light,
+.theme-icon-dark {
+  font-size: 0.95rem;
 }
 
 .theme-icon-light { display: none; color: #f59e0b; }
@@ -383,10 +399,12 @@ body {
   font-weight: 600;
   color: var(--text-muted);
   text-decoration: none;
-  padding: 0.45rem 0.85rem;
+  height: 36px;
+  padding: 0 0.85rem;
   border: 1px solid var(--border-color);
   border-radius: var(--radius-sm);
   transition: all 0.15s ease;
+  box-sizing: border-box;
 }
 
 .btn-view-site:hover {
@@ -1354,4 +1372,241 @@ body.unsaved-active {
 /* Modais: rolagem interna suave */
 .modal-dialog-scrollable .modal-body {
   max-height: calc(85vh - 130px);
+}
+
+/* ======================================================== */
+/* 23. MODAIS MOBILE: NATIVE BOTTOM SHEET & UX ERGONÔMICA   */
+/* ======================================================== */
+@media (max-width: 768px) {
+  /* 1. Trava de Scroll no Background e Container */
+  body.modal-open {
+    overscroll-behavior: none;
+  }
+  .modal {
+    overflow: hidden !important;
+  }
+
+  /* 2. Transformação do Modal em Native Bottom Sheet */
+  .modal-dialog,
+  .modal-dialog.modal-dialog-centered,
+  .modal-dialog.modal-dialog-scrollable,
+  .modal-dialog.modal-lg,
+  .modal-dialog.modal-xl,
+  .modal-dialog.modal-sm {
+    margin: 0 !important;
+    max-width: 100% !important;
+    width: 100% !important;
+    min-height: 100% !important;
+    height: 100% !important;
+    display: flex !important;
+    align-items: flex-end !important;
+    pointer-events: none;
+  }
+
+  /* Transição suave de subida (slide-up) estilo gaveta nativa */
+  .modal.fade .modal-dialog {
+    transform: translateY(100%) !important;
+    transition: transform 0.28s cubic-bezier(0.32, 0.72, 0, 1) !important;
+  }
+  .modal.show .modal-dialog {
+    transform: translateY(0) !important;
+  }
+
+  /* Container do conteúdo com cantos superiores arredondados e limite dvh */
+  .modal-dialog .modal-content {
+    border-radius: 20px 20px 0 0 !important;
+    border-bottom: none !important;
+    border-left: none !important;
+    border-right: none !important;
+    max-height: 88vh; /* fallback */
+    max-height: 88dvh !important;
+    display: flex !important;
+    flex-direction: column !important;
+    overflow: hidden !important;
+    width: 100% !important;
+    pointer-events: auto;
+    box-shadow: 0 -10px 30px rgba(0, 0, 0, 0.22) !important;
+    overscroll-behavior: contain;
+  }
+
+  /* Suporte essencial a tags <form> diretamente dentro de .modal-content */
+  .modal-dialog .modal-content > form {
+    display: flex !important;
+    flex-direction: column !important;
+    flex: 1 1 auto !important;
+    min-height: 0 !important;
+    max-height: inherit !important;
+    overflow: hidden !important;
+  }
+
+  /* 3. Header Sticky com Puxador Visual (Drag Handle) */
+  .modal-dialog .modal-header {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    flex-shrink: 0 !important;
+    background-color: #ffffff;
+    border-bottom: 1px solid var(--border-color, #e2e8f0);
+    padding: 10px 16px 14px 16px;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+
+  /* Puxador visual centralizado (indicador tátil de bottom sheet) */
+  .modal-dialog .modal-header::before {
+    content: "";
+    display: block;
+    width: 42px;
+    height: 4px;
+    background: rgba(148, 163, 184, 0.45);
+    border-radius: 4px;
+    margin: 0 auto 10px auto;
+    flex-basis: 100%;
+    order: -1;
+  }
+
+  [data-theme="dark"] .modal-dialog .modal-header {
+    background-color: #111827;
+    border-bottom-color: #1e293b;
+  }
+
+  [data-theme="dark"] .modal-dialog .modal-header::before {
+    background: rgba(255, 255, 255, 0.25);
+  }
+
+  .modal-dialog .modal-header .modal-title {
+    font-size: 1.05rem;
+    font-weight: 700;
+  }
+
+  /* 4. Corpo com Rolagem Independente & Isolamento de Rolagem */
+  .modal-dialog .modal-body,
+  .modal-dialog-scrollable .modal-body {
+    flex: 1 1 auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+    overscroll-behavior: contain !important;
+    padding: 16px !important;
+  }
+
+  /* 5. Footer Sticky na Thumb Zone com Botões Ergonômicos */
+  .modal-dialog .modal-footer {
+    position: sticky;
+    bottom: 0;
+    z-index: 10;
+    flex-shrink: 0 !important;
+    background-color: #ffffff;
+    border-top: 1px solid var(--border-color, #e2e8f0);
+    padding: 12px 16px calc(12px + env(safe-area-inset-bottom, 0px)) 16px !important;
+    display: flex !important;
+    gap: 10px !important;
+    flex-wrap: nowrap !important;
+  }
+
+  [data-theme="dark"] .modal-dialog .modal-footer {
+    background-color: #111827;
+    border-top-color: #1e293b;
+  }
+
+  .modal-dialog .modal-footer > * {
+    margin: 0 !important;
+  }
+
+  .modal-dialog .modal-footer .btn {
+    flex: 1 1 50%;
+    min-height: 46px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.95rem;
+    font-weight: 600;
+    padding: 10px 16px;
+    border-radius: 8px;
+    touch-action: manipulation;
+  }
+
+  .modal-dialog .modal-footer .btn:only-child {
+    flex: 1 1 100%;
+  }
+
+  /* 6. Prevenção de Auto-Zoom indesejado no iOS Safari */
+  .modal-dialog .form-control,
+  .modal-dialog .form-select,
+  .modal-dialog .admin-form-control,
+  .modal-dialog input:not([type="checkbox"]):not([type="radio"]):not([type="color"]),
+  .modal-dialog select,
+  .modal-dialog textarea {
+    font-size: 16px !important;
+  }
+
+  /* 7. Layout responsivo da Cor da Tag em VIPs */
+  .vip-cor-tag-container {
+    flex-wrap: wrap !important;
+  }
+  .vip-cor-tag-container .vip-cor-preview {
+    order: 1 !important;
+    flex: 1 1 auto !important;
+    min-width: 0 !important;
+    max-width: none !important;
+  }
+  .vip-cor-tag-container .vip-cor-switch {
+    order: 2 !important;
+    flex-shrink: 0 !important;
+  }
+  .vip-cor-tag-container .vip-cor-input {
+    order: 3 !important;
+    width: 100% !important;
+    flex: 1 1 100% !important;
+  }
+
+  /* ======================================================== */
+  /* TABELA COM COLUNA DE AÇÕES FIXA NO MOBILE (STICKY)       */
+  /* ======================================================== */
+  .table-sticky-mobile {
+    border-collapse: separate !important;
+    border-spacing: 0 !important;
+  }
+
+  /* Coluna de Ações Fixa na Direita (sem drop shadow) */
+  .table-sticky-mobile thead th:last-child {
+    position: sticky !important;
+    right: 0 !important;
+    z-index: 6 !important;
+    background-color: var(--card-bg, #ffffff) !important;
+    min-width: 110px !important;
+  }
+
+  .table-sticky-mobile tbody tr:not(.empty-row) td:last-child {
+    position: sticky !important;
+    right: 0 !important;
+    z-index: 5 !important;
+    background-color: var(--card-bg, #ffffff) !important;
+    min-width: 110px !important;
+  }
+
+  /* Suporte ao Modo Escuro */
+  [data-theme="dark"] .table-sticky-mobile thead th:last-child {
+    background-color: #1e293b !important;
+  }
+
+  [data-theme="dark"] .table-sticky-mobile tbody tr:not(.empty-row) td:last-child {
+    background-color: #111827 !important;
+  }
+
+  /* Efeito Hover na linha mantendo o fundo da coluna de ações */
+  .table-sticky-mobile tbody tr:hover:not(.empty-row) td:last-child {
+    background-color: #f8fafc !important;
+  }
+
+  [data-theme="dark"] .table-sticky-mobile tbody tr:hover:not(.empty-row) td:last-child {
+    background-color: #1e293b !important;
+  }
+
+  /* Linhas destacadas (animação de inserção/edição) */
+  .table-sticky-mobile tbody tr.table-row-highlight td:last-child {
+    background-color: rgba(34, 197, 94, 0.15) !important;
+  }
 }

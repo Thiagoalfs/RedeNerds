@@ -59,8 +59,18 @@ if ($preco <= 0) {
     exit;
 }
 
+// Package ID gerado automaticamente a partir do nome do VIP em minúsculas com _
+$cleanSlug = @iconv('UTF-8', 'ASCII//TRANSLIT//IGNORE', $nome);
+if ($cleanSlug === false || $cleanSlug === '') {
+    $cleanSlug = $nome;
+}
+$cleanSlug = strtolower(trim($cleanSlug));
+$cleanSlug = preg_replace('/[\s\-]+/', '_', $cleanSlug);
+$cleanSlug = preg_replace('/[^a-z0-9_]/', '', $cleanSlug);
+$cleanSlug = preg_replace('/_+/', '_', $cleanSlug);
+$packageId = trim($cleanSlug, '_');
 if ($packageId === '') {
-    $packageId = 'vip_' . strtolower(preg_replace('/[^a-zA-Z0-9_]/', '', str_replace([' ', '-'], '_', $nome)));
+    $packageId = 'vip_' . time();
 }
 
 $vantagensPost = $_POST['vantagens'] ?? [];

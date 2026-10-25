@@ -633,7 +633,7 @@
     }
   }
 
-  // 6.1 SELETOR DE CATEGORIAS (VIPS VS CHAVES)
+  // 6.1 SELETOR DE CATEGORIAS (VIPS VS REDE TODA VS PACOTES)
   function renderCategoryNav() {
     const container = document.getElementById('loja-category-selector-container');
     const navBox = document.getElementById('loja-category-tabs');
@@ -646,29 +646,53 @@
       return;
     }
 
-    const hasVips = Array.isArray(srv.vips) && srv.vips.length > 0;
-    const hasChaves = Array.isArray(srv.chaves) && srv.chaves.length > 0;
+    const allVips = Array.isArray(srv.vips) ? srv.vips : [];
+    const vipsServidor = allVips.filter(v => !v.multiservidor && v.servidor_id && v.servidor_id !== 0);
+    const vipsRede = allVips.filter(v => !!v.multiservidor || !v.servidor_id || v.servidor_id === 0);
+    const chaves = Array.isArray(srv.chaves) ? srv.chaves : [];
 
-    // Se a categoria atual não tiver itens disponíveis no servidor ativo, seleciona a que tiver
-    if (STATE.currentCategory === 'chaves' && !hasChaves && hasVips) {
-      STATE.currentCategory = 'vips';
-    } else if (STATE.currentCategory === 'vips' && !hasVips && hasChaves) {
-      STATE.currentCategory = 'chaves';
+    const hasVips = vipsServidor.length > 0;
+    const hasRede = vipsRede.length > 0;
+    const hasChaves = chaves.length > 0;
+
+    const availableCategories = [];
+    if (hasVips) availableCategories.push('vips');
+    if (hasRede) availableCategories.push('rede');
+    if (hasChaves) availableCategories.push('chaves');
+
+    if (!availableCategories.includes(STATE.currentCategory)) {
+      STATE.currentCategory = availableCategories.length > 0 ? availableCategories[0] : 'vips';
     }
 
-    // Se ambas as categorias tiverem itens disponíveis, renderiza os botões dinamicamente
-    if (hasVips && hasChaves) {
+    if (availableCategories.length > 1) {
       const isVipsActive = (STATE.currentCategory === 'vips');
+      const isRedeActive = (STATE.currentCategory === 'rede');
       const isChavesActive = (STATE.currentCategory === 'chaves');
 
-      let html = `
-        <button type="button" class="category-tab ${isVipsActive ? 'active' : ''}" data-category="vips" role="tab" aria-selected="${isVipsActive ? 'true' : 'false'}">
-          <i class="fa-solid fa-gem"></i> <span>VIPs</span>
-        </button>
-        <button type="button" class="category-tab ${isChavesActive ? 'active' : ''}" data-category="chaves" role="tab" aria-selected="${isChavesActive ? 'true' : 'false'}">
-          <i class="fa-solid fa-box-open"></i> <span>Pacotes</span>
-        </button>
-      `;
+
+      let html = '';
+      if (hasVips) {
+        html += `
+          <button type="button" class="category-tab ${isVipsActive ? 'active' : ''}" data-category="vips" role="tab" aria-selected="${isVipsActive ? 'true' : 'false'}">
+            <i class="fa-solid fa-gem"></i> <span>VIPs</span>
+          </button>
+        `;
+      }
+      if (hasRede) {
+        html += `
+          <button type="button" class="category-tab ${isRedeActive ? 'active' : ''}" data-category="rede" role="tab" aria-selected="${isRedeActive ? 'true' : 'false'}">
+            <i class="fa-solid fa-network-wired"></i> <span>Rede Toda</span>
+          </button>
+        `;
+      }
+      if (hasChaves) {
+        html += `
+          <button type="button" class="category-tab ${isChavesActive ? 'active' : ''}" data-category="chaves" role="tab" aria-selected="${isChavesActive ? 'true' : 'false'}">
+            <i class="fa-solid fa-box-open"></i> <span>Pacotes</span>
+          </button>
+        `;
+      }
+
       navBox.innerHTML = html;
       navBox.hidden = false;
 
@@ -682,7 +706,6 @@
         });
       });
     } else {
-      // Oculta as abas caso só haja uma categoria cadastrada
       navBox.innerHTML = '';
       navBox.hidden = true;
     }
@@ -717,23 +740,40 @@
     // Atualiza a visibilidade dinâmica das abas de categoria para o servidor ativo
     renderCategoryNav();
 
+    const allVips = Array.isArray(srv.vips) ? srv.vips : [];
+    const vipsServidor = allVips.filter(v => !v.multiservidor && v.servidor_id && v.servidor_id !== 0);
+    const vipsRede = allVips.filter(v => !!v.multiservidor || !v.servidor_id || v.servidor_id === 0);
+    const chaves = Array.isArray(srv.chaves) ? srv.chaves : [];
+
     const isChavesCat = (STATE.currentCategory === 'chaves');
-    const itemsList = isChavesCat 
-      ? (Array.isArray(srv.chaves) ? srv.chaves : [])
-      : (Array.isArray(srv.vips) ? srv.vips : []);
+    const isRedeCat = (STATE.currentCategory === 'rede');
+
+    let itemsList = [];
+    if (isChavesCat) {
+      itemsList = chaves;
+    } else if (isRedeCat) {
+      itemsList = vipsRede;
+    } else {
+      itemsList = vipsServidor;
+    }
 
     let cardsHtml = '';
 
     if (itemsList.length === 0) {
-      const msgVazio = isChavesCat 
-        ? 'Nenhum pacote cadastrado para este servidor no momento.'
-        : 'Nenhum pacote VIP cadastrado para este servidor no momento.';
+      let msgVazio = 'Nenhum pacote cadastrado para este servidor no momento.';
+      if (isChavesCat) {
+        msgVazio = 'Nenhum pacote de chaves cadastrado para este servidor no momento.';
+      } else if (isRedeCat) {
+        msgVazio = 'Nenhum VIP global (Rede Toda) disponível no momento.';
+      } else {
+        msgVazio = 'Nenhum pacote VIP cadastrado para este servidor no momento.';
+      }
       cardsHtml = `
         <div class="state-feedback" style="grid-column: 1 / -1;">
           <p>${escapeHTML(msgVazio)}</p>
         </div>
       `;
-    } else if (isChavesCat) {
+        } else if (isChavesCat) {
       // RENDERIZAÇÃO DOS CARDS DE CHAVES
       cardsHtml = itemsList.map((chave, index) => {
         const isFeatured = !!chave.destaque;
@@ -880,14 +920,39 @@
           return `<li${heroClass}><i class="${iconeCls}"></i> <span>${itemHtml}${infoHtml}</span></li>`;
         }).join('');
 
+        let cardMultiStyle = '';
+        let pillMultiStyle = '';
+
+        if (isMultiservidor) {
+          const tagColors = extractVipTagColors(vip);
+          const c1 = tagColors.cor1;
+          const c2 = tagColors.cor2;
+
+          if (tagColors.isGradient) {
+            cardMultiStyle = `background: linear-gradient(180deg, #111622 0%, #0a0d14 100%) padding-box, linear-gradient(135deg, ${c1}, ${c2}) border-box; border: 1.5px solid transparent; box-shadow: none;`;
+            pillMultiStyle = ` style="background: linear-gradient(135deg, ${hexToRgba(c1, 0.16)}, ${hexToRgba(c2, 0.16)}); border: 1px solid ${hexToRgba(c1, 0.5)}; color: ${c1};"`;
+          } else {
+            cardMultiStyle = `border: 1px solid ${hexToRgba(c1, 0.45)}; border-top: 2px solid ${c1}; box-shadow: none;`;
+            pillMultiStyle = ` style="background: ${hexToRgba(c1, 0.14)}; border: 1px solid ${hexToRgba(c1, 0.45)}; color: ${c1};"`;
+          }
+        }
+
+        const featuredBadgeHtml = isFeatured
+          ? `<span class="featured-pill">Mais Escolhido</span>`
+          : '';
+
+        const multiBadgeHtml = isMultiservidor
+          ? `<span class="multiservidor-pill" title="Válido em todos os servidores da rede"${pillMultiStyle}>Rede Toda</span>`
+          : '';
+
         return `
-          <div class="vip-card ${isFeatured ? 'is-featured' : ''} ${isMultiservidor ? 'is-multiservidor' : ''}" style="animation-delay: ${delay}s;">
+          <div class="vip-card ${isFeatured ? 'is-featured' : ''} ${isMultiservidor ? 'is-multiservidor' : ''}" style="animation-delay: ${delay}s; ${cardMultiStyle}">
+            ${featuredBadgeHtml}
             <div class="vip-title-row">
               <h3 class="vip-title">
                 <span>${escapeHTML(vip.nome)}</span>
-                ${isMultiservidor ? `<span class="multiservidor-pill" title="Válido em todos os servidores da rede"><i class="fa-solid fa-globe"></i> Rede Toda</span>` : ''}
               </h3>
-              ${isFeatured ? `<span class="featured-pill">Mais Escolhido</span>` : ''}
+              ${multiBadgeHtml}
             </div>
 
             <div class="vip-price-container">
@@ -952,6 +1017,82 @@
     });
   }
 
+  // 7.1 RENDERIZAÇÃO DO PREVIEW 3D DO JOGADOR NO CHECKOUT (DESKTOP)
+  function renderCheckoutPlayerPreview(itemData, tipoProduto = 'vip') {
+    const leftCol = document.getElementById('checkout-left-col');
+    const tagEl = document.getElementById('checkout-tag-text');
+    const nickEl = document.getElementById('checkout-nick-text');
+    const skinImg = document.getElementById('checkout-skin-3d-img');
+    const serverNameEl = document.getElementById('checkout-left-server-name');
+
+    if (!leftCol) return;
+
+    const playerNick = (STATE.nick || 'Jogador').trim();
+
+    // 1. Atualiza Skin 3D do Minecraft
+    if (skinImg) {
+      skinImg.src = `https://mc-heads.net/body/${encodeURIComponent(playerNick)}/right`;
+    }
+
+    // 2. Extrai Cores e Informações da Tag
+    const isMultiservidor = (itemData.multiservidor === 1 || itemData.servidor_id === 0 || itemData.servidor_id === null || (itemData.serverInfo && itemData.serverInfo.id === 0));
+    const tagColors = extractVipTagColors(itemData);
+    const c1 = tagColors.cor1 || '#38bdf8';
+    const c2 = tagColors.cor2 || c1;
+    const isGrad = tagColors.isGradient;
+    const corTipo = (itemData.cor_tipo || 'colorwheel').toLowerCase();
+    const corString = (itemData.cor_string || '').trim();
+
+    // 3. Monta o HTML da Tag e do Nick SEM colchetes "[]"
+    let tagHtml = '';
+    const nickStyle = `color: ${escapeHTML(c1)}; font-weight: 400;`;
+
+    if (tipoProduto === 'chave') {
+      const nomeChave = (itemData.nome || 'PACOTE').toUpperCase();
+      if (isGrad) {
+        tagHtml = `<span style="background: linear-gradient(135deg, ${escapeHTML(c1)}, ${escapeHTML(c2)}); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; font-weight: 800;">${escapeHTML(nomeChave)}</span>`;
+      } else {
+        tagHtml = `<span style="color: ${escapeHTML(c1)}; font-weight: 800;">${escapeHTML(nomeChave)}</span>`;
+      }
+    } else {
+      if (corTipo === 'string' && corString) {
+        const cleanStr = corString.replace(/[\[\]]/g, '').trim();
+        const parsed = parseMinecraftString(cleanStr);
+        if (parsed) {
+          tagHtml = `<strong style="font-weight: 800;">${parsed}</strong>`;
+        }
+      }
+      
+      if (!tagHtml) {
+        const nomeVip = (itemData.nome || 'VIP').replace(/^vip\s*/i, '').trim() || 'VIP';
+        const tagName = nomeVip.toUpperCase();
+        if (isGrad) {
+          tagHtml = `<span style="background: linear-gradient(135deg, ${escapeHTML(c1)}, ${escapeHTML(c2)}); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; font-weight: 800;">${escapeHTML(tagName)}</span>`;
+        } else {
+          tagHtml = `<span style="color: ${escapeHTML(c1)}; font-weight: 800;">${escapeHTML(tagName)}</span>`;
+        }
+      }
+    }
+
+    if (tagEl) {
+      tagEl.innerHTML = tagHtml;
+    }
+    if (nickEl) {
+      nickEl.innerHTML = `<span style="${nickStyle}">${escapeHTML(playerNick)}</span>`;
+    }
+
+    // 4. Nome do Servidor / Rede
+    if (serverNameEl) {
+      if (isMultiservidor) {
+        serverNameEl.textContent = 'Rede Toda';
+        serverNameEl.style.color = '#38bdf8';
+      } else {
+        serverNameEl.textContent = (itemData.serverInfo && itemData.serverInfo.nome) ? itemData.serverInfo.nome : 'Servidor';
+        serverNameEl.style.color = (itemData.serverInfo && itemData.serverInfo.cor) ? itemData.serverInfo.cor : '#94a3b8';
+      }
+    }
+  }
+
   // 8. CONTROLE DO MODAL DE CHECKOUT MULTI-MÉTODO
   function abrirCheckoutModal(itemData, tipoProduto = 'vip') {
     STATE.currentOrder.itemData = itemData;
@@ -1007,7 +1148,11 @@
       const itemHtml = `<span style="${itemTextStyle}">${escapeHTML(itemData.nome)}</span>`;
 
       summaryServerVip.innerHTML = `${serverHtml} <span style="color: rgba(255, 255, 255, 0.35); margin: 0 4px;">•</span> ${itemHtml}`;
+      const summaryServerVipMob = document.getElementById('summary-server-vip-mobile');
+      if (summaryServerVipMob) summaryServerVipMob.innerHTML = summaryServerVip.innerHTML;
     }
+
+    renderCheckoutPlayerPreview(itemData, tipoProduto);
     
     atualizarPrecoSumario();
 
@@ -1096,6 +1241,13 @@
     } else {
       summaryPrice.innerHTML = `R$ ${precoOriginalTotal.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
     }
+
+    const summaryPriceMob = document.getElementById('summary-price-display-mobile');
+    if (summaryPriceMob) {
+      summaryPriceMob.innerHTML = summaryPrice.innerHTML;
+    }
+
+
 
     // Atualiza label do botão de cartão
     const btnCardLabel = document.getElementById('btn-card-label');
@@ -2263,6 +2415,91 @@
         return `<span class="benefit-info-text-part">${escapeHTML(val)}</span>`;
       }
     }).join('');
+  }
+
+  function hexToRgba(hex, alpha) {
+    if (!hex || typeof hex !== 'string') return `rgba(56, 189, 248, ${alpha})`;
+    let clean = hex.replace('#', '').trim();
+    if (clean.length === 3) {
+      clean = clean.split('').map(c => c + c).join('');
+    }
+    if (clean.length !== 6) return `rgba(56, 189, 248, ${alpha})`;
+    const r = parseInt(clean.substring(0, 2), 16);
+    const g = parseInt(clean.substring(2, 4), 16);
+    const b = parseInt(clean.substring(4, 6), 16);
+    return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+  }
+
+  function extractVipTagColors(vip) {
+    const corTipo = (vip.cor_tipo || 'colorwheel').toLowerCase();
+    const cor1 = (vip.cor1 || '').trim();
+    const cor2 = (vip.cor2 || '').trim();
+    const corString = (vip.cor_string || '').trim();
+
+    if (corTipo === 'string' && corString) {
+      const colors = [];
+      const legacyColors = {
+        '0': '#000000', '1': '#0000AA', '2': '#00AA00', '3': '#00AAAA',
+        '4': '#AA0000', '5': '#AA00AA', '6': '#FFAA00', '7': '#AAAAAA',
+        '8': '#555555', '9': '#5555FF', 'a': '#55FF55', 'b': '#55FFFF',
+        'c': '#FF5555', 'd': '#FF55FF', 'e': '#FFFF55', 'f': '#FFFFFF'
+      };
+      let i = 0;
+      while (i < corString.length) {
+        if (corString.substr(i, 2) === '&#' && i + 8 <= corString.length && /^[0-9A-Fa-f]{6}$/.test(corString.substr(i + 2, 6))) {
+          colors.push('#' + corString.substr(i + 2, 6));
+          i += 8;
+          continue;
+        }
+        if (corString[i] === '#' && i + 7 <= corString.length && /^[0-9A-Fa-f]{6}$/.test(corString.substr(i + 1, 6))) {
+          colors.push('#' + corString.substr(i + 1, 6));
+          i += 7;
+          continue;
+        }
+        if ((corString[i] === '&' || corString[i] === '§') && (corString[i+1] === 'x' || corString[i+1] === 'X')) {
+          let bungeeHex = '';
+          let k = i + 2;
+          for (let step = 0; step < 6; step++) {
+            if (k + 1 < corString.length && (corString[k] === '&' || corString[k] === '§') && /^[0-9A-Fa-f]$/.test(corString[k+1])) {
+              bungeeHex += corString[k+1];
+              k += 2;
+            } else {
+              break;
+            }
+          }
+          if (bungeeHex.length === 6) {
+            colors.push('#' + bungeeHex);
+            i = k;
+            continue;
+          }
+        }
+        if ((corString[i] === '&' || corString[i] === '§') && i + 1 < corString.length) {
+          const code = corString[i + 1].toLowerCase();
+          if (legacyColors[code] !== undefined) {
+            colors.push(legacyColors[code]);
+            i += 2;
+            continue;
+          }
+        }
+        i++;
+      }
+
+      if (colors.length > 0) {
+        const c1 = colors[0];
+        const c2 = colors[colors.length - 1];
+        const isGrad = colors.length > 1 && c1.toLowerCase() !== c2.toLowerCase();
+        return { cor1: c1, cor2: c2, isGradient: isGrad };
+      }
+    }
+
+    const c1 = (cor1 && cor1 !== '#ffffff') ? cor1 : (cor1 || '#38bdf8');
+    const c2 = (cor2 && cor2 !== '#ffffff') ? cor2 : (cor2 || c1);
+    const isGrad = cor1 && cor2 && (cor1.toLowerCase() !== cor2.toLowerCase()) && (cor1 !== '#ffffff' || cor2 !== '#ffffff');
+    return {
+      cor1: c1,
+      cor2: isGrad ? c2 : c1,
+      isGradient: isGrad
+    };
   }
 
   function parseMinecraftString(raw) {
