@@ -396,12 +396,7 @@
   height: 100%;
   aspect-ratio: 1 / 1;
   object-fit: cover;
-  transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
   display: block;
-}
-
-.loja-server-card:hover .loja-server-card-bg {
-  transform: scale(1.05);
 }
 
 .loja-server-card-banner i {
@@ -409,11 +404,6 @@
   color: var(--server-theme, #38BDF8);
   position: relative;
   z-index: 1;
-  transition: transform 0.3s ease;
-}
-
-.loja-server-card:hover .loja-server-card-banner i {
-  transform: scale(1.1);
 }
 
 .loja-server-card-body {

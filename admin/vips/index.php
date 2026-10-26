@@ -217,6 +217,27 @@ try {
     color: #ffffff;
     box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
 }
+
+/* Drag and Drop dos Benefícios VIP (estilo admin/equipe) */
+.vantagem-vip-row.dragging {
+    opacity: 0.5;
+    background-color: #e9ecef !important;
+}
+.vantagem-vip-row.drag-over {
+    border-top: 2px solid #0d6efd !important;
+}
+.vantagem-vip-row .drag-handle {
+    cursor: grab;
+    user-select: none;
+    transition: color 0.15s ease, background-color 0.15s ease;
+}
+.vantagem-vip-row .drag-handle:hover {
+    color: #0d6efd !important;
+    background-color: #e9ecef !important;
+}
+.vantagem-vip-row.dragging .drag-handle {
+    cursor: grabbing;
+}
 </style>
 
 <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-3">
@@ -708,16 +729,17 @@ try {
 
                     <div class="mb-3">
                         <label class="form-label fw-bold d-flex align-items-center justify-content-between mb-2">
-                            <span>Benefícios do VIP</span>
+                            <span>Benefícios do VIP <small class="text-muted fw-normal ms-1" style="font-size: 0.72rem;">(arraste para reordenar)</small></span>
                             <button type="button" class="btn btn-outline-primary btn-sm" id="btn-add-vantagem-criar-vip">
-                                Adicionar Benefício
+                                <i class="fa-solid fa-plus me-1"></i> Adicionar Benefício
                             </button>
                         </label>
                         <div id="container-vantagens-criar-vip" class="d-flex flex-column gap-2">
-                            <div class="input-group input-group-sm vantagem-vip-row">
+                            <div class="input-group input-group-sm vantagem-vip-row" draggable="true">
+                                <span class="input-group-text bg-light text-muted drag-handle" title="Arrastar para reordenar" style="cursor: grab;"><i class="fa-solid fa-grip-vertical"></i></span>
                                 <span class="input-group-text bg-light text-success"><i class="fa-solid fa-check"></i></span>
                                 <input type="text" class="form-control" name="vantagens[]" value="TAG [tag] na tablist" placeholder="Ex: Tag especial e comandos exclusivos" required>
-                                <button type="button" class="btn btn-outline-danger btn-remove-vantagem-vip"><i class="fa-solid fa-trash"></i></button>
+                                <button type="button" class="btn btn-outline-danger btn-remove-vantagem-vip" title="Remover benefício"><i class="fa-solid fa-trash"></i></button>
                             </div>
                         </div>
                     </div>
@@ -905,9 +927,9 @@ try {
 
                     <div class="mb-3">
                         <label class="form-label fw-bold d-flex align-items-center justify-content-between mb-2">
-                            <span>Benefícios do VIP</span>
+                            <span>Benefícios do VIP <small class="text-muted fw-normal ms-1" style="font-size: 0.72rem;">(arraste para reordenar)</small></span>
                             <button type="button" class="btn btn-outline-primary btn-sm" id="btn-add-vantagem-edit-vip">
-                                Adicionar Benefício
+                                <i class="fa-solid fa-plus me-1"></i> Adicionar Benefício
                             </button>
                         </label>
                         <div id="container-vantagens-edit-vip" class="d-flex flex-column gap-2"></div>
@@ -1313,10 +1335,12 @@ document.addEventListener('DOMContentLoaded', function() {
         if (!container) return;
         const div = document.createElement('div');
         div.className = 'input-group input-group-sm vantagem-vip-row';
+        div.setAttribute('draggable', 'true');
         div.innerHTML = `
+            <span class="input-group-text bg-light text-muted drag-handle" title="Arrastar para reordenar" style="cursor: grab;"><i class="fa-solid fa-grip-vertical"></i></span>
             <span class="input-group-text bg-light text-success"><i class="fa-solid fa-check"></i></span>
             <input type="text" class="form-control" name="vantagens[]" value="${escapeHtml(valor)}" placeholder="Ex: TAG [tag] na tablist" required>
-            <button type="button" class="btn btn-outline-danger btn-remove-vantagem-vip"><i class="fa-solid fa-trash"></i></button>
+            <button type="button" class="btn btn-outline-danger btn-remove-vantagem-vip" title="Remover benefício"><i class="fa-solid fa-trash"></i></button>
         `;
         container.appendChild(div);
         div.querySelector('.btn-remove-vantagem-vip').addEventListener('click', function() {
@@ -1340,6 +1364,60 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     });
+
+    // Drag and Drop para reordenação de benefícios (estilo admin/equipe)
+    function setupDragAndDropVantagens(containerId) {
+        const container = document.getElementById(containerId);
+        if (!container) return;
+
+        let draggedRow = null;
+
+        container.addEventListener('dragstart', function(e) {
+            // Evita drag se o usuário estiver selecionando texto no input ou clicando no botão remover
+            if (e.target.tagName === 'INPUT' || e.target.tagName === 'BUTTON' || e.target.closest('button')) {
+                e.preventDefault();
+                return;
+            }
+
+            const row = e.target.closest('.vantagem-vip-row');
+            if (!row || row.parentNode !== container) return;
+
+            draggedRow = row;
+            row.classList.add('dragging');
+            e.dataTransfer.effectAllowed = 'move';
+            e.dataTransfer.setData('text/plain', '');
+        });
+
+        container.addEventListener('dragend', function(e) {
+            const row = e.target.closest('.vantagem-vip-row') || draggedRow;
+            if (row) row.classList.remove('dragging');
+            container.querySelectorAll('.vantagem-vip-row').forEach(r => r.classList.remove('drag-over', 'dragging'));
+            draggedRow = null;
+        });
+
+        container.addEventListener('dragover', function(e) {
+            e.preventDefault();
+            e.dataTransfer.dropEffect = 'move';
+
+            const targetRow = e.target.closest('.vantagem-vip-row');
+            if (!targetRow || !draggedRow || targetRow === draggedRow || targetRow.parentNode !== container) return;
+
+            const bounding = targetRow.getBoundingClientRect();
+            const offset = bounding.y + (bounding.height / 2);
+            if (e.clientY - offset > 0) {
+                targetRow.after(draggedRow);
+            } else {
+                targetRow.before(draggedRow);
+            }
+        });
+
+        container.addEventListener('drop', function(e) {
+            e.preventDefault();
+        });
+    }
+
+    setupDragAndDropVantagens('container-vantagens-criar-vip');
+    setupDragAndDropVantagens('container-vantagens-edit-vip');
 
     const btnAddCriar = document.getElementById('btn-add-vantagem-criar-vip');
     if (btnAddCriar) {
@@ -1543,6 +1621,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 formCriar.reset();
                 resetarCoresPadraoVip('criar-vip');
                 definirModoCorVip('criar-vip', 'colorwheel');
+                const cCriar = document.getElementById('container-vantagens-criar-vip');
+                if (cCriar) {
+                    cCriar.innerHTML = '';
+                    addVantagemVipRow('container-vantagens-criar-vip', 'TAG [tag] na tablist');
+                }
 
                 if (res.vip) {
                     const isAtivo = Boolean(Number(res.vip.ativo));
