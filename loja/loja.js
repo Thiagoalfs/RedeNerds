@@ -1118,7 +1118,7 @@
 
     if (!dialog) return;
 
-    pararPollingPix();
+    limparTimersCheckout();
 
     if (headerTitle) headerTitle.textContent = (tipoProduto === 'chave') ? 'Finalizar Compra de Pacotes' : 'Finalizar Compra';
     if (orderSummaryBox) orderSummaryBox.hidden = false;
@@ -1430,7 +1430,7 @@
   }
 
   function fecharModalCheckout() {
-    pararPollingPix();
+    limparTimersCheckout();
     const dialog = document.getElementById('modal-pix-overlay');
     if (dialog) dialog.hidden = true;
     document.body.style.overflow = '';
@@ -1509,7 +1509,7 @@
       if (stateLoading) stateLoading.hidden = true;
       if (stateReady) stateReady.hidden = false;
 
-      iniciarCountdownPix(15 * 60);
+      iniciarCountdownPix(15 * 60, data.expira_em);
       iniciarPollingPix(data.txid);
 
     } catch (err) {
@@ -2087,16 +2087,40 @@
   }
 
   // 11. POLLING E CONTAGEM REGRESSIVA PRECISA (TIMESTAMP PIX)
-  function iniciarCountdownPix(segundosTotais = 900) {
-    const countdownEl = document.getElementById('pix-countdown');
-    if (!countdownEl) return;
-
+  function pararCountdownPix() {
     if (STATE.currentOrder.countdownTimer) {
       clearInterval(STATE.currentOrder.countdownTimer);
       STATE.currentOrder.countdownTimer = null;
     }
+  }
 
-    const endTime = Date.now() + (segundosTotais * 1000);
+  function pararPollingPix() {
+    if (STATE.currentOrder.pollingInterval) {
+      clearTimeout(STATE.currentOrder.pollingInterval);
+      clearInterval(STATE.currentOrder.pollingInterval);
+      STATE.currentOrder.pollingInterval = null;
+    }
+  }
+
+  function limparTimersCheckout() {
+    pararPollingPix();
+    pararCountdownPix();
+  }
+
+  function iniciarCountdownPix(segundosTotais = 900, timestampExpiracao = null) {
+    const countdownEl = document.getElementById('pix-countdown');
+    if (!countdownEl) return;
+
+    pararCountdownPix();
+
+    // Se fornecido expira_em da API, baseia o término com precisão
+    let endTime;
+    if (timestampExpiracao) {
+      const parsedTs = new Date(timestampExpiracao).getTime();
+      endTime = (!isNaN(parsedTs) && parsedTs > Date.now()) ? parsedTs : (Date.now() + (segundosTotais * 1000));
+    } else {
+      endTime = Date.now() + (segundosTotais * 1000);
+    }
 
     function atualizarTimer() {
       const now = Date.now();
@@ -2107,7 +2131,7 @@
       countdownEl.textContent = `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
 
       if (diffSegundos <= 0) {
-        // Mensagem de expiração calculada dinamicamente com base no tempo total configurado
+        pararCountdownPix();
         const textoDuracao = segundosTotais >= 3600
           ? `${Math.round(segundosTotais / 3600)} ${Math.round(segundosTotais / 3600) === 1 ? 'hora' : 'horas'}`
           : `${Math.round(segundosTotais / 60)} ${Math.round(segundosTotais / 60) === 1 ? 'minuto' : 'minutos'}`;
@@ -2143,14 +2167,14 @@
             const isExpirado = (data.status === 'expirado' || data.status === 'cancelado' || data.expirado === true);
 
             if (isPago) {
-              pararPollingPix();
+              limparTimersCheckout();
               exibirSucessoCheckout({
                 ...data,
                 metodo: data.metodo || (STATE.activePaymentMethod === 'international' ? 'Checkout Pro Internacional' : (STATE.activePaymentMethod === 'card' ? 'Cartão de Crédito' : 'PIX'))
               });
               return;
             } else if (isExpirado) {
-              pararPollingPix();
+              limparTimersCheckout();
               exibirExpiradoPix(txid, data.mensagem || 'A cobrança expirou no sistema.');
               return;
             }
@@ -2168,21 +2192,9 @@
     STATE.currentOrder.pollingInterval = setTimeout(pollTask, intervalMs);
   }
 
-  function pararPollingPix() {
-    if (STATE.currentOrder.pollingInterval) {
-      clearTimeout(STATE.currentOrder.pollingInterval);
-      clearInterval(STATE.currentOrder.pollingInterval);
-      STATE.currentOrder.pollingInterval = null;
-    }
-    if (STATE.currentOrder.countdownTimer) {
-      clearInterval(STATE.currentOrder.countdownTimer);
-      STATE.currentOrder.countdownTimer = null;
-    }
-  }
-
   // 12. TELAS DE RESULTADO: EXPIRADO / ERRO
   async function exibirExpiradoPix(txid, motivo = 'O tempo limite para pagamento se esgotou.') {
-    pararPollingPix();
+    limparTimersCheckout();
 
     const inputCopiaCola = document.getElementById('input-pix-copiacola');
     const qrImg = document.getElementById('pix-qrcode-img');

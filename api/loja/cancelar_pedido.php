@@ -69,20 +69,33 @@ if (empty($txid)) {
 }
 
 $atualizado = false;
+$mpCancelado = false;
 
 try {
     if (isset($pdo) && $pdo instanceof PDO) {
-        // Apenas cancela se estiver 'pendente' (não cancela pedidos que já foram pagos)
-        $stmt = $pdo->prepare("
-            UPDATE pedidos 
-            SET status = :novoStatus
-            WHERE txid = :txid AND status = 'pendente'
-        ");
-        $stmt->execute([
-            ':novoStatus' => $statusAlvo,
-            ':txid' => $txid
-        ]);
-        $atualizado = ($stmt->rowCount() > 0);
+        // Busca o pedido para obter o mp_payment_id e garantir que está pendente
+        $stmtBusca = $pdo->prepare("SELECT id, status, mp_payment_id FROM pedidos WHERE txid = :txid LIMIT 1");
+        $stmtBusca->execute([':txid' => $txid]);
+        $ped = $stmtBusca->fetch(PDO::FETCH_ASSOC);
+
+        if ($ped && strtolower((string)$ped['status']) === 'pendente') {
+            // 1. Atualiza no banco de dados local
+            $stmt = $pdo->prepare("
+                UPDATE pedidos 
+                SET status = :novoStatus
+                WHERE txid = :txid AND status = 'pendente'
+            ");
+            $stmt->execute([
+                ':novoStatus' => $statusAlvo,
+                ':txid' => $txid
+            ]);
+            $atualizado = ($stmt->rowCount() > 0);
+
+            // 2. Se houver mp_payment_id vinculado, cancela ativamente no Mercado Pago para invalidar o QR Code
+            if (!empty($ped['mp_payment_id'])) {
+                $mpCancelado = cancelarPagamentoMercadoPago($ped['mp_payment_id']);
+            }
+        }
     }
 } catch (Exception $e) {
     error_log("Erro ao cancelar pedido {$txid}: " . $e->getMessage());

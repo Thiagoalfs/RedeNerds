@@ -322,3 +322,62 @@ function autoRecuperarPedidoMercadoPago(PDO $pdo, string $externalRef, mixed $pa
         return false;
     }
 }
+
+/**
+ * Cancela ativamente um pagamento pendente na API do Mercado Pago.
+ * Essencial para invalidar o QR Code PIX no Banco Central imediatamente após a expiração.
+ *
+ * @param string|int $mpPaymentId Identificador do pagamento no Mercado Pago
+ * @return bool True se o cancelamento foi aceito ou se já estava cancelado
+ */
+function cancelarPagamentoMercadoPago(string|int $mpPaymentId): bool {
+    $token = obterMercadoPagoAccessToken();
+    if (!$token || empty($mpPaymentId)) {
+        return false;
+    }
+
+    $idLimpo = trim((string)$mpPaymentId);
+    if (!preg_match('/^[0-9]+$/', $idLimpo)) {
+        return false;
+    }
+
+    $url = "https://api.mercadopago.com/v1/payments/" . urlencode($idLimpo);
+    $payloadJson = json_encode(['status' => 'cancelled']);
+
+    $ch = curl_init($url);
+    curl_setopt_array($ch, [
+        CURLOPT_CUSTOMREQUEST => 'PUT',
+        CURLOPT_POSTFIELDS => $payloadJson,
+        CURLOPT_HTTPHEADER => [
+            "Authorization: Bearer {$token}",
+            "Content-Type: application/json"
+        ],
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_SSL_VERIFYPEER => true,
+        CURLOPT_SSL_VERIFYHOST => 2,
+        CURLOPT_TIMEOUT => 6,
+        CURLOPT_CONNECTTIMEOUT => 3
+    ]);
+
+    $response = curl_exec($ch);
+    $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    $curlError = curl_error($ch);
+    curl_close($ch);
+
+    if ($curlError) {
+        error_log("[MERCADO PAGO CANCEL] Erro cURL ao cancelar pagamento {$idLimpo}: {$curlError}");
+        return false;
+    }
+
+    $data = json_decode((string)$response, true);
+    $statusRetornado = strtolower((string)($data['status'] ?? ''));
+
+    $sucesso = ($httpCode >= 200 && $httpCode < 300) || $statusRetornado === 'cancelled';
+    if ($sucesso) {
+        error_log("[MERCADO PAGO CANCEL] Pagamento {$idLimpo} cancelado com sucesso no gateway.");
+    } else {
+        error_log("[MERCADO PAGO CANCEL] Resposta {$httpCode} ao cancelar {$idLimpo}: " . json_encode($data));
+    }
+
+    return $sucesso;
+}

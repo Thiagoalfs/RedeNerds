@@ -253,6 +253,9 @@ $itemDescricao = ($tipoProduto === 'chave')
     ? "RedeNerds - {$quantidade}x {$itemNome} ({$servidor}) - Jogador: {$nick}"
     : "RedeNerds - {$itemNome} ({$servidor}) - Jogador: {$nick}";
 
+// Define a expiração oficial no Mercado Pago (mínimo de 30 minutos aceito pela API)
+$dateOfExpiration = (new DateTime('+30 minutes', new DateTimeZone('America/Sao_Paulo')))->format('Y-m-d\TH:i:s.000P');
+
 $mpPayload = [
     "transaction_amount" => (float)$valor,
     "description" => $itemDescricao,
@@ -263,7 +266,8 @@ $mpPayload = [
         "last_name" => "Player"
     ],
     "notification_url" => $siteUrl . "/api/loja/webhook_mercadopago.php",
-    "external_reference" => $txid
+    "external_reference" => $txid,
+    "date_of_expiration" => $dateOfExpiration
 ];
 
 $ch = curl_init($mpUrl);

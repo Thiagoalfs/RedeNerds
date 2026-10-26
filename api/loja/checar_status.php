@@ -259,6 +259,9 @@ if ($segundosDecorridos >= $limiteSegundos) {
         if (isset($pdo) && $pdo instanceof PDO) {
             $upStmt = $pdo->prepare("UPDATE pedidos SET status = 'expirado' WHERE txid = :txid AND status = 'pendente'");
             $upStmt->execute([':txid' => $txid]);
+            if ($upStmt->rowCount() > 0 && !empty($pedido['mp_payment_id'])) {
+                cancelarPagamentoMercadoPago($pedido['mp_payment_id']);
+            }
         }
     } catch (Exception $e) {}
 
