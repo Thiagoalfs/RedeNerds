@@ -60,8 +60,6 @@ function criarCardServidor(servidor) {
     card.href = `servidores/?servidor=${encodeURIComponent(servidor.nome)}`;
     card.className = 'server-card';
     card.style.setProperty('--card-color', cor);
-    card.style.setProperty('--card-shadow', hexParaRgba(cor, 0.15));
-    card.style.setProperty('--card-hover-shadow', hexParaRgba(cor, 0.4));
 
     // Banner
     const banner = document.createElement('div');
@@ -86,15 +84,11 @@ function criarCardServidor(servidor) {
     const titulo = document.createElement('h3');
     titulo.textContent = servidor.servername;
 
-    const descricao = document.createElement('p');
-    descricao.textContent = limitarNoSegundoPonto(servidor.descricao);
-
     const link = document.createElement('span');
     link.className = 'server-card-link';
     link.innerHTML = 'VER DETALHES <i class="fa-solid fa-arrow-right"></i>';
 
     content.appendChild(titulo);
-    content.appendChild(descricao);
     content.appendChild(link);
 
     card.appendChild(banner);

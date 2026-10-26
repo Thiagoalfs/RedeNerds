@@ -336,18 +336,16 @@
     border-radius: 12px;
     overflow: hidden;
     border: 1px solid rgba(255, 255, 255, 0.08);
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+    box-shadow: none;
     transition: scale 0.4s cubic-bezier(0.25, 1, 0.5, 1),
                 opacity 0.4s cubic-bezier(0.25, 1, 0.5, 1),
                 transform 0.25s ease,
-                box-shadow 0.25s ease,
                 border-color 0.25s ease;
     cursor: pointer;
     position: relative;
     width: min(76vw, 320px);
     max-width: 320px;
     min-width: 250px;
-    min-height: 380px;
     height: auto;
     box-sizing: border-box;
     flex-shrink: 0;
@@ -360,7 +358,7 @@
 .server-card:hover {
     transform: translateY(-5px);
     border-color: var(--card-color, #7DB9DF);
-    box-shadow: 0 16px 36px rgba(0, 0, 0, 0.5), 0 0 24px var(--card-hover-shadow, rgba(125, 185, 223, 0.25));
+    box-shadow: none;
 }
 
 @keyframes serverCardSlideTransition {
@@ -409,11 +407,12 @@
 .server-card-3 .server-card-link { color: #E85D5D; }
 .server-card-3 .banner-3 { background: var(--color-danger-alt); }
 
-/* Banner de tamanho fixo com a imagem ocupando 100% da div */
+/* Banner com imagem ocupando ratio 1:1 e largura total do card */
 .server-card-banner {
     position: relative;
     width: 100%;
-    height: 190px;
+    aspect-ratio: 1 / 1;
+    height: auto;
     flex-shrink: 0;
     overflow: hidden;
     background-color: #0f141d;
@@ -431,11 +430,6 @@
     display: block;
     position: relative;
     z-index: 1;
-    transition: transform 0.3s ease;
-}
-
-.server-card:hover .server-card-banner img {
-    transform: scale(1.05);
 }
 
 .server-card-banner i {
@@ -456,9 +450,11 @@
 
 /* Conteúdo do Card */
 .server-card-content {
-    padding: 22px 20px;
+    padding: 20px;
     display: flex;
     flex-direction: column;
+    justify-content: space-between;
+    gap: 14px;
     flex: 1;
     box-sizing: border-box;
     position: relative;
@@ -470,7 +466,7 @@
     font-size: 22px;
     font-weight: 800;
     color: #FFFFFF;
-    margin: 0 0 10px 0;
+    margin: 0;
     line-height: 1.25;
     letter-spacing: -0.3px;
 }
@@ -480,14 +476,7 @@
     color: #94A3B8;
     font-size: 14px;
     line-height: 1.6;
-    height: 90px;
-    max-height: 90px;
-    text-align: left;
-    display: -webkit-box;
-    -webkit-line-clamp: 4;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-    text-overflow: ellipsis;
+    display: none;
 }
 
 /* Texto interativo de ação */
@@ -495,8 +484,8 @@
     display: inline-flex;
     align-items: center;
     gap: 8px;
-    margin-top: auto;
-    padding-top: 14px;
+    margin-top: 0;
+    padding-top: 0;
     font-family: 'Poppins', sans-serif;
     font-weight: 800;
     font-size: 13.5px;
@@ -569,14 +558,14 @@
     .server-card {
         width: 350px;
         flex: 0 0 350px;
-        height: 410px;
-        min-height: 410px;
+        height: auto;
+        min-height: auto;
         scroll-snap-align: start;
     }
 
     .server-card-content {
-        padding: 24px;
-        height: 290px;
+        padding: 20px 24px;
+        height: auto;
     }
 }
 
