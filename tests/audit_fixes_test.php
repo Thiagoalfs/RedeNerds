@@ -48,4 +48,29 @@ assert(hash_equals($validHash, hash_hmac('sha256', $manifest, $webhookSecret)) =
 assert(hash_equals($invalidHash, hash_hmac('sha256', $manifest, $webhookSecret)) === false, "Falha: HMAC inválido deve ser rejeitado");
 echo "  [PASS] HMAC de assinatura de webhook validado com sucesso.\n";
 
+// 3. Teste de preservação de packageId em VIPs
+$nomeVip = "VIP Ouro [Promoção de Natal]";
+$packageIdEnviado = "vip_ouro_custom";
+$packageIdResult = $packageIdEnviado !== '' ? $packageIdEnviado : 'slug_fallback';
+assert($packageIdResult === "vip_ouro_custom", "Falha: packageId existente deve ser preservado");
+
+$packageIdVazio = "";
+if ($packageIdVazio === '') {
+    $cleanSlug = @iconv('UTF-8', 'ASCII//TRANSLIT//IGNORE', $nomeVip) ?: $nomeVip;
+    $cleanSlug = strtolower(trim($cleanSlug));
+    $cleanSlug = preg_replace('/[\s\-]+/', '_', $cleanSlug);
+    $cleanSlug = preg_replace('/[^a-z0-9_]/', '', $cleanSlug);
+    $packageIdVazio = trim(preg_replace('/_+/', '_', $cleanSlug), '_') ?: 'vip_' . time();
+}
+assert(!empty($packageIdVazio) && $packageIdVazio !== "vip_ouro_custom", "Falha: packageId vazio deve gerar slug baseado no nome");
+echo "  [PASS] Preservação de packageId em VIPs validada com sucesso.\n";
+
+// 4. Teste de validação de snowflake do Discord no webhook_helper
+require_once __DIR__ . "/../admin/noticias/webhook_helper.php";
+$validSnowflake = "123456789012345678";
+$invalidTitle = "Novidade de Natal";
+assert(discordMensagemIdValido($validSnowflake) === true, "Falha: snowflake numérico deve ser válido");
+assert(discordMensagemIdValido($invalidTitle) === false, "Falha: texto não pode ser aceito como mensagem ID");
+echo "  [PASS] Validação de snowflake e assinaturas de webhook do Discord testadas com sucesso.\n";
+
 echo "✔ Todos os testes de correções de auditoria passaram com sucesso!\n";

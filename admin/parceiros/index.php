@@ -3,28 +3,6 @@ $paginaAtiva = 'parceiros';
 $tituloPagina = 'Parceiros';
 require_once __DIR__ . "/../includes/admin_header.php";
 
-// Auto-criação da tabela se não existir (uma vez por sessão)
-if (empty($_SESSION['parceiros_schema_ok'])) {
-    try {
-        $pdo->exec("CREATE TABLE IF NOT EXISTS `parceiros` (
-          `id` INT AUTO_INCREMENT PRIMARY KEY,
-          `nome` VARCHAR(100) NOT NULL,
-          `foto` VARCHAR(255) NULL DEFAULT NULL,
-          `youtube` VARCHAR(255) NULL DEFAULT NULL,
-          `tiktok` VARCHAR(255) NULL DEFAULT NULL,
-          `instagram` VARCHAR(255) NULL DEFAULT NULL,
-          `twitch` VARCHAR(255) NULL DEFAULT NULL,
-          `kick` VARCHAR(255) NULL DEFAULT NULL,
-          `ativo` TINYINT(1) NOT NULL DEFAULT 1,
-          `criado_em` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-          INDEX idx_ativo_nome (`ativo`, `nome`)
-        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;");
-        $_SESSION['parceiros_schema_ok'] = true;
-    } catch (Exception $e) {
-        error_log("Erro ao preparar schema de parceiros: " . $e->getMessage());
-    }
-}
-
 $busca = trim($_GET['busca'] ?? '');
 $where = [];
 $params = [];

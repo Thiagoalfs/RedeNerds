@@ -50,10 +50,6 @@ require_once __DIR__ . "/../auth_api.php";
 require_once __DIR__ . "/ip_helper.php";
 verificarAcessoApi();
 
-if (isset($pdo) && $pdo instanceof PDO) {
-    garantirSchemaTabelaPedidos($pdo);
-}
-
 // Lê dados da requisição
 $rawInput = file_get_contents('php://input');
 $data = json_decode($rawInput, true);
@@ -61,40 +57,8 @@ if (!is_array($data) || empty($data)) {
     $data = $_POST;
 }
 
-// 1. RATE LIMITING (IP e E-mail)
 $clientIp = obterIpRealCliente();
 $email = trim(strtolower((string)($data['email'] ?? '')));
-
-try {
-    if (isset($pdo) && $pdo instanceof PDO) {
-        $pdo->exec("DELETE FROM rate_limits_loja WHERE tentativa_em < (NOW() - INTERVAL 1 HOUR)");
-
-        $stmtRl = $pdo->prepare("
-            SELECT COUNT(*) FROM rate_limits_loja 
-            WHERE (ip = :ip OR (email = :email AND :email != '')) 
-              AND endpoint = 'checkout_internacional' 
-              AND tentativa_em >= (NOW() - INTERVAL 10 MINUTE)
-        ");
-        $stmtRl->execute([':ip' => $clientIp, ':email' => $email]);
-        $tentativasRecentes = (int)$stmtRl->fetchColumn();
-
-        if ($tentativasRecentes >= 5) {
-            http_response_code(429);
-            echo json_encode([
-                "erro" => "Too many recent payment attempts. Please wait 10 minutes before trying again."
-            ], JSON_UNESCAPED_UNICODE);
-            exit;
-        }
-
-        $stmtLog = $pdo->prepare("
-            INSERT INTO rate_limits_loja (ip, email, endpoint, tentativa_em) 
-            VALUES (:ip, :email, 'checkout_internacional', NOW())
-        ");
-        $stmtLog->execute([':ip' => $clientIp, ':email' => $email]);
-    }
-} catch (Exception $e) {
-    error_log("Erro no rate limiting do checkout internacional: " . $e->getMessage());
-}
 
 // 2. EXTRAÇÃO E VALIDAÇÃO DOS DADOS
 $nick = trim((string)($data['nick'] ?? ''));

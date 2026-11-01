@@ -8,18 +8,6 @@ $servidoresData = carregarServidoresAdmin($pdo);
 $servidores = $servidoresData['lista'];
 $servidoresMap = $servidoresData['mapa'];
 
-if (empty($_SESSION['cupons_schema_ok'])) {
-    try {
-        $colunasCupons = $pdo->query("SHOW COLUMNS FROM cupons")->fetchAll(PDO::FETCH_COLUMN);
-        if (!in_array('servidor_id', $colunasCupons, true)) {
-            $pdo->exec("ALTER TABLE cupons ADD COLUMN servidor_id INT NULL DEFAULT 0");
-        }
-        $_SESSION['cupons_schema_ok'] = true;
-    } catch (Exception $e) {
-        error_log("Erro ao preparar schema de cupons: " . $e->getMessage());
-    }
-}
-
 $cupons = [];
 $cuponsAtivos = [];
 $cuponsInativos = [];

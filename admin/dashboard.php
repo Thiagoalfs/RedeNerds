@@ -20,15 +20,20 @@ try {
     if (isset($pdo) && $pdo instanceof PDO) {
         $servidoresMap = carregarServidoresAdmin($pdo)['mapa'];
 
-        // Faturamento Total
-        $totalFaturamento = (float)$pdo->query("SELECT COALESCE(SUM(valor), 0) FROM pedidos WHERE status = 'pago'")->fetchColumn();
+        // Métricas consolidadas de pedidos em uma única query com range indexado
+        $metricasPedidos = $pdo->query("
+            SELECT 
+                COALESCE(SUM(CASE WHEN status = 'pago' THEN valor ELSE 0 END), 0) AS total_faturamento,
+                COALESCE(SUM(CASE WHEN status = 'pago' AND criado_em >= DATE_FORMAT(CURRENT_DATE(), '%Y-%m-01 00:00:00') THEN valor ELSE 0 END), 0) AS faturamento_mes,
+                COUNT(CASE WHEN status = 'pago' THEN 1 END) AS pedidos_pagos,
+                COUNT(CASE WHEN status = 'pendente' THEN 1 END) AS pedidos_pendentes
+            FROM pedidos
+        ")->fetch(PDO::FETCH_ASSOC);
 
-        // Faturamento do Mês Atual
-        $faturamentoMes = (float)$pdo->query("SELECT COALESCE(SUM(valor), 0) FROM pedidos WHERE status = 'pago' AND MONTH(criado_em) = MONTH(CURRENT_DATE()) AND YEAR(criado_em) = YEAR(CURRENT_DATE())")->fetchColumn();
-
-        // Pedidos Pagos vs Pendentes
-        $totalPedidosPagos = (int)$pdo->query("SELECT COUNT(*) FROM pedidos WHERE status = 'pago'")->fetchColumn();
-        $totalPedidosPendentes = (int)$pdo->query("SELECT COUNT(*) FROM pedidos WHERE status = 'pendente'")->fetchColumn();
+        $totalFaturamento = (float)($metricasPedidos['total_faturamento'] ?? 0);
+        $faturamentoMes = (float)($metricasPedidos['faturamento_mes'] ?? 0);
+        $totalPedidosPagos = (int)($metricasPedidos['pedidos_pagos'] ?? 0);
+        $totalPedidosPendentes = (int)($metricasPedidos['pedidos_pendentes'] ?? 0);
 
         // Cupons
         $totalCuponsAtivos = (int)$pdo->query("SELECT COUNT(*) FROM cupons WHERE ativo = 1 AND expira_em >= NOW()")->fetchColumn();

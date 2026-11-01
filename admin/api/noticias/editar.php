@@ -89,7 +89,7 @@ try {
     // Sincroniza a mensagem do Discord com o conteúdo editado
     $discordMsgId = $noticiaAtual['discord_msg_id'] ?? null;
     if (!empty($discordMsgId)) {
-        editarWebhookDiscord($categoria_envio, $titulo, $conteudo, $autor, $capa, $category, $discordMsgId);
+        editarWebhookDiscord($categoria_envio, $discordMsgId, $titulo, $conteudo, $autor, $capa, $category);
     }
 
     $busca = $pdo->prepare("SELECT * FROM novidades WHERE id = :id LIMIT 1");

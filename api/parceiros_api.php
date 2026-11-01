@@ -93,23 +93,6 @@ $linhas = [];
 
 try {
     if (isset($pdo) && $pdo instanceof PDO) {
-        // Garante que a tabela existe
-        try {
-            $pdo->exec("CREATE TABLE IF NOT EXISTS `parceiros` (
-              `id` INT AUTO_INCREMENT PRIMARY KEY,
-              `nome` VARCHAR(100) NOT NULL,
-              `foto` VARCHAR(255) NULL DEFAULT NULL,
-              `youtube` VARCHAR(255) NULL DEFAULT NULL,
-              `tiktok` VARCHAR(255) NULL DEFAULT NULL,
-              `instagram` VARCHAR(255) NULL DEFAULT NULL,
-              `twitch` VARCHAR(255) NULL DEFAULT NULL,
-              `kick` VARCHAR(255) NULL DEFAULT NULL,
-              `ativo` TINYINT(1) NOT NULL DEFAULT 1,
-              `criado_em` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-              INDEX idx_ativo_nome (`ativo`, `nome`)
-            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;");
-        } catch (Exception $e) {}
-
         $stmt = $pdo->query(
             "SELECT id, nome, foto, youtube, tiktok, instagram, twitch, kick
              FROM parceiros

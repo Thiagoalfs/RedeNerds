@@ -1,5 +1,6 @@
 <?php
 require_once __DIR__ . "/../../sessao.php";
+require_once __DIR__ . "/../../noticias/webhook_helper.php";
 
 exigirCSRF();
 

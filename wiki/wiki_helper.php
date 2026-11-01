@@ -6,12 +6,6 @@
 if (!function_exists('isWikiHabilitada')) {
     function isWikiHabilitada(PDO $pdo): bool {
         try {
-            $pdo->exec("CREATE TABLE IF NOT EXISTS site_config (
-                chave VARCHAR(50) PRIMARY KEY,
-                valor TEXT,
-                atualizado_em DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-            )");
-
             $stmt = $pdo->prepare("SELECT valor FROM site_config WHERE chave = 'wiki_habilitada' LIMIT 1");
             $stmt->execute();
             $val = $stmt->fetchColumn();
@@ -29,12 +23,6 @@ if (!function_exists('isWikiHabilitada')) {
 if (!function_exists('setWikiHabilitada')) {
     function setWikiHabilitada(PDO $pdo, bool $habilitada): bool {
         try {
-            $pdo->exec("CREATE TABLE IF NOT EXISTS site_config (
-                chave VARCHAR(50) PRIMARY KEY,
-                valor TEXT,
-                atualizado_em DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-            )");
-
             $valStr = $habilitada ? '1' : '0';
             $stmt = $pdo->prepare("
                 INSERT INTO site_config (chave, valor) 
@@ -116,7 +104,6 @@ if (!function_exists('getServidorWikiPorSlug')) {
 if (!function_exists('getCategoriasServidorWiki')) {
     function getCategoriasServidorWiki(PDO $pdo, int $servidorId): array {
         if ($servidorId <= 0) return [];
-        garantirCategoriasPadraoWiki($pdo, $servidorId);
 
         try {
             $stmt = $pdo->prepare("

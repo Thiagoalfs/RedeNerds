@@ -4,18 +4,20 @@
  * Helper para envio de notificações de compras de VIP para o Discord.
  */
 
-$configPaths = [
-    __DIR__ . "/../../../config.php",
-    __DIR__ . "/../../config.php",
-    __DIR__ . "/../config.php",
-    __DIR__ . "/config.php",
-    ($_SERVER['DOCUMENT_ROOT'] ?? '') . "/../config.php",
-    ($_SERVER['DOCUMENT_ROOT'] ?? '') . "/config.php"
-];
-foreach ($configPaths as $cp) {
-    if (!empty($cp) && file_exists($cp)) {
-        require_once $cp;
-        break;
+if (!defined('DISCORD_WEBHOOKS')) {
+    $configPaths = [
+        __DIR__ . "/../../../config.php",
+        __DIR__ . "/../../config.php",
+        __DIR__ . "/../config.php",
+        __DIR__ . "/config.php",
+        ($_SERVER['DOCUMENT_ROOT'] ?? '') . "/../config.php",
+        ($_SERVER['DOCUMENT_ROOT'] ?? '') . "/config.php"
+    ];
+    foreach ($configPaths as $cp) {
+        if (!empty($cp) && file_exists($cp)) {
+            require_once $cp;
+            break;
+        }
     }
 }
 
@@ -161,7 +163,7 @@ function enviarNotificacaoCompraDiscord($nick, $tipoConta, $servidor, $vipNome, 
     ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
 
     $ch = curl_init($url);
-    curl_setopt_array($ch, [
+    $curlOpts = [
         CURLOPT_HTTPHEADER => [
             'Content-Type: application/json',
             'User-Agent: DiscordBot (RedeNerdsLoja, 1.0)'
@@ -169,14 +171,21 @@ function enviarNotificacaoCompraDiscord($nick, $tipoConta, $servidor, $vipNome, 
         CURLOPT_POST => true,
         CURLOPT_POSTFIELDS => $payload,
         CURLOPT_RETURNTRANSFER => true,
-        CURLOPT_SSL_VERIFYPEER => true, CURLOPT_SSL_VERIFYHOST => 2,
+        CURLOPT_SSL_VERIFYPEER => true,
+        CURLOPT_SSL_VERIFYHOST => 2,
         CURLOPT_TIMEOUT => 5
-    ]);
+    ];
+    if (defined('CURLSSLOPT_NATIVE_CA')) {
+        $curlOpts[CURLOPT_SSL_OPTIONS] = CURLSSLOPT_NATIVE_CA;
+    }
+    curl_setopt_array($ch, $curlOpts);
 
     $response = curl_exec($ch);
     $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
     $curlError = curl_error($ch);
-    curl_close($ch);
+    if (PHP_VERSION_ID < 80500) {
+        @curl_close($ch);
+    }
 
     if ($curlError) {
         error_log("ERRO cURL DISCORD LOJA: " . $curlError);

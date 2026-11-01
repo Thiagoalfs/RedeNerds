@@ -4,44 +4,6 @@ $tituloPagina = 'Pacotes';
 require_once __DIR__ . "/../includes/admin_header.php";
 require_once __DIR__ . "/../includes/servidores_admin.php";
 
-// Auto-criação da tabela e colunas se não existirem
-if (empty($_SESSION['chaves_schema_ok'])) {
-    try {
-        $pdo->exec("CREATE TABLE IF NOT EXISTS `chaves` (
-          `id` INT AUTO_INCREMENT PRIMARY KEY,
-          `servidor_id` INT NOT NULL DEFAULT 0,
-          `servidor` VARCHAR(100) NOT NULL DEFAULT '',
-          `nome` VARCHAR(100) NOT NULL,
-          `imagem` VARCHAR(255) NULL DEFAULT NULL,
-          `packageId` VARCHAR(100) NOT NULL,
-          `preco` DECIMAL(10,2) NOT NULL DEFAULT 0.00,
-          `destaque` TINYINT(1) NOT NULL DEFAULT 0,
-          `ativo` TINYINT(1) NOT NULL DEFAULT 1,
-          `cor1` VARCHAR(20) NOT NULL DEFAULT '#FFD700',
-          `cor2` VARCHAR(20) NOT NULL DEFAULT '#FFA500',
-          `cor_tipo` VARCHAR(20) NOT NULL DEFAULT 'colorwheel',
-          `cor_string` VARCHAR(255) NOT NULL DEFAULT '',
-          `vantagens` TEXT NULL,
-          `criado_em` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-          INDEX idx_srv (`servidor_id`, `ativo`)
-        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;");
-
-        $cols = $pdo->query("SHOW COLUMNS FROM `chaves`")->fetchAll(PDO::FETCH_COLUMN);
-        if (!in_array('cor_tipo', $cols, true)) {
-            $pdo->exec("ALTER TABLE `chaves` ADD COLUMN `cor_tipo` VARCHAR(20) NOT NULL DEFAULT 'colorwheel' AFTER `cor2`");
-        }
-        if (!in_array('cor_string', $cols, true)) {
-            $pdo->exec("ALTER TABLE `chaves` ADD COLUMN `cor_string` VARCHAR(255) NOT NULL DEFAULT '' AFTER `cor_tipo`");
-        }
-
-        require_once __DIR__ . "/../../api/loja/config_loja.php";
-        garantirSchemaTabelaPedidos($pdo);
-        $_SESSION['chaves_schema_ok'] = true;
-    } catch (Exception $e) {
-        error_log("Erro ao preparar schema de chaves: " . $e->getMessage());
-    }
-}
-
 $filtroServidor = trim($_GET['servidor'] ?? '');
 
 $servidoresData = carregarServidoresAdmin($pdo);

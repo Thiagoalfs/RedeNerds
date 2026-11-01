@@ -200,21 +200,6 @@ try {
         } catch (Exception $e) {
             $chavesDoBanco = [];
         }
-    } elseif (isset($conn) && $conn instanceof mysqli) {
-        $resSrv = $conn->query("SELECT id, servername, nome, themecolor, icon, bg_image, descricao FROM servidores WHERE enabled = 1 ORDER BY id ASC");
-        if ($resSrv) {
-            while ($row = $resSrv->fetch_assoc()) $servidoresDoBanco[] = $row;
-        }
-
-        $resVips = $conn->query("SELECT * FROM vips WHERE ativo = 1 ORDER BY preco ASC");
-        if ($resVips) {
-            while ($row = $resVips->fetch_assoc()) $vipsDoBanco[] = $row;
-        }
-
-        $resChaves = $conn->query("SELECT * FROM chaves WHERE (ativo = 1 OR ativo IS NULL) ORDER BY preco ASC");
-        if ($resChaves) {
-            while ($row = $resChaves->fetch_assoc()) $chavesDoBanco[] = $row;
-        }
     }
 } catch (Exception $e) {
     error_log("Erro ao buscar VIPs, Chaves e Servidores: " . $e->getMessage());

@@ -38,6 +38,9 @@ if (isset($pdo) && $pdo instanceof PDO) {
             $del = $pdo->prepare("DELETE FROM vips WHERE id = :id");
             $del->execute([':id' => $id]);
 
+            require_once __DIR__ . "/../../../api/cache_helper.php";
+            invalidarCache('vips');
+
             if ($isAjax) {
                 header('Content-Type: application/json; charset=utf-8');
                 echo json_encode(["success" => true]);

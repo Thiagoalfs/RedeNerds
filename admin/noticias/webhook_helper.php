@@ -87,7 +87,7 @@ function enviarWebhookDiscord($categoriaEnvio, $titulo, $conteudo, $autor, $capa
     }
 
     $ch = curl_init($url);
-    curl_setopt_array($ch, [
+    $curlOpts = [
         CURLOPT_HTTPHEADER => [
             'Content-Type: application/json',
             'User-Agent: DiscordBot (RedeNerds, 1.0)'
@@ -95,15 +95,22 @@ function enviarWebhookDiscord($categoriaEnvio, $titulo, $conteudo, $autor, $capa
         CURLOPT_POST => true,
         CURLOPT_POSTFIELDS => $payload,
         CURLOPT_RETURNTRANSFER => true,
-        CURLOPT_SSL_VERIFYPEER => true, CURLOPT_SSL_VERIFYHOST => 2,
+        CURLOPT_SSL_VERIFYPEER => true,
+        CURLOPT_SSL_VERIFYHOST => 2,
         CURLOPT_CONNECTTIMEOUT => DISCORD_CURL_CONNECT_TIMEOUT,
         CURLOPT_TIMEOUT => DISCORD_CURL_TIMEOUT,
-    ]);
+    ];
+    if (defined('CURLSSLOPT_NATIVE_CA')) {
+        $curlOpts[CURLOPT_SSL_OPTIONS] = CURLSSLOPT_NATIVE_CA;
+    }
+    curl_setopt_array($ch, $curlOpts);
 
     $response = curl_exec($ch);
     $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
     $curlError = curl_error($ch);
-    curl_close($ch);
+    if (PHP_VERSION_ID < 80500) {
+        @curl_close($ch);
+    }
 
     // Se houve erro de cURL no servidor
     if ($curlError) {
@@ -166,7 +173,7 @@ function editarWebhookDiscord($categoriaEnvio, $mensagemID, $titulo, $conteudo, 
     }
 
     $ch = curl_init($url);
-    curl_setopt_array($ch, [
+    $curlOpts = [
         CURLOPT_HTTPHEADER => [
             'Content-Type: application/json',
             'User-Agent: DiscordBot (RedeNerds, 1.0)'
@@ -174,15 +181,22 @@ function editarWebhookDiscord($categoriaEnvio, $mensagemID, $titulo, $conteudo, 
         CURLOPT_CUSTOMREQUEST => 'PATCH',
         CURLOPT_POSTFIELDS => $payload,
         CURLOPT_RETURNTRANSFER => true,
-        CURLOPT_SSL_VERIFYPEER => true, CURLOPT_SSL_VERIFYHOST => 2,
+        CURLOPT_SSL_VERIFYPEER => true,
+        CURLOPT_SSL_VERIFYHOST => 2,
         CURLOPT_CONNECTTIMEOUT => DISCORD_CURL_CONNECT_TIMEOUT,
         CURLOPT_TIMEOUT => DISCORD_CURL_TIMEOUT,
-    ]);
+    ];
+    if (defined('CURLSSLOPT_NATIVE_CA')) {
+        $curlOpts[CURLOPT_SSL_OPTIONS] = CURLSSLOPT_NATIVE_CA;
+    }
+    curl_setopt_array($ch, $curlOpts);
 
     $response = curl_exec($ch);
     $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
     $curlError = curl_error($ch);
-    curl_close($ch);
+    if (PHP_VERSION_ID < 80500) {
+        @curl_close($ch);
+    }
 
     if ($curlError) {
         error_log("ERRO cURL DISCORD (edição): " . $curlError);
@@ -213,21 +227,28 @@ function deletarWebhookDiscord($categoriaEnvio, $mensagemID) {
     $url = rtrim(DISCORD_WEBHOOKS[$categoriaEnvio], '/') . "/messages/" . $mensagemID;
 
     $ch = curl_init($url);
-    curl_setopt_array($ch, [
+    $curlOpts = [
         CURLOPT_HTTPHEADER => [
             'User-Agent: DiscordBot (RedeNerds, 1.0)'
         ],
         CURLOPT_CUSTOMREQUEST => 'DELETE',
         CURLOPT_RETURNTRANSFER => true,
-        CURLOPT_SSL_VERIFYPEER => true, CURLOPT_SSL_VERIFYHOST => 2,
+        CURLOPT_SSL_VERIFYPEER => true,
+        CURLOPT_SSL_VERIFYHOST => 2,
         CURLOPT_CONNECTTIMEOUT => DISCORD_CURL_CONNECT_TIMEOUT,
         CURLOPT_TIMEOUT => DISCORD_CURL_TIMEOUT,
-    ]);
+    ];
+    if (defined('CURLSSLOPT_NATIVE_CA')) {
+        $curlOpts[CURLOPT_SSL_OPTIONS] = CURLSSLOPT_NATIVE_CA;
+    }
+    curl_setopt_array($ch, $curlOpts);
 
     $response = curl_exec($ch);
     $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
     $curlError = curl_error($ch);
-    curl_close($ch);
+    if (PHP_VERSION_ID < 80500) {
+        @curl_close($ch);
+    }
 
     if ($curlError) {
         error_log("ERRO cURL DISCORD (exclusão): " . $curlError);

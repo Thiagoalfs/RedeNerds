@@ -3,22 +3,6 @@ $paginaAtiva = 'equipe';
 $tituloPagina = 'Gerenciar Cargos da Equipe';
 require_once __DIR__ . "/../includes/admin_header.php";
 
-// Garante que a tabela equipe_cargos existe
-try {
-    $pdo->exec("CREATE TABLE IF NOT EXISTS `equipe_cargos` (
-        `id` INT AUTO_INCREMENT PRIMARY KEY,
-        `nome` VARCHAR(100) NOT NULL UNIQUE,
-        `cor` VARCHAR(20) NOT NULL DEFAULT '#27acff',
-        `ordem` INT NOT NULL DEFAULT 0,
-        `criado_em` TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;");
-    
-    // Garante que a coluna cor existe se a tabela foi criada anteriormente
-    try {
-        $pdo->exec("ALTER TABLE `equipe_cargos` ADD COLUMN `cor` VARCHAR(20) NOT NULL DEFAULT '#27acff' AFTER `nome`");
-    } catch (Exception $ignored) {}
-} catch (Exception $e) {}
-
 // Busca todos os cargos com a contagem de membros vinculados e a cor
 try {
     $stmt = $pdo->query("
