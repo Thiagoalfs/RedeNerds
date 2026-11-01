@@ -394,14 +394,15 @@ try {
                                 </td>
                                 <td class="text-end text-nowrap">
                                     <div class="d-inline-flex align-items-center justify-content-end gap-1">
-                                        <button type="button" class="btn btn-sm btn-primary btn-abrir-editar-vip" title="Editar VIP">
+                                        <button type="button" class="btn btn-sm btn-primary btn-abrir-editar-vip" title="Editar VIP" aria-label="Editar pacote VIP <?php echo htmlspecialchars($v['nome'], ENT_QUOTES, 'UTF-8'); ?>">
                                             <i class="fa-solid fa-pen-to-square"></i>
                                         </button>
                                         <button type="button" class="btn btn-sm btn-outline-secondary" 
                                                 data-action="async-toggle" 
                                                 data-url="/admin/api/vips/toggle.php" 
                                                 data-id="<?php echo (int)$v['id']; ?>"
-                                                title="Desativar da loja">
+                                                title="Desativar da loja"
+                                                aria-label="Desativar pacote VIP <?php echo htmlspecialchars($v['nome'], ENT_QUOTES, 'UTF-8'); ?>">
                                             <i class="fa-solid fa-eye"></i>
                                         </button>
                                         <button type="button" class="btn btn-sm btn-danger" 
@@ -410,7 +411,8 @@ try {
                                                 data-id="<?php echo (int)$v['id']; ?>"
                                                 data-name="<?php echo htmlspecialchars($v['nome'], ENT_QUOTES, 'UTF-8'); ?>"
                                                 data-confirm="Tem certeza que deseja excluir o pacote <?php echo htmlspecialchars($v['nome'], ENT_QUOTES, 'UTF-8'); ?> do servidor <?php echo htmlspecialchars($srvNome, ENT_QUOTES, 'UTF-8'); ?>?"
-                                                title="Deletar VIP">
+                                                title="Deletar VIP"
+                                                aria-label="Excluir pacote VIP <?php echo htmlspecialchars($v['nome'], ENT_QUOTES, 'UTF-8'); ?>">
                                             <i class="fa-solid fa-trash"></i>
                                         </button>
                                     </div>
@@ -537,14 +539,15 @@ try {
                                 </td>
                                 <td class="text-end text-nowrap">
                                     <div class="d-inline-flex align-items-center justify-content-end gap-1">
-                                        <button type="button" class="btn btn-sm btn-primary btn-abrir-editar-vip" title="Editar VIP">
+                                        <button type="button" class="btn btn-sm btn-primary btn-abrir-editar-vip" title="Editar VIP" aria-label="Editar pacote VIP <?php echo htmlspecialchars($v['nome'], ENT_QUOTES, 'UTF-8'); ?>">
                                             <i class="fa-solid fa-pen-to-square"></i>
                                         </button>
                                         <button type="button" class="btn btn-sm btn-outline-secondary" 
                                                 data-action="async-toggle" 
                                                 data-url="/admin/api/vips/toggle.php" 
                                                 data-id="<?php echo (int)$v['id']; ?>"
-                                                title="<?php echo !empty($v['ativo']) ? 'Desativar da loja' : 'Ativar na loja'; ?>">
+                                                title="<?php echo !empty($v['ativo']) ? 'Desativar da loja' : 'Ativar na loja'; ?>"
+                                                aria-label="<?php echo !empty($v['ativo']) ? 'Desativar pacote VIP ' . htmlspecialchars($v['nome'], ENT_QUOTES, 'UTF-8') : 'Ativar pacote VIP ' . htmlspecialchars($v['nome'], ENT_QUOTES, 'UTF-8'); ?>">
                                             <i class="fa-solid <?php echo !empty($v['ativo']) ? 'fa-eye' : 'fa-eye-slash'; ?>"></i>
                                         </button>
                                         <button type="button" class="btn btn-sm btn-danger" 
@@ -553,7 +556,8 @@ try {
                                                 data-id="<?php echo (int)$v['id']; ?>"
                                                 data-name="<?php echo htmlspecialchars($v['nome'], ENT_QUOTES, 'UTF-8'); ?>"
                                                 data-confirm="Tem certeza que deseja excluir o pacote <?php echo htmlspecialchars($v['nome'], ENT_QUOTES, 'UTF-8'); ?> do servidor <?php echo htmlspecialchars($srvNome, ENT_QUOTES, 'UTF-8'); ?>?"
-                                                title="Deletar VIP">
+                                                title="Deletar VIP"
+                                                aria-label="Excluir pacote VIP <?php echo htmlspecialchars($v['nome'], ENT_QUOTES, 'UTF-8'); ?>">
                                             <i class="fa-solid fa-trash"></i>
                                         </button>
                                     </div>
@@ -1568,14 +1572,15 @@ document.addEventListener('DOMContentLoaded', function() {
             <td>${statusBadge}</td>
             <td class="text-end text-nowrap">
                 <div class="d-inline-flex align-items-center justify-content-end gap-1">
-                    <button type="button" class="btn btn-sm btn-primary btn-abrir-editar-vip" title="Editar VIP">
+                    <button type="button" class="btn btn-sm btn-primary btn-abrir-editar-vip" title="Editar VIP" aria-label="Editar pacote VIP ${escapeHtml(v.nome)}">
                         <i class="fa-solid fa-pen-to-square"></i>
                     </button>
                     <button type="button" class="btn btn-sm btn-outline-secondary" 
                             data-action="async-toggle" 
                             data-url="/admin/api/vips/toggle.php" 
                             data-id="${v.id}"
-                            title="${isAtivo ? 'Desativar da loja' : 'Ativar na loja'}">
+                            title="${isAtivo ? 'Desativar da loja' : 'Ativar na loja'}"
+                            aria-label="${isAtivo ? 'Desativar pacote VIP ' + escapeHtml(v.nome) : 'Ativar pacote VIP ' + escapeHtml(v.nome)}">
                         <i class="fa-solid ${isAtivo ? 'fa-eye' : 'fa-eye-slash'}"></i>
                     </button>
                     <button type="button" class="btn btn-sm btn-danger" 
@@ -1584,7 +1589,8 @@ document.addEventListener('DOMContentLoaded', function() {
                             data-id="${v.id}"
                             data-name="${escapeHtml(v.nome)}"
                             data-confirm="Tem certeza que deseja excluir o pacote ${escapeHtml(v.nome)} do servidor ${escapeHtml(srvNome)}?"
-                            title="Deletar VIP">
+                            title="Deletar VIP"
+                            aria-label="Excluir pacote VIP ${escapeHtml(v.nome)}">
                         <i class="fa-solid fa-trash"></i>
                     </button>
                 </div>
