@@ -107,18 +107,6 @@ try {
              ORDER BY id ASC"
         );
         $linhas = $stmt->fetchAll(PDO::FETCH_ASSOC);
-    } elseif (isset($conn) && $conn instanceof mysqli) {
-        $res = $conn->query(
-            "SELECT id, nome, servername, title, icon, bg_image, descricao, features, modpackurl, ip, themecolor
-             FROM servidores
-             WHERE enabled = 1
-             ORDER BY id ASC"
-        );
-        if ($res) {
-            while ($row = $res->fetch_assoc()) {
-                $linhas[] = $row;
-            }
-        }
     }
 } catch (Exception $e) {
     $linhas = [];

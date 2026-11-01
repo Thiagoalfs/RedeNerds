@@ -92,6 +92,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $pdo->prepare("DELETE FROM tentativas_login WHERE identificador = :id")
                         ->execute([':id' => $identificador]);
 
+                    session_regenerate_id(true);
                     $_SESSION['usuario_id'] = (int)$user['id'];
                     $_SESSION['usuario_nome'] = $user['usuario'];
                     $_SESSION['admin'] = 1;

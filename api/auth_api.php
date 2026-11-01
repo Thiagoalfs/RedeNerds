@@ -67,13 +67,7 @@ function verificarAcessoApi(bool $exigirApiKeyApenas = false): void {
         '127.0.0.1'
     ];
 
-    // Adiciona dinamicamente os hosts locais/atuais do servidor
-    if (!empty($_SERVER['HTTP_HOST'])) {
-        $hostLimpo = parse_url('http://' . $_SERVER['HTTP_HOST'], PHP_URL_HOST);
-        if ($hostLimpo) {
-            $dominiosAutorizados[] = strtolower($hostLimpo);
-        }
-    }
+    // Adiciona apenas hosts locais do servidor (evita HTTP_HOST manipulável pelo cliente)
     if (!empty($_SERVER['SERVER_NAME'])) {
         $dominiosAutorizados[] = strtolower($_SERVER['SERVER_NAME']);
     }

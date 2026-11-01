@@ -463,8 +463,13 @@ try {
         ':cupom_computado' => 0,
         ':pago_em' => $pagoEm
     ]);
+    $novoPedidoId = (int)$pdo->lastInsertId();
 } catch (Exception $e) {
-    error_log("Erro ao salvar pedido de cartão no BD: " . $e->getMessage());
+    error_log("Erro crítico ao salvar pedido de cartão no BD: " . $e->getMessage());
+    $novoPedidoId = 0;
+    if ($statusBd === 'pago' && isset($mpData) && is_array($mpData) && isset($pdo) && $pdo instanceof PDO) {
+        autoRecuperarPedidoMercadoPago($pdo, $txid, $mpId, $mpData);
+    }
 }
 
 // 8. SE APROVADO IMEDIATAMENTE: EXECUTA CÔMPUTO DE CUPOM, NOTIFICAÇÃO E ENTREGA
@@ -496,7 +501,7 @@ if ($statusBd === 'pago') {
     // Dispara entrega do produto
     try {
         $pedidoCriado = [
-            'id'           => (int)$pdo->lastInsertId(),
+            'id'           => $novoPedidoId ?: $txid,
             'nick'         => $nick,
             'servidor'     => $servidor,
             'tipo_produto' => $tipoProduto,

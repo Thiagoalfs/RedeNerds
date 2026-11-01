@@ -62,14 +62,23 @@ try {
             $cargosCores = [];
         }
 
-        // Descobre todos os cargos existentes na tabela equipe
-        $stmtCargos = $pdo->query("SELECT DISTINCT cargo FROM equipe WHERE cargo IS NOT NULL AND cargo != ''");
-        $cargosExistentes = $stmtCargos->fetchAll(PDO::FETCH_COLUMN, 0);
+        // 2) Busca todos os membros e agrupa em memória (evita N+1 queries)
+        $stmtMembros = $pdo->query("SELECT nick, cargo FROM equipe WHERE cargo IS NOT NULL AND cargo != '' ORDER BY id ASC");
+        $membrosPorCargo = [];
+        $cargosExistentes = [];
+        while ($row = $stmtMembros->fetch(PDO::FETCH_ASSOC)) {
+            $cg = $row['cargo'];
+            if (!isset($membrosPorCargo[$cg])) {
+                $membrosPorCargo[$cg] = [];
+                $cargosExistentes[] = $cg;
+            }
+            $membrosPorCargo[$cg][] = $row['nick'];
+        }
 
-        // Mescla garantindo que a hierarquia definida venha primeiro
+        // 3) Mescla garantindo que a hierarquia definida venha primeiro
         $cargos = [];
         foreach ($cargosHierarquia as $ch) {
-            if (in_array($ch, $cargosExistentes, true)) {
+            if (isset($membrosPorCargo[$ch])) {
                 $cargos[] = $ch;
             }
         }
@@ -79,69 +88,13 @@ try {
             }
         }
 
-        // 2) Busca os nicks de cada cargo
-        $stmtMembros = $pdo->prepare("SELECT nick FROM equipe WHERE cargo = :cargo ORDER BY id ASC");
         foreach ($cargos as $cargo) {
-            $stmtMembros->execute([':cargo' => $cargo]);
-            $membros = $stmtMembros->fetchAll(PDO::FETCH_COLUMN, 0);
-
-            if (!empty($membros)) {
-                $corFinal = $cargosCores[$cargo] ?? ($cargosCores[mb_strtolower(trim($cargo))] ?? '#27acff');
-                $resultado[] = [
-                    'categoryTitle' => $cargo,
-                    'cor'           => $corFinal,
-                    'members'       => $membros,
-                ];
-            }
-        }
-    } elseif (isset($conn) && $conn instanceof mysqli) {
-        $cargos = [];
-        $cargosCores = [];
-        $resDef = $conn->query("SELECT nome, cor FROM equipe_cargos ORDER BY ordem ASC, id ASC");
-        if ($resDef) {
-            while ($row = $resDef->fetch_assoc()) {
-                $cargos[] = $row['nome'];
-                $cargosCores[$row['nome']] = $row['cor'] ?? '#27acff';
-            }
-        }
-
-        $resExist = $conn->query("SELECT DISTINCT cargo FROM equipe WHERE cargo IS NOT NULL AND cargo != ''");
-        $cargosExist = [];
-        if ($resExist) {
-            while ($rowE = $resExist->fetch_row()) {
-                $cargosExist[] = $rowE[0];
-            }
-        }
-
-        $cargosFinal = [];
-        foreach ($cargos as $ch) {
-            if (in_array($ch, $cargosExist, true)) {
-                $cargosFinal[] = $ch;
-            }
-        }
-        foreach ($cargosExist as $ce) {
-            if (!in_array($ce, $cargosFinal, true)) {
-                $cargosFinal[] = $ce;
-            }
-        }
-
-        foreach ($cargosFinal as $cargo) {
-            $cargoEscaped = $conn->real_escape_string($cargo);
-            $resM = $conn->query("SELECT nick FROM equipe WHERE cargo = '{$cargoEscaped}' ORDER BY id ASC");
-            $membros = [];
-            if ($resM) {
-                while ($rowM = $resM->fetch_row()) {
-                    $membros[] = $rowM[0];
-                }
-            }
-
-            if (!empty($membros)) {
-                $resultado[] = [
-                    'categoryTitle' => $cargo,
-                    'cor'           => $cargosCores[$cargo] ?? null,
-                    'members'       => $membros,
-                ];
-            }
+            $corFinal = $cargosCores[$cargo] ?? ($cargosCores[mb_strtolower(trim($cargo))] ?? '#27acff');
+            $resultado[] = [
+                'categoryTitle' => $cargo,
+                'cor'           => $corFinal,
+                'members'       => $membrosPorCargo[$cargo],
+            ];
         }
     }
 } catch (Exception $e) {

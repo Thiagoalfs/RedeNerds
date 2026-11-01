@@ -16,7 +16,8 @@ $testFiles = [
     __DIR__ . "/cupom_idempotencia_test.php",
     __DIR__ . "/webhook_atomicidade_test.php",
     __DIR__ . "/sem_token_503_test.php",
-    __DIR__ . "/chaves_loja_test.php"
+    __DIR__ . "/chaves_loja_test.php",
+    __DIR__ . "/audit_fixes_test.php"
 ];
 
 $total = count($testFiles);

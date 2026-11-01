@@ -58,57 +58,7 @@ if (empty($txid)) {
     exit;
 }
 
-// Rate Limiting anti-abuso / anti-spam para polling de status (máx 60 requisições por IP por minuto)
-$clientIp = obterIpRealCliente();
-try {
-    if (isset($pdo) && $pdo instanceof PDO) {
-        $pdo->exec("DELETE FROM rate_limits_loja WHERE tentativa_em < (NOW() - INTERVAL 10 MINUTE)");
 
-        $stmtRl = $pdo->prepare("
-            SELECT COUNT(*) FROM rate_limits_loja 
-            WHERE ip = :ip 
-              AND endpoint = 'checar_status' 
-              AND tentativa_em >= (NOW() - INTERVAL 1 MINUTE)
-        ");
-        $stmtRl->execute([':ip' => $clientIp]);
-        $tentativasRecentes = (int)$stmtRl->fetchColumn();
-
-        if ($tentativasRecentes >= 60) {
-            http_response_code(429);
-            echo json_encode([
-                "erro" => "Muitas requisições de status. Por favor, aguarde alguns segundos antes de verificar novamente."
-            ], JSON_UNESCAPED_UNICODE);
-            exit;
-        }
-
-        $stmtLog = $pdo->prepare("INSERT INTO rate_limits_loja (ip, endpoint, tentativa_em) VALUES (:ip, 'checar_status', NOW())");
-        $stmtLog->execute([':ip' => $clientIp]);
-    }
-} catch (Exception $e) {
-    error_log("Erro no rate limiting de status: " . $e->getMessage());
-}
-
-// Auto-limpeza de pedidos expirados (15 min para PIX/Cartão, 2 horas para Checkout Pro)
-try {
-    if (isset($pdo) && $pdo instanceof PDO) {
-        $pdo->exec("
-            UPDATE pedidos 
-            SET status = 'expirado' 
-            WHERE status = 'pendente' 
-              AND (metodo_pagamento IS NULL OR metodo_pagamento <> 'checkout_pro')
-              AND TIMESTAMPDIFF(MINUTE, criado_em, NOW()) >= 15
-        ");
-        $pdo->exec("
-            UPDATE pedidos 
-            SET status = 'expirado' 
-            WHERE status = 'pendente' 
-              AND metodo_pagamento = 'checkout_pro'
-              AND TIMESTAMPDIFF(HOUR, criado_em, NOW()) >= 2
-        ");
-    }
-} catch (Exception $e) {
-    // Ignora erro de limpeza silenciosamente
-}
 
 if (isset($pdo) && $pdo instanceof PDO) {
     garantirSchemaTabelaPedidos($pdo);

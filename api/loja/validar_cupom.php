@@ -85,33 +85,7 @@ if (!isset($pdo) || !($pdo instanceof PDO)) {
     exit;
 }
 
-// 1. Rate Limiting anti-bruteforce (máx 10 tentativas por IP em 10 minutos)
-$clientIp = obterIpRealCliente();
-try {
-    $pdo->exec("DELETE FROM rate_limits_loja WHERE tentativa_em < (NOW() - INTERVAL 1 HOUR)");
 
-    $stmtRl = $pdo->prepare("
-        SELECT COUNT(*) FROM rate_limits_loja 
-        WHERE ip = :ip 
-          AND endpoint = 'validar_cupom' 
-          AND tentativa_em >= (NOW() - INTERVAL 10 MINUTE)
-    ");
-    $stmtRl->execute([':ip' => $clientIp]);
-    $tentativasRecentes = (int)$stmtRl->fetchColumn();
-
-    if ($tentativasRecentes >= 10) {
-        http_response_code(429);
-        echo json_encode([
-            "erro" => "Muitas tentativas de validação de cupom. Por favor, aguarde 10 minutos antes de tentar novamente."
-        ], JSON_UNESCAPED_UNICODE);
-        exit;
-    }
-
-    $stmtLog = $pdo->prepare("INSERT INTO rate_limits_loja (ip, endpoint, tentativa_em) VALUES (:ip, 'validar_cupom', NOW())");
-    $stmtLog->execute([':ip' => $clientIp]);
-} catch (Exception $e) {
-    error_log("Erro no rate limiting de cupom: " . $e->getMessage());
-}
 
 try {
     // 1. Busca o preço oficial do item e seus dados de servidor

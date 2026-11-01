@@ -5,18 +5,20 @@
  * As configurações de endpoint (URL e Token) ficam centralizadas exclusivamente no config.php.
  */
 
-$configPaths = [
-    __DIR__ . "/../../../config.php",
-    __DIR__ . "/../../config.php",
-    __DIR__ . "/../config.php",
-    __DIR__ . "/config.php",
-    ($_SERVER['DOCUMENT_ROOT'] ?? '') . "/../config.php",
-    ($_SERVER['DOCUMENT_ROOT'] ?? '') . "/config.php"
-];
-foreach ($configPaths as $cp) {
-    if (!empty($cp) && file_exists($cp)) {
-        require_once $cp;
-        break;
+if (!defined('DELIVERY_API_URL') && !defined('DELIVERY_SERVERS')) {
+    $configPaths = [
+        __DIR__ . "/../../../config.php",
+        __DIR__ . "/../../config.php",
+        __DIR__ . "/../config.php",
+        __DIR__ . "/config.php",
+        ($_SERVER['DOCUMENT_ROOT'] ?? '') . "/../config.php",
+        ($_SERVER['DOCUMENT_ROOT'] ?? '') . "/config.php"
+    ];
+    foreach ($configPaths as $cp) {
+        if (!empty($cp) && file_exists($cp)) {
+            require_once $cp;
+            break;
+        }
     }
 }
 
@@ -49,6 +51,7 @@ if (!defined('DELIVERY_API_TOKEN')) {
  * @param PDO|null $pdo Conexão PDO (opcional)
  * @return array ['success' => bool, 'http_code' => int, 'response' => mixed, 'error' => string|null]
  */
+if (!function_exists('enviarEntregaVip')) {
 function enviarEntregaVip($pedido, $pdo = null) {
     if (!$pdo) {
         global $pdo;
@@ -274,8 +277,13 @@ function enviarEntregaVip($pedido, $pdo = null) {
 
         if ($algumSucesso && $pdo instanceof PDO && !empty($orderId)) {
             try {
-                $upEntregue = $pdo->prepare("UPDATE pedidos SET entregue = 1 WHERE txid = :txid OR id = :id");
-                $upEntregue->execute([':txid' => $orderId, ':id' => (int)$orderId]);
+                if (is_numeric($orderId)) {
+                    $upEntregue = $pdo->prepare("UPDATE pedidos SET entregue = 1 WHERE id = :id");
+                    $upEntregue->execute([':id' => (int)$orderId]);
+                } else {
+                    $upEntregue = $pdo->prepare("UPDATE pedidos SET entregue = 1 WHERE txid = :txid");
+                    $upEntregue->execute([':txid' => $orderId]);
+                }
             } catch (Exception $e) {
                 error_log("AVISO DELIVERY: Falha ao marcar entregue = 1: " . $e->getMessage());
             }
@@ -360,8 +368,13 @@ function enviarEntregaVip($pedido, $pdo = null) {
         error_log("DELIVERY SUCESSO: Pedido #{$orderId} enviado para '{$player}' ({$packageId} no servidor '{$serverSlug}') - HTTP {$httpCode}");
         if ($pdo instanceof PDO && !empty($orderId)) {
             try {
-                $upEntregue = $pdo->prepare("UPDATE pedidos SET entregue = 1 WHERE txid = :txid OR id = :id");
-                $upEntregue->execute([':txid' => $orderId, ':id' => (int)$orderId]);
+                if (is_numeric($orderId)) {
+                    $upEntregue = $pdo->prepare("UPDATE pedidos SET entregue = 1 WHERE id = :id");
+                    $upEntregue->execute([':id' => (int)$orderId]);
+                } else {
+                    $upEntregue = $pdo->prepare("UPDATE pedidos SET entregue = 1 WHERE txid = :txid");
+                    $upEntregue->execute([':txid' => $orderId]);
+                }
             } catch (Exception $e) {
                 error_log("AVISO DELIVERY: Falha ao marcar entregue = 1 no banco: " . $e->getMessage());
             }
@@ -376,4 +389,29 @@ function enviarEntregaVip($pedido, $pdo = null) {
         'response' => $response,
         'error' => $curlError ?: null
     ];
+}
+}
+
+/**
+ * Re-tenta a entrega de todos os pedidos pagos e ainda não entregues.
+ * Pode ser chamado via cron ou pelo painel admin.
+ */
+if (!function_exists('retentarEntregasPendentes')) {
+function retentarEntregasPendentes(PDO $pdo, int $limite = 20): array {
+    $limiteInt = max(1, min(100, $limite));
+    $stmt = $pdo->prepare("
+        SELECT * FROM pedidos 
+        WHERE status = 'pago' AND (entregue = 0 OR entregue IS NULL)
+        ORDER BY id DESC LIMIT {$limiteInt}
+    ");
+    $stmt->execute();
+    $pedidos = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+    $resultados = [];
+    foreach ($pedidos as $p) {
+        $res = enviarEntregaVip($p, $pdo);
+        $resultados[$p['txid'] ?? $p['id']] = $res['success'];
+    }
+    return $resultados;
+}
 }

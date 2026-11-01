@@ -48,10 +48,16 @@ if (!$artigo) {
     exit;
 }
 
-// Incrementa visualização
-try {
-    $pdo->prepare("UPDATE wiki_artigos SET visualizacoes = visualizacoes + 1 WHERE id = :id")->execute([':id' => $artigo['id']]);
-} catch (Exception $e) {}
+// Incrementa visualização (ignora bots conhecidos e prefetch)
+$userAgent = strtolower($_SERVER['HTTP_USER_AGENT'] ?? '');
+$isBot = preg_match('/bot|crawl|spider|slurp|facebookexternalhit|discordbot|bingpreview|google/i', $userAgent);
+$isPrefetch = (($_SERVER['HTTP_PURPOSE'] ?? '') === 'prefetch' || ($_SERVER['HTTP_SEC_PURPOSE'] ?? '') === 'prefetch');
+
+if (!$isBot && !$isPrefetch) {
+    try {
+        $pdo->prepare("UPDATE wiki_artigos SET visualizacoes = visualizacoes + 1 WHERE id = :id")->execute([':id' => $artigo['id']]);
+    } catch (Exception $e) {}
+}
 
 // Busca categorias do servidor para a sidebar esquerda
 $categorias = getCategoriasServidorWiki($pdo, (int)$servidorAtual['id']);

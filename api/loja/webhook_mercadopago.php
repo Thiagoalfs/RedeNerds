@@ -66,7 +66,13 @@ $headers = function_exists('getallheaders') ? getallheaders() : [];
 $xSignature = $_SERVER['HTTP_X_SIGNATURE'] ?? ($headers['x-signature'] ?? ($headers['X-Signature'] ?? ''));
 $xRequestId = $_SERVER['HTTP_X_REQUEST_ID'] ?? ($headers['x-request-id'] ?? ($headers['X-Request-Id'] ?? ''));
 
-if (!empty($webhookSecret) && !empty($xSignature)) {
+if (!empty($webhookSecret)) {
+    if (empty($xSignature)) {
+        http_response_code(401);
+        echo json_encode(["erro" => "Assinatura do webhook ausente."]);
+        exit;
+    }
+
     $parts = explode(',', (string)$xSignature);
     $ts = null;
     $v1 = null;
@@ -78,14 +84,18 @@ if (!empty($webhookSecret) && !empty($xSignature)) {
         }
     }
 
-    if ($ts && $v1) {
-        $manifest = "id:{$paymentId};request-id:{$xRequestId};ts:{$ts};";
-        $computedHash = hash_hmac('sha256', $manifest, $webhookSecret);
-        if (!hash_equals($computedHash, $v1)) {
-            http_response_code(401);
-            echo json_encode(["erro" => "Assinatura do webhook inválida."]);
-            exit;
-        }
+    if (!$ts || !$v1) {
+        http_response_code(401);
+        echo json_encode(["erro" => "Formato de assinatura inválido."]);
+        exit;
+    }
+
+    $manifest = "id:{$paymentId};request-id:{$xRequestId};ts:{$ts};";
+    $computedHash = hash_hmac('sha256', $manifest, $webhookSecret);
+    if (!hash_equals($computedHash, $v1)) {
+        http_response_code(401);
+        echo json_encode(["erro" => "Assinatura do webhook inválida."]);
+        exit;
     }
 }
 

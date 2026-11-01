@@ -112,33 +112,7 @@ if (!isset($pdo) || !($pdo instanceof PDO)) {
     exit;
 }
 
-// Rate Limiting anti-abuso / anti-spam para geração de PIX (máx 10 tentativas por IP em 10 minutos)
-$clientIp = obterIpRealCliente();
-try {
-    $pdo->exec("DELETE FROM rate_limits_loja WHERE tentativa_em < (NOW() - INTERVAL 1 HOUR)");
 
-    $stmtRl = $pdo->prepare("
-        SELECT COUNT(*) FROM rate_limits_loja 
-        WHERE ip = :ip 
-          AND endpoint = 'criar_pix' 
-          AND tentativa_em >= (NOW() - INTERVAL 10 MINUTE)
-    ");
-    $stmtRl->execute([':ip' => $clientIp]);
-    $tentativasRecentes = (int)$stmtRl->fetchColumn();
-
-    if ($tentativasRecentes >= 10) {
-        http_response_code(429);
-        echo json_encode([
-            "erro" => "Muitas cobranças PIX geradas recentemente. Por favor, conclua o pagamento pendente ou aguarde 10 minutos."
-        ], JSON_UNESCAPED_UNICODE);
-        exit;
-    }
-
-    $stmtLog = $pdo->prepare("INSERT INTO rate_limits_loja (ip, endpoint, tentativa_em) VALUES (:ip, 'criar_pix', NOW())");
-    $stmtLog->execute([':ip' => $clientIp]);
-} catch (Exception $e) {
-    error_log("Erro no rate limiting de PIX: " . $e->getMessage());
-}
 
 if ($tipoProduto === 'chave') {
     $stmtItem = $pdo->prepare("SELECT id, nome, preco, servidor_id FROM chaves WHERE id = :id AND (ativo = 1 OR ativo IS NULL) LIMIT 1");
@@ -319,42 +293,47 @@ $dbVipId = ($tipoProduto === 'vip') ? $itemId : null;
 $dbChaveId = ($tipoProduto === 'chave') ? $itemId : null;
 
 try {
-    if (isset($pdo) && $pdo instanceof PDO) {
-        $stmt = $pdo->prepare("
-            INSERT INTO pedidos (
-                txid, mp_payment_id, nick, pais_ip, tipo_conta, servidor, 
-                tipo_produto, quantidade, chave_id, vip_id, vip_nome, cupom_codigo, 
-                valor, valor_original, desconto_aplicado, status, metodo_pagamento, 
-                pix_copia_cola, pix_qr_base64, cupom_computado, criado_em
-            ) VALUES (
-                :txid, :mp_id, :nick, :pais_ip, :tipo_conta, :servidor, 
-                :tipo_produto, :quantidade, :chave_id, :vip_id, :vip_nome, :cupom_codigo, 
-                :valor, :valor_original, :desconto_aplicado, 'pendente', 'pix', 
-                :pix_copia_cola, :pix_qr_base64, 0, NOW()
-            )
-        ");
-        $stmt->execute([
-            ':txid' => $txid,
-            ':mp_id' => $mpId,
-            ':nick' => $nick,
-            ':pais_ip' => $paisIp,
-            ':tipo_conta' => $tipoConta,
-            ':servidor' => $servidor,
-            ':tipo_produto' => $tipoProduto,
-            ':quantidade' => $quantidade,
-            ':chave_id' => $dbChaveId,
-            ':vip_id' => $dbVipId,
-            ':vip_nome' => $itemNome,
-            ':cupom_codigo' => $cupomCodigo,
-            ':valor' => $valor,
-            ':valor_original' => $valorOriginal,
-            ':desconto_aplicado' => $descontoAplicado,
-            ':pix_copia_cola' => $pixCopiaCola,
-            ':pix_qr_base64' => $pixQrBase64
-        ]);
+    if (!isset($pdo) || !($pdo instanceof PDO)) {
+        throw new RuntimeException("Conexão PDO não disponível.");
     }
+
+    $stmt = $pdo->prepare("
+        INSERT INTO pedidos (
+            txid, mp_payment_id, nick, pais_ip, tipo_conta, servidor, 
+            tipo_produto, quantidade, chave_id, vip_id, vip_nome, cupom_codigo, 
+            valor, valor_original, desconto_aplicado, status, metodo_pagamento, 
+            pix_copia_cola, pix_qr_base64, cupom_computado, criado_em
+        ) VALUES (
+            :txid, :mp_id, :nick, :pais_ip, :tipo_conta, :servidor, 
+            :tipo_produto, :quantidade, :chave_id, :vip_id, :vip_nome, :cupom_codigo, 
+            :valor, :valor_original, :desconto_aplicado, 'pendente', 'pix', 
+            :pix_copia_cola, :pix_qr_base64, 0, NOW()
+        )
+    ");
+    $stmt->execute([
+        ':txid' => $txid,
+        ':mp_id' => $mpId,
+        ':nick' => $nick,
+        ':pais_ip' => $paisIp,
+        ':tipo_conta' => $tipoConta,
+        ':servidor' => $servidor,
+        ':tipo_produto' => $tipoProduto,
+        ':quantidade' => $quantidade,
+        ':chave_id' => $dbChaveId,
+        ':vip_id' => $dbVipId,
+        ':vip_nome' => $itemNome,
+        ':cupom_codigo' => $cupomCodigo,
+        ':valor' => $valor,
+        ':valor_original' => $valorOriginal,
+        ':desconto_aplicado' => $descontoAplicado,
+        ':pix_copia_cola' => $pixCopiaCola,
+        ':pix_qr_base64' => $pixQrBase64
+    ]);
 } catch (Exception $e) {
-    error_log("Erro ao salvar pedido no MySQL: " . $e->getMessage());
+    error_log("Erro crítico ao salvar pedido no MySQL: " . $e->getMessage());
+    http_response_code(500);
+    echo json_encode(["erro" => "Não foi possível registrar o pedido no banco de dados. Tente novamente."], JSON_UNESCAPED_UNICODE);
+    exit;
 }
 
 $expiraEm = date('c', time() + (15 * 60)); // 15 minutos

@@ -9,7 +9,7 @@
  */
 function obterVersaoCache(string $chave, string $fallbackFingerprint = ''): string
 {
-    global $pdo, $conn;
+    global $pdo;
 
     $chave = trim($chave);
     if ($chave === '') {
@@ -23,12 +23,6 @@ function obterVersaoCache(string $chave, string $fallbackFingerprint = ''): stri
             $versao = $stmt->fetchColumn();
             if ($versao) {
                 return (string)$versao;
-            }
-        } elseif (isset($conn) && $conn instanceof mysqli) {
-            $chaveEsc = $conn->real_escape_string($chave);
-            $res = $conn->query("SELECT versao FROM site_cache_versions WHERE chave = '{$chaveEsc}' LIMIT 1");
-            if ($res && ($row = $res->fetch_row())) {
-                return (string)$row[0];
             }
         }
     } catch (Exception $e) {
@@ -70,7 +64,7 @@ function verificarEtagCache(string $chave, string $fallbackFingerprint = ''): st
  */
 function invalidarCache(string $chave): void
 {
-    global $pdo, $conn;
+    global $pdo;
 
     $chave = trim($chave);
     if ($chave === '') return;
@@ -85,13 +79,6 @@ function invalidarCache(string $chave): void
                  ON DUPLICATE KEY UPDATE versao = VALUES(versao), atualizado_em = NOW()"
             );
             $stmt->execute([':chave' => $chave, ':versao' => $novaVersao]);
-        } elseif (isset($conn) && $conn instanceof mysqli) {
-            $chaveEsc = $conn->real_escape_string($chave);
-            $conn->query(
-                "INSERT INTO site_cache_versions (chave, versao, atualizado_em)
-                 VALUES ('{$chaveEsc}', '{$novaVersao}', NOW())
-                 ON DUPLICATE KEY UPDATE versao = '{$novaVersao}', atualizado_em = NOW()"
-            );
         }
     } catch (Exception $e) {
         error_log("Falha ao invalidar cache para '{$chave}': " . $e->getMessage());

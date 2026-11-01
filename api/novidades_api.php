@@ -41,18 +41,7 @@ require_once __DIR__ . "/cache_helper.php";
 $queryFingerprint = !empty($_GET) ? http_build_query($_GET) : 'all';
 verificarEtagCache('novidades', $queryFingerprint);
 
-// Detecta se há conexão válida ($pdo ou $conn)
-$usePDO = false;
-$db = null;
-
-if (isset($pdo) && $pdo instanceof PDO) {
-    $db = $pdo;
-    $usePDO = true;
-} elseif (isset($conn) && $conn instanceof mysqli) {
-    $db = $conn;
-    $usePDO = false;
-} else {
-    // Se o banco não puder ser conectado (ex: falta de driver local), responde vazio com segurança
+if (!isset($pdo) || !($pdo instanceof PDO)) {
     if (isset($_GET["limit"])) {
         echo json_encode([], JSON_UNESCAPED_UNICODE);
     } else {
@@ -67,18 +56,15 @@ if (isset($pdo) && $pdo instanceof PDO) {
     exit;
 }
 
+$db = $pdo;
+
 try {
     // 1. Busca por ID específico
     if (isset($_GET["id"])) {
         $id = intval($_GET["id"]);
-        if ($usePDO) {
-            $stmt = $db->prepare("SELECT * FROM novidades WHERE id = :id LIMIT 1");
-            $stmt->execute([':id' => $id]);
-            $news = $stmt->fetch(PDO::FETCH_ASSOC);
-        } else {
-            $res = $db->query("SELECT * FROM novidades WHERE id = $id LIMIT 1");
-            $news = $res ? $res->fetch_assoc() : null;
-        }
+        $stmt = $db->prepare("SELECT * FROM novidades WHERE id = :id LIMIT 1");
+        $stmt->execute([':id' => $id]);
+        $news = $stmt->fetch(PDO::FETCH_ASSOC);
         echo json_encode($news ?? ["erro" => "Notícia não encontrada"], JSON_UNESCAPED_UNICODE);
         exit;
     }
@@ -124,18 +110,9 @@ try {
                 ORDER BY criado_em DESC 
                 LIMIT $limit";
 
-        if ($usePDO) {
-            $stmt = $db->prepare($sql);
-            $stmt->execute($params);
-            $news = $stmt->fetchAll(PDO::FETCH_ASSOC);
-        } else {
-            // MySQLi simples
-            $res = $db->query($sql);
-            $news = [];
-            if ($res) {
-                while ($row = $res->fetch_assoc()) $news[] = $row;
-            }
-        }
+        $stmt = $db->prepare($sql);
+        $stmt->execute($params);
+        $news = $stmt->fetchAll(PDO::FETCH_ASSOC);
         echo json_encode($news, JSON_UNESCAPED_UNICODE);
         exit;
     }
@@ -145,38 +122,20 @@ try {
     $perPage = isset($_GET["per_page"]) ? max(1, intval($_GET["per_page"])) : 5;
     $offset = ($page - 1) * $perPage;
 
-    if ($usePDO) {
-        $countSql = "SELECT COUNT(*) FROM novidades $whereSQL";
-        $stmtCount = $db->prepare($countSql);
-        $stmtCount->execute($params);
-        $total = intval($stmtCount->fetchColumn());
+    $countSql = "SELECT COUNT(*) FROM novidades $whereSQL";
+    $stmtCount = $db->prepare($countSql);
+    $stmtCount->execute($params);
+    $total = intval($stmtCount->fetchColumn());
 
-        $sql = "SELECT id, titulo, autor, capa, category, conteudo, criado_em 
-                FROM novidades 
-                $whereSQL 
-                ORDER BY criado_em DESC 
-                LIMIT $perPage OFFSET $offset";
+    $sql = "SELECT id, titulo, autor, capa, category, conteudo, criado_em 
+            FROM novidades 
+            $whereSQL 
+            ORDER BY criado_em DESC 
+            LIMIT $perPage OFFSET $offset";
 
-        $stmt = $db->prepare($sql);
-        $stmt->execute($params);
-        $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
-    } else {
-        $countSql = "SELECT COUNT(*) as total FROM novidades $whereSQL";
-        $resCount = $db->query($countSql);
-        $total = $resCount ? intval($resCount->fetch_assoc()['total']) : 0;
-
-        $sql = "SELECT id, titulo, autor, capa, category, conteudo, criado_em 
-                FROM novidades 
-                $whereSQL 
-                ORDER BY criado_em DESC 
-                LIMIT $perPage OFFSET $offset";
-
-        $res = $db->query($sql);
-        $data = [];
-        if ($res) {
-            while ($row = $res->fetch_assoc()) $data[] = $row;
-        }
-    }
+    $stmt = $db->prepare($sql);
+    $stmt->execute($params);
+    $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
     echo json_encode([
         "data" => $data,

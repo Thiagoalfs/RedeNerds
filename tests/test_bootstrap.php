@@ -22,6 +22,12 @@ if (!defined('MERCADO_PAGO_ACCESS_TOKEN')) {
 if (!defined('MERCADO_PAGO_WEBHOOK_SECRET')) {
     define('MERCADO_PAGO_WEBHOOK_SECRET', 'test_secret_webhook');
 }
+if (!defined('DELIVERY_SERVERS')) {
+    define('DELIVERY_SERVERS', []);
+}
+if (!defined('DELIVERY_API_URL')) {
+    define('DELIVERY_API_URL', 'https://delivery.test.local');
+}
 
 // Armazenamento de chamadas de stubs
 class TestSpy {
@@ -80,6 +86,16 @@ class MockPDOStatement extends PDOStatement {
             return $this->results[$this->cursor++];
         }
         return false;
+    }
+
+    public function fetchAll(int $mode = PDO::FETCH_DEFAULT, mixed ...$args): array {
+        $out = array_slice($this->results, $this->cursor);
+        $this->cursor = count($this->results);
+        return $out;
+    }
+
+    public function bindValue(string|int $param, mixed $value, int $type = PDO::PARAM_STR): bool {
+        return true;
     }
 
     public function fetchColumn(int $column = 0): mixed {
@@ -167,6 +183,16 @@ class MockPDO extends PDO {
 
         // SELECT ... FROM pedidos / pedidos_vip WHERE txid = ...
         if (stripos($normalized, 'SELECT') === 0 && (stripos($normalized, 'FROM pedidos') !== false || stripos($normalized, 'FROM pedidos_vip') !== false)) {
+            if (stripos($normalized, "status = 'pago'") !== false && (stripos($normalized, 'entregue = 0') !== false || stripos($normalized, 'entregue IS NULL') !== false)) {
+                $rows = [];
+                foreach ($this->pedidos as $row) {
+                    if ($row['status'] === 'pago' && empty($row['entregue'])) {
+                        $rows[] = $row;
+                    }
+                }
+                return ['rows' => $rows, 'affected' => count($rows)];
+            }
+
             $txid = $params[':txid'] ?? ($params[0] ?? '');
             if (empty($txid) && preg_match("/txid\s*=\s*'([^']+)'/i", $normalized, $m)) {
                 $txid = $m[1];
@@ -211,7 +237,8 @@ class MockPDO extends PDO {
                 'valor' => $params[':valor'] ?? 50.00,
                 'status' => $params[':status'] ?? 'pendente',
                 'cupom_computado' => (int)($params[':cupom_computado'] ?? 0),
-                'pago_em' => $params[':pago_em'] ?? null
+                'pago_em' => $params[':pago_em'] ?? null,
+                'entregue' => (int)($params[':entregue'] ?? 0)
             ];
             return ['rows' => [], 'affected' => 1];
         }
@@ -261,6 +288,19 @@ class MockPDO extends PDO {
             if (!empty($codigo) && isset($this->cupons[$codigo])) {
                 $this->cupons[$codigo]['usos_total']++;
                 return ['rows' => [], 'affected' => 1];
+            }
+            return ['rows' => [], 'affected' => 0];
+        }
+
+        // UPDATE pedidos / pedidos_vip SET entregue = 1
+        if (stripos($normalized, 'UPDATE pedidos SET entregue = 1') !== false || stripos($normalized, 'UPDATE pedidos_vip SET entregue = 1') !== false) {
+            $txid = $params[':txid'] ?? '';
+            $id = $params[':id'] ?? null;
+            foreach ($this->pedidos as &$p) {
+                if ((!empty($txid) && $p['txid'] === $txid) || (!empty($id) && (int)$p['id'] === (int)$id)) {
+                    $p['entregue'] = 1;
+                    return ['rows' => [], 'affected' => 1];
+                }
             }
             return ['rows' => [], 'affected' => 0];
         }
