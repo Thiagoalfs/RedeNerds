@@ -66,15 +66,12 @@ try {
 
 <!-- GRID DE CARDS KPI -->
 <div class="kpi-grid">
-    <!-- Card 1: Faturamento Total -->
+    <!-- Card 1: Faturamento Mensal -->
     <div class="kpi-card">
         <div class="kpi-info">
-            <span class="kpi-label">Faturamento Aprovado</span>
-            <div class="kpi-value text-success">R$ <?php echo number_format($totalFaturamento, 2, ',', '.'); ?></div>
-            <span class="kpi-subtext">R$ <?php echo number_format($faturamentoMes, 2, ',', '.'); ?> este mês</span>
-        </div>
-        <div class="kpi-icon-box kpi-icon-green">
-            <i class="fa-solid fa-wallet"></i>
+            <span class="kpi-label">Faturamento do Mês</span>
+            <div class="kpi-value text-success">R$ <?php echo number_format($faturamentoMes, 2, ',', '.'); ?></div>
+            <span class="kpi-subtext">R$ <?php echo number_format($totalFaturamento, 2, ',', '.'); ?> no total</span>
         </div>
     </div>
 
@@ -85,9 +82,6 @@ try {
             <div class="kpi-value"><?php echo $totalPedidosPagos; ?></div>
             <span class="kpi-subtext text-warning fw-semibold"><?php echo pluralizar($totalPedidosPendentes, 'pedido pendente', 'pedidos pendentes'); ?></span>
         </div>
-        <div class="kpi-icon-box kpi-icon-blue">
-            <i class="fa-solid fa-receipt"></i>
-        </div>
     </div>
 
     <!-- Card 3: Cupons Ativos -->
@@ -97,9 +91,6 @@ try {
             <div class="kpi-value text-purple"><?php echo $totalCuponsAtivos; ?></div>
             <span class="kpi-subtext"><?php echo pluralizar($totalUsosCupons, 'desconto aplicado', 'descontos aplicados'); ?></span>
         </div>
-        <div class="kpi-icon-box kpi-icon-purple">
-            <i class="fa-solid fa-tags"></i>
-        </div>
     </div>
 
     <!-- Card 4: Servidores Ativos -->
@@ -108,9 +99,6 @@ try {
             <span class="kpi-label">Servidores Online</span>
             <div class="kpi-value"><?php echo $totalServidores; ?></div>
             <span class="kpi-subtext"><?php echo pluralizar($totalNoticias, 'novidade', 'novidades'); ?> no site</span>
-        </div>
-        <div class="kpi-icon-box kpi-icon-yellow">
-            <i class="fa-solid fa-server"></i>
         </div>
     </div>
 </div>

@@ -155,7 +155,6 @@ $todosCargos = array_unique(array_merge($cargosOrdem, array_keys($grupos)));
                             </span>
                             <input type="text" class="form-control" id="criar-membro-nick" name="nick" placeholder="Ex: Steve" required maxlength="16" autofocus>
                         </div>
-                        <div class="form-text small mt-1 mb-0" style="font-size: 0.75rem;">Nick de 2 a 16 caracteres alfanuméricos. A skin é buscada automaticamente.</div>
                     </div>
 
                     <div class="mb-2">

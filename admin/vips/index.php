@@ -302,8 +302,8 @@ try {
             <table class="table table-admin table-sticky-mobile align-middle mb-0" id="tabela-vips-ativos">
                 <thead>
                     <tr>
-                        <th>Pacote VIP</th>
                         <th style="width: 160px;">Servidor</th>
+                        <th>Pacote VIP</th>
                         <th style="width: 160px;">Package ID</th>
                         <th style="width: 140px;">Preço</th>
                         <th style="width: 120px;">Duração</th>
@@ -348,6 +348,12 @@ try {
                                 data-cor-string="<?php echo htmlspecialchars($v['cor_string'] ?? '', ENT_QUOTES, 'UTF-8'); ?>"
                                 data-vantagens="<?php echo htmlspecialchars($v['vantagens'] ?? '[]', ENT_QUOTES, 'UTF-8'); ?>">
                                 <td>
+                                    <span class="badge js-vip-servidor" style="background-color: <?php echo htmlspecialchars($srvCor, ENT_QUOTES, 'UTF-8'); ?>; color: #fff; font-weight: 600;">
+                                        <i class="fa-solid <?php echo $isMulti ? 'fa-globe' : 'fa-server'; ?> me-1"></i>
+                                        <?php echo htmlspecialchars($srvNome, ENT_QUOTES, 'UTF-8'); ?>
+                                    </span>
+                                </td>
+                                <td>
                                     <div class="d-flex flex-column">
                                         <div class="d-flex align-items-center gap-1">
                                             <strong class="text-dark js-vip-nome"><?php echo htmlspecialchars($v['nome'], ENT_QUOTES, 'UTF-8'); ?></strong>
@@ -360,12 +366,6 @@ try {
                                             </span>
                                         </div>
                                     </div>
-                                </td>
-                                <td>
-                                    <span class="badge js-vip-servidor" style="background-color: <?php echo htmlspecialchars($srvCor, ENT_QUOTES, 'UTF-8'); ?>; color: #fff; font-weight: 600;">
-                                        <i class="fa-solid <?php echo $isMulti ? 'fa-globe' : 'fa-server'; ?> me-1"></i>
-                                        <?php echo htmlspecialchars($srvNome, ENT_QUOTES, 'UTF-8'); ?>
-                                    </span>
                                 </td>
                                 <td>
                                     <span class="badge bg-light text-dark border font-monospace js-vip-package" style="font-size: 0.78rem;">
@@ -437,8 +437,8 @@ try {
             <table class="table table-admin table-sticky-mobile align-middle mb-0" id="tabela-vips-inativos">
                 <thead>
                     <tr>
-                        <th>Pacote VIP</th>
                         <th style="width: 160px;">Servidor</th>
+                        <th>Pacote VIP</th>
                         <th style="width: 160px;">Package ID</th>
                         <th style="width: 140px;">Preço</th>
                         <th style="width: 120px;">Duração</th>
@@ -480,6 +480,12 @@ try {
                                 data-cor-string="<?php echo htmlspecialchars($v['cor_string'] ?? '', ENT_QUOTES, 'UTF-8'); ?>"
                                 data-vantagens="<?php echo htmlspecialchars($v['vantagens'] ?? '[]', ENT_QUOTES, 'UTF-8'); ?>">
                                 <td>
+                                    <span class="badge js-vip-servidor" style="background-color: <?php echo htmlspecialchars($srvCor, ENT_QUOTES, 'UTF-8'); ?>; color: #fff; font-weight: 600;">
+                                        <i class="fa-solid <?php echo $isMulti ? 'fa-globe' : 'fa-server'; ?> me-1"></i>
+                                        <?php echo htmlspecialchars($srvNome, ENT_QUOTES, 'UTF-8'); ?>
+                                    </span>
+                                </td>
+                                <td>
                                     <div class="d-flex flex-column">
                                         <div class="d-flex align-items-center gap-1">
                                             <strong class="text-dark js-vip-nome"><?php echo htmlspecialchars($v['nome'], ENT_QUOTES, 'UTF-8'); ?></strong>
@@ -492,12 +498,6 @@ try {
                                             </span>
                                         </div>
                                     </div>
-                                </td>
-                                <td>
-                                    <span class="badge js-vip-servidor" style="background-color: <?php echo htmlspecialchars($srvCor, ENT_QUOTES, 'UTF-8'); ?>; color: #fff; font-weight: 600;">
-                                        <i class="fa-solid <?php echo $isMulti ? 'fa-globe' : 'fa-server'; ?> me-1"></i>
-                                        <?php echo htmlspecialchars($srvNome, ENT_QUOTES, 'UTF-8'); ?>
-                                    </span>
                                 </td>
                                 <td>
                                     <span class="badge bg-light text-dark border font-monospace js-vip-package" style="font-size: 0.78rem;">
@@ -1536,17 +1536,17 @@ document.addEventListener('DOMContentLoaded', function() {
 
         tr.innerHTML = `
             <td>
+                <span class="badge js-vip-servidor" style="background-color: ${escapeHtml(srvCor)}; color: #fff; font-weight: 600;">
+                    <i class="fa-solid ${isMulti ? 'fa-globe' : 'fa-server'} me-1"></i>${escapeHtml(srvNome)}
+                </span>
+            </td>
+            <td>
                 <div class="d-flex flex-column">
                     <div class="d-flex align-items-center gap-1">
                         <strong class="text-dark js-vip-nome">${escapeHtml(v.nome)}</strong>
                         <span class="js-vip-destaque-badge">${destaqueBadge}</span>
                     </div>
                 </div>
-            </td>
-            <td>
-                <span class="badge js-vip-servidor" style="background-color: ${escapeHtml(srvCor)}; color: #fff; font-weight: 600;">
-                    <i class="fa-solid fa-server me-1"></i>${escapeHtml(srvNome)}
-                </span>
             </td>
             <td>
                 <span class="badge bg-light text-dark border font-monospace js-vip-package" style="font-size: 0.78rem;">
