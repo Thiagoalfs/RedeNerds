@@ -327,16 +327,29 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             background-color: transparent;
             border: none;
             color: var(--text-muted);
-            padding-left: 0.95rem;
-            padding-right: 0.5rem;
+            width: 44px;
+            min-width: 44px;
+            padding: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             font-size: 0.95rem;
+            flex-shrink: 0;
+        }
+
+        .login-input-group .input-group-text i {
+            width: 16px;
+            text-align: center;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
         }
 
         .login-input-group .form-control {
             background-color: transparent;
             border: none;
             color: var(--text-main);
-            padding: 0.7rem 0.85rem 0.7rem 0.4rem;
+            padding: 0.7rem 0.85rem 0.7rem 0;
             font-size: 0.9rem;
             box-shadow: none;
         }
@@ -350,9 +363,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             background-color: transparent;
             border: none;
             color: var(--text-muted);
-            padding: 0 0.95rem;
+            width: 44px;
+            min-width: 44px;
+            padding: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             cursor: pointer;
             transition: color 0.15s ease;
+            flex-shrink: 0;
+        }
+
+        .login-input-group .btn-toggle-password i {
+            width: 16px;
+            text-align: center;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
         }
 
         .login-input-group .btn-toggle-password:hover {
