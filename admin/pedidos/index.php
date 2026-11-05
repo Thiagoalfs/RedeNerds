@@ -182,6 +182,23 @@ try {
                         Selecione o período desejado ou marque para exportar todo o histórico de pedidos para Excel (.csv).
                     </p>
 
+                    <!-- ESTIMATIVA DINÂMICA DE REGISTROS -->
+                    <div class="p-2 mb-3 rounded border d-flex align-items-center justify-content-between" style="background: rgba(37, 99, 235, 0.05); border-color: rgba(37, 99, 235, 0.2) !important;" id="exportEstimativaBox">
+                        <div class="d-flex align-items-center gap-2">
+                            <i class="fa-solid fa-file-csv text-primary" style="font-size: 1.15rem;"></i>
+                            <div>
+                                <div class="small fw-bold" id="exportEstimativaTexto">Calculando estimativa...</div>
+                                <div class="text-muted" style="font-size: 0.72rem;">Compatível com Microsoft Excel e Google Sheets</div>
+                            </div>
+                        </div>
+                        <span class="badge bg-primary px-2 py-1" id="exportEstimativaBadge"><i class="fa-solid fa-spinner fa-spin"></i></span>
+                    </div>
+
+                    <!-- FEEDBACK DE PROGRESSO DO DOWNLOAD -->
+                    <div class="alert alert-success py-2 px-3 small d-none mb-3" id="exportFeedbackProgress">
+                        <i class="fa-solid fa-circle-notch fa-spin me-1"></i> Preparando o arquivo... O download começará em instantes.
+                    </div>
+
                     <!-- FILTRO DE PERÍODO -->
                     <div class="row g-2 mb-3" id="containerDatasExport">
                         <div class="col-6">
@@ -201,7 +218,7 @@ try {
                             Todo o período
                         </label>
                         <div class="text-muted mt-1" style="font-size: 0.76rem;">
-                            Ao marcar, todos os registros de VIPs serão exportados.
+                            Ao marcar, todos os registros de pedidos serão exportados.
                         </div>
                     </div>
 
@@ -252,8 +269,8 @@ try {
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cancelar</button>
-                    <button type="submit" class="btn btn-success btn-sm d-flex align-items-center gap-2">
-                        <i class="fa-solid fa-download"></i> Baixar .CSV
+                    <button type="submit" class="btn btn-success btn-sm d-flex align-items-center gap-2" id="btnSubmitExportar">
+                        <i class="fa-solid fa-download"></i> <span id="btnSubmitExportarText">Baixar .CSV</span>
                     </button>
                 </div>
             </form>
@@ -263,6 +280,8 @@ try {
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
+    const modalEl = document.getElementById('modalExportarPedidos');
+    const formExportar = document.getElementById('formExportarPedidos');
     const checkTodoPeriodo = document.getElementById('exportTodoPeriodo');
     const inputDataInicio = document.getElementById('exportDataInicio');
     const inputDataFim = document.getElementById('exportDataFim');
@@ -270,9 +289,73 @@ document.addEventListener('DOMContentLoaded', function() {
     const selectStatus = document.getElementById('exportStatus');
     const selectServidor = document.getElementById('exportServidor');
     const statusHidden = document.getElementById('exportStatusHidden');
+    const servidorHidden = document.getElementById('exportServidorHidden');
+    const estimativaTexto = document.getElementById('exportEstimativaTexto');
+    const estimativaBadge = document.getElementById('exportEstimativaBadge');
+    const btnSubmitExportar = document.getElementById('btnSubmitExportar');
+    const btnSubmitExportarText = document.getElementById('btnSubmitExportarText');
+    const feedbackProgress = document.getElementById('exportFeedbackProgress');
 
-    // Mantém o status oculto sempre alinhado ao select vigente,
-    // garantindo que a exportação reflita exatamente os filtros da listagem.
+    let debounceTimer = null;
+
+    function atualizarEstimativa() {
+        if (!estimativaTexto || !estimativaBadge) return;
+        estimativaBadge.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>';
+        estimativaTexto.textContent = 'Calculando registros...';
+
+        const params = new URLSearchParams();
+        params.set('contar', '1');
+
+        if (checkTodoPeriodo && checkTodoPeriodo.checked) {
+            params.set('todo_periodo', '1');
+        } else {
+            if (inputDataInicio && inputDataInicio.value) params.set('data_inicio', inputDataInicio.value);
+            if (inputDataFim && inputDataFim.value) params.set('data_fim', inputDataFim.value);
+        }
+
+        if (checkApenasAprovados && checkApenasAprovados.checked) {
+            params.set('apenas_aprovados', '1');
+        } else if (selectStatus && selectStatus.value) {
+            params.set('status', selectStatus.value);
+        }
+
+        if (selectServidor && selectServidor.value) {
+            params.set('servidor', selectServidor.value);
+        }
+
+        const buscaHidden = document.getElementById('exportBuscaHidden');
+        if (buscaHidden && buscaHidden.value) {
+            params.set('busca', buscaHidden.value);
+        }
+
+        fetch('exportar.php?' + params.toString(), {
+            headers: { 'X-Requested-With': 'XMLHttpRequest' }
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data && data.ok) {
+                const total = data.total;
+                estimativaBadge.textContent = total + (total === 1 ? ' pedido' : ' pedidos');
+                estimativaTexto.textContent = total === 0 
+                    ? 'Nenhum pedido encontrado para o período' 
+                    : (total === 1 ? '1 pedido será incluído' : total + ' pedidos serão incluídos');
+            } else {
+                estimativaBadge.textContent = '–';
+                estimativaTexto.textContent = 'Não foi possível estimar o total';
+            }
+        })
+        .catch(() => {
+            estimativaBadge.textContent = '–';
+            estimativaTexto.textContent = 'Estimativa indisponível';
+        });
+    }
+
+    function agendarEstimativa() {
+        clearTimeout(debounceTimer);
+        debounceTimer = setTimeout(atualizarEstimativa, 250);
+    }
+
+    // Mantém o status oculto sempre alinhado ao select vigente
     function sincronizarFiltrosOcultos() {
         if (statusHidden && selectStatus && !selectStatus.disabled) {
             statusHidden.value = selectStatus.value;
@@ -291,9 +374,12 @@ document.addEventListener('DOMContentLoaded', function() {
                 inputDataInicio.classList.remove('bg-light');
                 inputDataFim.classList.remove('bg-light');
             }
+            agendarEstimativa();
         }
 
         checkTodoPeriodo.addEventListener('change', toggleDatas);
+        inputDataInicio.addEventListener('change', agendarEstimativa);
+        inputDataFim.addEventListener('change', agendarEstimativa);
         toggleDatas();
     }
 
@@ -307,11 +393,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 selectStatus.classList.remove('bg-light');
             }
             sincronizarFiltrosOcultos();
+            agendarEstimativa();
         }
 
         checkApenasAprovados.addEventListener('change', toggleStatus);
         selectStatus.addEventListener('change', function() {
-            // Um status específico escolhido substitui o atalho "Apenas aprovados"
             if (selectStatus.value) {
                 checkApenasAprovados.checked = false;
             } else {
@@ -321,8 +407,6 @@ document.addEventListener('DOMContentLoaded', function() {
         });
         toggleStatus();
 
-        // Se a listagem já está filtrada por um status específico, o atalho
-        // "Apenas aprovados" não deve substituir esse filtro na exportação.
         if (selectStatus.value) {
             checkApenasAprovados.checked = false;
             toggleStatus();
@@ -330,11 +414,45 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     if (selectServidor) {
-        // Espelha o servidor pré-selecionado no campo oculto do formulário
-        const servidorHidden = document.getElementById('exportServidorHidden');
-        if (servidorHidden && !servidorHidden.value && selectServidor.value) {
-            servidorHidden.value = selectServidor.value;
-        }
+        selectServidor.addEventListener('change', function() {
+            if (servidorHidden) servidorHidden.value = selectServidor.value;
+            agendarEstimativa();
+        });
+    }
+
+    if (modalEl) {
+        modalEl.addEventListener('show.bs.modal', function() {
+            if (feedbackProgress) feedbackProgress.classList.add('d-none');
+            if (btnSubmitExportar) {
+                btnSubmitExportar.disabled = false;
+                btnSubmitExportar.innerHTML = '<i class="fa-solid fa-download"></i> <span>Baixar .CSV</span>';
+            }
+            agendarEstimativa();
+        });
+    }
+
+    // Feedback visual ao submeter a exportação
+    if (formExportar && btnSubmitExportar) {
+        formExportar.addEventListener('submit', function() {
+            if (feedbackProgress) {
+                feedbackProgress.classList.remove('d-none');
+            }
+            btnSubmitExportar.disabled = true;
+            btnSubmitExportar.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> <span>Gerando CSV...</span>';
+
+            if (typeof AdminToast !== 'undefined') {
+                AdminToast.show('Iniciando o download do arquivo CSV...', 'info', 3000);
+            }
+
+            // Restaura o botão após o navegador processar o download
+            setTimeout(function() {
+                btnSubmitExportar.disabled = false;
+                btnSubmitExportar.innerHTML = '<i class="fa-solid fa-check text-white"></i> <span>Baixar Novamente</span>';
+                if (feedbackProgress) {
+                    feedbackProgress.classList.add('d-none');
+                }
+            }, 3000);
+        });
     }
 });
 </script>

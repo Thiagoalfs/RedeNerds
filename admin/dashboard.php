@@ -339,7 +339,7 @@ $percCartao = $totalMetodosQtd > 0 ? (100 - $percPix) : 0;
                 </div>
 
                 <!-- Gráfico de Barras dos Últimos 7 Dias -->
-                <div class="kpi-modal-stat-box rounded p-3 mb-3">
+                <div class="kpi-modal-stat-box rounded p-3 mb-0">
                     <div class="d-flex align-items-center justify-content-between mb-3 flex-wrap gap-2">
                         <h6 class="fw-bold mb-0">
                             <i class="fa-solid fa-chart-simple text-primary me-1"></i> Evolução nos Últimos 7 Dias
@@ -372,11 +372,7 @@ $percCartao = $totalMetodosQtd > 0 ? (100 - $percPix) : 0;
                     </div>
                 </div>
 
-                <!-- Resumo adicional da Rede -->
-                <div class="d-flex justify-content-between align-items-center text-muted small px-1">
-                    <span><i class="fa-solid fa-server me-1"></i> Servidores Ativos na Loja: <strong class="text-main"><?php echo $totalServidores; ?></strong></span>
-                    <span><i class="fa-solid fa-newspaper me-1"></i> Novidades Publicadas: <strong class="text-main"><?php echo $totalNoticias; ?></strong></span>
-                </div>
+
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Fechar</button>

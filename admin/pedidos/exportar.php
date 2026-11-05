@@ -126,6 +126,23 @@ if (!empty($busca)) {
 
 $whereSql = !empty($where) ? "WHERE " . implode(" AND ", $where) : "";
 
+// Suporte para retorno de contagem assíncrona (estimativa e feedback dinâmico no modal)
+if (!empty($_GET['contar'])) {
+    while (ob_get_level()) {
+        ob_end_clean();
+    }
+    header('Content-Type: application/json; charset=utf-8');
+    try {
+        $stmtCount = $pdo->prepare("SELECT COUNT(*) FROM pedidos $whereSql");
+        $stmtCount->execute($params);
+        $total = (int)$stmtCount->fetchColumn();
+        echo json_encode(['ok' => true, 'total' => $total]);
+    } catch (Exception $e) {
+        echo json_encode(['ok' => false, 'erro' => 'Erro ao estimar pedidos']);
+    }
+    exit;
+}
+
 /**
  * Protege campos de texto contra "CSV Injection" (fórmula maliciosa executada ao abrir no Excel).
  * Qualquer valor iniciado por =, +, - ou @ (ou contendo tabulação/início de linha) recebe

@@ -40,44 +40,83 @@
           display: flex !important;
           align-items: center !important;
           gap: 12px !important;
-          padding: 14px 18px !important;
+          padding: 12px 16px !important;
           border-radius: 10px !important;
-          background-color: #1e293b !important;
+          background-color: #111827 !important;
           color: #f8fafc !important;
-          box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35), 0 2px 6px rgba(0, 0, 0, 0.15) !important;
-          border-left: 4px solid #2563eb !important;
-          font-size: 0.9rem !important;
+          box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.45), 0 4px 6px -2px rgba(0, 0, 0, 0.25) !important;
+          border: 1px solid rgba(255, 255, 255, 0.1) !important;
+          font-size: 0.88rem !important;
           font-weight: 500 !important;
           pointer-events: auto !important;
           animation: toastSlideIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards !important;
           transition: all 0.25s ease !important;
-          font-family: 'Poppins', -apple-system, sans-serif !important;
+          font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
         }
         .admin-toast.toast-fade-out {
           opacity: 0 !important;
           transform: translateX(40px) !important;
         }
-        .admin-toast .toast-icon { font-size: 1.25rem !important; flex-shrink: 0 !important; }
+        .admin-toast .toast-icon {
+          font-size: 0.95rem !important;
+          flex-shrink: 0 !important;
+          width: 28px !important;
+          height: 28px !important;
+          border-radius: 6px !important;
+          display: flex !important;
+          align-items: center !important;
+          justify-content: center !important;
+        }
         .admin-toast .toast-content { flex: 1 !important; line-height: 1.4 !important; }
         .admin-toast .toast-close {
           background: none !important;
           border: none !important;
           color: #94a3b8 !important;
-          font-size: 1.3rem !important;
+          font-size: 1.15rem !important;
           line-height: 1 !important;
           padding: 0 !important;
           cursor: pointer !important;
           opacity: 0.7 !important;
+          display: flex !important;
+          align-items: center !important;
+          justify-content: center !important;
+          width: 24px !important;
+          height: 24px !important;
+          border-radius: 4px !important;
+          transition: background-color 0.15s ease, opacity 0.15s ease !important;
         }
-        .admin-toast .toast-close:hover { opacity: 1 !important; }
-        .admin-toast.toast-success { border-left-color: #10b981 !important; }
-        .admin-toast.toast-success .toast-icon { color: #10b981 !important; }
-        .admin-toast.toast-error, .admin-toast.toast-danger { border-left-color: #ef4444 !important; }
-        .admin-toast.toast-error .toast-icon, .admin-toast.toast-danger .toast-icon { color: #ef4444 !important; }
-        .admin-toast.toast-warning { border-left-color: #f59e0b !important; }
-        .admin-toast.toast-warning .toast-icon { color: #f59e0b !important; }
-        .admin-toast.toast-info { border-left-color: #06b6d4 !important; }
-        .admin-toast.toast-info .toast-icon { color: #06b6d4 !important; }
+        .admin-toast .toast-close:hover {
+          opacity: 1 !important;
+          background-color: rgba(255, 255, 255, 0.08) !important;
+        }
+        .admin-toast.toast-success {
+          border-color: rgba(16, 185, 129, 0.35) !important;
+        }
+        .admin-toast.toast-success .toast-icon {
+          color: #10b981 !important;
+          background-color: rgba(16, 185, 129, 0.15) !important;
+        }
+        .admin-toast.toast-error, .admin-toast.toast-danger {
+          border-color: rgba(239, 68, 68, 0.35) !important;
+        }
+        .admin-toast.toast-error .toast-icon, .admin-toast.toast-danger .toast-icon {
+          color: #ef4444 !important;
+          background-color: rgba(239, 68, 68, 0.15) !important;
+        }
+        .admin-toast.toast-warning {
+          border-color: rgba(245, 158, 11, 0.35) !important;
+        }
+        .admin-toast.toast-warning .toast-icon {
+          color: #f59e0b !important;
+          background-color: rgba(245, 158, 11, 0.15) !important;
+        }
+        .admin-toast.toast-info {
+          border-color: rgba(37, 99, 235, 0.35) !important;
+        }
+        .admin-toast.toast-info .toast-icon {
+          color: #60a5fa !important;
+          background-color: rgba(37, 99, 235, 0.15) !important;
+        }
         @keyframes toastSlideIn {
           from { opacity: 0; transform: translateY(-16px) scale(0.95); }
           to { opacity: 1; transform: translateY(0) scale(1); }
@@ -217,10 +256,10 @@
 
       try {
         const res = await AdminApi.post(url, { id, format: 'json' });
-        const novoStatus = res.ativo !== undefined ? Boolean(res.ativo) : 
-                           (res.enabled !== undefined ? Boolean(res.enabled) : 
-                           (res.novo_status !== undefined ? Boolean(res.novo_status) :
-                           (res.publicado !== undefined ? Boolean(res.publicado) : true)));
+        const novoStatus = res.ativo !== undefined ? Boolean(res.ativo) :
+          (res.enabled !== undefined ? Boolean(res.enabled) :
+            (res.novo_status !== undefined ? Boolean(res.novo_status) :
+              (res.publicado !== undefined ? Boolean(res.publicado) : true)));
 
         // Atualiza o badge de status na mesma linha da tabela
         const row = btn.closest('tr');
@@ -233,10 +272,10 @@
             const ehPublicado = badge.dataset.statusPublicado !== undefined;
 
             if (ehPublicado) {
-                badge.className = novoStatus ? 'badge-status ativo' : 'badge-status inativo';
-                badge.innerHTML = novoStatus
-                    ? '<i class="fa-solid fa-check me-1"></i> Publicado'
-                    : '<i class="fa-solid fa-eye-slash me-1"></i> Rascunho';
+              badge.className = novoStatus ? 'badge-status ativo' : 'badge-status inativo';
+              badge.innerHTML = novoStatus
+                ? '<i class="fa-solid fa-check me-1"></i> Publicado'
+                : '<i class="fa-solid fa-eye-slash me-1"></i> Rascunho';
             } else if (isVisibilityType) {
               badge.className = novoStatus ? 'badge-status visivel' : 'badge-status oculto';
               badge.textContent = novoStatus ? 'Visível' : 'Oculto';
@@ -294,8 +333,8 @@
         }
 
         const msgSucesso = res.mensagem || (novoStatus
-            ? (ehPublicado ? 'Artigo publicado!' : (isVisibilityType ? 'Servidor visível!' : 'Status alterado para Ativo!'))
-            : (ehPublicado ? 'Artigo despublicado!' : (isVisibilityType ? 'Servidor oculto!' : 'Status alterado para Inativo!')));
+          ? (ehPublicado ? 'Artigo publicado!' : (isVisibilityType ? 'Servidor visível!' : 'Status alterado para Ativo!'))
+          : (ehPublicado ? 'Artigo despublicado!' : (isVisibilityType ? 'Servidor oculto!' : 'Status alterado para Inativo!')));
         AdminToast.success(msgSucesso);
       } catch (err) {
         console.error('Erro no toggle:', err);
@@ -328,7 +367,7 @@
 
       try {
         const res = await AdminApi.post(url, { id, format: 'json' });
-        
+
         if (row) {
           row.style.transition = 'all 0.3s ease';
           row.style.opacity = '0';
@@ -373,7 +412,7 @@
     setTimeout(() => {
       tabelaDestino.appendChild(row);
       row.style.opacity = '1';
-      
+
       // Verifica se a tabela de origem ficou vazia
       if (tabelaOrigem) {
         const restantesOrigem = tabelaOrigem.querySelectorAll('tr:not(.empty-row)');
@@ -455,7 +494,7 @@
     const summaryAtivos = document.querySelector('[data-item-counter-ativos-summary]');
     if (summaryAtivos) {
       const isServ = summaryAtivos.textContent.includes('visível') || summaryAtivos.textContent.includes('visíveis');
-      summaryAtivos.textContent = isServ 
+      summaryAtivos.textContent = isServ
         ? pluralizar(countAtivos, 'visível', 'visíveis')
         : pluralizar(countAtivos, 'ativo', 'ativos');
     }
