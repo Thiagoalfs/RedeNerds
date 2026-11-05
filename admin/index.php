@@ -443,10 +443,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <div class="login-logo-wrap">
                     <img src="/assets/images/logo.webp" alt="Rede Nerds" width="48" height="48">
                 </div>
-                <h1 class="login-title">
-                    <span>Rede Nerds</span>
-                    <span class="sidebar-brand-badge">ADMIN</span>
-                </h1>
+                <h1 class="login-title">Rede Nerds</h1>
                 <p class="login-subtitle">Acesso restrito ao painel de gerenciamento</p>
             </div>
 
