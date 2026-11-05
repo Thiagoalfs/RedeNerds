@@ -326,6 +326,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         .login-input-group .input-group-text {
             background-color: transparent;
             border: none;
+            border-right: 1px solid var(--border-color);
             color: var(--text-muted);
             width: 44px;
             min-width: 44px;
@@ -335,6 +336,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             justify-content: center;
             font-size: 0.95rem;
             flex-shrink: 0;
+        }
+
+        [data-theme="dark"] .login-input-group .input-group-text {
+            border-right-color: var(--sidebar-border);
         }
 
         .login-input-group .input-group-text i {
@@ -349,7 +354,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             background-color: transparent;
             border: none;
             color: var(--text-main);
-            padding: 0.7rem 0.85rem 0.7rem 0;
+            padding: 0.7rem 0.85rem 0.7rem 0.75rem;
             font-size: 0.9rem;
             box-shadow: none;
         }
