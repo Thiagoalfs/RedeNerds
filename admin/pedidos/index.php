@@ -183,7 +183,7 @@ try {
                     </p>
 
                     <!-- ESTIMATIVA DINÂMICA DE REGISTROS -->
-                    <div class="p-2 mb-3 rounded border d-flex align-items-center justify-content-between" style="background: rgba(37, 99, 235, 0.05); border-color: rgba(37, 99, 235, 0.2) !important;" id="exportEstimativaBox">
+                    <div class="d-flex align-items-center justify-content-between mb-3" id="exportEstimativaBox">
                         <div class="d-flex align-items-center gap-2">
                             <i class="fa-solid fa-file-csv text-primary" style="font-size: 1.15rem;"></i>
                             <div>
@@ -212,23 +212,23 @@ try {
                     </div>
 
                     <!-- CHECKBOX TODO O PERÍODO -->
-                    <div class="form-check p-2 bg-light rounded border mb-2">
-                        <input class="form-check-input ms-0 me-2" type="checkbox" id="exportTodoPeriodo" name="todo_periodo" value="1">
-                        <label class="form-check-label small fw-bold text-dark" for="exportTodoPeriodo" style="cursor: pointer;">
+                    <div class="form-check mb-2">
+                        <input class="form-check-input" type="checkbox" id="exportTodoPeriodo" name="todo_periodo" value="1">
+                        <label class="form-check-label small fw-semibold" for="exportTodoPeriodo" style="cursor: pointer;">
                             Todo o período
                         </label>
-                        <div class="text-muted mt-1" style="font-size: 0.76rem;">
+                        <div class="text-muted" style="font-size: 0.76rem;">
                             Ao marcar, todos os registros de pedidos serão exportados.
                         </div>
                     </div>
 
                     <!-- CHECKBOX APENAS APROVADOS -->
-                    <div class="form-check p-2 bg-light rounded border mb-3">
-                        <input class="form-check-input ms-0 me-2" type="checkbox" id="exportApenasAprovados" name="apenas_aprovados" value="1" checked>
-                        <label class="form-check-label small fw-bold text-dark" for="exportApenasAprovados" style="cursor: pointer;">
+                    <div class="form-check mb-3">
+                        <input class="form-check-input" type="checkbox" id="exportApenasAprovados" name="apenas_aprovados" value="1" checked>
+                        <label class="form-check-label small fw-semibold" for="exportApenasAprovados" style="cursor: pointer;">
                             Apenas aprovados
                         </label>
-                        <div class="text-muted mt-1" style="font-size: 0.76rem;">
+                        <div class="text-muted" style="font-size: 0.76rem;">
                             Exporta somente os pedidos confirmados e pagos com sucesso.
                         </div>
                     </div>
