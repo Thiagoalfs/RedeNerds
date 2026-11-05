@@ -136,70 +136,391 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 ?>
-
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login - Painel Administrativo</title>
+    <title>Login - Painel Administrativo | Rede Nerds</title>
     <link rel="icon" type="image/x-icon" href="/assets/images/logo.webp">
+    
+    <!-- GOOGLE FONTS -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Outfit:wght@500;600;700;800;900&family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- FONTAWESOME & BOOTSTRAP -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- FOLHA DE ESTILOS CENTRALIZADA DO PAINEL -->
+    <link rel="stylesheet" href="/admin/admin.css?v=<?php echo file_exists(__DIR__ . '/admin.css') ? filemtime(__DIR__ . '/admin.css') : '6'; ?>">
+
+    <!-- SCRIPT DE TEMA (ANTI-FLICKER - PADRÃO DARK) -->
+    <script>
+    (function() {
+        const savedTheme = localStorage.getItem('admin_theme') || 'dark';
+        document.documentElement.setAttribute('data-theme', savedTheme);
+    })();
+
+    function alternarTemaAdmin() {
+        const currentTheme = document.documentElement.getAttribute('data-theme') || localStorage.getItem('admin_theme') || 'dark';
+        const nextTheme = (currentTheme === 'dark') ? 'light' : 'dark';
+        document.documentElement.setAttribute('data-theme', nextTheme);
+        localStorage.setItem('admin_theme', nextTheme);
+    }
+    </script>
+
     <style>
-        /* === Mobile-first === */
-        body {
-            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+        /* === TELA DE LOGIN UNIFICADA COM O DESIGN SYSTEM DO ADMIN === */
+        body.admin-login-body {
+            background-color: var(--admin-bg);
+            background-image: radial-gradient(circle at 50% 15%, rgba(37, 99, 235, 0.12) 0%, transparent 60%);
             min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 1.5rem 1rem;
+            position: relative;
+            color: var(--text-main);
+            font-family: var(--font-main);
+        }
+
+        /* Topbar com navegação externa e alternador de tema */
+        .admin-login-topbar {
+            position: absolute;
+            top: 1.25rem;
+            left: 1.25rem;
+            right: 1.25rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            max-width: 1200px;
+            margin: 0 auto;
+            pointer-events: none;
+        }
+
+        .admin-login-topbar a,
+        .admin-login-topbar button {
+            pointer-events: auto;
+        }
+
+        .login-back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 0.85rem;
+            font-weight: 500;
+            padding: 0.5rem 0.85rem;
+            border-radius: var(--radius-sm, 6px);
+            background: var(--admin-surface);
+            border: 1px solid var(--border-color);
+            transition: color 0.15s ease, border-color 0.15s ease, background-color 0.15s ease;
+        }
+
+        .login-back-link:hover {
+            color: var(--color-primary);
+            border-color: var(--color-primary);
+        }
+
+        /* Card Master de Autenticação */
+        .admin-login-card {
+            max-width: 440px;
+            width: 100%;
+            background-color: var(--admin-surface);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg, 14px);
+            box-shadow: var(--shadow-lg);
+            position: relative;
+            overflow: hidden;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        [data-theme="dark"] .admin-login-card {
+            border-color: var(--sidebar-border);
+            box-shadow: 0 20px 45px rgba(0, 0, 0, 0.45);
+        }
+
+        .admin-login-card::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #2563eb 0%, #38bdf8 100%);
+        }
+
+        .login-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .login-logo-wrap {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 60px;
+            height: 60px;
+            border-radius: 12px;
+            background: rgba(37, 99, 235, 0.1);
+            border: 1px solid rgba(37, 99, 235, 0.25);
+            margin-bottom: 1rem;
+            padding: 6px;
+        }
+
+        .login-logo-wrap img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            border-radius: 8px;
+        }
+
+        .login-title {
+            font-family: 'Outfit', var(--font-main);
+            font-size: 1.45rem;
+            font-weight: 800;
+            color: var(--text-main);
+            letter-spacing: -0.02em;
+            margin: 0;
             display: flex;
             align-items: center;
             justify-content: center;
-            padding: 1rem;
+            gap: 0.5rem;
         }
-        .card-login {
-            max-width: 420px;
-            width: 100%;
+
+        .login-subtitle {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin: 0.35rem 0 0 0;
+        }
+
+        /* Formulário e Controles */
+        .login-label {
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--text-main);
+            margin-bottom: 0.4rem;
+        }
+
+        .login-input-group {
+            border-radius: var(--radius-sm, 6px);
+            overflow: hidden;
+            border: 1px solid var(--border-color);
+            background-color: var(--admin-bg);
+            transition: border-color 0.15s ease, box-shadow 0.15s ease;
+        }
+
+        [data-theme="dark"] .login-input-group {
+            border-color: var(--sidebar-border);
+        }
+
+        .login-input-group:focus-within {
+            border-color: var(--color-primary);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.2);
+        }
+
+        .login-input-group .input-group-text {
+            background-color: transparent;
             border: none;
-            border-radius: 12px;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            color: var(--text-muted);
+            padding-left: 0.95rem;
+            padding-right: 0.5rem;
+            font-size: 0.95rem;
         }
-        .card-login .form-control {
-            max-width: 100%;
-            min-width: 0;
-            word-break: break-word;
+
+        .login-input-group .form-control {
+            background-color: transparent;
+            border: none;
+            color: var(--text-main);
+            padding: 0.7rem 0.85rem 0.7rem 0.4rem;
+            font-size: 0.9rem;
+            box-shadow: none;
         }
-        .card-login h3 { font-size: 1.25rem; }
-        @media (min-width: 576px) {
-            .card-login h3 { font-size: 1.5rem; }
+
+        .login-input-group .form-control::placeholder {
+            color: var(--input-placeholder);
+            font-size: 0.85rem;
+        }
+
+        .login-input-group .btn-toggle-password {
+            background-color: transparent;
+            border: none;
+            color: var(--text-muted);
+            padding: 0 0.95rem;
+            cursor: pointer;
+            transition: color 0.15s ease;
+        }
+
+        .login-input-group .btn-toggle-password:hover {
+            color: var(--text-main);
+        }
+
+        /* Botão de Submit */
+        .btn-login-submit {
+            background-color: var(--color-primary);
+            border-color: var(--color-primary);
+            color: #ffffff;
+            font-size: 0.92rem;
+            font-weight: 600;
+            padding: 0.75rem 1rem;
+            border-radius: var(--radius-sm, 6px);
+            transition: background-color 0.15s ease, transform 0.1s ease, box-shadow 0.15s ease;
+        }
+
+        .btn-login-submit:hover {
+            background-color: var(--color-primary-hover);
+            border-color: var(--color-primary-hover);
+            color: #ffffff;
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+        }
+
+        .btn-login-submit:active {
+            transform: scale(0.99);
+        }
+
+        /* Alerta de Erro Harmonizado */
+        .login-alert {
+            background-color: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.25);
+            color: var(--color-danger);
+            border-radius: var(--radius-sm, 6px);
+            padding: 0.75rem 0.95rem;
+            font-size: 0.84rem;
+            margin-bottom: 1.5rem;
+        }
+
+        /* Rodapé de Segurança */
+        .login-footer-security {
+            text-align: center;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            margin-top: 1.5rem;
+            padding-top: 1.25rem;
+            border-top: 1px solid var(--border-color);
+        }
+
+        [data-theme="dark"] .login-footer-security {
+            border-color: var(--sidebar-border);
+        }
+
+        @media (max-width: 576px) {
+            .admin-login-topbar {
+                position: static;
+                margin-bottom: 1.5rem;
+                width: 100%;
+            }
+            .admin-login-card {
+                box-shadow: var(--shadow-md);
+            }
         }
     </style>
 </head>
-<body>
-    <div class="container-fluid px-3">
-        <div class="card card-login mx-auto">
-            <div class="card-body p-3 p-sm-4 p-md-5">
-                <h3 class="text-center mb-3 mb-md-4"><i class="fa-solid fa-shield-halved me-2 text-primary"></i> Painel Administrativo</h3>
-                <p class="text-center text-muted mb-3 mb-md-4 small">Acesso restrito para administradores</p>
+<body class="admin-login-body">
+    <!-- BARRA SUPERIOR DE APOIO -->
+    <header class="admin-login-topbar">
+        <a href="/" class="login-back-link" title="Voltar para a página inicial">
+            <i class="fa-solid fa-arrow-left"></i>
+            <span>Voltar ao site</span>
+        </a>
 
-                <?php if ($mensagem_erro): ?>
-                    <div class="alert alert-danger" role="alert">
-                        <?php echo htmlspecialchars($mensagem_erro, ENT_QUOTES, 'UTF-8'); ?>
-                    </div>
-                <?php endif; ?>
+        <!-- BOTÃO ALTERNAR TEMA (DARK / LIGHT) -->
+        <button type="button" class="btn-theme-toggle" id="btn-theme-toggle" onclick="alternarTemaAdmin()" title="Alternar tema (Claro / Escuro)" aria-label="Alternar tema">
+            <i class="fa-solid fa-moon theme-icon-dark"></i>
+            <i class="fa-solid fa-sun theme-icon-light"></i>
+            <span class="theme-label d-none d-sm-inline">Tema</span>
+        </button>
+    </header>
 
-                <form method="POST" action="index.php" autocomplete="off">
-                    <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token'], ENT_QUOTES, 'UTF-8'); ?>">
-                    <div class="mb-3">
-                        <label for="usuario" class="form-label">Usuário</label>
-                        <input type="text" class="form-control" id="usuario" name="usuario" required autofocus>
+    <!-- CARD PRINCIPAL DE LOGIN -->
+    <main class="card admin-login-card mx-auto">
+        <div class="card-body p-4 p-sm-5">
+            <!-- CABEÇALHO DO LOGIN -->
+            <div class="login-header">
+                <div class="login-logo-wrap">
+                    <img src="/assets/images/logo.webp" alt="Rede Nerds" width="48" height="48">
+                </div>
+                <h1 class="login-title">
+                    <span>Rede Nerds</span>
+                    <span class="sidebar-brand-badge">ADMIN</span>
+                </h1>
+                <p class="login-subtitle">Acesso restrito ao painel de gerenciamento</p>
+            </div>
+
+            <!-- FEEDBACK DE ERRO / TENTATIVAS -->
+            <?php if (!empty($mensagem_erro)): ?>
+                <div class="login-alert d-flex align-items-center gap-2" role="alert">
+                    <i class="fa-solid fa-circle-exclamation flex-shrink-0"></i>
+                    <div><?php echo htmlspecialchars($mensagem_erro, ENT_QUOTES, 'UTF-8'); ?></div>
+                </div>
+            <?php endif; ?>
+
+            <!-- FORMULÁRIO DE LOGIN -->
+            <form method="POST" action="index.php" autocomplete="off" id="form-admin-login">
+                <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token'], ENT_QUOTES, 'UTF-8'); ?>">
+
+                <div class="mb-3">
+                    <label for="usuario" class="login-label d-block">Usuário</label>
+                    <div class="input-group login-input-group">
+                        <span class="input-group-text"><i class="fa-solid fa-user"></i></span>
+                        <input type="text" class="form-control" id="usuario" name="usuario" placeholder="Seu nome de usuário" required autofocus value="<?php echo htmlspecialchars($_POST['usuario'] ?? '', ENT_QUOTES, 'UTF-8'); ?>">
                     </div>
-                    <div class="mb-3">
-                        <label for="senha" class="form-label">Senha</label>
-                        <input type="password" class="form-control" id="senha" name="senha" required>
+                </div>
+
+                <div class="mb-4">
+                    <label for="senha" class="login-label d-block">Senha</label>
+                    <div class="input-group login-input-group">
+                        <span class="input-group-text"><i class="fa-solid fa-lock"></i></span>
+                        <input type="password" class="form-control" id="senha" name="senha" placeholder="Sua chave de acesso" required>
+                        <button type="button" class="btn-toggle-password" id="btn-toggle-senha" title="Mostrar ou ocultar senha" aria-label="Mostrar ou ocultar senha">
+                            <i class="fa-solid fa-eye" id="icone-toggle-senha"></i>
+                        </button>
                     </div>
-                    <button type="submit" class="btn btn-primary w-100">Entrar</button>
-                </form>
+                </div>
+
+                <button type="submit" class="btn btn-login-submit w-100 d-flex align-items-center justify-content-center gap-2" id="btn-submit-login">
+                    <i class="fa-solid fa-arrow-right-to-bracket"></i>
+                    <span>Entrar no Painel</span>
+                </button>
+            </form>
+
+            <!-- NOTA DE SEGURANÇA E CONEXÃO -->
+            <div class="login-footer-security">
+                <i class="fa-solid fa-shield-halved me-1 text-primary"></i>
+                <span>Área protegida por Rate Limit & CSRF</span>
             </div>
         </div>
-    </div>
+    </main>
+
+    <!-- SCRIPT DE INTERATIVIDADE -->
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const btnToggleSenha = document.getElementById('btn-toggle-senha');
+        const inputSenha = document.getElementById('senha');
+        const iconeToggle = document.getElementById('icone-toggle-senha');
+        const formLogin = document.getElementById('form-admin-login');
+        const btnSubmit = document.getElementById('btn-submit-login');
+
+        // Mostrar / Ocultar Senha
+        if (btnToggleSenha && inputSenha && iconeToggle) {
+            btnToggleSenha.addEventListener('click', function() {
+                const isPassword = inputSenha.getAttribute('type') === 'password';
+                inputSenha.setAttribute('type', isPassword ? 'text' : 'password');
+                iconeToggle.className = isPassword ? 'fa-solid fa-eye-slash' : 'fa-solid fa-eye';
+            });
+        }
+
+        // Feedback de carregamento ao submeter
+        if (formLogin && btnSubmit) {
+            formLogin.addEventListener('submit', function() {
+                btnSubmit.disabled = true;
+                btnSubmit.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i><span>Autenticando...</span>';
+            });
+        }
+    });
+    </script>
 </body>
 </html>
