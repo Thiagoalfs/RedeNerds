@@ -944,6 +944,101 @@ body {
   border-bottom-right-radius: 0;
 }
 
+/* Checkbox Customizada Minimalista */
+.form-check-input[type="checkbox"]:not([role="switch"]) {
+  width: 1.15rem;
+  height: 1.15rem;
+  margin-top: 0.15rem;
+  vertical-align: top;
+  background-color: var(--admin-surface, #ffffff);
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 68% 68%;
+  border: 1.5px solid var(--border-color, #cbd5e1);
+  border-radius: 5px;
+  appearance: none;
+  -webkit-appearance: none;
+  cursor: pointer;
+  outline: none;
+  box-shadow: none;
+  transition: background-color 0.18s cubic-bezier(0.4, 0, 0.2, 1),
+              border-color 0.18s cubic-bezier(0.4, 0, 0.2, 1),
+              box-shadow 0.18s cubic-bezier(0.4, 0, 0.2, 1),
+              transform 0.1s ease;
+}
+
+.form-check-input[type="checkbox"]:not([role="switch"]):hover {
+  border-color: var(--color-primary);
+  background-color: rgba(37, 99, 235, 0.04);
+}
+
+.form-check-input[type="checkbox"]:not([role="switch"]):focus {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.18);
+}
+
+.form-check-input[type="checkbox"]:not([role="switch"]):active {
+  transform: scale(0.92);
+}
+
+.form-check-input[type="checkbox"]:not([role="switch"]):checked {
+  background-color: var(--color-primary);
+  border-color: var(--color-primary);
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23ffffff' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round' d='M3.5 8.5l3.2 3.2 5.8-6.4'/%3e%3c/svg%3e");
+  box-shadow: 0 1px 3px rgba(37, 99, 235, 0.25);
+}
+
+/* Dark Mode para Checkboxes */
+[data-theme="dark"] .form-check-input[type="checkbox"]:not([role="switch"]) {
+  background-color: rgba(15, 23, 42, 0.7);
+  border-color: rgba(148, 163, 184, 0.26);
+}
+
+[data-theme="dark"] .form-check-input[type="checkbox"]:not([role="switch"]):hover {
+  border-color: var(--color-primary, #3b82f6);
+  background-color: rgba(59, 130, 246, 0.1);
+}
+
+[data-theme="dark"] .form-check-input[type="checkbox"]:not([role="switch"]):focus {
+  border-color: var(--color-primary, #3b82f6);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.24);
+}
+
+[data-theme="dark"] .form-check-input[type="checkbox"]:not([role="switch"]):checked {
+  background-color: var(--color-primary, #3b82f6);
+  border-color: var(--color-primary, #3b82f6);
+  box-shadow: 0 0 10px rgba(59, 130, 246, 0.35);
+}
+
+/* Container de Checkbox Minimalista com rótulo descritivo */
+.form-check.custom-check-minimal {
+  padding-left: 2rem;
+  position: relative;
+  cursor: pointer;
+  transition: opacity 0.15s ease;
+}
+
+.form-check.custom-check-minimal .form-check-input {
+  margin-left: -2rem;
+  margin-top: 0.15rem;
+}
+
+.form-check.custom-check-minimal .form-check-label {
+  cursor: pointer;
+  user-select: none;
+}
+
+.form-check.custom-check-minimal:hover .form-check-input:not(:checked) {
+  border-color: var(--color-primary);
+  background-color: rgba(37, 99, 235, 0.04);
+}
+
+[data-theme="dark"] .form-check.custom-check-minimal:hover .form-check-input:not(:checked) {
+  border-color: var(--color-primary, #3b82f6);
+  background-color: rgba(59, 130, 246, 0.08);
+}
+
+
 /* ======================================================== */
 /* 9. RESPONSIVIDADE & DRAWER MOBILE                       */
 /* ======================================================== */

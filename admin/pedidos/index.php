@@ -212,25 +212,21 @@ try {
                     </div>
 
                     <!-- CHECKBOX TODO O PERÍODO -->
-                    <div class="form-check mb-2">
+                    <div class="form-check custom-check-minimal mb-2">
                         <input class="form-check-input" type="checkbox" id="exportTodoPeriodo" name="todo_periodo" value="1">
-                        <label class="form-check-label small fw-semibold" for="exportTodoPeriodo" style="cursor: pointer;">
-                            Todo o período
+                        <label class="form-check-label" for="exportTodoPeriodo">
+                            <span class="d-block small fw-semibold">Todo o período</span>
+                            <span class="d-block text-muted" style="font-size: 0.76rem;">Ao marcar, todos os registros de pedidos serão exportados.</span>
                         </label>
-                        <div class="text-muted" style="font-size: 0.76rem;">
-                            Ao marcar, todos os registros de pedidos serão exportados.
-                        </div>
                     </div>
 
                     <!-- CHECKBOX APENAS APROVADOS -->
-                    <div class="form-check mb-3">
+                    <div class="form-check custom-check-minimal mb-3">
                         <input class="form-check-input" type="checkbox" id="exportApenasAprovados" name="apenas_aprovados" value="1" checked>
-                        <label class="form-check-label small fw-semibold" for="exportApenasAprovados" style="cursor: pointer;">
-                            Apenas aprovados
+                        <label class="form-check-label" for="exportApenasAprovados">
+                            <span class="d-block small fw-semibold">Apenas aprovados</span>
+                            <span class="d-block text-muted" style="font-size: 0.76rem;">Exporta somente os pedidos confirmados e pagos com sucesso.</span>
                         </label>
-                        <div class="text-muted" style="font-size: 0.76rem;">
-                            Exporta somente os pedidos confirmados e pagos com sucesso.
-                        </div>
                     </div>
 
                     <!-- FILTROS ADICIONAIS -->
