@@ -190,10 +190,13 @@ $percCartao = $totalMetodosQtd > 0 ? (100 - $percPix) : 0;
 
 <!-- GRID DE CARDS KPI -->
 <div class="kpi-grid">
-    <!-- Card 1: Faturamento do Mês -->
-    <div class="kpi-card">
+    <!-- Card 1: Faturamento do Mês (Abre modal detalhado com gráficos ao clicar) -->
+    <div class="kpi-card kpi-card-clickable" role="button" tabindex="0" data-bs-toggle="modal" data-bs-target="#modalFaturamentoDetalhes" title="Clique para ver o gráfico e histórico de faturamento">
         <div class="kpi-card-top">
-            <span class="kpi-label">Faturamento do Mês</span>
+            <span class="kpi-label d-inline-flex align-items-center gap-1">
+                Faturamento do Mês
+                <i class="fa-solid fa-arrow-up-right-from-square text-muted" style="font-size: 0.65rem;" title="Clique para abrir detalhes"></i>
+            </span>
             <?php if ($deltaFaturamento !== null): ?>
                 <?php if ($deltaFaturamento > 0): ?>
                     <span class="kpi-delta positive" title="Variação em relação ao mês anterior">
@@ -263,94 +266,15 @@ $percCartao = $totalMetodosQtd > 0 ? (100 - $percPix) : 0;
         </div>
     </div>
 
-    <!-- Card 4: Cupons & Conversão -->
+    <!-- Card 4: Meios de Pagamento -->
     <div class="kpi-card">
         <div class="kpi-card-top">
-            <span class="kpi-label">Cupons & Conversão</span>
+            <span class="kpi-label">Meios de Pagamento</span>
         </div>
         <div class="kpi-info">
-            <div class="kpi-value text-purple"><?php echo $totalCuponsAtivos; ?> <small class="text-muted fs-6 fw-normal">ativos</small></div>
+            <div class="kpi-value text-primary"><?php echo $percPix; ?>% <small class="text-muted fs-6 fw-normal">PIX</small></div>
             <div class="kpi-subtext">
-                <span><?php echo pluralizar($totalUsosCupons, 'desconto aplicado', 'descontos aplicados'); ?></span>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- GRID ANALÍTICO: TENDÊNCIA DOS ÚLTIMOS 7 DIAS & MÉTODOS DE PAGAMENTO -->
-<div class="analytics-grid">
-    <!-- Coluna 1: Evolução dos Últimos 7 Dias -->
-    <div class="admin-card mb-0">
-        <div class="admin-card-header">
-            <h5 class="admin-card-title">
-                <i class="fa-solid fa-chart-column text-primary me-1"></i> Faturamento nos Últimos 7 Dias
-            </h5>
-            <span class="text-muted small">Total: <strong class="text-main">R$ <?php echo number_format($totalValor7Dias, 2, ',', '.'); ?></strong> (<?php echo $totalQtd7Dias; ?> <?php echo $totalQtd7Dias === 1 ? 'venda' : 'vendas'; ?>)</span>
-        </div>
-        <div class="card-body p-3">
-            <div class="trend-bars-container">
-                <?php foreach ($ultimos7Dias as $d): 
-                    $alturaPercentual = ($maiorValorDia > 0) ? max(6, round(($d['total'] / $maiorValorDia) * 100)) : 6;
-                ?>
-                    <div class="trend-bar-col" title="<?php echo htmlspecialchars($d['label'] . ' (' . $d['data_formatada'] . '): R$ ' . number_format($d['total'], 2, ',', '.') . ' em ' . $d['qtd'] . ' pedidos', ENT_QUOTES, 'UTF-8'); ?>">
-                        <div class="trend-bar-val">
-                            <?php if ($d['total'] > 0): ?>
-                                R$ <?php echo number_format($d['total'], 0, ',', '.'); ?>
-                            <?php else: ?>
-                                <span class="opacity-50">0</span>
-                            <?php endif; ?>
-                        </div>
-                        <div class="trend-bar-track">
-                            <div class="trend-bar-fill <?php echo $d['is_hoje'] ? 'active' : ''; ?>" style="height: <?php echo $alturaPercentual; ?>%;"></div>
-                        </div>
-                        <div class="trend-bar-day <?php echo $d['is_hoje'] ? 'fw-bold text-primary' : ''; ?>">
-                            <?php echo $d['label']; ?>
-                        </div>
-                    </div>
-                <?php endforeach; ?>
-            </div>
-        </div>
-    </div>
-
-    <!-- Coluna 2: Divisão por Método de Pagamento & Rede -->
-    <div class="admin-card mb-0">
-        <div class="admin-card-header">
-            <h5 class="admin-card-title">
-                <i class="fa-solid fa-wallet text-success me-1"></i> Meios de Pagamento
-            </h5>
-        </div>
-        <div class="card-body p-3">
-            <div class="payment-split-list">
-                <!-- PIX -->
-                <div class="payment-split-item">
-                    <div class="payment-split-header">
-                        <span class="fw-semibold d-flex align-items-center gap-1">
-                            <i class="fa-brands fa-pix text-success"></i> PIX
-                        </span>
-                        <span class="text-muted small"><strong><?php echo $percPix; ?>%</strong> (<?php echo $metodoPix['qtd']; ?> vendas)</span>
-                    </div>
-                    <div class="payment-split-bar">
-                        <div class="payment-split-progress bg-success" style="width: <?php echo $percPix; ?>%;"></div>
-                    </div>
-                </div>
-
-                <!-- Cartão de Crédito -->
-                <div class="payment-split-item">
-                    <div class="payment-split-header">
-                        <span class="fw-semibold d-flex align-items-center gap-1">
-                            <i class="fa-solid fa-credit-card text-primary"></i> Cartão de Crédito
-                        </span>
-                        <span class="text-muted small"><strong><?php echo $percCartao; ?>%</strong> (<?php echo $metodoCartao['qtd']; ?> vendas)</span>
-                    </div>
-                    <div class="payment-split-bar">
-                        <div class="payment-split-progress bg-primary" style="width: <?php echo $percCartao; ?>%;"></div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="border-top pt-3 mt-3 d-flex justify-content-between align-items-center text-muted small">
-                <span><i class="fa-solid fa-server me-1"></i> Servidores Ativos: <strong class="text-main"><?php echo $totalServidores; ?></strong></span>
-                <span><i class="fa-solid fa-newspaper me-1"></i> Novidades: <strong class="text-main"><?php echo $totalNoticias; ?></strong></span>
+                <span><?php echo $metodoPix['qtd']; ?> via PIX &bull; <?php echo $metodoCartao['qtd']; ?> via Cartão (<?php echo $percCartao; ?>%)</span>
             </div>
         </div>
     </div>
@@ -373,5 +297,105 @@ $percCartao = $totalMetodosQtd > 0 ? (100 - $percPix) : 0;
         ?>
     </div>
 </div>
+
+<!-- MODAL: DETALHES DO FATURAMENTO & HISTÓRICO -->
+<div class="modal fade" id="modalFaturamentoDetalhes" tabindex="-1" aria-labelledby="modalFaturamentoDetalhesLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content shadow">
+            <div class="modal-header">
+                <h5 class="modal-title fw-bold" id="modalFaturamentoDetalhesLabel">
+                    <i class="fa-solid fa-chart-column text-primary me-2"></i> Detalhes do Faturamento
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+            </div>
+            <div class="modal-body p-3 p-md-4">
+                <!-- Mini Cards de Resumo -->
+                <div class="row g-3 mb-4">
+                    <div class="col-sm-4">
+                        <div class="p-3 rounded kpi-modal-stat-box">
+                            <span class="text-muted small text-uppercase fw-semibold d-block mb-1">Neste Mês</span>
+                            <h4 class="fw-bold text-success mb-1">R$ <?php echo number_format($faturamentoMes, 2, ',', '.'); ?></h4>
+                            <?php if ($deltaFaturamento !== null): ?>
+                                <span class="small fw-semibold <?php echo ($deltaFaturamento >= 0) ? 'text-success' : 'text-danger'; ?>">
+                                    <i class="fa-solid <?php echo ($deltaFaturamento >= 0) ? 'fa-arrow-up' : 'fa-arrow-down'; ?> me-1"></i><?php echo ($deltaFaturamento >= 0 ? '+' : '') . number_format($deltaFaturamento, 1); ?>% vs mês anterior
+                                </span>
+                            <?php endif; ?>
+                        </div>
+                    </div>
+                    <div class="col-sm-4">
+                        <div class="p-3 rounded kpi-modal-stat-box">
+                            <span class="text-muted small text-uppercase fw-semibold d-block mb-1">Mês Anterior</span>
+                            <h4 class="fw-bold text-main mb-1">R$ <?php echo number_format($faturamentoMesAnterior, 2, ',', '.'); ?></h4>
+                            <span class="text-muted small"><?php echo $pedidosMesAnterior; ?> pedidos aprovados</span>
+                        </div>
+                    </div>
+                    <div class="col-sm-4">
+                        <div class="p-3 rounded kpi-modal-stat-box">
+                            <span class="text-muted small text-uppercase fw-semibold d-block mb-1">Acumulado Histórico</span>
+                            <h4 class="fw-bold text-main mb-1">R$ <?php echo number_format($totalFaturamento, 2, ',', '.'); ?></h4>
+                            <span class="text-muted small"><?php echo $totalPedidosPagos; ?> pedidos totais</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Gráfico de Barras dos Últimos 7 Dias -->
+                <div class="kpi-modal-stat-box rounded p-3 mb-3">
+                    <div class="d-flex align-items-center justify-content-between mb-3 flex-wrap gap-2">
+                        <h6 class="fw-bold mb-0">
+                            <i class="fa-solid fa-chart-simple text-primary me-1"></i> Evolução nos Últimos 7 Dias
+                        </h6>
+                        <span class="text-muted small">
+                            Total no período: <strong class="text-main">R$ <?php echo number_format($totalValor7Dias, 2, ',', '.'); ?></strong> (<?php echo $totalQtd7Dias; ?> <?php echo $totalQtd7Dias === 1 ? 'venda' : 'vendas'; ?>)
+                        </span>
+                    </div>
+
+                    <div class="trend-bars-container">
+                        <?php foreach ($ultimos7Dias as $d): 
+                            $alturaPercentual = ($maiorValorDia > 0) ? max(6, round(($d['total'] / $maiorValorDia) * 100)) : 6;
+                        ?>
+                            <div class="trend-bar-col" title="<?php echo htmlspecialchars($d['label'] . ' (' . $d['data_formatada'] . '): R$ ' . number_format($d['total'], 2, ',', '.') . ' em ' . $d['qtd'] . ' pedidos', ENT_QUOTES, 'UTF-8'); ?>">
+                                <div class="trend-bar-val">
+                                    <?php if ($d['total'] > 0): ?>
+                                        R$ <?php echo number_format($d['total'], 0, ',', '.'); ?>
+                                    <?php else: ?>
+                                        <span class="opacity-50">0</span>
+                                    <?php endif; ?>
+                                </div>
+                                <div class="trend-bar-track">
+                                    <div class="trend-bar-fill <?php echo $d['is_hoje'] ? 'active' : ''; ?>" style="height: <?php echo $alturaPercentual; ?>%;"></div>
+                                </div>
+                                <div class="trend-bar-day <?php echo $d['is_hoje'] ? 'fw-bold text-primary' : ''; ?>">
+                                    <?php echo $d['label']; ?>
+                                </div>
+                            </div>
+                        <?php endforeach; ?>
+                    </div>
+                </div>
+
+                <!-- Resumo adicional da Rede -->
+                <div class="d-flex justify-content-between align-items-center text-muted small px-1">
+                    <span><i class="fa-solid fa-server me-1"></i> Servidores Ativos na Loja: <strong class="text-main"><?php echo $totalServidores; ?></strong></span>
+                    <span><i class="fa-solid fa-newspaper me-1"></i> Novidades Publicadas: <strong class="text-main"><?php echo $totalNoticias; ?></strong></span>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Fechar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('.kpi-card-clickable').forEach(function(card) {
+        card.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                card.click();
+            }
+        });
+    });
+});
+</script>
 
 <?php require_once __DIR__ . "/includes/admin_footer.php"; ?>
