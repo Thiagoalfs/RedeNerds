@@ -176,21 +176,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         body.admin-login-body {
             background-color: var(--admin-bg);
             background-image: radial-gradient(circle at 50% 15%, rgba(37, 99, 235, 0.12) 0%, transparent 60%);
+            min-height: 100dvh;
             min-height: 100vh;
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: center;
-            padding: 1.5rem 1rem;
+            justify-content: flex-start;
+            padding: max(1.25rem, env(safe-area-inset-top)) 1rem max(1.25rem, env(safe-area-inset-bottom)) 1rem;
             position: relative;
             color: var(--text-main);
             font-family: var(--font-main);
+            overflow-y: auto;
         }
 
         /* Topbar com navegação externa e alternador de tema */
         .admin-login-topbar {
             position: absolute;
-            top: 1.25rem;
+            top: max(1.25rem, env(safe-area-inset-top));
             left: 1.25rem;
             right: 1.25rem;
             display: flex;
@@ -199,6 +201,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             max-width: 1200px;
             margin: 0 auto;
             pointer-events: none;
+            z-index: 10;
         }
 
         .admin-login-topbar a,
@@ -215,6 +218,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             font-size: 0.85rem;
             font-weight: 500;
             padding: 0.5rem 0.85rem;
+            min-height: 42px;
             border-radius: var(--radius-sm, 6px);
             background: var(--admin-surface);
             border: 1px solid var(--border-color);
@@ -230,6 +234,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         .admin-login-card {
             max-width: 440px;
             width: 100%;
+            margin: auto 0;
             background-color: var(--admin-surface);
             border: 1px solid var(--border-color);
             border-radius: var(--radius-lg, 14px);
@@ -442,11 +447,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         @media (max-width: 576px) {
             .admin-login-topbar {
                 position: static;
-                margin-bottom: 1.5rem;
                 width: 100%;
+                max-width: 440px;
+                margin-bottom: 1.25rem;
+                pointer-events: auto;
+                padding: 0;
             }
             .admin-login-card {
                 box-shadow: var(--shadow-md);
+                border-radius: 12px;
+            }
+            .login-title {
+                font-size: 1.35rem;
+            }
+            .login-input-group .form-control {
+                font-size: 16px; /* Impede zoom forçado indesejado no iOS Safari */
             }
         }
     </style>
@@ -495,7 +510,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <label for="usuario" class="login-label d-block">Usuário</label>
                     <div class="input-group login-input-group">
                         <span class="input-group-text"><i class="fa-solid fa-user"></i></span>
-                        <input type="text" class="form-control" id="usuario" name="usuario" placeholder="Seu nome de usuário" required autofocus value="<?php echo htmlspecialchars($_POST['usuario'] ?? '', ENT_QUOTES, 'UTF-8'); ?>">
+                        <input type="text" class="form-control" id="usuario" name="usuario" placeholder="Seu nome de usuário" required autofocus autocomplete="username" autocapitalize="none" autocorrect="off" spellcheck="false" value="<?php echo htmlspecialchars($_POST['usuario'] ?? '', ENT_QUOTES, 'UTF-8'); ?>">
                     </div>
                 </div>
 
@@ -503,7 +518,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <label for="senha" class="login-label d-block">Senha</label>
                     <div class="input-group login-input-group">
                         <span class="input-group-text"><i class="fa-solid fa-lock"></i></span>
-                        <input type="password" class="form-control" id="senha" name="senha" placeholder="Sua chave de acesso" required>
+                        <input type="password" class="form-control" id="senha" name="senha" placeholder="Sua chave de acesso" required autocomplete="current-password" autocapitalize="none" autocorrect="off" spellcheck="false">
                         <button type="button" class="btn-toggle-password" id="btn-toggle-senha" title="Mostrar ou ocultar senha" aria-label="Mostrar ou ocultar senha">
                             <i class="fa-solid fa-eye" id="icone-toggle-senha"></i>
                         </button>
