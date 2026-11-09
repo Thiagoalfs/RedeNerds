@@ -2,7 +2,7 @@ document.addEventListener("DOMContentLoaded", function () {
     // 1. Carrega o Navbar
     const navContainer = document.getElementById("navbar-container");
     if (navContainer) {
-        fetch("/shared/navbar.html?v=2")
+        fetch("/shared/navbar.html?v=11")
             .then(response => {
                 if (!response.ok) throw new Error(`Erro ${response.status} ao buscar ${response.url}`);
                 return response.text();
@@ -12,18 +12,21 @@ document.addEventListener("DOMContentLoaded", function () {
                 initNavbar();
                 marcarLinkAtivo();
                 verificarStatusWikiNavbar();
+                initNavbarScroll();
             })
             .catch(error => {
                 console.error("Erro ao carregar navbar:", error);
             });
     } else {
+        initNavbar();
         verificarStatusWikiNavbar();
+        initNavbarScroll();
     }
 
     // 2. Carrega o Footer
     const footerContainer = document.getElementById("footer");
     if (footerContainer) {
-        fetch("/shared/footer.html?v=2")
+        fetch("/shared/footer.html?v=3")
             .then(response => {
                 if (!response.ok) throw new Error(`Erro ${response.status} ao buscar ${response.url}`);
                 return response.text();
@@ -76,13 +79,14 @@ function initFooterCopyIP() {
 function marcarLinkAtivo() {
     const currentPath = window.location.pathname.replace(/\/$/, '') || '/';
     const navLinks = document.querySelectorAll('#navbar li a');
+
     navLinks.forEach(link => {
         const url = new URL(link.href, window.location.origin);
         const linkPath = url.pathname.replace(/\/$/, '') || '/';
         const linkHash = url.hash;
 
-        // Se o link possui uma âncora/hash (ex: /#servers-section),
-        // ele não deve ser ativado apenas pela equivalência da rota '/'
+        // Se o link possui uma âncora/hash (ex: /#big-header-div ou /#servers-section),
+        // o estado ativo é gerenciado pela posição do scroll na home
         if (linkHash) {
             return;
         }
@@ -92,59 +96,157 @@ function marcarLinkAtivo() {
         }
     });
 
-    configurarScrollServersSection();
+    configurarScrollNavegacaoHome();
 }
 
-function configurarScrollServersSection() {
+/**
+ * Controla os estados ativos e a rolagem suave das seções da Home (Início e Servidores):
+ * - "Início" só fica ativo enquanto o usuário estiver vendo a div do hero (#big-header-div).
+ * - "Servidores" fica ativo enquanto a seção de servidores estiver no campo de visão.
+ * - Ao passar da seção de servidores, nenhum dos dois fica ativo.
+ */
+function configurarScrollNavegacaoHome() {
     const serversSection = document.getElementById('servers-section');
     const serversLink = document.querySelector('#navbar li a[href*="#servers-section"]');
-    if (!serversSection || !serversLink) return;
+    const inicioLi = document.querySelector('#navbar li.nav-inicio-item');
+    const inicioLink = document.querySelector('#navbar li.nav-inicio-item a, #navbar li a[href*="#big-header-div"]');
+    const heroSection = document.getElementById('big-header-div');
+    const isRoot = window.location.pathname.replace(/\/$/, '') === '' || window.location.pathname === '/';
 
-    const serversLi = serversLink.parentElement;
+    if (!isRoot) return;
 
-    function checkServersSectionActive() {
-        const rect = serversSection.getBoundingClientRect();
+    function checkActiveSection() {
         const windowHeight = window.innerHeight || document.documentElement.clientHeight;
         const triggerPoint = Math.max(100, windowHeight * 0.35);
 
-        const isActive = (rect.top <= triggerPoint && rect.bottom >= triggerPoint);
-        if (isActive) {
-            serversLi.classList.add('active');
+        // 1. Verifica se a seção de servidores está ativa
+        let isServersActive = false;
+        if (serversSection) {
+            const rect = serversSection.getBoundingClientRect();
+            isServersActive = (rect.top <= triggerPoint && rect.bottom >= triggerPoint);
+        }
+
+        // 2. O "Início" só fica ativo se o usuário estiver vendo a div do hero
+        let isHeroActive = false;
+        if (heroSection) {
+            const heroRect = heroSection.getBoundingClientRect();
+            // A div do hero está visível se sua parte inferior ainda está no campo de visão
+            isHeroActive = (heroRect.bottom > 80);
+        }
+
+        if (isServersActive) {
+            if (serversLink) serversLink.parentElement.classList.add('active');
+            if (inicioLi) inicioLi.classList.remove('active');
+        } else if (isHeroActive) {
+            if (serversLink) serversLink.parentElement.classList.remove('active');
+            if (inicioLi) inicioLi.classList.add('active');
         } else {
-            serversLi.classList.remove('active');
+            // Passou de servidores ou saiu do hero: nenhum dos dois fica destacado
+            if (serversLink) serversLink.parentElement.classList.remove('active');
+            if (inicioLi) inicioLi.classList.remove('active');
         }
     }
 
-    serversLink.addEventListener('click', function (e) {
-        const isRoot = window.location.pathname.replace(/\/$/, '') === '' || window.location.pathname === '/';
-        if (isRoot) {
-            e.preventDefault();
-            serversSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
-            if (window.history && window.history.pushState) {
-                window.history.pushState(null, '', '#servers-section');
-            } else {
-                window.location.hash = '#servers-section';
+    const brandLink = document.getElementById('navbar-brand') || document.querySelector('.navbar-brand');
+    if (brandLink) {
+        brandLink.addEventListener('click', function (e) {
+            if (isRoot) {
+                e.preventDefault();
+                if (heroSection) {
+                    heroSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                } else {
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                }
+                if (window.history && window.history.pushState) {
+                    window.history.pushState(null, '', '/');
+                }
+                setTimeout(checkActiveSection, 200);
             }
-            setTimeout(checkServersSectionActive, 200);
-        }
-    });
+        });
+    }
+
+    if (inicioLink) {
+        inicioLink.addEventListener('click', function (e) {
+            e.preventDefault();
+            if (heroSection) {
+                heroSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            } else {
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
+            if (window.history && window.history.pushState) {
+                window.history.pushState(null, '', '/');
+            }
+            setTimeout(checkActiveSection, 200);
+        });
+    }
+
+    const serversLinks = document.querySelectorAll('#navbar a[href*="#servers-section"], #navbar a[href*="#servidores"], .nav-download-btn');
+    if (serversSection) {
+        serversLinks.forEach(function (link) {
+            link.addEventListener('click', function (e) {
+                if (isRoot) {
+                    e.preventDefault();
+                    serversSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    const targetHash = link.getAttribute('href').includes('#') ? ('#' + link.getAttribute('href').split('#')[1]) : '#servidores';
+                    if (window.history && window.history.pushState) {
+                        window.history.pushState(null, '', targetHash);
+                    } else {
+                        window.location.hash = targetHash;
+                    }
+                    setTimeout(checkActiveSection, 200);
+                }
+            });
+        });
+    }
 
     let ticking = false;
     window.addEventListener('scroll', function () {
         if (!ticking) {
             window.requestAnimationFrame(function () {
-                checkServersSectionActive();
+                checkActiveSection();
                 ticking = false;
             });
             ticking = true;
         }
     }, { passive: true });
 
-    window.addEventListener('resize', checkServersSectionActive, { passive: true });
-    window.addEventListener('hashchange', checkServersSectionActive);
+    window.addEventListener('resize', checkActiveSection, { passive: true });
+    window.addEventListener('hashchange', checkActiveSection);
 
     // Verificação inicial
-    checkServersSectionActive();
+    checkActiveSection();
+
+    // Compensação de Layout Shift se a página foi acessada com âncora (#servidores ou #servers-section)
+    const currentHash = window.location.hash;
+    if (currentHash === '#servidores' || currentHash === '#servers-section') {
+        const target = serversSection || document.getElementById('servidores');
+        const atualizacoes = document.getElementById('atualizacoes-section');
+
+        let userHasScrolled = false;
+        const onUserGesture = () => { userHasScrolled = true; };
+        window.addEventListener('wheel', onUserGesture, { once: true, passive: true });
+        window.addEventListener('touchmove', onUserGesture, { once: true, passive: true });
+
+        const reajustarScroll = () => {
+            if (!userHasScrolled && target) {
+                target.scrollIntoView({ behavior: 'instant', block: 'start' });
+            }
+        };
+
+        // Reajuste rápido pós-parse inicial
+        setTimeout(reajustarScroll, 60);
+
+        // Observa a div de atualizações caso ela expanda com o retorno da API
+        if (atualizacoes) {
+            const observer = new MutationObserver(() => {
+                if (!atualizacoes.hidden) {
+                    requestAnimationFrame(reajustarScroll);
+                }
+            });
+            observer.observe(atualizacoes, { attributes: true, attributeFilter: ['hidden', 'style', 'class'] });
+            setTimeout(() => observer.disconnect(), 3500);
+        }
+    }
 }
 
 function verificarStatusWikiNavbar() {
@@ -216,4 +318,32 @@ function initNavbar() {
             setOpen(false);
         }
     });
+}
+
+/**
+ * Controla a transição dinâmica da navbar:
+ * - No topo da página: transparente.
+ * - Ao rolar para baixo: cor de fundo (#030407) com opacidade suave e blur.
+ */
+function initNavbarScroll() {
+    const nav = document.querySelector('#navbar-container nav, nav.navbar-main, nav');
+    if (!nav) return;
+
+    let ticking = false;
+
+    function handleScroll() {
+        const isScrolled = window.scrollY > 15;
+        nav.classList.toggle('scrolled', isScrolled);
+        ticking = false;
+    }
+
+    window.addEventListener('scroll', function () {
+        if (!ticking) {
+            window.requestAnimationFrame(handleScroll);
+            ticking = true;
+        }
+    }, { passive: true });
+
+    // Verificação inicial imediata (ex: recarga com scroll preservado)
+    handleScroll();
 }

@@ -182,6 +182,12 @@ function initNovidades() {
 
         requestAnimationFrame(() => {
             inicializarCarrosselNovidades();
+            if (window.location.hash === '#servidores' || window.location.hash === '#servers-section') {
+                const target = document.getElementById('servers-section') || document.getElementById('servidores');
+                if (target) {
+                    target.scrollIntoView({ behavior: 'instant', block: 'start' });
+                }
+            }
         });
     };
 

@@ -1,49 +1,117 @@
 :root {
+    --navbar-height: 60px;
     --border-color-2: #B971DA;
     --border-color-1: #7DB9DF;
 }
 
 #navbar-container {
-    position: sticky;
+    position: fixed;
     top: 0;
+    left: 0;
     z-index: 1000;
     width: 100%;
 }
 
 #navbar-container nav,
 nav.navbar-main {
-    background-color: #030407;
+    background-color: transparent;
     display: flex;
     align-items: center;
     flex-direction: row;
-    padding: 6px 20px;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+    padding: 13px clamp(24px, 7vw, 96px);
+    border-bottom: 1px solid transparent;
     font-weight: 600;
     margin: 0;
     width: 100%;
+    min-height: var(--navbar-height);
     box-sizing: border-box;
+    backdrop-filter: blur(0px);
+    -webkit-backdrop-filter: blur(0px);
+    box-shadow: none;
+    transition: background-color 0.3s cubic-bezier(0.16, 1, 0.3, 1),
+                border-color 0.3s cubic-bezier(0.16, 1, 0.3, 1),
+                backdrop-filter 0.3s cubic-bezier(0.16, 1, 0.3, 1),
+                -webkit-backdrop-filter 0.3s cubic-bezier(0.16, 1, 0.3, 1),
+                box-shadow 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Quando descer a página: cor do background atual (#030407) com opacidade um pouco mais baixa e blur */
+#navbar-container nav.scrolled,
+nav.navbar-main.scrolled {
+    background-color: rgba(3, 4, 7, 0.82);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.35);
+}
+
+/* Quando o menu mobile estiver aberto, mantém fundo escuro legível mesmo no topo */
+#navbar-container nav.navbar-open,
+nav.navbar-main.navbar-open {
+    background-color: rgba(3, 4, 7, 0.96) !important;
+    border-bottom-color: rgba(255, 255, 255, 0.15) !important;
+    backdrop-filter: blur(16px) !important;
+    -webkit-backdrop-filter: blur(16px) !important;
+}
+
+/* Margens laterais sincronizadas com o layout do hero e do conteúdo */
+@media (min-width: 1300px) {
+    #navbar-container nav,
+    nav.navbar-main {
+        padding-left: calc((100% - 1300px) / 2 + 96px);
+        padding-right: calc((100% - 1300px) / 2 + 96px);
+    }
+}
+
+
+.navbar-brand {
+    display: inline-flex;
+    align-items: center;
+    gap: 9px;
+    text-decoration: none;
+    color: white;
+    flex-shrink: 0;
+    cursor: pointer;
+    transition: opacity 0.2s ease;
+}
+
+.navbar-brand:hover {
+    opacity: 0.94;
 }
 
 #navbar-img {
-    height: 44px;
-    width: 44px;
+    height: 34px;
+    width: 34px;
     cursor: pointer;
-    margin-left: 5px;
+    margin-left: 0;
     transition: transform 0.2s ease;
+    display: block;
 }
 
-#navbar-img:hover {
-    transform: scale(1.05);
+.navbar-brand:hover #navbar-img {
+    transform: scale(1.06);
+}
+
+.navbar-brand-name {
+    font-family: 'Poppins', sans-serif;
+    font-weight: 800;
+    font-size: 15.5px;
+    letter-spacing: -0.3px;
+    color: #FFFFFF;
+    white-space: nowrap;
+    line-height: 1;
+    user-select: none;
 }
 
 #navbar {
     display: flex;
     flex-direction: row;
     align-items: center;
-    gap: 28px;
+    justify-content: flex-end;
+    gap: clamp(12px, 1.6vw, 24px);
     list-style-type: none;
-    margin: 0;
-    padding: 0 0 0 24px;
+    margin: 0 0 0 auto;
+    padding: 0;
     width: 100%;
 }
 
@@ -56,7 +124,7 @@ nav.navbar-main {
     color: white;
     text-decoration: none;
     transition: color ease 0.2s;
-    font-size: 15px;
+    font-size: 14px;
 }
 
 nav li:hover, nav li:hover a {
@@ -79,7 +147,7 @@ li.active a::after {
     position: absolute;
     left: 0;
     right: 0;
-    bottom: -6px;
+    bottom: -4px;
     height: 2px;
     background: var(--border-color-2);
     border-radius: 2px;
@@ -89,21 +157,21 @@ li.active a::after {
    BOTÕES DE AÇÃO: LOJA & DOWNLOADS (Alinhados lado a lado à direita)
    ========================================================================== */
 .nav-loja-item {
-    margin-left: auto;
+    margin-left: 0;
     margin-right: 0;
 }
 
 .nav-loja-btn {
     display: inline-flex !important;
     align-items: center;
-    gap: 8px;
-    padding: 7px 16px !important;
+    gap: 7px;
+    padding: 5px 14px !important;
     background-color: rgba(185, 113, 218, 0.12);
     border: 1.5px solid var(--border-color-2);
-    border-radius: 8px;
+    border-radius: 7px;
     color: #ffffff !important;
     font-weight: 600 !important;
-    font-size: 14px !important;
+    font-size: 13.5px !important;
     transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease, transform 0.2s ease !important;
     cursor: pointer;
     text-decoration: none;
@@ -117,7 +185,7 @@ li.active a::after {
 }
 
 .nav-loja-btn i {
-    font-size: 13px;
+    font-size: 12.5px;
     color: var(--border-color-2);
     transition: color 0.2s ease;
 }
@@ -141,48 +209,59 @@ li.active .nav-loja-btn::after {
 
 /* Downloads fica colado ao lado da Loja com espaçamento perfeito */
 .nav-download-item {
-    margin-left: 0;
+    margin-left: clamp(8px, 1.2vw, 18px);
 }
 
 .nav-download-btn {
     display: inline-flex !important;
     align-items: center;
+    justify-content: center;
     gap: 8px;
     padding: 7px 16px !important;
-    background-color: rgba(125, 185, 223, 0.12);
-    border: 1.5px solid var(--border-color-1);
-    border-radius: 8px;
-    color: #ffffff !important;
-    font-weight: 600 !important;
-    font-size: 14px !important;
-    transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease, transform 0.2s ease !important;
-    text-decoration: none;
+    background-color: #5865F2 !important;
+    color: #FFFFFF !important;
+    font-size: 12.5px !important;
+    font-weight: 800 !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.4px !important;
+    text-decoration: none !important;
+    border: 2px solid #000000 !important;
+    border-radius: var(--radius-sm, 4px) !important;
+    box-shadow: 3px 3px 0px #000000 !important;
+    transition: transform 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease !important;
+    cursor: pointer;
+    line-height: 1.2 !important;
 }
 
 .nav-download-btn:hover {
-    background-color: var(--border-color-1);
-    border-color: var(--border-color-1);
-    color: #030407 !important;
-    transform: translateY(-1px);
+    background-color: #4752C4 !important;
+    color: #FFFFFF !important;
+    transform: translate(-1.5px, -1.5px) !important;
+    box-shadow: 4.5px 4.5px 0px #000000 !important;
+}
+
+.nav-download-btn:active {
+    transform: translate(1.5px, 1.5px) !important;
+    box-shadow: 1.5px 1.5px 0px #000000 !important;
 }
 
 .nav-download-btn i {
-    font-size: 13px;
-    color: var(--border-color-1);
-    transition: color 0.2s ease;
+    font-size: 13px !important;
+    color: #FFFFFF !important;
+    transition: none !important;
 }
 
 .nav-download-btn:hover i {
-    color: #030407;
+    color: #FFFFFF !important;
 }
 
 li.active .nav-download-btn {
-    background-color: var(--border-color-1);
-    color: #030407 !important;
+    background-color: #5865F2 !important;
+    color: #FFFFFF !important;
 }
 
 li.active .nav-download-btn i {
-    color: #030407 !important;
+    color: #FFFFFF !important;
 }
 
 li.active .nav-download-btn::after {
@@ -195,8 +274,8 @@ li.active .nav-download-btn::after {
     background: transparent;
     border: none;
     color: white;
-    font-size: 22px;
-    padding: 4px 8px;
+    font-size: 20px;
+    padding: 3px 6px;
     margin-left: auto;
     cursor: pointer;
     border-radius: 6px;
@@ -229,9 +308,11 @@ li.active .nav-download-btn::after {
         flex-direction: column;
         align-items: stretch;
         gap: 0;
-        background-color: #030407;
+        background-color: rgba(3, 4, 7, 0.96);
+        backdrop-filter: blur(16px);
+        -webkit-backdrop-filter: blur(16px);
         border-bottom: 1px solid rgba(255, 255, 255, 0.15);
-        padding: 8px 0;
+        padding: 6px 0;
         max-height: 0;
         overflow: hidden;
         opacity: 0;
@@ -240,7 +321,7 @@ li.active .nav-download-btn::after {
     }
 
     nav.navbar-open #navbar {
-        max-height: calc(100vh - 50px);
+        max-height: calc(100vh - var(--navbar-height, 46px));
         opacity: 1;
         pointer-events: auto;
         overflow-y: auto;
@@ -254,15 +335,14 @@ li.active .nav-download-btn::after {
         display: flex;
         align-items: center;
         gap: 10px;
-        padding: 14px 20px;
+        padding: 11px 20px;
         box-sizing: border-box;
     }
 
-    .nav-loja-item,
     .nav-download-item {
         margin-left: 0;
         margin-right: 0;
-        padding: 8px 20px;
+        padding: 6px 20px;
         box-sizing: border-box;
     }
 

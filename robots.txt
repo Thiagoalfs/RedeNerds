@@ -13,7 +13,6 @@ Allow: /regras/
 Allow: /servidores/
 Allow: /sobre/
 Allow: /suporte/
-Allow: /download/
 Allow: /assets/
 
 # Diretórios Administrativos, Internos e Sensíveis

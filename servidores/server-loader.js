@@ -94,7 +94,7 @@ function renderizarServidorDados(dados, key) {
     // 6. Botões de Ação
     const btnModpack = document.getElementById("btn-modpack");
     if (btnModpack) {
-        btnModpack.href = server.modpackurl || "/download";
+        btnModpack.href = server.modpackurl || "/#servidores";
     }
 
     const btnHeroCopy = document.getElementById("btn-hero-copy-ip");
