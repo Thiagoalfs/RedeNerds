@@ -679,7 +679,60 @@
 }
 
 /* =========================================
-   Cabeçalhos de Seção
+   DIVISÓRIAS E CABEÇALHOS (ESTILO GAMING PREMIUM / LINEAR)
+   ========================================= */
+.section-divider {
+    width: 100%;
+    max-width: 960px;
+    height: 1px;
+    background: linear-gradient(90deg, transparent 0%, rgba(185, 113, 218, 0.28) 35%, rgba(125, 185, 223, 0.28) 65%, transparent 100%);
+    margin: 10px auto;
+    border: none;
+    flex-shrink: 0;
+}
+
+#atualizacoes-section[hidden] + .section-divider {
+    display: none;
+}
+
+.section-header {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    margin: 0 auto;
+    position: relative;
+}
+
+.section-header .section-title {
+    margin: 0;
+    font-family: 'Poppins', sans-serif;
+    font-size: clamp(1.85rem, 3.2vw, 2.5rem);
+    font-weight: 800;
+    letter-spacing: -0.5px;
+    color: #FFFFFF;
+    line-height: 1.22;
+    background: linear-gradient(180deg, #FFFFFF 25%, #E2E8F0 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    text-shadow: 0 4px 20px rgba(0, 0, 0, 0.35);
+    display: inline-block;
+    width: auto;
+}
+
+.section-header .section-title::after {
+    display: none !important;
+}
+
+@media (max-width: 600px) {
+    .section-divider {
+        max-width: 88%;
+        margin: 6px auto;
+    }
+}
+
+/* =========================================
+   Cabeçalhos de Seção (Estrutura e Gaps)
    ========================================= */
 .centered-content {
     gap: 8px;

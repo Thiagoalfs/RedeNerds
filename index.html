@@ -22,11 +22,11 @@
     <meta name="twitter:description" content="Junte-se à RedeNerds e explore modpacks exclusivos.">
     <meta name="twitter:image" content="https://redenerds.com.br/assets/images/logo.webp">
     <link rel="icon" type="image/x-icon" href="assets/images/logo.webp">
-    <link rel="stylesheet" href="shared/shared.css?v=22">
+    <link rel="stylesheet" href="shared/shared.css?v=23">
     <link rel="stylesheet" href="shared/navbar.css?v=14">
     <link rel="stylesheet" href="shared/footer.css?v=6">
     <link rel="stylesheet" href="novidades/novidades.css?v=10">
-    <link rel="stylesheet" href="index.css?v=21">
+    <link rel="stylesheet" href="index.css?v=23">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
 </head>
 <body>
@@ -60,9 +60,9 @@
             <main class="page">
                 <!-- Seção: Atualizações (Top 3 - Exibida apenas após retorno com sucesso da API) -->
                 <section id="atualizacoes-section" hidden>
-                    <div class="centered-content">
-                        <h2 class="subtitle">Atualizações</h2>
-                    </div>
+                    <header class="section-header">
+                        <h2 class="section-title">Atualizações</h2>
+                    </header>
 
                     <!-- Carrossel de Novidades -->
                     <div class="news-carousel-wrapper">
@@ -86,13 +86,15 @@
                     </div>
                 </section>
 
+                <div class="section-divider" aria-hidden="true"></div>
+
                 <!-- Grid: Servidores -->
                 <!-- Carrossel de Servidores -->
                 <span id="servidores" style="display:block; position:relative; top:-80px; visibility:hidden;"></span>
                 <section id="servers-section">
-                    <div class="centered-content">
-                        <h2 class="subtitle">Nossos Servidores</h2>
-                    </div>
+                    <header class="section-header">
+                        <h2 class="section-title">Nossos Servidores</h2>
+                    </header>
 
                     <div class="servers-carousel-wrapper">
                         <button type="button" class="servers-carousel-btn prev" id="servers-carousel-prev" aria-label="Servidor anterior">
@@ -135,47 +137,52 @@
                     <div class="servers-carousel-dots" id="servers-carousel-dots" aria-hidden="true"></div>
                 </section>
 
-            <!-- Patrocinador Oficial -->
-            <section id="patrocinador-section">
-                <div class="centered-content">
-                    <h2 class="subtitle">Patrocinador Oficial</h2>
-                </div>
+                <div class="section-divider" aria-hidden="true"></div>
 
-                <div class="patrocinador-container">
-                    <a href="https://ca.blocohost.com/aff.php?aff=2" target="_blank" rel="noopener noreferrer" class="patrocinador-banner-link" aria-label="Acessar BlocoHost - Patrocinador Oficial">
-                        <img src="assets/images/blocohost.webp" alt="BlocoHost - Hospedagem de Minecraft" class="patrocinador-banner-img">
-                    </a>
+                <!-- Patrocinador Oficial -->
+                <section id="patrocinador-section">
+                    <header class="section-header">
+                        <h2 class="section-title">Patrocinador Oficial</h2>
+                    </header>
 
-                    <div class="patrocinador-actions">
-                        <a href="https://www.instagram.com/blocohost/" target="_blank" rel="noopener noreferrer" class="btn-patrocinador btn-patrocinador-insta">
-                            <i class="fa-brands fa-instagram"></i>
-                            <span>Instagram</span>
+                    <div class="patrocinador-container">
+                        <a href="https://ca.blocohost.com/aff.php?aff=2" target="_blank" rel="noopener noreferrer" class="patrocinador-banner-link" aria-label="Acessar BlocoHost - Patrocinador Oficial">
+                            <img src="assets/images/blocohost.webp" alt="BlocoHost - Hospedagem de Minecraft" class="patrocinador-banner-img">
                         </a>
-                        <a href="https://ca.blocohost.com/aff.php?aff=2" target="_blank" rel="noopener noreferrer" class="btn-patrocinador btn-patrocinador-adquirir">
-                            <i class="fa-solid fa-cart-shopping"></i>
-                            <span>Adquira já</span>
-                        </a>
+
+                        <div class="patrocinador-actions">
+                            <a href="https://www.instagram.com/blocohost/" target="_blank" rel="noopener noreferrer" class="btn-patrocinador btn-patrocinador-insta">
+                                <i class="fa-brands fa-instagram"></i>
+                                <span>Instagram</span>
+                            </a>
+                            <a href="https://ca.blocohost.com/aff.php?aff=2" target="_blank" rel="noopener noreferrer" class="btn-patrocinador btn-patrocinador-adquirir">
+                                <i class="fa-solid fa-cart-shopping"></i>
+                                <span>Adquira já</span>
+                            </a>
+                        </div>
                     </div>
-                </div>
-            </section>
+                </section>
 
-            <!-- Parceiros -->
-            <section id="parceiros-section">
-                <div class="centered-content">
-                    <h2 class="subtitle">Parceiros</h2>
-                    <p class="section-lead">Criadores de conteúdo oficiais que jogam e apoiam a Rede Nerds.</p>
-                </div>
+                <div class="section-divider" aria-hidden="true"></div>
 
-                <div class="parceiros-grid">
-                    <!-- Carregado dinamicamente via /api/parceiros_api.php -->
-                </div>
-            </section>
+                <!-- Parceiros -->
+                <section id="parceiros-section">
+                    <header class="section-header">
+                        <h2 class="section-title">Parceiros</h2>
+                    </header>
 
-            <!-- Seção Discord -->
-            <section id="discord-section">
-                <div class="centered-content">
-                    <h2 class="subtitle">Comunidade</h2>
-                </div>
+                    <div class="parceiros-grid">
+                        <!-- Carregado dinamicamente via /api/parceiros_api.php -->
+                    </div>
+                </section>
+
+                <div class="section-divider" aria-hidden="true"></div>
+
+                <!-- Seção Discord -->
+                <section id="discord-section">
+                    <header class="section-header">
+                        <h2 class="section-title">Comunidade</h2>
+                    </header>
 
                 <div class="discord-grid">
                     <!-- Coluna esquerda: Apresentação e Benefícios -->
@@ -226,9 +233,9 @@
                 <i class="fa-solid fa-arrow-left"></i> Voltar para o Início
             </button>
 
-            <div class="centered-content" style="margin-bottom: 20px;">
-                <h2 class="subtitle">Todas as Atualizações</h2>
-            </div>
+            <header class="section-header" style="margin-bottom: 24px;">
+                <h2 class="section-title">Todas as Atualizações</h2>
+            </header>
 
             <!-- Controls: Busca + Filtro por Categoria -->
             <div id="news-controls">

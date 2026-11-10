@@ -443,29 +443,55 @@ a {
     width: 100%;
 }
 
-.section-title {
-    margin: 0;
-    font-family: var(--font-main);
-    font-size: clamp(1.75rem, 3vw, 2.35rem);
-    font-weight: 800;
-    color: #FFFFFF;
-    letter-spacing: -0.5px;
-    line-height: 1.2;
-    padding: 0;
+/* =========================================
+   CABEÇALHOS E DIVISÓRIAS (ESTILO GAMING PREMIUM / LINEAR)
+   ========================================= */
+.section-divider {
+    width: 100%;
+    max-width: 960px;
+    height: 1px;
+    background: linear-gradient(90deg, transparent 0%, rgba(185, 113, 218, 0.28) 35%, rgba(125, 185, 223, 0.28) 65%, transparent 100%);
+    margin: 10px auto;
+    border: none;
+    flex-shrink: 0;
+}
+
+@media (max-width: 600px) {
+    .section-divider {
+        max-width: 88%;
+        margin: 6px auto;
+    }
+}
+
+.section-header {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 8px;
-    width: fit-content;
+    text-align: center;
+    margin: 0 auto;
+    position: relative;
+    width: 100%;
+}
+
+.section-title {
+    margin: 0;
+    font-family: var(--font-main, 'Poppins', sans-serif);
+    font-size: clamp(1.85rem, 3.2vw, 2.5rem);
+    font-weight: 800;
+    letter-spacing: -0.5px;
+    color: #FFFFFF;
+    line-height: 1.22;
+    background: linear-gradient(180deg, #FFFFFF 25%, #E2E8F0 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    text-shadow: 0 4px 20px rgba(0, 0, 0, 0.35);
+    display: inline-block;
+    width: auto;
+    text-align: center;
 }
 
 .section-title::after {
-    content: "";
-    display: block;
-    width: 42px;
-    height: 3px;
-    background: #38BDF8;
-    border-radius: 2px;
+    display: none !important;
 }
 
 .section-lead {

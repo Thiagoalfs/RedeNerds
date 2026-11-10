@@ -2,74 +2,73 @@
     --border-color-2: #B971DA;
     --border-color-1: #7DB9DF;
     --card-bg: rgba(11, 15, 21, 0.85);
-    --card-border: rgba(125, 185, 223, 0.25);
-    --text-muted: #c5c5c5;
+    --card-bg-hover: rgba(18, 24, 34, 0.95);
+    --card-border: rgba(255, 255, 255, 0.08);
+    --text-muted: #94A3B8;
+    --text-body: #CBD5E1;
 }
 
+/* ============================================
+   CONTAINER PRINCIPAL
+   ============================================ */
 #suporte-container {
-    display: block;
     width: 100%;
-    max-width: 1280px;
-    margin: 30px auto 50px auto;
-    padding: 0 100px;
+    max-width: 1120px;
+    margin: 20px auto 60px auto;
+    padding: 0 clamp(16px, 4vw, 32px);
     box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    gap: 36px;
 }
 
-#suporte-container > * {
-    margin-bottom: 50px;
-    width: 100%;
+#suporte-container > .section-divider {
+    margin: 8px auto;
 }
 
-#suporte-container > *:last-child {
-    margin-bottom: 0;
-}
-
-/* Cabeçalho da página (intro) */
+/* ============================================
+   INTRODUÇÃO
+   ============================================ */
 .suporte-intro {
     text-align: center;
     max-width: 720px;
-    margin: 0 auto 0 auto;
+    margin: 0 auto;
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 12px;
+    gap: 14px;
 }
 
 .suporte-intro p {
-    color: var(--text-muted);
-    font-size: 16px;
-    line-height: 1.6;
+    color: var(--text-body);
+    font-size: 1rem;
+    line-height: 1.7;
     margin: 0;
 }
 
 /* ============================================
-   Seções — empilhamento vertical normal
+   SEÇÕES GERAIS
    ============================================ */
-
 #canais-section,
-#status-section,
 #faq-section,
-#dicas-section {
-    display: block;
+#dicas-section,
+#discord-widget-section {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
     width: 100%;
-}
-
-/* Espaçamento do cabeçalho de cada seção */
-#suporte-container .centered-content {
-    margin-bottom: 25px;
+    gap: 22px;
 }
 
 /* ============================================
-   Cards de canais de atendimento
-   2 cards (Discord + Ticket)
+   CARDS DE CANAIS DE ATENDIMENTO
    ============================================ */
-
 .canais-grid {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
-    gap: 25px;
+    gap: 24px;
     width: 100%;
-    max-width: 760px;
+    max-width: 860px;
     margin: 0 auto;
     box-sizing: border-box;
 }
@@ -79,248 +78,248 @@
     flex-direction: column;
     align-items: center;
     text-align: center;
-    gap: 14px;
-    background-color: var(--card-bg);
-    border: 2px solid var(--card-border);
-    border-radius: 14px;
-    padding: 30px 24px;
+    gap: 16px;
+    background: linear-gradient(135deg, rgba(20, 16, 32, 0.85) 0%, rgba(11, 15, 21, 0.9) 100%);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 18px;
+    padding: 32px 26px;
     text-decoration: none;
-    color: white;
-    transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
-    width: 100%;
-    max-width: 360px;
-    margin: 0 auto;
+    color: #FFFFFF;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.4);
     box-sizing: border-box;
+    transition: border-color 0.22s ease, box-shadow 0.22s ease;
     position: relative;
-    z-index: 1;
+    overflow: hidden;
 }
 
-.canal-card-discord {
-    border-color: #7289DA;
+.canal-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    opacity: 0.8;
 }
+
+.canal-card-discord::before {
+    background: linear-gradient(90deg, transparent, #5865F2, transparent);
+}
+
+.canal-card-ticket::before {
+    background: linear-gradient(90deg, transparent, #B971DA, transparent);
+}
+
+.canal-card:hover {
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.55);
+}
+
 .canal-card-discord:hover {
-    border-color: #8FA8F5;
-    box-shadow: 0 12px 28px rgba(114, 137, 218, 0.4);
-    z-index: 2;
+    border-color: rgba(88, 101, 242, 0.4);
 }
 
-.canal-card-ticket {
-    border-color: var(--border-color-2);
-}
 .canal-card-ticket:hover {
-    border-color: #D89BF0;
-    box-shadow: 0 12px 28px rgba(185, 113, 218, 0.4);
-    z-index: 2;
+    border-color: rgba(185, 113, 218, 0.4);
 }
 
 .canal-icon {
-    width: 70px;
-    height: 70px;
-    border-radius: 50%;
+    width: 60px;
+    height: 60px;
+    border-radius: 14px;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 32px;
-    background-color: #0b0f15;
+    font-size: 1.6rem;
     flex-shrink: 0;
 }
 
-.canal-card-discord .canal-icon { color: #7289DA; }
-.canal-card-ticket .canal-icon { color: var(--border-color-2); }
+.canal-card-discord .canal-icon {
+    background: rgba(88, 101, 242, 0.12);
+    border: 1px solid rgba(88, 101, 242, 0.3);
+    color: #5865F2;
+}
+
+.canal-card-ticket .canal-icon {
+    background: rgba(185, 113, 218, 0.12);
+    border: 1px solid rgba(185, 113, 218, 0.3);
+    color: #B971DA;
+}
+
+.canal-info {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    flex: 1;
+}
 
 .canal-card h3 {
     margin: 0;
-    font-size: 20px;
+    font-family: 'Poppins', sans-serif;
+    font-size: 1.25rem;
     font-weight: 700;
+    color: #FFFFFF;
 }
 
 .canal-card p {
     margin: 0;
-    color: var(--text-muted);
-    font-size: 14px;
-    line-height: 1.5;
-    flex: 0 1 auto;
+    color: var(--text-body);
+    font-size: 0.92rem;
+    line-height: 1.6;
 }
 
-.canal-card-cta {
+.canal-btn {
     display: inline-flex;
     align-items: center;
     gap: 8px;
-    font-weight: 600;
-    font-size: 14px;
+    padding: 10px 20px;
+    border-radius: 10px;
+    font-family: 'Poppins', sans-serif;
+    font-size: 0.88rem;
+    font-weight: 700;
+    transition: gap 0.2s ease, opacity 0.2s ease;
     margin-top: 4px;
-    transition: gap 0.3s ease;
 }
 
-.canal-card:hover .canal-card-cta {
-    gap: 14px;
+.canal-btn-discord {
+    background: #5865F2;
+    color: #FFFFFF;
 }
 
-.canal-card-discord .canal-card-cta { color: #7289DA; }
-.canal-card-ticket .canal-card-cta { color: var(--border-color-2); }
+.canal-btn-ticket {
+    background: linear-gradient(135deg, #B971DA 0%, #8B5CF6 100%);
+    color: #FFFFFF;
+}
+
+.canal-card:hover .canal-btn {
+    gap: 12px;
+    opacity: 0.95;
+}
 
 /* ============================================
-   FAQ (Estilos base de .faq-item e .faq-answer herdados do shared.css)
+   ANTES DE ABRIR TICKET (DICAS EM GRADE 4 COLUNAS)
    ============================================ */
-.faq-list {
-    margin: 0 auto;
-}
-
-/* ============================================
-   Status / Tempo de resposta
-   ============================================ */
-
-.status-grid {
+.dicas-grid {
     display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 20px;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
     width: 100%;
-    max-width: 720px;
+    max-width: 1080px;
     margin: 0 auto;
     box-sizing: border-box;
 }
 
-.status-card {
+.dica-card {
     background-color: var(--card-bg);
-    border: 1.5px solid var(--card-border);
-    border-radius: 12px;
-    padding: 24px;
+    border: 1px solid var(--card-border);
+    border-radius: 14px;
+    padding: 22px 20px;
     display: flex;
     flex-direction: column;
     gap: 10px;
-    text-align: center;
-    width: 100%;
-    max-width: 340px;
-    margin: 0 auto;
+    text-align: left;
     box-sizing: border-box;
-    transition: transform 0.3s ease, border-color 0.3s ease;
-    position: relative;
-    z-index: 1;
+    transition: border-color 0.2s ease, background-color 0.2s ease;
 }
 
-.status-card:hover {
-    border-color: var(--border-color-1);
-    z-index: 2;
+.dica-card:hover {
+    border-color: rgba(185, 113, 218, 0.35);
+    background-color: var(--card-bg-hover);
 }
 
-.status-card .status-icon {
-    font-size: 28px;
-    color: #4CAF50;
-    align-self: center;
+.dica-card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
 }
 
-.status-card h4 {
+.dica-card-header h4 {
     margin: 0;
-    font-size: 18px;
-    color: var(--border-color-1);
+    font-family: 'Poppins', sans-serif;
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: #FFFFFF;
+    line-height: 1.35;
 }
 
-.status-card p {
+.dica-num {
+    font-family: 'Poppins', sans-serif;
+    font-size: 0.9rem;
+    font-weight: 800;
+    color: var(--border-color-2);
+    flex-shrink: 0;
+}
+
+.dica-card p {
     margin: 0;
-    color: var(--text-muted);
-    font-size: 14px;
-    line-height: 1.5;
+    color: var(--text-body);
+    font-size: 0.9rem;
+    line-height: 1.62;
 }
 
 /* ============================================
-   Bloco "Antes de abrir ticket"
+   FAQ (ACCORDION REFINADO)
    ============================================ */
+.faq-list {
+    width: 100%;
+    max-width: 860px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
 
-.dicas-list {
+/* ============================================
+   DISCORD WIDGET CONTAINER
+   ============================================ */
+.discord-widget-card {
+    width: 100%;
+    max-width: 680px;
+    border-radius: 16px;
+    overflow: hidden;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow: 0 10px 32px rgba(0, 0, 0, 0.5);
+    margin: 0 auto;
+}
+
+.discord-widget-card iframe {
     display: block;
     width: 100%;
-    max-width: 900px;
-    margin: 0 auto;
-    box-sizing: border-box;
-}
-
-.dica {
-    display: flex;
-    gap: 18px;
-    background-color: var(--card-bg);
-    border: 1.5px solid var(--card-border);
-    border-radius: 12px;
-    padding: 20px 24px;
-    align-items: flex-start;
-    margin-bottom: 18px;
-}
-
-.dica:last-child {
-    margin-bottom: 0;
-}
-
-.dica-number {
-    flex-shrink: 0;
-    width: 44px;
-    height: 44px;
-    border-radius: 50%;
-    background: linear-gradient(135deg, var(--border-color-2), var(--border-color-1));
-    color: white;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: 700;
-    font-size: 18px;
-}
-
-.dica-content h4 {
-    margin: 0 0 6px 0;
-    font-size: 17px;
-    color: white;
-}
-
-.dica-content p {
-    margin: 0;
-    color: var(--text-muted);
-    font-size: 14px;
-    line-height: 1.5;
+    border: none;
 }
 
 /* ============================================
-   Discord widget
+   RESPONSIVIDADE (TABLET E MOBILE)
    ============================================ */
-
-#discord-widget-section {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    width: 100%;
-}
-
-#discord-widget-section iframe {
-    border-radius: 12px;
-    max-width: 100%;
-}
-
-/* ============================================
-   Responsivo
-   ============================================ */
-
-@media (max-width: 1100px) {
-    #suporte-container {
-        padding: 0 40px;
+@media (max-width: 960px) {
+    .dicas-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 16px;
     }
 }
 
-@media (max-width: 900px) {
-    #suporte-container {
-        padding: 0 20px;
-    }
-
-    .canais-grid,
-    .status-grid {
-        grid-template-columns: 1fr;
-        max-width: 500px;
-    }
-}
-
-@media (max-width: 700px) {
+@media (max-width: 680px) {
     #suporte-container {
         padding: 0 16px;
+        gap: 28px;
     }
 
-    .canal-card,
-    .status-card {
-        max-width: 100%;
+    .canais-grid {
+        grid-template-columns: 1fr;
+        gap: 18px;
+    }
+
+    .dicas-grid {
+        grid-template-columns: 1fr;
+        gap: 12px;
+    }
+
+    .canal-card {
+        padding: 24px 20px;
+    }
+
+    .canal-btn {
+        width: 100%;
+        justify-content: center;
     }
 }

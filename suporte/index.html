@@ -23,10 +23,10 @@
     <meta name="twitter:image" content="https://redenerds.com.br/assets/images/logo.webp">
 
     <link rel="icon" type="image/x-icon" href="/assets/images/logo.webp">
-    <link rel="stylesheet" href="/shared/shared.css?v=22"> 
+    <link rel="stylesheet" href="/shared/shared.css?v=23"> 
     <link rel="stylesheet" href="/shared/navbar.css?v=14">
     <link rel="stylesheet" href="/shared/footer.css?v=6">
-    <link rel="stylesheet" href="suporte.css?v=7">
+    <link rel="stylesheet" href="suporte.css?v=12">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
 </head>
 <body>
@@ -46,15 +46,19 @@
 
             <!-- Introdução -->
             <div class="suporte-intro">
-                <h2 class="subtitle">Como podemos ajudar?</h2>
+                <header class="section-header">
+                    <h2 class="section-title">Como podemos ajudar?</h2>
+                </header>
                 <p>Nosso suporte funciona principalmente pelo Discord, onde mantemos uma equipe ativa pronta para responder suas dúvidas, ouvir sugestões e resolver problemas técnicos ou relacionados a jogadores.</p>
             </div>
 
+            <div class="section-divider" aria-hidden="true"></div>
+
             <!-- Canais de atendimento -->
             <section id="canais-section">
-                <div class="centered-content">
-                    <h2 class="subtitle">Canais de Atendimento</h2>
-                </div>
+                <header class="section-header">
+                    <h2 class="section-title">Canais de Atendimento</h2>
+                </header>
 
                 <div class="canais-grid">
                     <!-- Discord -->
@@ -62,9 +66,11 @@
                         <div class="canal-icon">
                             <i class="fa-brands fa-discord"></i>
                         </div>
-                        <h3>Discord Oficial</h3>
-                        <p>Entre no nosso servidor do Discord para suporte em tempo real, participar da comunidade e ficar por dentro das novidades.</p>
-                        <span class="canal-card-cta">
+                        <div class="canal-info">
+                            <h3>Discord Oficial</h3>
+                            <p>Entre no nosso servidor do Discord para suporte em tempo real, participar da comunidade e ficar por dentro das novidades.</p>
+                        </div>
+                        <span class="canal-btn canal-btn-discord">
                             Entrar no Discord <i class="fa-solid fa-arrow-up-right-from-square"></i>
                         </span>
                     </a>
@@ -74,22 +80,67 @@
                         <div class="canal-icon">
                             <i class="fa-solid fa-ticket"></i>
                         </div>
-                        <h3>Abrir Ticket</h3>
-                        <p>Para problemas mais específicos como bugs, denúncias, appeal de punição ou questões técnicas, abra um ticket dentro do nosso Discord.</p>
-                        <span class="canal-card-cta">
+                        <div class="canal-info">
+                            <h3>Abrir Ticket</h3>
+                            <p>Para problemas mais específicos como bugs, denúncias, appeal de punição ou questões técnicas, abra um ticket dentro do nosso Discord.</p>
+                        </div>
+                        <span class="canal-btn canal-btn-ticket">
                             Criar ticket <i class="fa-solid fa-arrow-up-right-from-square"></i>
                         </span>
                     </a>
-
                 </div>
             </section>
 
+            <div class="section-divider" aria-hidden="true"></div>
+
+            <!-- Antes de abrir ticket -->
+            <section id="dicas-section">
+                <header class="section-header">
+                    <h2 class="section-title">Antes de abrir um ticket</h2>
+                </header>
+
+                <div class="dicas-grid">
+                    <div class="dica-card">
+                        <div class="dica-card-header">
+                            <h4>Consulte a FAQ</h4>
+                            <span class="dica-num">01</span>
+                        </div>
+                        <p>Talvez sua dúvida já tenha sido respondida logo abaixo. Isso poupa seu tempo e agiliza o suporte.</p>
+                    </div>
+
+                    <div class="dica-card">
+                        <div class="dica-card-header">
+                            <h4>Reúna provas</h4>
+                            <span class="dica-num">02</span>
+                        </div>
+                        <p>Prints, vídeos, coordenadas e horários exatos aceleram muito a análise. Evidências são essenciais.</p>
+                    </div>
+
+                    <div class="dica-card">
+                        <div class="dica-card-header">
+                            <h4>Seja claro e educado</h4>
+                            <span class="dica-num">03</span>
+                        </div>
+                        <p>Descreva o problema de forma direta. A equipe está sempre disponível para te acolher e ajudar.</p>
+                    </div>
+
+                    <div class="dica-card">
+                        <div class="dica-card-header">
+                            <h4>Não duplique tickets</h4>
+                            <span class="dica-num">04</span>
+                        </div>
+                        <p>Abrir vários tickets sobre o mesmo assunto apenas sobrecarrega a fila e atrasa o atendimento.</p>
+                    </div>
+                </div>
+            </section>
+
+            <div class="section-divider" aria-hidden="true"></div>
+
             <!-- FAQ -->
             <section id="faq-section">
-                <div class="centered-content">
-                    <h2 class="subtitle">Perguntas Frequentes</h2>
-                    <p style="max-width: 640px; color: var(--text-muted);">Respostas rápidas para as dúvidas mais comuns da comunidade. Não encontrou o que procura? Abra um ticket.</p>
-                </div>
+                <header class="section-header">
+                    <h2 class="section-title">Perguntas Frequentes</h2>
+                </header>
 
                 <div class="faq-list">
                     <details class="faq-item">
@@ -150,78 +201,20 @@
                 </div>
             </section>
 
-            <!-- Antes de abrir ticket -->
-            <section id="dicas-section">
-                <div class="centered-content">
-                    <h2 class="subtitle">Antes de abrir um ticket</h2>
-                </div>
-
-                <div class="dicas-list">
-                    <div class="dica">
-                        <div class="dica-number">1</div>
-                        <div class="dica-content">
-                            <h4>Consulte a FAQ primeiro</h4>
-                            <p>Talvez sua dúvida já tenha sido respondida acima. Isso libera a equipe para focar em problemas mais complexos.</p>
-                        </div>
-                    </div>
-
-                    <div class="dica">
-                        <div class="dica-number">2</div>
-                        <div class="dica-content">
-                            <h4>Reúna provas concretas</h4>
-                            <p>Prints, vídeos, logs do jogo (pastebin) e datas/horários exatos aceleram muito a análise. Tickets sem evidência levam mais tempo.</p>
-                        </div>
-                    </div>
-
-                    <div class="dica">
-                        <div class="dica-number">3</div>
-                        <div class="dica-content">
-                            <h4>Seja claro e educado</h4>
-                            <p>Descreva o problema de forma direta, sem omitir informações importantes. Lembre-se: a staff está ali para te ajudar, não para te julgar.</p>
-                        </div>
-                    </div>
-
-                    <div class="dica">
-                        <div class="dica-number">4</div>
-                        <div class="dica-content">
-                            <h4>Não duplique tickets</h4>
-                            <p>Abrir vários tickets sobre o mesmo assunto só atrasa o atendimento. Aguarde pacientemente; responderemos o mais rápido possível.</p>
-                        </div>
-                    </div>
-                </div>
-            </section>
-
-            <!-- Tempo de resposta / Status -->
-            <section id="status-section">
-                <div class="centered-content">
-                    <h2 class="subtitle">Tempos de Resposta</h2>
-                </div>
-
-                <div class="status-grid">
-                    <div class="status-card">
-                        <div class="status-icon"><i class="fa-brands fa-discord"></i></div>
-                        <h4>Discord</h4>
-                        <p>Resposta média em <strong>1 a 4 horas</strong> durante o horário ativo da staff (10h às 23h).</p>
-                    </div>
-
-                    <div class="status-card">
-                        <div class="status-icon"><i class="fa-solid fa-ticket"></i></div>
-                        <h4>Tickets</h4>
-                        <p>Resolução geralmente em <strong>até 24 horas</strong>, dependendo da complexidade do caso.</p>
-                    </div>
-                </div>
-            </section>
+            <div class="section-divider" aria-hidden="true"></div>
 
             <!-- Discord widget -->
             <section id="discord-widget-section">
-                <iframe
-                    src="https://discord.com/widget?id=1514603566755610705&theme=dark"
-                    width="600"
-                    height="400"
-                    allowtransparency="true"
-                    frameborder="0"
-                    sandbox="allow-popups allow-popups-to-escape-sandbox allow-same-origin allow-scripts">
-                </iframe>
+                <div class="discord-widget-card">
+                    <iframe
+                        src="https://discord.com/widget?id=1514603566755610705&theme=dark"
+                        width="100%"
+                        height="400"
+                        allowtransparency="true"
+                        frameborder="0"
+                        sandbox="allow-popups allow-popups-to-escape-sandbox allow-same-origin allow-scripts">
+                    </iframe>
+                </div>
             </section>
 
         </main>
