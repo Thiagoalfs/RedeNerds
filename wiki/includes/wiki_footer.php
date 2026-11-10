@@ -1,7 +1,7 @@
     <!-- FOOTER MINIMALISTA -->
     <footer class="wiki-footer">
         <div class="container">
-            <p class="mb-0">Rede Nerds &copy; <?php echo date('Y'); ?> • Base de Conhecimento e Guias Oficiais</p>
+            <p class="mb-0">Rede Nerd &copy; <?php echo date('Y'); ?> • Base de Conhecimento e Guias Oficiais</p>
         </div>
     </footer>
 

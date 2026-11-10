@@ -1,5 +1,5 @@
 /**
- * server-loader.js - Controlador da Página de Detalhes do Servidor (Rede Nerds)
+ * server-loader.js - Controlador da Página de Detalhes do Servidor (Rede Nerd)
  * Carrega dinamicamente as informações do servidor a partir da API oficial.
  */
 
@@ -25,7 +25,7 @@ function renderizarServidorDados(dados, key) {
     }) || servidores[0];
 
     // 1. Atualiza o título da página
-    document.title = `${server.servername} - Rede Nerds`;
+    document.title = `${server.servername} - Rede Nerd`;
 
     // 2. Injeta as cores dinâmicas no :root CSS
     const themeColor = server.themecolor || "#7DB9DF";

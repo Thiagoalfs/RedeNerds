@@ -1,4 +1,4 @@
-# 🕹️ Rede Nerds
+# 🕹️ Rede Nerd
 
 <p align="center">
   <img src="https://img.shields.io/badge/status-em%20produção-brightgreen?style=for-the-badge" alt="status">
@@ -7,7 +7,7 @@
 </p>
 
 <p align="center">
-  <strong>O site oficial da Rede Nerds — uma rede de servidores de Minecraft com modpacks exclusivos, tecnologia, magia e muita aventura.</strong>
+  <strong>O site oficial da Rede Nerd — uma rede de servidores de Minecraft com modpacks exclusivos, tecnologia, magia e muita aventura.</strong>
 </p>
 
 <p align="center">
@@ -18,7 +18,7 @@
 
 ## 🌐 Sobre o projeto
 
-Este é o **repositório de produção oficial** do site da Rede Nerds. Tudo o que está aqui reflete diretamente a infraestrutura web em [redenerds.com.br](https://redenerds.com.br).
+Este é o **repositório de produção oficial** do site da Rede Nerd. Tudo o que está aqui reflete diretamente a infraestrutura web em [redenerds.com.br](https://redenerds.com.br).
 
 O ecossistema combina páginas otimizadas com SEO completo e seções **dinâmicas alimentadas por APIs REST em PHP e banco de dados MySQL**:
 
@@ -77,7 +77,7 @@ RedeNerds/
 ├── regras/              # Regras da comunidade e dos servidores
 ├── servidores/          # Página detalhada de cada servidor com specs e download
 ├── shared/              # Componentes globais (navbar, footer com redes sociais 3D, modais)
-├── sobre/               # Página institucional sobre a história e valores da Rede Nerds
+├── sobre/               # Página institucional sobre a história e valores da Rede Nerd
 ├── suporte/             # Central de ajuda / FAQ / suporte aos jogadores
 ├── tests/               # Suíte de testes unitários e de integração (100% automatizados)
 ├── wiki/                # Central de Guias & Wiki pública
@@ -91,7 +91,7 @@ RedeNerds/
 
 ## 💎 Loja Oficial & Checkout Multi-Gateway (`loja/`)
 
-A loja da Rede Nerds conta com uma infraestrutura de checkout transparente, robusta e modular:
+A loja da Rede Nerd conta com uma infraestrutura de checkout transparente, robusta e modular:
 
 ### 1. Catálogo Dinâmico de Produtos
 - **Abas de Categorias (VIPs & Chaves):** Alternância fluida entre pacotes VIP e pacotes de chaves (keys/caixas), respeitando servidores ativos (`enabled = 1`) e suas respectivas identidades visuais.
@@ -254,4 +254,4 @@ Dúvidas ou suporte? Entre no nosso [Discord Oficial](https://discord.gg/zAwqXqT
 
 ---
 
-<p align="center">Feito com 💚 pela equipe da Rede Nerds</p>
+<p align="center">Feito com 💚 pela equipe da Rede Nerd</p>

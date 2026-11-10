@@ -150,14 +150,14 @@ function enviarNotificacaoCompraDiscord($nick, $tipoConta, $servidor, $vipNome, 
         ],
         "fields" => $fields,
         "footer" => [
-            "text" => "Rede Nerds • Loja Oficial",
+            "text" => "Rede Nerd • Loja Oficial",
             "icon_url" => "https://redenerds.com.br/assets/images/logo.webp"
         ],
         "timestamp" => date('c')
     ];
 
     $payload = json_encode([
-        "username" => "Loja RedeNerds",
+        "username" => "Loja Rede Nerd",
         "avatar_url" => "https://redenerds.com.br/assets/images/logo.webp",
         "embeds" => [$embed]
     ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);

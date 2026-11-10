@@ -6,9 +6,9 @@
 
 <aside class="admin-sidebar" id="admin-sidebar">
     <div class="sidebar-header">
-        <img src="/assets/images/logo.webp" alt="Rede Nerds">
+        <img src="/assets/images/logo.webp" alt="Rede Nerd">
         <div>
-            <h1 class="sidebar-brand-title">Rede Nerds</h1>
+            <h1 class="sidebar-brand-title">Rede Nerd</h1>
             <span class="sidebar-brand-badge">Painel Admin</span>
         </div>
     </div>

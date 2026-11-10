@@ -1,5 +1,5 @@
 ﻿# ==========================================
-# robots.txt - Rede Nerds
+# robots.txt - Rede Nerd
 # Website: https://redenerds.com.br
 # ==========================================
 

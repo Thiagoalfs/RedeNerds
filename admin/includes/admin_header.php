@@ -12,7 +12,7 @@ $tituloPagina = $tituloPagina ?? 'Painel Administrativo';
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?php echo htmlspecialchars($tituloPagina, ENT_QUOTES, 'UTF-8'); ?> - Rede Nerds</title>
+    <title><?php echo htmlspecialchars($tituloPagina, ENT_QUOTES, 'UTF-8'); ?> - Rede Nerd</title>
     <link rel="icon" type="image/x-icon" href="/assets/images/logo.webp">
     <meta name="csrf-token" content="<?php echo htmlspecialchars($csrfToken, ENT_QUOTES, 'UTF-8'); ?>">
     

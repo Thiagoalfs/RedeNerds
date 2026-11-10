@@ -1,5 +1,5 @@
 /**
- * unsaved_bar.js - Barra flutuante de alterações não salvas (Rede Nerds)
+ * unsaved_bar.js - Barra flutuante de alterações não salvas (Rede Nerd)
  * Mostra uma barra fixa no rodapé (estilo Discord) sempre que o formulário
  * principal da página (form.js-unsaved-form) possui alterações pendentes.
  *

@@ -220,8 +220,8 @@ $expiraFrom = date('Y-m-d\TH:i:s.000P', $now - 120);
 $expiraTo   = date('Y-m-d\TH:i:s.000P', $now + 7200);
 
 $itemTitulo = ($tipoProduto === 'chave')
-    ? "RedeNerds - {$quantidade}x {$itemNome} ({$servidor}) - Jogador: {$nick}"
-    : "RedeNerds - {$itemNome} ({$servidor}) - Jogador: {$nick}";
+    ? "Rede Nerd - {$quantidade}x {$itemNome} ({$servidor}) - Jogador: {$nick}"
+    : "Rede Nerd - {$itemNome} ({$servidor}) - Jogador: {$nick}";
 
 $preferencePayload = [
     "items" => [

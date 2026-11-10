@@ -141,7 +141,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login - Painel Administrativo | Rede Nerds</title>
+    <title>Login - Painel Administrativo | Rede Nerd</title>
     <link rel="icon" type="image/x-icon" href="/assets/images/logo.webp">
     
     <!-- GOOGLE FONTS -->
@@ -488,9 +488,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <!-- CABEÇALHO DO LOGIN -->
             <div class="login-header">
                 <div class="login-logo-wrap">
-                    <img src="/assets/images/logo.webp" alt="Rede Nerds" width="48" height="48">
+                    <img src="/assets/images/logo.webp" alt="Rede Nerd" width="48" height="48">
                 </div>
-                <h1 class="login-title">Rede Nerds</h1>
+                <h1 class="login-title">Rede Nerd</h1>
                 <p class="login-subtitle">Acesso restrito ao painel de gerenciamento</p>
             </div>
 

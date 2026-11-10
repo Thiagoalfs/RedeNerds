@@ -50,38 +50,14 @@
 }
 
 .sobre-highlight-card {
-    background: linear-gradient(135deg, rgba(20, 16, 32, 0.9) 0%, rgba(11, 15, 21, 0.9) 100%);
-    border: 1px solid var(--border-accent-purple);
-    border-radius: 16px;
+    background-color: var(--surface);
+    border: 1px solid var(--border-subtle);
+    border-radius: 14px;
     padding: 24px 22px;
-    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.4);
     display: flex;
     flex-direction: column;
     gap: 16px;
-    position: relative;
-    overflow: hidden;
-}
-
-.sobre-highlight-card::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 2px;
-    background: linear-gradient(90deg, transparent, #B971DA, #7DB9DF, transparent);
-}
-
-.highlight-badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    font-family: 'Poppins', sans-serif;
-    font-size: 0.74rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 1.2px;
-    color: #C084FC;
+    box-sizing: border-box;
 }
 
 .highlight-quote {
@@ -99,21 +75,23 @@
     padding: 0;
     display: flex;
     flex-direction: column;
-    gap: 9px;
+    gap: 10px;
 }
 
 .highlight-pills li {
     display: flex;
     align-items: center;
     gap: 10px;
-    font-size: 0.88rem;
-    font-weight: 600;
+    font-size: 0.9rem;
     color: var(--text-body);
 }
 
-.highlight-pills li i {
-    color: #10B981;
-    font-size: 0.82rem;
+.highlight-bullet {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #B971DA;
+    flex-shrink: 0;
 }
 
 /* ========================================================
@@ -136,7 +114,7 @@
     padding: 24px 22px;
     display: flex;
     flex-direction: column;
-    gap: 12px;
+    gap: 10px;
     transition: border-color 0.22s ease, background-color 0.22s ease;
     box-sizing: border-box;
 }
@@ -144,26 +122,6 @@
 .feature-card:hover {
     border-color: var(--border-accent-blue);
     background-color: var(--surface-hover);
-}
-
-.feature-icon {
-    width: 44px;
-    height: 44px;
-    border-radius: 10px;
-    background: rgba(125, 185, 223, 0.1);
-    border: 1px solid rgba(125, 185, 223, 0.25);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: var(--border-color-1);
-    font-size: 1.15rem;
-    flex-shrink: 0;
-}
-
-.feature-card:nth-child(even) .feature-icon {
-    background: rgba(185, 113, 218, 0.1);
-    border-color: rgba(185, 113, 218, 0.25);
-    color: var(--border-color-2);
 }
 
 .feature-card h3 {
@@ -205,7 +163,7 @@
     box-sizing: border-box;
     display: flex;
     flex-direction: column;
-    gap: 12px;
+    gap: 10px;
 }
 
 .mv-card::before {
@@ -223,33 +181,6 @@
 
 .mv-visao::before {
     background: linear-gradient(90deg, #7DB9DF, rgba(125, 185, 223, 0.2));
-}
-
-.mv-header {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-}
-
-.mv-icon {
-    width: 36px;
-    height: 36px;
-    border-radius: 8px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1rem;
-    flex-shrink: 0;
-}
-
-.mv-missao .mv-icon {
-    background: rgba(185, 113, 218, 0.12);
-    color: var(--border-color-2);
-}
-
-.mv-visao .mv-icon {
-    background: rgba(125, 185, 223, 0.12);
-    color: var(--border-color-1);
 }
 
 .mv-card h3 {

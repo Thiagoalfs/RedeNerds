@@ -319,8 +319,8 @@ $cardLastFour = null;
 $mpUrl = "https://api.mercadopago.com/v1/payments";
 
 $itemDescricao = ($tipoProduto === 'chave')
-    ? "RedeNerds - {$quantidade}x {$itemNome} ({$servidor}) - Jogador: {$nick}"
-    : "RedeNerds - {$itemNome} ({$servidor}) - Jogador: {$nick}";
+    ? "Rede Nerd - {$quantidade}x {$itemNome} ({$servidor}) - Jogador: {$nick}"
+    : "Rede Nerd - {$itemNome} ({$servidor}) - Jogador: {$nick}";
 
 $mpPayload = [
     "transaction_amount" => (float)$valorReal,

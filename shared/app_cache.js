@@ -1,6 +1,6 @@
 /**
  * app_cache.js - Sistema de Cache Inteligente em LocalStorage com Revalidação Condicional (ETag / HTTP 304)
- * Rede Nerds
+ * Rede Nerd
  */
 
 (function (global) {
@@ -59,7 +59,7 @@
         },
 
         /**
-         * Limpa todo o cache gerenciado pela Rede Nerds no localStorage
+         * Limpa todo o cache gerenciado pela Rede Nerd no localStorage
          */
         clearAll() {
             try {

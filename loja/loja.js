@@ -1,5 +1,5 @@
 /**
- * loja.js - Controlador Oficial da Loja (Rede Nerds)
+ * loja.js - Controlador Oficial da Loja (Rede Nerd)
  * Gerencia identificação do jogador, abas de servidor, checkout multi-método modular (PIX e Cartão de Crédito).
  */
 

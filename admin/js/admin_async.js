@@ -1,5 +1,5 @@
 /**
- * admin_async.js - Gerenciador de Operações Assíncronas do Admin (Rede Nerds)
+ * admin_async.js - Gerenciador de Operações Assíncronas do Admin (Rede Nerd)
  * Fornece Toasts flutuantes, requisições AJAX unificadas com CSRF,
  * ações instantâneas de toggle/delete e controle de modais sem reload.
  */

@@ -1,6 +1,6 @@
 <?php
 /**
- * wiki_helper.php - Funções e Utilitários da Wiki (Rede Nerds)
+ * wiki_helper.php - Funções e Utilitários da Wiki (Rede Nerd)
  */
 
 if (!function_exists('isWikiHabilitada')) {

@@ -32,7 +32,7 @@ if (!$wikiHabilitada && !$isAdmin) {
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Wiki Indisponível - Rede Nerds</title>
+        <title>Wiki Indisponível - Rede Nerd</title>
         <link rel="icon" type="image/x-icon" href="/assets/images/logo.webp">
         <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
@@ -51,7 +51,7 @@ if (!$wikiHabilitada && !$isAdmin) {
         <div class="m-card">
             <i class="fa-solid fa-book-bookmark m-icon"></i>
             <h1>Wiki Temporariamente Indisponível</h1>
-            <p>A documentação e base de conhecimento da Rede Nerds está passando por atualizações.</p>
+            <p>A documentação e base de conhecimento da Rede Nerd está passando por atualizações.</p>
             <a href="/" class="btn-home"><i class="fa-solid fa-house"></i> Voltar ao Início</a>
         </div>
     </body>
@@ -68,8 +68,8 @@ $dropdownLabel = "Selecione o servidor";
 if ($servidorAtual && !empty($servidorAtual['servername'])) {
     $dropdownLabel = $servidorAtual['servername'];
 }
-$ogTitle = $ogTitle ?? ($tituloPagina . " - Wiki Rede Nerds");
-$ogDescription = $ogDescription ?? "Central de documentação, guias de modpacks, tutoriais e comandos dos servidores da Rede Nerds.";
+$ogTitle = $ogTitle ?? ($tituloPagina . " - Wiki Rede Nerd");
+$ogDescription = $ogDescription ?? "Central de documentação, guias de modpacks, tutoriais e comandos dos servidores da Rede Nerd.";
 $ogImage = $ogImage ?? (!empty($servidorAtual['icon']) && strpos($servidorAtual['icon'], 'http') === 0 ? $servidorAtual['icon'] : "https://redenerds.com.br/assets/images/logo.webp");
 $ogUrl = $ogUrl ?? ("https://redenerds.com.br" . ($_SERVER['REQUEST_URI'] ?? '/wiki/'));
 $themeColor = $themeColor ?? ($servidorAtual['themecolor'] ?? '#6366f1');
@@ -79,12 +79,12 @@ $themeColor = $themeColor ?? ($servidorAtual['themecolor'] ?? '#6366f1');
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?php echo htmlspecialchars($tituloPagina, ENT_QUOTES, 'UTF-8'); ?> - Wiki Rede Nerds</title>
+    <title><?php echo htmlspecialchars($tituloPagina, ENT_QUOTES, 'UTF-8'); ?> - Wiki Rede Nerd</title>
     <link rel="icon" type="image/x-icon" href="/assets/images/logo.webp">
     
     <!-- OPEN GRAPH / DISCORD EMBEDS -->
     <meta name="theme-color" content="<?php echo htmlspecialchars($themeColor, ENT_QUOTES, 'UTF-8'); ?>">
-    <meta property="og:site_name" content="Rede Nerds • Wiki Oficial">
+    <meta property="og:site_name" content="Rede Nerd • Wiki Oficial">
     <meta property="og:type" content="<?php echo !empty($isArticle) ? 'article' : 'website'; ?>">
     <meta property="og:title" content="<?php echo htmlspecialchars($ogTitle, ENT_QUOTES, 'UTF-8'); ?>">
     <meta property="og:description" content="<?php echo htmlspecialchars($ogDescription, ENT_QUOTES, 'UTF-8'); ?>">
@@ -104,7 +104,7 @@ $themeColor = $themeColor ?? ($servidorAtual['themecolor'] ?? '#6366f1');
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     
-    <!-- DESIGN TOKENS OFICIAIS DA REDE NERDS -->
+    <!-- DESIGN TOKENS OFICIAIS DA REDE NERD -->
     <link rel="stylesheet" href="/shared/tokens.css?v=1">
 
     <!-- CSS DA WIKI (Compatível tanto em /wiki/ quanto em root) -->
@@ -117,8 +117,8 @@ $themeColor = $themeColor ?? ($servidorAtual['themecolor'] ?? '#6366f1');
             <!-- LADO ESQUERDO: BRAND + DROPDOWN LADO A LADO -->
             <div class="wiki-nav-left d-flex align-items-center gap-3">
                 <a href="https://redenerds.com.br/" class="wiki-brand">
-                    <img src="/assets/images/logo.webp" alt="Rede Nerds" onerror="this.src='../assets/images/logo.webp'">
-                    <span>Rede Nerds</span>
+                    <img src="/assets/images/logo.webp" alt="Rede Nerd" onerror="this.src='../assets/images/logo.webp'">
+                    <span>Rede Nerd</span>
                     <span class="wiki-brand-tag">Wiki</span>
                 </a>
 

@@ -180,7 +180,7 @@ document.addEventListener("DOMContentLoaded", () => {
             return;
         }
 
-        document.title = (news.titulo || "Novidade") + " - RedeNerds";
+        document.title = (news.titulo || "Novidade") + " - Rede Nerd";
 
         const safeSetMeta = (sel, attr, val) => {
             const el = document.querySelector(sel);

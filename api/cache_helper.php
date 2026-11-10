@@ -1,7 +1,7 @@
 <?php
 /**
  * cache_helper.php
- * Utilitário central de controle de cache, ETags e invalidação para APIs da Rede Nerds.
+ * Utilitário central de controle de cache, ETags e invalidação para APIs da Rede Nerd.
  */
 
 /**

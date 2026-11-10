@@ -8,7 +8,7 @@ if (!defined('DISCORD_WEBHOOKS')) {
 }
 
 /**
- * Converte caminhos relativos de upload para URLs absolutas da Rede Nerds.
+ * Converte caminhos relativos de upload para URLs absolutas da Rede Nerd.
  */
 function formatarUrlCapaDiscord($capa) {
     if (empty($capa)) {
@@ -90,7 +90,7 @@ function enviarWebhookDiscord($categoriaEnvio, $titulo, $conteudo, $autor, $capa
     $curlOpts = [
         CURLOPT_HTTPHEADER => [
             'Content-Type: application/json',
-            'User-Agent: DiscordBot (RedeNerds, 1.0)'
+            'User-Agent: DiscordBot (Rede Nerd, 1.0)'
         ],
         CURLOPT_POST => true,
         CURLOPT_POSTFIELDS => $payload,
@@ -176,7 +176,7 @@ function editarWebhookDiscord($categoriaEnvio, $mensagemID, $titulo, $conteudo, 
     $curlOpts = [
         CURLOPT_HTTPHEADER => [
             'Content-Type: application/json',
-            'User-Agent: DiscordBot (RedeNerds, 1.0)'
+            'User-Agent: DiscordBot (Rede Nerd, 1.0)'
         ],
         CURLOPT_CUSTOMREQUEST => 'PATCH',
         CURLOPT_POSTFIELDS => $payload,
@@ -229,7 +229,7 @@ function deletarWebhookDiscord($categoriaEnvio, $mensagemID) {
     $ch = curl_init($url);
     $curlOpts = [
         CURLOPT_HTTPHEADER => [
-            'User-Agent: DiscordBot (RedeNerds, 1.0)'
+            'User-Agent: DiscordBot (Rede Nerd, 1.0)'
         ],
         CURLOPT_CUSTOMREQUEST => 'DELETE',
         CURLOPT_RETURNTRANSFER => true,

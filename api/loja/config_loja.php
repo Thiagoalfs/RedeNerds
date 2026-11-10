@@ -89,9 +89,9 @@ function extrairDadosDescricaoPagamento(string $descricao, array $paymentInfo = 
 
     // Se a metadata não contiver todos os dados, extrai da descrição com suporte a múltiplos formatos
     if (empty($nick) || empty($itemNome)) {
-        // Formato 1: "RedeNerds - 5x Chave Mítica (Survival) - Jogador: Thiago" ou "... - Player: Thiago"
-        // Formato 2: "RedeNerds - Chave Mítica - Nick: Thiago (Survival)"
-        if (preg_match('/RedeNerds\s*-\s*(?:(\d+)x\s+)?(.*?)\s*(?:\((.*?)\))?\s*-\s*(?:Jogador|Nick|Player):\s*([a-zA-Z0-9_]+)(?:\s*\((.*?)\))?/i', $descricao, $m)) {
+        // Formato 1: "Rede Nerd - 5x Chave Mítica (Survival) - Jogador: Thiago" ou "... - Player: Thiago"
+        // Formato 2: "Rede Nerd - Chave Mítica - Nick: Thiago (Survival)"
+        if (preg_match('/Rede Nerd\s*-\s*(?:(\d+)x\s+)?(.*?)\s*(?:\((.*?)\))?\s*-\s*(?:Jogador|Nick|Player):\s*([a-zA-Z0-9_]+)(?:\s*\((.*?)\))?/i', $descricao, $m)) {
             if (!empty($m[1])) {
                 $quantidade = (int)$m[1];
                 $tipoProduto = 'chave';

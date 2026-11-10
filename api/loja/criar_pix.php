@@ -224,8 +224,8 @@ $paisIp = obterPaisIp();
 $mpUrl = "https://api.mercadopago.com/v1/payments";
 
 $itemDescricao = ($tipoProduto === 'chave') 
-    ? "RedeNerds - {$quantidade}x {$itemNome} ({$servidor}) - Jogador: {$nick}"
-    : "RedeNerds - {$itemNome} ({$servidor}) - Jogador: {$nick}";
+    ? "Rede Nerd - {$quantidade}x {$itemNome} ({$servidor}) - Jogador: {$nick}"
+    : "Rede Nerd - {$itemNome} ({$servidor}) - Jogador: {$nick}";
 
 // Define a expiração oficial no Mercado Pago (mínimo de 30 minutos aceito pela API)
 $dateOfExpiration = (new DateTime('+30 minutes', new DateTimeZone('America/Sao_Paulo')))->format('Y-m-d\TH:i:s.000P');

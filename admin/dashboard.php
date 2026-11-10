@@ -179,7 +179,7 @@ $percCartao = $totalMetodosQtd > 0 ? (100 - $percPix) : 0;
 <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-4">
     <div>
         <h4 class="fw-bold mb-1">Olá, <?php echo htmlspecialchars($nome_usuario, ENT_QUOTES, 'UTF-8'); ?></h4>
-        <p class="text-muted small mb-0">Resumo consolidado em tempo real da saúde da Rede Nerds.</p>
+        <p class="text-muted small mb-0">Resumo consolidado em tempo real da saúde da Rede Nerd.</p>
     </div>
     <div class="d-flex gap-2 flex-wrap">
         <a href="/admin/noticias/?action=novo" class="btn btn-primary btn-sm"><i class="fa-solid fa-plus me-1"></i> Nova Novidade</a>
