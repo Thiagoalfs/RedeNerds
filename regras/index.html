@@ -6,7 +6,7 @@
     <title>Regras - Rede Nerds</title>
 
     <meta name="description" content="Conheça as regras de convivência e diretrizes da comunidade e servidores da Rede Nerds.">
-    <meta name="keywords" content="regras minecraft, diretrizes rede nerds, punições minecraft, conduta rede nerds">
+    <meta name="keywords" content="regras rede nerds, regras minecraft, conduta minecraft, punicoes servidor minecraft">
     <meta name="author" content="RedeNerds">
     <meta name="robots" content="index, follow">
 
@@ -23,10 +23,10 @@
     <meta name="twitter:image" content="https://redenerds.com.br/assets/images/logo.webp">
 
     <link rel="icon" type="image/x-icon" href="/assets/images/logo.webp">
-    <link rel="stylesheet" href="/shared/shared.css?v=22">
+    <link rel="stylesheet" href="/shared/shared.css?v=23">
     <link rel="stylesheet" href="/shared/navbar.css?v=14">
     <link rel="stylesheet" href="/shared/footer.css?v=6">
-    <link rel="stylesheet" href="regras.css?v=2">
+    <link rel="stylesheet" href="regras.css?v=15">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
 </head>
 <body>
@@ -42,87 +42,448 @@
                 </div>
             </div>
         </div>
-        <main id="container">
-            <details class="regra-item">
-                <summary>1. Respeite todos os jogadores.</summary>
-                <div class="regra-answer">
-                    Trate todos os jogadores e membros da equipe com respeito. É proibido qualquer tipo de ofensa, discriminação, assédio, preconceito ou comportamento tóxico.
-                </div>
-            </details>
 
-            <details class="regra-item">
-                <summary>2. Proibido spam, flood e divulgações.</summary>
-                <div class="regra-answer">
-                    Spam, flood e mensagens repetitivas são proibidos. Não divulgue outros servidores, redes ou comunidades sem autorização da administração.
+        <main id="container" class="regras-layout">
+            <!-- SIDEBAR STICKY (ESQUERDA) -->
+            <aside class="regras-sidebar" aria-label="Categorias de Regras">
+                <div class="sidebar-sticky-wrapper">
+                    <nav class="sidebar-nav" id="regras-nav">
+                        <a href="#cat-0" class="sidebar-link active" data-target="cat-0">
+                            <span class="cat-num">00</span>
+                            <span class="cat-label">Resumo</span>
+                        </a>
+                        <a href="#cat-1" class="sidebar-link" data-target="cat-1">
+                            <span class="cat-num">01</span>
+                            <span class="cat-label">Aceite das Regras</span>
+                        </a>
+                        <a href="#cat-2" class="sidebar-link" data-target="cat-2">
+                            <span class="cat-num">02</span>
+                            <span class="cat-label">Comportamento</span>
+                        </a>
+                        <a href="#cat-3" class="sidebar-link" data-target="cat-3">
+                            <span class="cat-num">03</span>
+                            <span class="cat-label">Chat</span>
+                        </a>
+                        <a href="#cat-4" class="sidebar-link" data-target="cat-4">
+                            <span class="cat-num">04</span>
+                            <span class="cat-label">Trapaças e Exploits</span>
+                        </a>
+                        <a href="#cat-5" class="sidebar-link" data-target="cat-5">
+                            <span class="cat-num">05</span>
+                            <span class="cat-label">Construções e Terrenos</span>
+                        </a>
+                        <a href="#cat-6" class="sidebar-link" data-target="cat-6">
+                            <span class="cat-num">06</span>
+                            <span class="cat-label">Combate e Economia</span>
+                        </a>
+                        <a href="#cat-7" class="sidebar-link" data-target="cat-7">
+                            <span class="cat-num">07</span>
+                            <span class="cat-label">Desempenho e Máquinas</span>
+                        </a>
+                        <a href="#cat-8" class="sidebar-link" data-target="cat-8">
+                            <span class="cat-num">08</span>
+                            <span class="cat-label">Chunk Loading</span>
+                        </a>
+                        <a href="#cat-9" class="sidebar-link" data-target="cat-9">
+                            <span class="cat-num">09</span>
+                            <span class="cat-label">Itens Banidos</span>
+                        </a>
+                        <a href="#cat-10" class="sidebar-link" data-target="cat-10">
+                            <span class="cat-num">10</span>
+                            <span class="cat-label">Reembolso de Itens</span>
+                        </a>
+                        <a href="#cat-11" class="sidebar-link" data-target="cat-11">
+                            <span class="cat-num">11</span>
+                            <span class="cat-label">Denúncias e Suporte</span>
+                        </a>
+                        <a href="#cat-12" class="sidebar-link" data-target="cat-12">
+                            <span class="cat-num">12</span>
+                            <span class="cat-label">Punições</span>
+                        </a>
+                    </nav>
                 </div>
-            </details>
+            </aside>
 
-            <details class="regra-item">
-                <summary>3. Não use hacks, cheats ou exploits.</summary>
-                <div class="regra-answer">
-                    É proibido utilizar Hack, Cheat, X-Ray, clientes modificados ou qualquer programa que forneça vantagens indevidas. Também é proibido abusar de bugs, glitches ou exploits. Caso encontre algum, informe imediatamente à equipe.
-                </div>
-            </details>
+            <!-- CONTEÚDO DAS REGRAS (DIREITA) -->
+            <div class="regras-content" id="regras-content">
+                <!-- Categoria 00: Resumo -->
+                <section id="cat-0" class="regra-section" data-section="cat-0">
+                    <header class="section-category-header">
+                        <h2 class="section-heading"><span class="category-number">0</span> Resumo</h2>
+                    </header>
+                    <div class="tldr-card">
+                        <div class="tldr-grid">
+                            <div class="tldr-item">
+                                <span class="tldr-bullet"></span>
+                                <div class="tldr-text"><strong>Respeite todos:</strong> Ofensa, preconceito, assédio e toxicidade geram banimento.</div>
+                            </div>
+                            <div class="tldr-item">
+                                <span class="tldr-bullet"></span>
+                                <div class="tldr-text"><strong>Trapaças proibidas:</strong> Nada de X-Ray, cheats, autoclicker, macros ou mods ilegais.</div>
+                            </div>
+                            <div class="tldr-item">
+                                <span class="tldr-bullet"></span>
+                                <div class="tldr-text"><strong>Achou um bug?</strong> Não teste nem divulgue. Abra um ticket no Discord na hora.</div>
+                            </div>
+                            <div class="tldr-item">
+                                <span class="tldr-bullet"></span>
+                                <div class="tldr-text"><strong>Proteção e Terrenos:</strong> Proibido griefing e claims no Nether ou no The End.</div>
+                            </div>
+                            <div class="tldr-item">
+                                <span class="tldr-bullet"></span>
+                                <div class="tldr-text"><strong>PvP em mundo aberto:</strong> Desativado. Combates apenas em arenas e eventos.</div>
+                            </div>
+                            <div class="tldr-item">
+                                <span class="tldr-bullet"></span>
+                                <div class="tldr-text"><strong>Comércio justo:</strong> Proibido golpes em trades e comércio por dinheiro real (RMT).</div>
+                            </div>
+                            <div class="tldr-item">
+                                <span class="tldr-bullet"></span>
+                                <div class="tldr-text"><strong>Chunk loading proibido:</strong> Vedado qualquer sistema que mantenha chunks ativas.</div>
+                            </div>
+                            <div class="tldr-item">
+                                <span class="tldr-bullet"></span>
+                                <div class="tldr-text"><strong>Itens banidos e perdas:</strong> Proibido itens banidos. Sem devolução por mortes comuns.</div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
 
-            <details class="regra-item">
-                <summary>4. Não destrua construções de outros jogadores, grife ou roube.</summary>
-                <div class="regra-answer">
-                    Não destrua, roube ou modifique construções de outros jogadores sem autorização. Respeite o espaço entre bases e evite construções muito próximas sem consentimento.
-                </div>
-            </details>
+                <!-- Categoria 01: Aceite das Regras -->
+                <section id="cat-1" class="regra-section" data-section="cat-1">
+                    <header class="section-category-header">
+                        <h2 class="section-heading"><span class="category-number">1</span> Aceite das Regras</h2>
+                    </header>
+                    <div class="regra-cards-list">
+                        <article class="regra-card">
+                            <div class="regra-card-header">
+                                <span class="regra-card-num">1.1</span>
+                                <h3 class="regra-card-title">Ciência e Concordância</h3>
+                            </div>
+                            <p class="regra-card-text">
+                                Ao jogar na RedeNerd, você afirma expressamente que leu, compreendeu e concorda com todas as regras e diretrizes estabelecidas pela nossa comunidade.
+                            </p>
+                        </article>
+                        <article class="regra-card">
+                            <div class="regra-card-header">
+                                <span class="regra-card-num">1.2</span>
+                                <h3 class="regra-card-title">Desconhecimento das Diretrizes</h3>
+                            </div>
+                            <p class="regra-card-text">
+                                O desconhecimento ou a alegação de não leitura das regras não isenta nenhum jogador da aplicação de advertências, punições ou banimento.
+                            </p>
+                        </article>
+                    </div>
+                </section>
 
-            <details class="regra-item">
-                <summary>5. PvP apenas em eventos.</summary>
-                <div class="regra-answer">
-                    Nosso servidor foca na experiência PvE (Jogador contra Ambiente) e cooperação. O combate entre jogadores (PvP) está desativado no mundo aberto e só é permitido em arenas específicas ou durante eventos organizados pela staff.
-                </div>
-            </details>
+                <!-- Categoria 02: Comportamento -->
+                <section id="cat-2" class="regra-section" data-section="cat-2">
+                    <header class="section-category-header">
+                        <h2 class="section-heading"><span class="category-number">2</span> Comportamento</h2>
+                    </header>
+                    <div class="regra-cards-list">
+                        <article class="regra-card">
+                            <div class="regra-card-header">
+                                <span class="regra-card-num">2.1</span>
+                                <h3 class="regra-card-title">Respeito Mútuo e Convivência</h3>
+                            </div>
+                            <p class="regra-card-text">
+                                Trate todos os jogadores e membros da equipe com respeito. É terminantemente proibido qualquer tipo de ofensa, preconceito, assédio, discriminação, intolerância ou comportamento tóxico dentro do servidor ou no Discord.
+                            </p>
+                        </article>
+                    </div>
+                </section>
 
-            <details class="regra-item">
-                <summary>6. Não crie máquinas, farms ou sistemas que causem lag.</summary>
-                <div class="regra-answer">
-                    Máquinas, farms ou sistemas automáticos que causem lag poderão ser removidos sem aviso prévio. O jogador poderá ser punido caso insista em prejudicar o desempenho do servidor.
-                </div>
-            </details>
+                <!-- Categoria 03: Chat -->
+                <section id="cat-3" class="regra-section" data-section="cat-3">
+                    <header class="section-category-header">
+                        <h2 class="section-heading"><span class="category-number">3</span> Chat</h2>
+                    </header>
+                    <div class="regra-cards-list">
+                        <article class="regra-card">
+                            <div class="regra-card-header">
+                                <span class="regra-card-num">3.1</span>
+                                <h3 class="regra-card-title">Spam e Flood</h3>
+                            </div>
+                            <p class="regra-card-text">
+                                Spam, flood de mensagens repetitivas e uso excessivo de caixa alta (Caps Lock) são proibidos.
+                            </p>
+                        </article>
+                        <article class="regra-card">
+                            <div class="regra-card-header">
+                                <span class="regra-card-num">3.2</span>
+                                <h3 class="regra-card-title">Divulgação Não Autorizada</h3>
+                            </div>
+                            <p class="regra-card-text">
+                                É proibida qualquer forma de divulgação não autorizada pela administração:
+                            </p>
+                            <ul class="regra-list">
+                                <li class="regra-list-item"><strong>Conteúdo proibido:</strong> Servidores, comunidades, lojas, redes sociais ou serviços externos.</li>
+                                <li class="regra-list-item"><strong>Canais vedados:</strong> Chat global, mensagens privadas, placas, livros, nomes de itens ou qualquer outro meio dentro do servidor.</li>
+                            </ul>
+                        </article>
+                    </div>
+                </section>
 
-            <details class="regra-item">
-                <summary>7. Proibido qualquer uso de chunk loader.</summary>
-                <div class="regra-answer">
-                    O uso de Chunk Loaders é totalmente proibido. Tentativas de burlar essa regra resultarão em punição. Reincidência poderá levar ao banimento permanente.
-                </div>
-            </details>
+                <!-- Categoria 04: Trapaças e Exploits -->
+                <section id="cat-4" class="regra-section" data-section="cat-4">
+                    <header class="section-category-header">
+                        <h2 class="section-heading"><span class="category-number">4</span> Trapaças e Exploits</h2>
+                    </header>
+                    <div class="regra-cards-list">
+                        <article class="regra-card">
+                            <div class="regra-card-header">
+                                <span class="regra-card-num">4.1</span>
+                                <h3 class="regra-card-title">Proibição de Hacks, Cheats e Vantagens Indevidas</h3>
+                            </div>
+                            <p class="regra-card-text">
+                                É expressamente proibido o uso de Hack, Cheat, X-Ray, macros abusivos, autoclickers desmedidos, clientes modificados ou qualquer programa externo que proporcione vantagens injustas sobre os demais jogadores.
+                            </p>
+                        </article>
+                        <article class="regra-card">
+                            <div class="regra-card-header">
+                                <span class="regra-card-num">4.2</span>
+                                <h3 class="regra-card-title">Abuso de Bugs e Glitches</h3>
+                            </div>
+                            <p class="regra-card-text">
+                                É proibido aproveitar qualquer bug, duplicação, falha de máquina, glitch ou comportamento não intencional para obter vantagem. A utilização consciente de bugs poderá resultar em punição e remoção dos itens envolvidos.
+                            </p>
+                            <div class="regra-callout">
+                                Caso encontre algo suspeito, não teste repetidamente e não divulgue para outros jogadores. Abra um ticket e informe a staff.
+                            </div>
+                        </article>
+                    </div>
+                </section>
 
-            <details class="regra-item">
-                <summary>8. Proibido criar Claims no Nether ou no The End.</summary>
-                <div class="regra-answer">
-                    Claims irregulares serão removidos pela equipe, podendo gerar punições ao responsável.
-                </div>
-            </details>
+                <!-- Categoria 05: Construções e Terrenos -->
+                <section id="cat-5" class="regra-section" data-section="cat-5">
+                    <header class="section-category-header">
+                        <h2 class="section-heading"><span class="category-number">5</span> Construções e Terrenos</h2>
+                    </header>
+                    <div class="regra-cards-list">
+                        <article class="regra-card">
+                            <div class="regra-card-header">
+                                <span class="regra-card-num">5.1</span>
+                                <h3 class="regra-card-title">Proteção contra Griefing e Depredação</h3>
+                            </div>
+                            <p class="regra-card-text">
+                                É proibido depredar, destruir, alterar ou interferir em construções que não sejam suas:
+                            </p>
+                            <ul class="regra-list">
+                                <li class="regra-list-item"><strong>Propriedade alheia:</strong> Respeite bases, baús, máquinas e terrenos de outros jogadores.</li>
+                                <li class="regra-list-item"><strong>Áreas públicas:</strong> Não é permitido remover blocos, decorações ou instalações da cidade e espaços coletivos.</li>
+                            </ul>
+                        </article>
+                        <article class="regra-card">
+                            <div class="regra-card-header">
+                                <span class="regra-card-num">5.2</span>
+                                <h3 class="regra-card-title">Regras de Claims no Nether e The End</h3>
+                            </div>
+                            <p class="regra-card-text">
+                                É estritamente proibido criar Claims no Nether ou no The End. Quaisquer proteções de terreno criadas nessas dimensões serão removidas pela equipe, podendo acarretar punições aos responsáveis.
+                            </p>
+                        </article>
+                    </div>
+                </section>
 
-            <details class="regra-item">
-                <summary>9. Todo comércio deve ser justo.</summary>
-                <div class="regra-answer">
-                    Golpes, fraudes ou tentativas de enganar outros jogadores são proibidos.
-                </div>
-            </details>
+                <!-- Categoria 06: Combate e Economia -->
+                <section id="cat-6" class="regra-section" data-section="cat-6">
+                    <header class="section-category-header">
+                        <h2 class="section-heading"><span class="category-number">6</span> Combate e Economia</h2>
+                    </header>
+                    <div class="regra-cards-list">
+                        <article class="regra-card">
+                            <div class="regra-card-header">
+                                <span class="regra-card-num">6.1</span>
+                                <h3 class="regra-card-title">PvP Apenas em Arenas e Eventos</h3>
+                            </div>
+                            <p class="regra-card-text">
+                                Nossos servidores são voltados à cooperação e sobrevivência PvE (Jogador contra Ambiente). O combate PvP em mundo aberto fica permanentemente desativado, sendo liberado apenas em arenas dedicadas ou durante eventos especiais promovidos pela staff.
+                            </p>
+                        </article>
+                        <article class="regra-card">
+                            <div class="regra-card-header">
+                                <span class="regra-card-num">6.2</span>
+                                <h3 class="regra-card-title">Comércio Justo e Sem Fraudes</h3>
+                            </div>
+                            <p class="regra-card-text">
+                                Todas as negociações, trocas e vendas de itens entre jogadores devem ser justas e honestas. Golpes, roubos durante trades, estelionato ou tentativas de enganar terceiros resultarão em punição severa e irrevogável.
+                            </p>
+                        </article>
+                    </div>
+                </section>
 
-            <details class="regra-item">
-                <summary>10. Em relação a itens perdidos.</summary>
-                <div class="regra-answer">
-                    Itens perdidos devido a crash, rollback, restart ou qualquer problema técnico só serão devolvidos mediante provas (prints, vídeos ou registros suficientes). Sem comprovação, não haverá reembolso.
-                </div>
-            </details>
+                <!-- Categoria 07: Desempenho e Máquinas -->
+                <section id="cat-7" class="regra-section" data-section="cat-7">
+                    <header class="section-category-header">
+                        <h2 class="section-heading"><span class="category-number">7</span> Desempenho e Máquinas</h2>
+                    </header>
+                    <div class="regra-cards-list">
+                        <article class="regra-card">
+                            <div class="regra-card-header">
+                                <span class="regra-card-num">7.1</span>
+                                <h3 class="regra-card-title">Controle de Desempenho e Prevenção de Lag</h3>
+                            </div>
+                            <p class="regra-card-text">
+                                Evite estruturas ou sistemas feitos propositalmente para gerar grande quantidade de entidades, itens no chão, partículas ou atualizações de bloco. Máquinas que causem lag excessivo poderão ser desligadas ou removidas pela staff.
+                            </p>
+                            <div class="regra-callout">
+                                Caso um sistema esteja prejudicando o desempenho do servidor, a administração poderá solicitar alterações mesmo que os blocos utilizados não estejam na lista de itens banidos.
+                            </div>
+                        </article>
+                    </div>
+                </section>
 
-            <details class="regra-item">
-                <summary>11. As decisões da equipe são finais.</summary>
-                <div class="regra-answer">
-                    Caso uma situação não esteja prevista nas regras, a administração poderá agir conforme julgar necessário para manter a ordem do servidor.
-                </div>
-            </details>
+                <!-- Categoria 08: Chunk Loading -->
+                <section id="cat-8" class="regra-section" data-section="cat-8">
+                    <header class="section-category-header">
+                        <h2 class="section-heading"><span class="category-number">8</span> Chunk Loading</h2>
+                    </header>
+                    <div class="regra-cards-list">
+                        <article class="regra-card">
+                            <div class="regra-card-header">
+                                <span class="regra-card-num">8.1</span>
+                                <h3 class="regra-card-title">Proibição de Sistemas de Chunk Loading</h3>
+                            </div>
+                            <p class="regra-card-text">
+                                É estritamente proibido utilizar qualquer sistema que mantenha chunks carregadas à distância:
+                            </p>
+                            <ul class="regra-list">
+                                <li class="regra-list-item"><strong>Métodos proibidos:</strong> Blocos, upgrades, máquinas, acessórios, glitches ou mecanismos para manter áreas ativas sem jogador próximo.</li>
+                                <li class="regra-list-item"><strong>Tentativa de contorno:</strong> É vedado burlar esta diretriz através de métodos ou sistemas alternativos de carregamento.</li>
+                            </ul>
+                        </article>
+                    </div>
+                </section>
+
+                <!-- Categoria 09: Itens Banidos -->
+                <section id="cat-9" class="regra-section" data-section="cat-9">
+                    <header class="section-category-header">
+                        <h2 class="section-heading"><span class="category-number">9</span> Itens Banidos</h2>
+                    </header>
+                    <div class="regra-cards-list">
+                        <article class="regra-card">
+                            <div class="regra-card-header">
+                                <span class="regra-card-num">9.1</span>
+                                <h3 class="regra-card-title">Diretrizes sobre Itens Proibidos</h3>
+                            </div>
+                            <ul class="regra-list">
+                                <li class="regra-list-item"><strong>Posse e repasse:</strong> Proibido usar, armazenar, esconder, emprestar ou repassar itens banidos e suas versões alternativas.</li>
+                                <li class="regra-list-item"><strong>Obtenção acidental:</strong> Se obtiver um item proibido por engano, não o utilize e notifique a staff imediatamente via ticket.</li>
+                                <li class="regra-list-item"><strong>Exploits e burlas:</strong> Explorar bugs ou receitas alternativas para obter itens restritos é considerado infração grave.</li>
+                            </ul>
+                        </article>
+                    </div>
+                </section>
+
+                <!-- Categoria 10: Reembolso de Itens -->
+                <section id="cat-10" class="regra-section" data-section="cat-10">
+                    <header class="section-category-header">
+                        <h2 class="section-heading"><span class="category-number">10</span> Reembolso de Itens</h2>
+                    </header>
+                    <div class="regra-cards-list">
+                        <article class="regra-card">
+                            <div class="regra-card-header">
+                                <span class="regra-card-num">10.1</span>
+                                <h3 class="regra-card-title">Critérios para Reembolso de Itens</h3>
+                            </div>
+                            <p class="regra-card-text">
+                                Itens perdidos em decorrência de crashes inesperados, reinicializações ou instabilidades técnicas só serão passíveis de análise mediante provas cabais.
+                            </p>
+                            <div class="regra-callout">
+                                É indispensável a apresentação de gravações em vídeo ou capturas de tela com inventário legível. Sem comprovação idônea, não haverá reembolso.
+                            </div>
+                        </article>
+                        <article class="regra-card">
+                            <div class="regra-card-header">
+                                <span class="regra-card-num">10.2</span>
+                                <h3 class="regra-card-title">Mortes Convencionais e Chamados Indevidos</h3>
+                            </div>
+                            <p class="regra-card-text">
+                                A staff não realiza teleporte, recuperação ou devolução de itens decorrentes de mortes normais no jogo.
+                            </p>
+                            <div class="regra-callout">
+                                Chamados como <em>“Morri a 10 mil blocos e perdi meus itens.”</em> não são responsabilidade da equipe e não devem ser abertos no suporte.
+                            </div>
+                        </article>
+                        <article class="regra-card">
+                            <div class="regra-card-header">
+                                <span class="regra-card-num">10.3</span>
+                                <h3 class="regra-card-title">Itens Perdidos em Mundos de Exploração</h3>
+                            </div>
+                            <p class="regra-card-text">
+                                Os mundos destinados à exploração (Mundo de Mineração, Nether e End) possuem risco por conta do próprio jogador. Itens perdidos por morte, roubados ou deixados para trás nesses mundos não serão devolvidos pela staff.
+                            </p>
+                        </article>
+                    </div>
+                </section>
+
+                <!-- Categoria 11: Denúncias e Suporte -->
+                <section id="cat-11" class="regra-section" data-section="cat-11">
+                    <header class="section-category-header">
+                        <h2 class="section-heading"><span class="category-number">11</span> Denúncias e Suporte</h2>
+                    </header>
+                    <div class="regra-cards-list">
+                        <article class="regra-card">
+                            <div class="regra-card-header">
+                                <span class="regra-card-num">11.1</span>
+                                <h3 class="regra-card-title">Canal Oficial de Atendimento</h3>
+                            </div>
+                            <p class="regra-card-text">
+                                Denúncias, problemas e pedidos de suporte são feitos exclusivamente por ticket no Discord. Não exponha denúncias no chat público.
+                            </p>
+                        </article>
+                        <article class="regra-card">
+                            <div class="regra-card-header">
+                                <span class="regra-card-num">11.2</span>
+                                <h3 class="regra-card-title">Critérios de Prova e Investigação</h3>
+                            </div>
+                            <p class="regra-card-text">
+                                Denúncias sem prova podem ser indeferidas. A staff usa logs para ajudar, mas registrar trocas e acordos importantes é responsabilidade de quem joga.
+                            </p>
+                            <div class="regra-callout">
+                                Sempre que abrir um ticket, anexe vídeos, coordenadas e horários, nomes dos envolvidos e uma descrição detalhada do que aconteceu.
+                            </div>
+                        </article>
+                    </div>
+                </section>
+
+                <!-- Categoria 12: Punições -->
+                <section id="cat-12" class="regra-section" data-section="cat-12">
+                    <header class="section-category-header">
+                        <h2 class="section-heading"><span class="category-number">12</span> Punições</h2>
+                    </header>
+                    <div class="regra-cards-list">
+                        <article class="regra-card">
+                            <div class="regra-card-header">
+                                <span class="regra-card-num">12.1</span>
+                                <h3 class="regra-card-title">Soberania das Decisões da Staff</h3>
+                            </div>
+                            <p class="regra-card-text">
+                                As decisões da equipe de administração são finais. Caso ocorra uma situação atípica ou não prevista neste regulamento, a staff tem total autoridade para agir conforme julgar necessário para resguardar a ordem e a harmonia do servidor.
+                            </p>
+                        </article>
+                        <article class="regra-card">
+                            <div class="regra-card-header">
+                                <span class="regra-card-num">12.2</span>
+                                <h3 class="regra-card-title">Aplicação e Duração de Punições</h3>
+                            </div>
+                            <p class="regra-card-text">
+                                O descumprimento de qualquer uma das regras estabelecidas neste regulamento poderá resultar em banimento temporário de 1 hora a 7 dias, ou mais, dependendo da gravidade da infração.
+                            </p>
+                            <div class="regra-callout">
+                                A duração da punição será determinada pela equipe administrativa, considerando a gravidade da situação, a intenção do jogador, os prejuízos causados e a reincidência.
+                            </div>
+                        </article>
+                    </div>
+                </section>
+            </div>
         </main>
     </div>
+
     <div id="footer"></div>
     <script src="/shared/navbar.js?v=21"></script>
     <script src="/shared/copy-ip.js?v=1"></script>
+    <script src="regras.js?v=2"></script>
 </body>
 </html>
