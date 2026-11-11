@@ -333,10 +333,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
                 <footer class="novidade-footer">
                     <div class="footer-actions">
-                        <button type="button" class="btn-copy-link" id="btn-copy-link-bottom">
-                            <i class="fa-solid fa-link"></i>
-                            <span>Copiar link da notícia</span>
-                        </button>
                         <a href="/#atualizacoes-section" class="btn-footer-back">
                             <i class="fa-solid fa-arrow-left"></i>
                             <span>Ver todas as novidades</span>
@@ -395,9 +391,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
         const topBtn = document.getElementById("btn-share-top");
         if (topBtn) topBtn.addEventListener("click", () => copyCurrentUrl(topBtn));
-
-        const btmBtn = document.getElementById("btn-copy-link-bottom");
-        if (btmBtn) btmBtn.addEventListener("click", () => copyCurrentUrl(btmBtn));
     }
 
     const apiUrl = `/api/novidades_api.php?id=${encodeURIComponent(id)}`;
