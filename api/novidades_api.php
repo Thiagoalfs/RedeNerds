@@ -65,6 +65,47 @@ try {
         $stmt = $db->prepare("SELECT * FROM novidades WHERE id = :id LIMIT 1");
         $stmt->execute([':id' => $id]);
         $news = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        if ($news) {
+            $autorNick = trim($news['autor'] ?? '');
+            $cargoInfo = ['cargo' => null, 'cor' => null];
+            if ($autorNick !== '') {
+                try {
+                    $stmtEq = $db->prepare("SELECT cargo FROM equipe WHERE LOWER(TRIM(nick)) = LOWER(:nick) ORDER BY id ASC LIMIT 1");
+                    $stmtEq->execute([':nick' => $autorNick]);
+                    $cargoNome = $stmtEq->fetchColumn();
+
+                    if (!$cargoNome) {
+                        $cleanNick = preg_replace('/^x+|x+$/i', '', $autorNick);
+                        if ($cleanNick !== '' && $cleanNick !== $autorNick) {
+                            $stmtEq->execute([':nick' => $cleanNick]);
+                            $cargoNome = $stmtEq->fetchColumn();
+                        }
+                    }
+                    if (!$cargoNome) {
+                        $leetNick = str_ireplace('a', '4', $autorNick);
+                        $cleanLeet = preg_replace('/^x+|x+$/i', '', $leetNick);
+                        $stmtEq->execute([':nick' => $cleanLeet]);
+                        $cargoNome = $stmtEq->fetchColumn();
+                    }
+
+                    if ($cargoNome) {
+                        $stmtCor = $db->prepare("SELECT cor FROM equipe_cargos WHERE LOWER(TRIM(nome)) = LOWER(:cargo) LIMIT 1");
+                        $stmtCor->execute([':cargo' => $cargoNome]);
+                        $corCargo = $stmtCor->fetchColumn();
+                        $cargoInfo = [
+                            'cargo' => $cargoNome,
+                            'cor'   => $corCargo ?: '#B971DA'
+                        ];
+                    }
+                } catch (Exception $e) {
+                    // Silencioso em caso de ausência de tabela
+                }
+            }
+            $news['autor_cargo'] = $cargoInfo['cargo'];
+            $news['autor_cargo_cor'] = $cargoInfo['cor'];
+        }
+
         echo json_encode($news ?? ["erro" => "Notícia não encontrada"], JSON_UNESCAPED_UNICODE);
         exit;
     }

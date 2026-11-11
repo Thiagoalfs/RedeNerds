@@ -248,6 +248,30 @@ document.addEventListener("DOMContentLoaded", () => {
             }
         }
 
+        let cargoNome = news.autor_cargo || '';
+        let cargoCor = news.autor_cargo_cor || '';
+
+        if (!cargoNome && window.AppCache) {
+            const cachedEquipe = AppCache.get('equipe');
+            if (Array.isArray(cachedEquipe)) {
+                for (const grupo of cachedEquipe) {
+                    if (grupo && Array.isArray(grupo.members)) {
+                        const match = grupo.members.find(m => String(m).trim().toLowerCase() === String(news.autor).trim().toLowerCase());
+                        if (match) {
+                            cargoNome = grupo.categoryTitle;
+                            cargoCor = grupo.cor || '#B971DA';
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+
+        if (!cargoNome) {
+            cargoNome = 'Equipe Rede Nerd';
+            cargoCor = 'var(--cat-accent, #B971DA)';
+        }
+
         container.innerHTML = `
             <div class="novidade-nav-bar">
                 <a href="/#atualizacoes-section" class="btn-voltar" id="voltar">
@@ -279,7 +303,7 @@ document.addEventListener("DOMContentLoaded", () => {
                             <img class="author-head" src="https://mc-heads.net/avatar/${safeNick}" alt="${safeAutor}" onerror="this.src='https://mc-heads.net/avatar/MHF_Steve'">
                             <div class="author-details">
                                 <span class="author-name">${safeAutor}</span>
-                                <span class="author-role">Equipe Rede Nerd</span>
+                                <span class="author-role" style="color: ${escapeHTML(cargoCor)};">${escapeHTML(cargoNome)}</span>
                             </div>
                         </div>
                         ${dataFormatada ? `
