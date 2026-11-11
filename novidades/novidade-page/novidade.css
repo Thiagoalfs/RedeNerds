@@ -1,63 +1,170 @@
-/* =========================
-   Página de detalhe da Novidade
-   Visual estilo "site de notícias"
-   ========================= */
+/* ========================================================
+   novidade.css - Página de Detalhe da Novidade (Rede Nerd)
+   Padrão Editorial Gamer / Read Mode Refinado
+   ======================================================== */
 
 #novidade-container {
-    max-width: 760px;
-    margin: 30px auto 60px auto;
+    max-width: 780px;
+    margin: 36px auto 70px auto;
     padding: 0 20px;
     box-sizing: border-box;
     width: 100%;
 }
 
-/* Botão de voltar */
-#voltar {
+/* ========================================================
+   Barra Superior de Navegação / Ações
+   ======================================================== */
+.novidade-nav-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 22px;
+}
+
+.btn-voltar {
     display: inline-flex;
     align-items: center;
     gap: 8px;
-    font-size: 0.9rem;
-    color: #a1a1aa;
+    font-family: 'Poppins', sans-serif;
+    font-size: 0.88rem;
+    font-weight: 500;
+    color: #94a3b8;
     text-decoration: none;
-    margin-bottom: 24px;
-    transition: color 0.2s ease, transform 0.2s ease;
+    padding: 6px 12px;
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    transition: color 0.18s ease, background-color 0.18s ease, border-color 0.18s ease;
 }
 
-#voltar:hover {
+.btn-voltar:hover {
     color: #ffffff;
-    transform: translateX(-3px);
+    background: rgba(255, 255, 255, 0.07);
+    border-color: rgba(255, 255, 255, 0.15);
 }
 
-/* Article */
+.btn-voltar i {
+    font-size: 0.8rem;
+    transition: transform 0.18s ease;
+}
+
+.btn-voltar:hover i {
+    transform: translateX(-2px);
+}
+
+.btn-share-top {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    font-family: 'Poppins', sans-serif;
+    font-size: 0.84rem;
+    font-weight: 500;
+    color: #94a3b8;
+    background: transparent;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 8px;
+    padding: 6px 12px;
+    cursor: pointer;
+    transition: all 0.18s ease;
+}
+
+.btn-share-top:hover {
+    color: #ffffff;
+    background: rgba(255, 255, 255, 0.06);
+    border-color: rgba(255, 255, 255, 0.18);
+}
+
+.btn-share-top.copied,
+.btn-copy-link.copied {
+    color: #10b981 !important;
+    border-color: rgba(16, 185, 129, 0.4) !important;
+    background: rgba(16, 185, 129, 0.1) !important;
+}
+
+/* ========================================================
+   Estrutura do Card de Artigo
+   ======================================================== */
 .novidade-article {
-    background: linear-gradient(180deg, #1a2030 0%, #11151d 100%);
-    border-radius: 14px;
+    position: relative;
+    background: #0e121a;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 16px;
     overflow: hidden;
-    border-top: 4px solid #2a2f3a; /* fallback neutro */
-    box-shadow:
-        0 10px 30px rgba(0, 0, 0, 0.55),
-        0 0 0 1px rgba(255, 255, 255, 0.04);
+    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.45);
+    box-sizing: border-box;
+
+    /* Variáveis padrão de categoria */
+    --cat-accent: #B971DA;
+    --cat-bg: rgba(185, 113, 218, 0.12);
+    --cat-border: rgba(185, 113, 218, 0.35);
 }
 
-.novidade-article[data-category="NerdSky" i]    { border-top-color: #B971DA; }
-.novidade-article[data-category="Potato Nerd" i] { border-top-color: #7DB9DF; }
-.novidade-article[data-category="NerdDead" i]    { border-top-color: #E85D5D; }
-.novidade-article[data-category="CobbleNerd" i]  { border-top-color: #FF5252; }
-.novidade-article[data-category="Sistemas" i]    { border-top-color: #1be4a7; }
-.novidade-article[data-category="Potato Sky" i]  { border-top-color: #2986ff; }
+/* Temas por Categoria via data-category */
+.novidade-article[data-category="NerdSky" i] {
+    --cat-accent: #B971DA;
+    --cat-bg: rgba(185, 113, 218, 0.12);
+    --cat-border: rgba(185, 113, 218, 0.35);
+}
 
-/* Banner / hero */
+.novidade-article[data-category="Potato Nerd" i] {
+    --cat-accent: #7DB9DF;
+    --cat-bg: rgba(125, 185, 223, 0.12);
+    --cat-border: rgba(125, 185, 223, 0.35);
+}
+
+.novidade-article[data-category="NerdDead" i] {
+    --cat-accent: #E85D5D;
+    --cat-bg: rgba(232, 93, 93, 0.12);
+    --cat-border: rgba(232, 93, 93, 0.35);
+}
+
+.novidade-article[data-category="CobbleNerd" i] {
+    --cat-accent: #FF5252;
+    --cat-bg: rgba(255, 82, 82, 0.12);
+    --cat-border: rgba(255, 82, 82, 0.35);
+}
+
+.novidade-article[data-category="Sistemas" i] {
+    --cat-accent: #1be4a7;
+    --cat-bg: rgba(27, 228, 167, 0.12);
+    --cat-border: rgba(27, 228, 167, 0.35);
+}
+
+.novidade-article[data-category="Potato Sky" i] {
+    --cat-accent: #60a5fa;
+    --cat-bg: rgba(96, 165, 250, 0.12);
+    --cat-border: rgba(96, 165, 250, 0.35);
+}
+
+/* Linha hairline de destaque no topo */
+.novidade-article::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--cat-accent), transparent);
+    z-index: 3;
+    pointer-events: none;
+}
+
+/* ========================================================
+   Banner / Capa Hero
+   ======================================================== */
 .novidade-banner {
     width: 100%;
-    height: 360px;
+    max-height: 380px;
     overflow: hidden;
     position: relative;
-    background-color: #1a1f29;
+    background-color: #080b10;
 }
 
 .novidade-banner img {
     width: 100%;
     height: 100%;
+    max-height: 380px;
     object-fit: cover;
     display: block;
 }
@@ -68,278 +175,289 @@
     inset: 0;
     background: linear-gradient(
         to bottom,
-        rgba(0, 0, 0, 0.05) 0%,
-        rgba(0, 0, 0, 0.55) 100%
+        rgba(14, 18, 26, 0) 55%,
+        rgba(14, 18, 26, 0.95) 100%
     );
     pointer-events: none;
 }
 
-/* Meta (categoria + título + info do autor) */
-.novidade-meta {
-    padding: 28px 32px 8px 32px;
+/* ========================================================
+   Header do Artigo (Meta, Título, Autor)
+   ======================================================== */
+.novidade-header {
+    padding: 32px 36px 20px 36px;
     display: flex;
     flex-direction: column;
-    gap: 14px;
+    gap: 16px;
+}
+
+.novidade-meta-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 12px;
 }
 
 /* Tag de categoria */
 .novidade-tag {
     display: inline-flex;
     align-items: center;
-    align-self: flex-start;
-    padding: 4px 14px;
+    padding: 4px 12px;
     border-radius: 999px;
-    background: rgba(56, 189, 248, 0.12);
-    color: #38BDF8;
-    border: 1px solid rgba(56, 189, 248, 0.35);
-    font-size: 0.78rem;
-    font-weight: 600;
-    letter-spacing: 0.4px;
+    background: var(--cat-bg);
+    color: var(--cat-accent);
+    border: 1px solid var(--cat-border);
+    font-family: 'Poppins', sans-serif;
+    font-size: 0.74rem;
+    font-weight: 700;
+    letter-spacing: 0.5px;
     text-transform: uppercase;
 }
 
-.novidade-tag[data-category="NerdSky" i] {
-    background: rgba(185, 113, 218, 0.12);
-    color: #D89BF0;
-    border: 1px solid rgba(185, 113, 218, 0.4);
-}
-
-.novidade-tag[data-category="Potato Nerd" i] {
-    background: rgba(125, 185, 223, 0.12);
-    color: #7DB9DF;
-    border: 1px solid rgba(125, 185, 223, 0.4);
-}
-
-.novidade-tag[data-category="NerdDead" i] {
-    background: rgba(232, 93, 93, 0.12);
-    color: #F08080;
-    border: 1px solid rgba(232, 93, 93, 0.4);
-}
-
-.novidade-tag[data-category="CobbleNerd" i] {
-    background: rgba(255, 41, 41, 0.12);
-    color: #FF5252;
-    border: 1px solid rgba(255, 41, 41, 0.4);
-}
-
-.novidade-tag[data-category="Sistemas" i] {
-    background: rgba(27, 228, 167, 0.12);
-    color: #1be4a7;
-    border: 1px solid rgba(27, 228, 167, 0.4);
-}
-
-.novidade-tag[data-category="Potato Sky" i] {
-    background: rgba(41, 134, 255, 0.12);
-    color: #60a5fa;
-    border: 1px solid rgba(41, 134, 255, 0.4);
-}
-
-.novidade-meta h1 {
-    margin: 0;
-    font-size: clamp(1.75rem, 4vw, 2.4rem);
-    font-weight: 800;
-    line-height: 1.2;
-    color: #ffffff;
-    overflow-wrap: break-word;
-    word-break: break-word;
-    max-width: 100%;
-}
-
-/* Linha de autor + data */
-.novidade-info {
-    display: flex;
-    flex-direction: row;
+.novidade-read-time {
+    display: inline-flex;
     align-items: center;
-    gap: 18px;
-    font-size: 0.9rem;
-    color: #a1a1aa;
-}
-
-.novidade-info .author {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    gap: 10px;
-}
-
-.novidade-info .author-head {
-    width: 32px;
-    height: 32px;
-    border-radius: 0;
-    image-rendering: pixelated;
-}
-
-.novidade-info .author p {
-    margin: 0;
-    color: #e4e4e7;
+    gap: 6px;
+    font-size: 0.8rem;
+    color: #64748b;
     font-weight: 500;
 }
 
-.novidade-info .date {
+.novidade-read-time i {
+    font-size: 0.78rem;
+}
+
+/* Título */
+.novidade-title {
     margin: 0;
+    font-family: 'Poppins', sans-serif;
+    font-size: clamp(1.75rem, 3.8vw, 2.35rem);
+    font-weight: 800;
+    line-height: 1.25;
+    color: #f8fafc;
+    letter-spacing: -0.02em;
+    overflow-wrap: break-word;
+    word-break: break-word;
 }
 
-.novidade-info .date::before {
-    content: "·";
-    margin-right: 14px;
-    color: #52525b;
+/* Barra do Autor e Data */
+.novidade-author-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 14px;
+    padding-top: 4px;
 }
 
-/* Separador */
-.novidade-meta::after {
-    content: "";
-    display: block;
-    width: 60px;
-    height: 3px;
-    background: #2a2f3a;
-    border-radius: 3px;
-    margin-top: 10px;
+.author-info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
 }
 
-/* Corpo do texto */
+.author-head {
+    width: 38px;
+    height: 38px;
+    border-radius: 8px;
+    background: #141a26;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    image-rendering: pixelated;
+    flex-shrink: 0;
+}
+
+.author-details {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+}
+
+.author-name {
+    font-family: 'Poppins', sans-serif;
+    font-weight: 600;
+    font-size: 0.92rem;
+    color: #f1f5f9;
+}
+
+.author-role {
+    font-size: 0.72rem;
+    color: var(--cat-accent);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.date-info {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    font-size: 0.84rem;
+    color: #94a3b8;
+}
+
+.date-info i {
+    font-size: 0.8rem;
+    color: #64748b;
+}
+
+/* Linha divisora sutil */
+.novidade-divider {
+    height: 1px;
+    background: rgba(255, 255, 255, 0.07);
+    margin: 0 36px;
+}
+
+/* ========================================================
+   Corpo do Artigo (Markdown Styling)
+   ======================================================== */
 .novidade-body {
-    padding: 22px 32px 36px 32px;
-    color: #d4d4d4;
-    font-size: 1.05rem;
-    line-height: 1.75;
+    padding: 28px 36px 36px 36px;
+    color: #cbd5e1;
+    font-size: 1.04rem;
+    line-height: 1.8;
     overflow-wrap: break-word;
     word-break: break-word;
     max-width: 100%;
 }
 
 .novidade-body p {
-    margin: 0 0 1.2em 0;
+    margin: 0 0 1.3em 0;
 }
 
 .novidade-body p:last-child {
     margin-bottom: 0;
 }
 
-.novidade-body .img-container {
-    margin: 24px 0;
-    border-radius: 8px;
-    overflow: hidden;
-    background-color: #1a1f29;
-}
-
-.novidade-body .img-container img {
-    width: 100%;
-    height: auto;
-    display: block;
-}
-
-/* Responsivo */
-@media (max-width: 768px) {
-    #novidade-container {
-        padding: 0 14px;
-        margin: 20px auto 40px auto;
-    }
-
-    .novidade-meta,
-    .novidade-body {
-        padding-left: 20px;
-        padding-right: 20px;
-    }
-
-    .novidade-banner {
-        height: 240px;
-    }
-
-    .novidade-meta h1 {
-        font-size: 1.6rem;
-        overflow-wrap: break-word;
-        word-break: break-word;
-        max-width: 100%;
-    }
-
-    .novidade-info {
-        flex-wrap: wrap;
-        gap: 8px 14px;
-    }
-
-    .novidade-info .date::before {
-        display: none;
-    }
-}
-
-/* =========================
-   Estilização Markdown da Notícia
-   ========================= */
 .novidade-body h2 {
+    font-family: 'Poppins', sans-serif;
     font-size: 1.5rem;
     font-weight: 700;
-    color: #ffffff;
-    margin: 1.8rem 0 0.8rem 0;
-    padding-bottom: 0.4rem;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    color: #f8fafc;
+    letter-spacing: -0.015em;
+    margin: 2.2rem 0 0.85rem 0;
+    padding-bottom: 0.45rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.07);
 }
 
 .novidade-body h3 {
+    font-family: 'Poppins', sans-serif;
     font-size: 1.25rem;
     font-weight: 600;
-    color: #f4f4f5;
-    margin: 1.4rem 0 0.6rem 0;
+    color: #f1f5f9;
+    margin: 1.8rem 0 0.65rem 0;
 }
 
-.novidade-body ul,
-.novidade-body ol {
-    margin: 0.8rem 0 1.2rem 1.4rem;
+.novidade-body ul {
+    list-style: none;
     padding: 0;
+    margin: 0.8rem 0 1.4rem 0;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
 }
 
-.novidade-body li {
-    margin-bottom: 0.4rem;
+.novidade-body ul li {
+    position: relative;
+    padding-left: 20px;
+    line-height: 1.65;
+}
+
+.novidade-body ul li::before {
+    content: '';
+    position: absolute;
+    left: 4px;
+    top: 0.65em;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--cat-accent);
+}
+
+.novidade-body ol {
+    margin: 0.8rem 0 1.4rem 1.4rem;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.novidade-body ol li {
+    line-height: 1.65;
+    padding-left: 4px;
+}
+
+.novidade-body ol li::marker {
+    color: var(--cat-accent);
+    font-weight: 700;
 }
 
 .novidade-body strong {
     color: #ffffff;
-    font-weight: 700;
+    font-weight: 600;
 }
 
 .novidade-body a {
-    color: #60a5fa;
+    color: #93c5fd;
     text-decoration: underline;
     text-underline-offset: 3px;
     transition: color 0.15s ease;
 }
 
 .novidade-body a:hover {
-    color: #93c5fd;
+    color: #bfdbfe;
 }
 
 .novidade-body img {
     max-width: 100%;
     height: auto;
-    border-radius: 8px;
-    margin: 18px 0;
+    border-radius: 10px;
+    margin: 20px 0;
     display: block;
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
 }
 
+.novidade-body .img-container {
+    margin: 22px 0;
+    border-radius: 10px;
+    overflow: hidden;
+    background-color: #0b0f16;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.novidade-body .img-container img {
+    margin: 0;
+    border: none;
+    box-shadow: none;
+}
+
+/* Tabelas */
 .novidade-body table {
     width: 100%;
-    margin: 1.4rem 0;
+    margin: 1.5rem 0;
     border-collapse: separate;
     border-spacing: 0;
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 10px;
     overflow: hidden;
-    background: rgba(17, 24, 39, 0.6);
+    background: #090d14;
 }
 
 .novidade-body th {
-    background: rgba(30, 41, 59, 0.8);
+    background: #121824;
     color: #f8fafc;
+    font-family: 'Poppins', sans-serif;
     font-weight: 600;
     text-align: left;
-    padding: 10px 14px;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-    font-size: 0.95rem;
+    padding: 12px 16px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    font-size: 0.92rem;
 }
 
 .novidade-body td {
-    padding: 10px 14px;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    padding: 12px 16px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.04);
     font-size: 0.92rem;
     color: #cbd5e1;
 }
@@ -348,54 +466,74 @@
     border-bottom: none;
 }
 
+/* Bloco de Código e Comandos */
 .novidade-body pre {
-    background: #0d1117;
-    border: 1px solid #30363d;
-    border-radius: 8px;
-    padding: 14px 18px;
+    background: #070a0f;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 10px;
+    padding: 16px 20px;
     overflow-x: auto;
-    margin: 1.2rem 0;
+    margin: 1.4rem 0;
     font-size: 0.9rem;
-    color: #e6edf3;
+    color: #e2e8f0;
+    position: relative;
+}
+
+.novidade-body pre::-webkit-scrollbar {
+    height: 6px;
+}
+
+.novidade-body pre::-webkit-scrollbar-thumb {
+    background: #1e293b;
+    border-radius: 3px;
 }
 
 .novidade-body code {
-    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
     font-size: 0.88em;
-    background: rgba(110, 118, 129, 0.2);
-    padding: 0.18em 0.4em;
-    border-radius: 4px;
-    color: #fca5a5;
+    background: rgba(255, 255, 255, 0.06);
+    padding: 0.2em 0.45em;
+    border-radius: 5px;
+    color: #f1f5f9;
+    border: 1px solid rgba(255, 255, 255, 0.06);
 }
 
 .novidade-body pre code {
     background: transparent;
+    border: none;
     padding: 0;
-    border-radius: 0;
     color: inherit;
+    display: block;
+    line-height: 1.6;
 }
 
+/* Blockquote */
 .novidade-body blockquote {
-    border-left: 4px solid #60a5fa;
-    margin: 1.2rem 0;
-    padding: 8px 16px;
-    background: rgba(96, 165, 250, 0.06);
+    border-left: 2px solid var(--cat-accent);
+    margin: 1.4rem 0;
+    padding: 10px 18px;
+    background: rgba(255, 255, 255, 0.02);
     border-radius: 0 8px 8px 0;
     color: #cbd5e1;
+    font-style: italic;
 }
 
-/* Callouts Gamer */
+/* ========================================================
+   Callouts (Dica, Aviso, Perigo, Comando)
+   ======================================================== */
 .novidade-callout {
-    border-radius: 8px;
-    border-left: 4px solid;
-    padding: 12px 16px;
-    margin: 1.4rem 0;
-    background: rgba(15, 23, 42, 0.6);
+    border-radius: 10px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    padding: 14px 18px;
+    margin: 1.5rem 0;
+    background: rgba(14, 18, 26, 0.7);
+    box-sizing: border-box;
 }
 
 .novidade-callout .callout-header {
+    font-family: 'Poppins', sans-serif;
     font-weight: 700;
-    font-size: 0.95rem;
+    font-size: 0.92rem;
     display: flex;
     align-items: center;
     gap: 8px;
@@ -404,42 +542,243 @@
 
 .novidade-callout .callout-body {
     font-size: 0.95rem;
-    color: #e2e8f0;
-    line-height: 1.6;
+    color: #cbd5e1;
+    line-height: 1.65;
 }
 
 .novidade-callout.callout-tip {
-    border-left-color: #10b981;
-    background: rgba(16, 185, 129, 0.08);
+    border-color: rgba(16, 185, 129, 0.35);
+    background: rgba(16, 185, 129, 0.06);
 }
 .novidade-callout.callout-tip .callout-header {
-    color: #34d399;
+    color: #10b981;
 }
 
 .novidade-callout.callout-warning {
-    border-left-color: #f59e0b;
-    background: rgba(245, 158, 11, 0.08);
+    border-color: rgba(245, 158, 11, 0.35);
+    background: rgba(245, 158, 11, 0.06);
 }
 .novidade-callout.callout-warning .callout-header {
-    color: #fbbf24;
+    color: #f59e0b;
 }
 
 .novidade-callout.callout-danger {
-    border-left-color: #ef4444;
-    background: rgba(239, 68, 68, 0.08);
+    border-color: rgba(239, 68, 68, 0.35);
+    background: rgba(239, 68, 68, 0.06);
 }
 .novidade-callout.callout-danger .callout-header {
-    color: #f87171;
+    color: #ef4444;
 }
 
 .novidade-callout.callout-command {
-    border-left-color: #3b82f6;
-    background: rgba(59, 130, 246, 0.08);
+    border-color: rgba(185, 113, 218, 0.35);
+    background: rgba(185, 113, 218, 0.06);
 }
 .novidade-callout.callout-command .callout-header {
-    color: #60a5fa;
+    color: #C084FC;
 }
 .novidade-callout.callout-command code {
-    color: #93c5fd;
-    background: rgba(59, 130, 246, 0.2);
+    color: #E9D5FF;
+    background: rgba(185, 113, 218, 0.15);
+    border-color: rgba(185, 113, 218, 0.25);
+}
+
+/* ========================================================
+   Rodapé do Artigo & Ações
+   ======================================================== */
+.novidade-footer {
+    padding: 24px 36px 32px 36px;
+    border-top: 1px solid rgba(255, 255, 255, 0.07);
+    background: rgba(0, 0, 0, 0.15);
+}
+
+.footer-actions {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 14px;
+}
+
+.btn-copy-link,
+.btn-footer-back {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-family: 'Poppins', sans-serif;
+    font-size: 0.88rem;
+    font-weight: 500;
+    padding: 9px 16px;
+    border-radius: 8px;
+    text-decoration: none;
+    transition: all 0.18s ease;
+    cursor: pointer;
+}
+
+.btn-copy-link {
+    color: #f1f5f9;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.btn-copy-link:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.2);
+}
+
+.btn-footer-back {
+    color: #94a3b8;
+    background: transparent;
+    border: 1px solid transparent;
+}
+
+.btn-footer-back:hover {
+    color: #ffffff;
+    background: rgba(255, 255, 255, 0.05);
+}
+
+/* ========================================================
+   Skeleton Screen (Loading State)
+   ======================================================== */
+.novidade-skeleton {
+    width: 100%;
+}
+
+.skeleton-shimmer {
+    background: linear-gradient(
+        90deg,
+        rgba(255, 255, 255, 0.03) 0%,
+        rgba(255, 255, 255, 0.08) 50%,
+        rgba(255, 255, 255, 0.03) 100%
+    );
+    background-size: 200% 100%;
+    animation: skeleton-pulse 1.6s ease-in-out infinite;
+    border-radius: 6px;
+}
+
+@keyframes skeleton-pulse {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+}
+
+.skeleton-nav-bar {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 22px;
+}
+
+.skeleton-btn {
+    width: 120px;
+    height: 34px;
+}
+
+.skeleton-card {
+    background: #0e121a;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 16px;
+    overflow: hidden;
+}
+
+.skeleton-banner {
+    width: 100%;
+    height: 280px;
+    border-radius: 0;
+}
+
+.skeleton-inner {
+    padding: 32px 36px;
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+}
+
+.skeleton-tag {
+    width: 90px;
+    height: 24px;
+    border-radius: 999px;
+}
+
+.skeleton-title-line {
+    width: 85%;
+    height: 38px;
+}
+
+.skeleton-author-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding-top: 6px;
+}
+
+.skeleton-avatar {
+    width: 38px;
+    height: 38px;
+    border-radius: 8px;
+}
+
+.skeleton-author-text {
+    width: 130px;
+    height: 18px;
+}
+
+.skeleton-body-lines {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding-top: 14px;
+}
+
+.skeleton-line {
+    width: 100%;
+    height: 16px;
+}
+
+.skeleton-line.short {
+    width: 60%;
+}
+
+/* ========================================================
+   Responsividade Mobile
+   ======================================================== */
+@media (max-width: 768px) {
+    #novidade-container {
+        padding: 0 16px;
+        margin: 20px auto 48px auto;
+    }
+
+    .novidade-header,
+    .novidade-body,
+    .novidade-footer,
+    .skeleton-inner {
+        padding-left: 20px;
+        padding-right: 20px;
+    }
+
+    .novidade-divider {
+        margin: 0 20px;
+    }
+
+    .novidade-banner {
+        max-height: 220px;
+    }
+
+    .novidade-title {
+        font-size: clamp(1.45rem, 5.5vw, 1.85rem);
+    }
+
+    .novidade-author-bar {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+    }
+
+    .footer-actions {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .btn-copy-link,
+    .btn-footer-back {
+        justify-content: center;
+    }
 }

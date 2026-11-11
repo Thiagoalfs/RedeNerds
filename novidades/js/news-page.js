@@ -159,7 +159,21 @@ document.addEventListener("DOMContentLoaded", () => {
     const id = rawId ? rawId.replace(/[^0-9]/g, "") : null;
 
     if (!id) {
-        container.innerHTML = `<p style="text-align:center; padding: 20px;">Nenhuma atualização especificada.</p>`;
+        container.innerHTML = `
+            <div class="novidade-nav-bar">
+                <a href="/#atualizacoes-section" class="btn-voltar">
+                    <i class="fa-solid fa-arrow-left"></i> <span>Voltar para novidades</span>
+                </a>
+            </div>
+            <div class="novidade-article" style="padding: 48px 24px; text-align: center;">
+                <i class="fa-solid fa-newspaper" style="font-size: 2.4rem; color: #64748b; margin-bottom: 16px;"></i>
+                <h2 style="font-family: 'Poppins', sans-serif; font-size: 1.35rem; color: #fff; margin: 0 0 8px 0;">Nenhuma atualização especificada</h2>
+                <p style="color: #94a3b8; font-size: 0.95rem; margin: 0 0 24px 0;">Selecione uma notícia na página inicial para visualizá-la.</p>
+                <a href="/#atualizacoes-section" class="btn-voltar" style="display: inline-flex;">
+                    <i class="fa-solid fa-arrow-left"></i> <span>Ver novidades</span>
+                </a>
+            </div>
+        `;
         return;
     }
 
@@ -176,7 +190,21 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const renderNewsArticle = (news) => {
         if (!news || news.erro) {
-            container.innerHTML = `<p style="text-align:center; padding: 20px;">Atualização não encontrada.</p>`;
+            container.innerHTML = `
+                <div class="novidade-nav-bar">
+                    <a href="/#atualizacoes-section" class="btn-voltar">
+                        <i class="fa-solid fa-arrow-left"></i> <span>Voltar para novidades</span>
+                    </a>
+                </div>
+                <div class="novidade-article" style="padding: 48px 24px; text-align: center;">
+                    <i class="fa-solid fa-file-circle-xmark" style="font-size: 2.5rem; color: #ef4444; margin-bottom: 16px;"></i>
+                    <h2 style="font-family: 'Poppins', sans-serif; font-size: 1.35rem; color: #fff; margin: 0 0 8px 0;">Atualização não encontrada</h2>
+                    <p style="color: #94a3b8; font-size: 0.95rem; margin: 0 0 24px 0;">Esta notícia pode ter sido removida ou o link informado está incorreto.</p>
+                    <a href="/#atualizacoes-section" class="btn-voltar" style="display: inline-flex;">
+                        <i class="fa-solid fa-arrow-left"></i> <span>Ver todas as novidades</span>
+                    </a>
+                </div>
+            `;
             return;
         }
 
@@ -201,35 +229,124 @@ document.addEventListener("DOMContentLoaded", () => {
         const categoryKey = toCategoryKey(news.category);
         const categoryLabel = categoryLabels[categoryKey] || categoryKey;
 
-        const dataFormatada = news.criado_em
-            ? new Date(String(news.criado_em).replace(" ", "T")).toLocaleDateString("pt-BR")
-            : "";
+        const words = rawConteudo.trim().split(/\s+/).filter(Boolean).length;
+        const readTimeMinutes = Math.max(1, Math.ceil(words / 180));
+
+        let dataFormatada = "";
+        let dataIso = "";
+        if (news.criado_em) {
+            try {
+                const dateObj = new Date(String(news.criado_em).replace(" ", "T"));
+                dataIso = dateObj.toISOString();
+                dataFormatada = dateObj.toLocaleDateString("pt-BR", {
+                    day: '2-digit',
+                    month: 'long',
+                    year: 'numeric'
+                });
+            } catch (_) {
+                dataFormatada = String(news.criado_em);
+            }
+        }
 
         container.innerHTML = `
-            <a href="/#atualizacoes-section" id="voltar">
-                <i class="fa-solid fa-arrow-left"></i> Voltar
-            </a>
+            <div class="novidade-nav-bar">
+                <a href="/#atualizacoes-section" class="btn-voltar" id="voltar">
+                    <i class="fa-solid fa-arrow-left"></i> <span>Voltar para novidades</span>
+                </a>
+                <button type="button" class="btn-share-top" id="btn-share-top" title="Copiar link da novidade">
+                    <i class="fa-solid fa-link"></i> <span>Compartilhar</span>
+                </button>
+            </div>
+
             <article class="novidade-article" data-category="${escapeHTML(categoryKey)}">
+                ${safeCapa ? `
                 <div class="novidade-banner">
-                    <img src="${escapeHTML(safeCapa)}" alt="${safeTitulo}" onerror="this.style.display='none'">
-                </div>
-                <div class="novidade-meta">
-                    ${categoryLabel ? `<span class="novidade-tag" data-category="${escapeHTML(categoryKey)}">${escapeHTML(categoryLabel)}</span>` : ""}
-                    <h1>${safeTitulo}</h1>
-                    <div class="novidade-info">
-                        <div class="author">
-                            <img class="author-head" src="https://mc-heads.net/avatar/${safeNick}" alt="${safeAutor}" onerror="this.style.display='none'">
-                            <p>${safeAutor}</p>
+                    <img src="${escapeHTML(safeCapa)}" alt="${safeTitulo}" loading="eager" onerror="const p = this.closest('.novidade-banner'); if (p) p.style.display='none';">
+                </div>` : ''}
+
+                <header class="novidade-header">
+                    <div class="novidade-meta-top">
+                        ${categoryLabel ? `<span class="novidade-tag" data-category="${escapeHTML(categoryKey)}">${escapeHTML(categoryLabel)}</span>` : ""}
+                        <div class="novidade-read-time" title="Tempo estimado de leitura">
+                            <i class="fa-regular fa-clock"></i>
+                            <span>~${readTimeMinutes} min de leitura</span>
                         </div>
-                        <p class="date">${dataFormatada}</p>
                     </div>
-                </div>
+
+                    <h1 class="novidade-title">${safeTitulo}</h1>
+
+                    <div class="novidade-author-bar">
+                        <div class="author-info">
+                            <img class="author-head" src="https://mc-heads.net/avatar/${safeNick}" alt="${safeAutor}" onerror="this.src='https://mc-heads.net/avatar/MHF_Steve'">
+                            <div class="author-details">
+                                <span class="author-name">${safeAutor}</span>
+                                <span class="author-role">Equipe Rede Nerd</span>
+                            </div>
+                        </div>
+                        ${dataFormatada ? `
+                        <div class="date-info">
+                            <i class="fa-regular fa-calendar"></i>
+                            <time datetime="${escapeHTML(dataIso)}">${dataFormatada}</time>
+                        </div>` : ''}
+                    </div>
+                </header>
+
+                <div class="novidade-divider"></div>
+
                 <div class="novidade-body">
                     ${parseDescription(news.conteudo)}
                 </div>
+
+                <footer class="novidade-footer">
+                    <div class="footer-actions">
+                        <button type="button" class="btn-copy-link" id="btn-copy-link-bottom">
+                            <i class="fa-solid fa-link"></i>
+                            <span>Copiar link da notícia</span>
+                        </button>
+                        <a href="/#atualizacoes-section" class="btn-footer-back">
+                            <i class="fa-solid fa-arrow-left"></i>
+                            <span>Ver todas as novidades</span>
+                        </a>
+                    </div>
+                </footer>
             </article>
         `;
+
+        setupCopyButtons();
     };
+
+    function setupCopyButtons() {
+        const copyCurrentUrl = async (btn) => {
+            if (!btn) return;
+            const originalHtml = btn.innerHTML;
+            try {
+                if (navigator.clipboard && navigator.clipboard.writeText) {
+                    await navigator.clipboard.writeText(window.location.href);
+                } else {
+                    const temp = document.createElement("input");
+                    temp.value = window.location.href;
+                    document.body.appendChild(temp);
+                    temp.select();
+                    document.execCommand("copy");
+                    document.body.removeChild(temp);
+                }
+                btn.classList.add("copied");
+                btn.innerHTML = '<i class="fa-solid fa-check"></i> <span>Link copiado!</span>';
+                setTimeout(() => {
+                    btn.classList.remove("copied");
+                    btn.innerHTML = originalHtml;
+                }, 2200);
+            } catch (err) {
+                console.warn("Falha ao copiar link:", err);
+            }
+        };
+
+        const topBtn = document.getElementById("btn-share-top");
+        if (topBtn) topBtn.addEventListener("click", () => copyCurrentUrl(topBtn));
+
+        const btmBtn = document.getElementById("btn-copy-link-bottom");
+        if (btmBtn) btmBtn.addEventListener("click", () => copyCurrentUrl(btmBtn));
+    }
 
     const apiUrl = `/api/novidades_api.php?id=${encodeURIComponent(id)}`;
     if (window.AppCache) {
@@ -239,7 +356,7 @@ document.addEventListener("DOMContentLoaded", () => {
             onError: (err) => {
                 console.error("Erro ao carregar atualização:", err);
                 if (!container.children.length) {
-                    container.innerHTML = `<p style="color: red; text-align: center; padding: 20px;">Erro ao carregar atualização.</p>`;
+                    renderNewsArticle({ erro: true });
                 }
             }
         });
@@ -249,7 +366,7 @@ document.addEventListener("DOMContentLoaded", () => {
             .then(renderNewsArticle)
             .catch(err => {
                 console.error("Erro ao carregar atualização:", err);
-                container.innerHTML = `<p style="color: red; text-align: center; padding: 20px;">Erro ao carregar atualização.</p>`;
+                renderNewsArticle({ erro: true });
             });
     }
 });
