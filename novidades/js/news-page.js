@@ -216,7 +216,7 @@ document.addEventListener("DOMContentLoaded", () => {
         };
         const rawConteudo = String(news.conteudo || "").replace(/<[^>]+>/g, "").replace(/\\n/g, " ");
         const descricaoCurta = rawConteudo.substring(0, 150);
-        const safeCapa = sanitizeUrl(news.capa || "", "");
+        const safeCapa = sanitizeUrl(news.capa || "", "/assets/images/fundo.webp");
         const safeAutor = escapeHTML(news.autor || "Admin");
         const safeNick = encodeURIComponent(String(news.autor || "Steve").trim());
         const safeTitulo = escapeHTML(news.titulo || "");
@@ -259,10 +259,9 @@ document.addEventListener("DOMContentLoaded", () => {
             </div>
 
             <article class="novidade-article" data-category="${escapeHTML(categoryKey)}">
-                ${safeCapa ? `
                 <div class="novidade-banner">
-                    <img src="${escapeHTML(safeCapa)}" alt="${safeTitulo}" loading="eager" onerror="const p = this.closest('.novidade-banner'); if (p) p.style.display='none';">
-                </div>` : ''}
+                    <img src="${escapeHTML(safeCapa)}" alt="${safeTitulo}" loading="eager" onerror="this.onerror=null; this.src='/assets/images/fundo.webp';">
+                </div>
 
                 <header class="novidade-header">
                     <div class="novidade-meta-top">
