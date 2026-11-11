@@ -280,7 +280,7 @@ document.addEventListener("DOMContentLoaded", () => {
             }
         }
 
-        const cargoDisplay = cargoNome || 'Equipe Rede Nerd';
+        const cargoDisplay = cargoNome;
         const corDisplay = cargoCor || 'var(--cat-accent, #B971DA)';
 
         container.innerHTML = `
@@ -314,7 +314,7 @@ document.addEventListener("DOMContentLoaded", () => {
                             <img class="author-head" src="https://mc-heads.net/avatar/${safeNick}" alt="${safeAutor}" onerror="this.src='https://mc-heads.net/avatar/MHF_Steve'">
                             <div class="author-details">
                                 <span class="author-name">${safeAutor}</span>
-                                <span class="author-role" style="color: ${escapeHTML(corDisplay)};">${escapeHTML(cargoDisplay)}</span>
+                                <span class="author-role" style="color: ${escapeHTML(corDisplay)}; ${!cargoDisplay ? 'display: none;' : ''}">${escapeHTML(cargoDisplay || '')}</span>
                             </div>
                         </div>
                         ${dataFormatada ? `
@@ -354,6 +354,7 @@ document.addEventListener("DOMContentLoaded", () => {
                         if (roleEl) {
                             roleEl.textContent = found.cargo;
                             roleEl.style.color = found.cor;
+                            roleEl.style.display = '';
                         }
                     }
                 })
@@ -395,8 +396,13 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const apiUrl = `/api/novidades_api.php?id=${encodeURIComponent(id)}`;
     if (window.AppCache) {
-        AppCache.fetchWithCache('novidades_id_v3_' + id, apiUrl, {
-            onCached: renderNewsArticle,
+        AppCache.fetchWithCache('novidades_artigo_v1_' + id, apiUrl, {
+            onCached: (cached) => {
+                if (cached && typeof cached.autor_cargo === 'undefined') {
+                    return;
+                }
+                renderNewsArticle(cached);
+            },
             onFresh: renderNewsArticle,
             onError: (err) => {
                 console.error("Erro ao carregar atualização:", err);
