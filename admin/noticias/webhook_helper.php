@@ -63,7 +63,7 @@ function enviarWebhookDiscord($categoriaEnvio, $titulo, $conteudo, $autor, $capa
         "color" => 3447003,
         "author" => [
             "name" => $autor,
-            "icon_url" => "https://mc-heads.net/avatar/" . urlencode($autor) . "/100"
+            "icon_url" => "https://mc-heads.net/avatar/" . urlencode($autor)
         ],
         "footer" => [
             "text" => "Servidor: " . $servidor
@@ -150,7 +150,7 @@ function editarWebhookDiscord($categoriaEnvio, $mensagemID, $titulo, $conteudo, 
         "color" => 3447003,
         "author" => [
             "name" => $autor,
-            "icon_url" => "https://mc-heads.net/avatar/" . urlencode($autor) . "/100"
+            "icon_url" => "https://mc-heads.net/avatar/" . urlencode($autor)
         ],
         "footer" => [
             "text" => "Servidor: " . $servidor

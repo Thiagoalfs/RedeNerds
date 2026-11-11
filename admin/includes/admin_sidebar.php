@@ -98,7 +98,7 @@
 
     <div class="sidebar-footer">
         <div class="user-profile-mini">
-            <img class="user-avatar-mini" src="https://mc-heads.net/avatar/<?php echo urlencode($nome_usuario); ?>/32" alt="Avatar" onerror="this.src='https://mc-heads.net/avatar/MHF_Steve/32'">
+            <img class="user-avatar-mini" src="https://mc-heads.net/avatar/<?php echo urlencode($nome_usuario); ?>" alt="Avatar" onerror="this.src='https://mc-heads.net/avatar/MHF_Steve'">
             <div class="user-info-text">
                 <p class="user-info-name"><?php echo htmlspecialchars($nome_usuario, ENT_QUOTES, 'UTF-8'); ?></p>
                 <p class="user-info-role">Administrador</p>

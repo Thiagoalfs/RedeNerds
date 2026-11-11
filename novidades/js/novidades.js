@@ -165,7 +165,7 @@ function initNovidades() {
                     <p class="news-div-desc">${escapeHTML(descSnippet)}</p>
                     <div class="news-div-footer">
                         <div class="author">
-                            <img class="author-head" src="https://mc-heads.net/avatar/${encodeURIComponent(String(news.autor || 'Steve').trim())}/32" alt="${escapeHTML(news.autor)}">
+                            <img class="author-head" src="https://mc-heads.net/avatar/${encodeURIComponent(String(news.autor || 'Steve').trim())}" alt="${escapeHTML(news.autor)}">
                             <span>${escapeHTML(news.autor)}</span>
                         </div>
                     </div>
@@ -270,7 +270,7 @@ function initNovidades() {
                     <p class="all-news-desc">${highlight(firstParagraph, terms)}</p>
                     <div class="all-news-footer">
                         <div class="all-news-author">
-                            <img class="all-news-author-head" src="https://mc-heads.net/avatar/${encodeURIComponent(String(news.autor || 'Steve').trim())}/32" alt="${escapeHTML(news.autor)}">
+                            <img class="all-news-author-head" src="https://mc-heads.net/avatar/${encodeURIComponent(String(news.autor || 'Steve').trim())}" alt="${escapeHTML(news.autor)}">
                             <span class="all-news-author-name">${highlight(news.autor, terms)}</span>
                             <span class="all-news-date">${new Date(news.criado_em).toLocaleDateString("pt-BR")}</span>
                         </div>

@@ -218,7 +218,7 @@ document.addEventListener("DOMContentLoaded", () => {
                     <h1>${safeTitulo}</h1>
                     <div class="novidade-info">
                         <div class="author">
-                            <img class="author-head" src="https://mc-heads.net/avatar/${safeNick}/32" alt="${safeAutor}" onerror="this.style.display='none'">
+                            <img class="author-head" src="https://mc-heads.net/avatar/${safeNick}" alt="${safeAutor}" onerror="this.style.display='none'">
                             <p>${safeAutor}</p>
                         </div>
                         <p class="date">${dataFormatada}</p>

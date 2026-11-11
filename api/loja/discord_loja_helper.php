@@ -68,7 +68,7 @@ function enviarNotificacaoCompraDiscord($nick, $tipoConta, $servidor, $vipNome, 
     if ($corDecimal <= 0) $corDecimal = 8239583; // fallback azul #7DB9DF
 
     $valorFormatado = number_format((float)$valor, 2, ',', '.');
-    $avatarUrl = "https://mc-heads.net/avatar/" . urlencode($nick) . "/128";
+    $avatarUrl = "https://mc-heads.net/avatar/" . urlencode($nick);
 
     // Método de pagamento formatado
     $metodoLower = strtolower($metodo);

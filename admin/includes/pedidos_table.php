@@ -55,9 +55,9 @@ $mostrarPaginacao = $mostrarPaginacao ?? false;
                         </td>
                         <td>
                             <div class="d-flex align-items-center gap-2">
-                                <img src="https://mc-heads.net/avatar/<?php echo urlencode($p['nick']); ?>/32" 
+                                <img src="https://mc-heads.net/avatar/<?php echo urlencode($p['nick']); ?>" 
                                      class="rounded border" width="32" height="32" alt="Skin"
-                                     onerror="this.src='https://mc-heads.net/avatar/MHF_Steve/32'">
+                                     onerror="this.src='https://mc-heads.net/avatar/MHF_Steve'">
                                 <div>
                                     <strong class="text-dark d-block"><?php echo htmlspecialchars($p['nick'], ENT_QUOTES, 'UTF-8'); ?></strong>
                                     <small class="text-muted font-monospace" style="font-size: 0.72rem;">
@@ -198,7 +198,7 @@ $mostrarPaginacao = $mostrarPaginacao ?? false;
 
             return `
                 <div class="p-3 bg-light border-bottom d-flex align-items-center gap-3">
-                    <img src="https://mc-heads.net/avatar/${encodeURIComponent(p.nick)}/48" class="rounded border" width="48" height="48" alt="Skin" onerror="this.src='https://mc-heads.net/avatar/MHF_Steve/48'">
+                    <img src="https://mc-heads.net/avatar/${encodeURIComponent(p.nick)}" class="rounded border" width="48" height="48" alt="Skin" onerror="this.src='https://mc-heads.net/avatar/MHF_Steve'">
                     <div>
                         <h5 class="fw-bold mb-0 text-dark">${escapeHtml(p.nick)}</h5>
                         <small class="text-muted font-monospace">ID do Pedido: #${parseInt(p.id) || ''}</small>

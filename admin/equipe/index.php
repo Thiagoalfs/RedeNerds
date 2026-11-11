@@ -102,7 +102,7 @@ $todosCargos = array_unique(array_merge($cargosOrdem, array_keys($grupos)));
                                     <tr class="membro-row" id="membro-row-<?php echo (int)$m['id']; ?>" data-id="<?php echo (int)$m['id']; ?>" data-nick="<?php echo htmlspecialchars($m['nick'], ENT_QUOTES, 'UTF-8'); ?>" data-cargo="<?php echo htmlspecialchars($m['cargo'], ENT_QUOTES, 'UTF-8'); ?>" draggable="true">
                                         <td class="membro-drag-handle" title="Arrastar para outro cargo"><i class="fa-solid fa-grip-vertical text-muted"></i></td>
                                         <td>
-                                            <img class="rounded border js-membro-avatar" src="https://mc-heads.net/avatar/<?php echo urlencode($m['nick']); ?>/32" width="32" height="32" alt="" onerror="this.src='https://mc-heads.net/avatar/MHF_Steve/32'">
+                                            <img class="rounded border js-membro-avatar" src="https://mc-heads.net/avatar/<?php echo urlencode($m['nick']); ?>" width="32" height="32" alt="" onerror="this.src='https://mc-heads.net/avatar/MHF_Steve'">
                                         </td>
                                         <td>
                                             <strong class="text-dark js-membro-nick"><?php echo htmlspecialchars($m['nick'], ENT_QUOTES, 'UTF-8'); ?></strong>
@@ -151,7 +151,7 @@ $todosCargos = array_unique(array_merge($cargosOrdem, array_keys($grupos)));
                         <label for="criar-membro-nick" class="form-label fw-bold mb-1">Nick do Jogador (Minecraft) <span class="text-danger">*</span></label>
                         <div class="input-group">
                             <span class="input-group-text p-1">
-                                <img id="criar-membro-preview" src="https://mc-heads.net/avatar/MHF_Steve/32" width="32" height="32" class="rounded" alt="Avatar" onerror="this.src='https://mc-heads.net/avatar/MHF_Steve/32'">
+                                <img id="criar-membro-preview" src="https://mc-heads.net/avatar/MHF_Steve" width="32" height="32" class="rounded" alt="Avatar" onerror="this.src='https://mc-heads.net/avatar/MHF_Steve'">
                             </span>
                             <input type="text" class="form-control" id="criar-membro-nick" name="nick" placeholder="Ex: Steve" required maxlength="16" autofocus>
                         </div>
@@ -199,7 +199,7 @@ $todosCargos = array_unique(array_merge($cargosOrdem, array_keys($grupos)));
                         <label for="edit-membro-nick" class="form-label fw-bold mb-1">Nick do Jogador (Minecraft) <span class="text-danger">*</span></label>
                         <div class="input-group">
                             <span class="input-group-text p-1">
-                                <img id="edit-membro-preview" src="https://mc-heads.net/avatar/MHF_Steve/32" width="32" height="32" class="rounded" alt="Avatar" onerror="this.src='https://mc-heads.net/avatar/MHF_Steve/32'">
+                                <img id="edit-membro-preview" src="https://mc-heads.net/avatar/MHF_Steve" width="32" height="32" class="rounded" alt="Avatar" onerror="this.src='https://mc-heads.net/avatar/MHF_Steve'">
                             </span>
                             <input type="text" class="form-control" id="edit-membro-nick" name="nick" required maxlength="16">
                         </div>
@@ -364,7 +364,7 @@ document.addEventListener('DOMContentLoaded', function() {
     if (criarNickInput && criarPreviewImg) {
         criarNickInput.addEventListener('input', function() {
             const n = this.value.trim() || 'MHF_Steve';
-            criarPreviewImg.src = 'https://mc-heads.net/avatar/' + encodeURIComponent(n) + '/32';
+            criarPreviewImg.src = 'https://mc-heads.net/avatar/' + encodeURIComponent(n);
         });
     }
 
@@ -373,7 +373,7 @@ document.addEventListener('DOMContentLoaded', function() {
     if (editNickInput && editPreviewImg) {
         editNickInput.addEventListener('input', function() {
             const n = this.value.trim() || 'MHF_Steve';
-            editPreviewImg.src = 'https://mc-heads.net/avatar/' + encodeURIComponent(n) + '/32';
+            editPreviewImg.src = 'https://mc-heads.net/avatar/' + encodeURIComponent(n);
         });
     }
 
@@ -396,7 +396,7 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('modalEditarMembroNickHeader').textContent = d.nick || '';
         document.getElementById('edit-membro-cargo').value = d.cargo || '';
         if (editPreviewImg) {
-            editPreviewImg.src = 'https://mc-heads.net/avatar/' + encodeURIComponent(d.nick || 'MHF_Steve') + '/32';
+            editPreviewImg.src = 'https://mc-heads.net/avatar/' + encodeURIComponent(d.nick || 'MHF_Steve');
         }
         if (bsModalEditar) bsModalEditar.show();
     }
@@ -420,7 +420,7 @@ document.addEventListener('DOMContentLoaded', function() {
         tr.innerHTML = `
             <td class="membro-drag-handle" title="Arrastar para outro cargo"><i class="fa-solid fa-grip-vertical text-muted"></i></td>
             <td>
-                <img class="rounded border js-membro-avatar" src="https://mc-heads.net/avatar/${encodeURIComponent(m.nick)}/32" width="32" height="32" alt="" onerror="this.src='https://mc-heads.net/avatar/MHF_Steve/32'">
+                <img class="rounded border js-membro-avatar" src="https://mc-heads.net/avatar/${encodeURIComponent(m.nick)}" width="32" height="32" alt="" onerror="this.src='https://mc-heads.net/avatar/MHF_Steve'">
             </td>
             <td>
                 <strong class="text-dark js-membro-nick">${m.nick}</strong>
@@ -464,7 +464,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
                 if (bsModalCriar) bsModalCriar.hide();
                 formCriar.reset();
-                if (criarPreviewImg) criarPreviewImg.src = 'https://mc-heads.net/avatar/MHF_Steve/32';
+                if (criarPreviewImg) criarPreviewImg.src = 'https://mc-heads.net/avatar/MHF_Steve';
 
                 if (res.membro) {
                     const tbody = document.querySelector(`tbody.membros-dropzone[data-cargo="${res.membro.cargo}"]`);
@@ -528,7 +528,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         row.dataset.nick = m.nick;
                         row.dataset.cargo = m.cargo;
                         const avatarImg = row.querySelector('.js-membro-avatar');
-                        if (avatarImg) avatarImg.src = `https://mc-heads.net/avatar/${encodeURIComponent(m.nick)}/32`;
+                        if (avatarImg) avatarImg.src = `https://mc-heads.net/avatar/${encodeURIComponent(m.nick)}`;
                         const nickText = row.querySelector('.js-membro-nick');
                         if (nickText) nickText.textContent = m.nick;
 

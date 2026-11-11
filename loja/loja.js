@@ -264,7 +264,7 @@
 
     if (img) {
       img.src = trimmed
-        ? `https://mc-heads.net/avatar/${encodeURIComponent(trimmed)}/128`
+        ? `https://mc-heads.net/avatar/${encodeURIComponent(trimmed)}`
         : DEFAULT_AVATAR;
     }
     if (label) {
