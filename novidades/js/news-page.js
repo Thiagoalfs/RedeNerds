@@ -251,26 +251,37 @@ document.addEventListener("DOMContentLoaded", () => {
         let cargoNome = news.autor_cargo || '';
         let cargoCor = news.autor_cargo_cor || '';
 
-        if (!cargoNome && window.AppCache) {
-            const cachedEquipe = AppCache.get('equipe');
-            if (Array.isArray(cachedEquipe)) {
-                for (const grupo of cachedEquipe) {
-                    if (grupo && Array.isArray(grupo.members)) {
-                        const match = grupo.members.find(m => String(m).trim().toLowerCase() === String(news.autor).trim().toLowerCase());
-                        if (match) {
-                            cargoNome = grupo.categoryTitle;
-                            cargoCor = grupo.cor || '#B971DA';
-                            break;
-                        }
+        function matchMemberCargo(list, nick) {
+            if (!Array.isArray(list) || !nick) return null;
+            const cleanNick = String(nick).trim().toLowerCase();
+            for (const grupo of list) {
+                if (grupo && Array.isArray(grupo.members)) {
+                    const match = grupo.members.find(m => {
+                        const mClean = String(m).trim().toLowerCase();
+                        return mClean === cleanNick ||
+                               mClean.replace(/^x+|x+$/g, '') === cleanNick.replace(/^x+|x+$/g, '') ||
+                               mClean.replace(/4/g, 'a') === cleanNick.replace(/4/g, 'a');
+                    });
+                    if (match) {
+                        return { cargo: grupo.categoryTitle, cor: grupo.cor || '#B971DA' };
                     }
                 }
             }
+            return null;
         }
 
-        if (!cargoNome) {
-            cargoNome = 'Equipe Rede Nerd';
-            cargoCor = 'var(--cat-accent, #B971DA)';
+        if (!cargoNome && window.AppCache) {
+            const cachedEquipe = AppCache.get('equipe');
+            const equipeList = (cachedEquipe && Array.isArray(cachedEquipe.data)) ? cachedEquipe.data : (Array.isArray(cachedEquipe) ? cachedEquipe : []);
+            const found = matchMemberCargo(equipeList, news.autor);
+            if (found) {
+                cargoNome = found.cargo;
+                cargoCor = found.cor;
+            }
         }
+
+        const cargoDisplay = cargoNome || 'Equipe Rede Nerd';
+        const corDisplay = cargoCor || 'var(--cat-accent, #B971DA)';
 
         container.innerHTML = `
             <div class="novidade-nav-bar">
@@ -303,7 +314,7 @@ document.addEventListener("DOMContentLoaded", () => {
                             <img class="author-head" src="https://mc-heads.net/avatar/${safeNick}" alt="${safeAutor}" onerror="this.src='https://mc-heads.net/avatar/MHF_Steve'">
                             <div class="author-details">
                                 <span class="author-name">${safeAutor}</span>
-                                <span class="author-role" style="color: ${escapeHTML(cargoCor)};">${escapeHTML(cargoNome)}</span>
+                                <span class="author-role" style="color: ${escapeHTML(corDisplay)};">${escapeHTML(cargoDisplay)}</span>
                             </div>
                         </div>
                         ${dataFormatada ? `
@@ -334,6 +345,24 @@ document.addEventListener("DOMContentLoaded", () => {
                 </footer>
             </article>
         `;
+
+        // Se o cargo não veio pré-carregado no payload, busca na API de equipe para atualizar dinamicamente
+        if (!cargoNome) {
+            fetch('/api/equipe_api.php')
+                .then(r => r.json())
+                .then(data => {
+                    const list = (data && Array.isArray(data.data)) ? data.data : (Array.isArray(data) ? data : []);
+                    const found = matchMemberCargo(list, news.autor);
+                    if (found) {
+                        const roleEl = container.querySelector('.author-role');
+                        if (roleEl) {
+                            roleEl.textContent = found.cargo;
+                            roleEl.style.color = found.cor;
+                        }
+                    }
+                })
+                .catch(() => {});
+        }
 
         setupCopyButtons();
     };
@@ -373,7 +402,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const apiUrl = `/api/novidades_api.php?id=${encodeURIComponent(id)}`;
     if (window.AppCache) {
-        AppCache.fetchWithCache('novidades_id_' + id, apiUrl, {
+        AppCache.fetchWithCache('novidades_id_v3_' + id, apiUrl, {
             onCached: renderNewsArticle,
             onFresh: renderNewsArticle,
             onError: (err) => {
