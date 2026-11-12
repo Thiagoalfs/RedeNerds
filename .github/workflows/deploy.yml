@@ -14,10 +14,10 @@ jobs:
       - name: Executar Deploy na VPS
         uses: appleboy/ssh-action@v1.0.3
         with:
-          host: ${{ secrets.VPS_HOST }}
-          username: ${{ secrets.VPS_USER }}
-          key: ${{ secrets.VPS_SSH_KEY }}
-          port: ${{ secrets.VPS_PORT }}
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USER }}
+          key: ${{ secrets.SSH_KEY }}
+          port: ${{ secrets.PORT }}
           script: |
             cd /var/www/nerdcube
             git pull origin main
