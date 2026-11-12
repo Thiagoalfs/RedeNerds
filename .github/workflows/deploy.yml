@@ -1,17 +1,25 @@
-name: Deploy via ftp
-on: push
+name: Deploy Automático na VPS
+
+on:
+  push:
+    branches:
+      - main
 
 jobs:
   deploy:
-    name: Deploy
+    name: Auto Deploy via SSH
     runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
 
-      - name: FTP Deploy Locaweb
-        uses: locaweb/ftp-deploy@1.0.0
+    steps:
+      - name: Executar Deploy na VPS
+        uses: appleboy/ssh-action@v1.0.3
         with:
-          host: ${{ secrets.HOST }}
-          user: ${{ secrets.USER }}
-          password: ${{ secrets.PASS }}
-          localDir: "."
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          port: ${{ secrets.VPS_PORT }}
+          script: |
+            cd /var/www/nerdcube
+            git pull origin main
+            docker compose up -d --build web
+            docker image prune -f
