@@ -1,0 +1,55 @@
+version: '3.8'
+
+services:
+  # ========================================================
+  # BANCO DE DADOS: MySQL 8.0 Isolado
+  # ========================================================
+  db:
+    image: mysql:8.0
+    container_name: nerdcube_db
+    restart: unless-stopped
+    command: --default-authentication-plugin=mysql_native_password --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${DB_NAME}
+      MYSQL_USER: ${DB_USER}
+      MYSQL_PASSWORD: ${DB_PASS}
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./docker-init:/docker-entrypoint-initdb.d:ro
+    networks:
+      - nerdcube_net
+    # Caso queira acessar o banco diretamente da sua máquina via DBeaver/Navicat, descomente:
+    # ports:
+    #   - "127.0.0.1:3306:3306"
+
+  # ========================================================
+  # APLICAÇÃO WEB: PHP 8.2 + Apache
+  # ========================================================
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: nerdcube_web
+    restart: unless-stopped
+    depends_on:
+      - db
+    ports:
+      - "80:80"
+    env_file:
+      - .env
+    environment:
+      # Sobrescreve DB_HOST para apontar diretamente para o container 'db' na rede interna
+      DB_HOST: db
+    volumes:
+      - .:/var/www/html
+    networks:
+      - nerdcube_net
+
+networks:
+  nerdcube_net:
+    driver: bridge
+
+volumes:
+  mysql_data:
+    driver: local

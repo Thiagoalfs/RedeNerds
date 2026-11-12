@@ -2,3 +2,7 @@ config.php
 gerar_hash.php
 AGENTS.md
 GEMINI.md
+.env
+.env.local
+.env.*.local
+docker-init/*.sql
