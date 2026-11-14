@@ -28,13 +28,16 @@
     background-color: #030407;
 }
 
-/* Fundo Temático Dinâmico do Servidor (ex: nerddead.webp) */
+/* Fundo Temático Dinâmico do Servidor (limitado abaixo da navbar) */
 .server-bg-backdrop {
     position: absolute;
-    inset: 0;
+    top: var(--navbar-height, 60px);
+    left: 0;
+    right: 0;
+    bottom: 0;
     z-index: 0;
     pointer-events: none;
-    background-position: center 20%;
+    background-position: center top;
     background-size: cover;
     background-repeat: no-repeat;
     filter: brightness(0.82) saturate(1.05);
@@ -51,11 +54,12 @@
     position: absolute;
     inset: 0;
     background:
-        radial-gradient(circle at 50% 15%, transparent 15%, rgba(3, 4, 7, 0.55) 85%),
+        radial-gradient(circle at 50% 18%, transparent 15%, rgba(3, 4, 7, 0.55) 85%),
         linear-gradient(
             180deg,
-            rgba(3, 4, 7, 0.58) 0%,
-            rgba(3, 4, 7, 0.42) 40%,
+            #030407 0%,
+            rgba(3, 4, 7, 0.45) 14%,
+            rgba(3, 4, 7, 0.42) 45%,
             rgba(3, 4, 7, 0.62) 100%
         );
 }
