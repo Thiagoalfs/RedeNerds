@@ -24,7 +24,7 @@ services:
     #   - "127.0.0.1:3306:3306"
 
   # ========================================================
-  # APLICAÇÃO WEB: PHP 8.2 + Apache
+  # APLICAÇÃO WEB: PHP 8.2 + Apache (Interno)
   # ========================================================
   web:
     build:
@@ -34,8 +34,6 @@ services:
     restart: unless-stopped
     depends_on:
       - db
-    ports:
-      - "80:80"
     env_file:
       - .env
     environment:
@@ -46,10 +44,36 @@ services:
     networks:
       - nerdcube_net
 
+  # ========================================================
+  # PROXY REVERSO + SSL AUTOMÁTICO (Portas 80 e 443)
+  # ========================================================
+  caddy:
+    image: caddy:2-alpine
+    container_name: nerdcube_caddy
+    restart: unless-stopped
+    depends_on:
+      - web
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"
+    env_file:
+      - .env
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    networks:
+      - nerdcube_net
+
 networks:
   nerdcube_net:
     driver: bridge
 
 volumes:
   mysql_data:
+    driver: local
+  caddy_data:
+    driver: local
+  caddy_config:
     driver: local

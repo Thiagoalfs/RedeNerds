@@ -1,0 +1,3 @@
+{$DOMAIN:redenerds.com.br}, www.{$DOMAIN:redenerds.com.br} {
+    reverse_proxy web:80
+}
