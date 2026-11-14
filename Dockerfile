@@ -1,4 +1,4 @@
-FROM php:8.2-apache
+FROM php:8.4-apache
 
 # 1. Instala dependências do sistema e bibliotecas para compilar extensões
 RUN apt-get update && apt-get install -y --no-install-recommends \
@@ -17,6 +17,13 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
         zip \
         opcache \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
+
+# 2. Hardening PHP: oculta versão nos headers e desabilita exibição de erros em produção
+RUN { \
+    echo "expose_php = Off"; \
+    echo "display_errors = Off"; \
+    echo "log_errors = On"; \
+} > /usr/local/etc/php/conf.d/security.ini
 
 # 2. Habilita módulos do Apache e permite uso de .htaccess
 RUN a2enmod rewrite headers \

@@ -25,6 +25,12 @@
 ErrorDocument 404 /errors/404/index.html
 ErrorDocument 429 /errors/429/index.html
 
-<FilesMatch "config\.php$">
+# Bloqueia acesso web às pastas .git e docker-init
+<IfModule mod_rewrite.c>
+    RewriteRule ^(\.git|docker-init)(/|$) - [F,L]
+</IfModule>
+
+# Bloqueia arquivos sensíveis, dumps SQL e arquivos de infraestrutura
+<FilesMatch "^(config\.php|\.env(\..*)?|Dockerfile|docker-compose\.yml|Caddyfile|\.gitignore|\.dockerignore)$|\.sql$">
     Require all denied
 </FilesMatch>
