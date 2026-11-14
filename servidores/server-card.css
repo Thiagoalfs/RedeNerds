@@ -10,6 +10,17 @@
     --theme-hover-bg: rgba(125, 185, 223, 0.12);
 }
 
+::selection {
+    background-color: var(--theme-color);
+    color: #030407;
+}
+
+.server-page-container a:focus-visible,
+.server-page-container button:focus-visible {
+    outline: 2px solid var(--theme-color);
+    outline-offset: 2px;
+}
+
 /* Fundo Temático Dinâmico do Servidor (ex: nerddeadbg.webp) */
 .server-bg-backdrop {
     position: fixed;
@@ -33,15 +44,12 @@
 .server-bg-backdrop::after {
     content: '';
     position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
+    inset: 0;
     background: linear-gradient(
         180deg,
-        rgba(3, 4, 7, 0.25) 0%,
-        rgba(3, 4, 7, 0.35) 45%,
-        rgba(3, 4, 7, 0.65) 100%
+        rgba(3, 4, 7, 0.28) 0%,
+        rgba(3, 4, 7, 0.42) 45%,
+        rgba(3, 4, 7, 0.72) 100%
     );
 }
 
@@ -60,11 +68,6 @@
 /* 1. Navegação de Retorno (Voltar) */
 .server-nav-back {
     margin: 0 0 1.5rem 0;
-    padding: 0 !important;
-    background: transparent !important;
-    background-color: transparent !important;
-    border: none !important;
-    box-shadow: none !important;
     display: flex;
     align-items: center;
     width: fit-content;
@@ -74,12 +77,7 @@
     display: inline-flex;
     align-items: center;
     gap: 9px;
-    background: transparent !important;
-    background-color: transparent !important;
-    border: none !important;
-    box-shadow: none !important;
-    padding: 0 !important;
-    color: #9ca3af;
+    color: var(--color-text-muted);
     text-decoration: none;
     font-size: 0.92rem;
     font-weight: 600;
@@ -94,20 +92,22 @@
 }
 
 .btn-back:hover {
-    color: #ffffff;
+    color: var(--color-text-main);
 }
 
 .btn-back:hover i {
     transform: translateX(-4px);
-    color: #ffffff;
+    color: var(--color-text-main);
 }
 
 /* 2. Banner / Hero Principal do Servidor */
 .server-hero-card {
-    background-color: rgba(11, 15, 21, 0.92);
+    position: relative;
+    overflow: hidden;
+    background-color: rgba(14, 18, 27, 0.94);
     border: 1px solid var(--color-border);
     border-radius: 14px;
-    padding: 1.5rem;
+    padding: 1.65rem 1.75rem;
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -115,6 +115,15 @@
     margin-bottom: 2rem;
     box-sizing: border-box;
     box-shadow: var(--shadow-hard);
+}
+
+.server-hero-accent {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background-color: var(--theme-color);
 }
 
 .server-hero-left {
@@ -125,8 +134,8 @@
 }
 
 .server-hero-icon-frame {
-    width: 74px;
-    height: 74px;
+    width: 76px;
+    height: 76px;
     border-radius: 12px;
     background-color: var(--color-surface-card);
     border: 2px solid var(--theme-color);
@@ -135,7 +144,7 @@
     justify-content: center;
     flex-shrink: 0;
     overflow: hidden;
-    box-shadow: var(--shadow-hard);
+    box-shadow: var(--shadow-hard-sm);
 }
 
 .server-hero-icon {
@@ -153,7 +162,7 @@
 .server-hero-info {
     display: flex;
     flex-direction: column;
-    gap: 6px;
+    gap: 8px;
     min-width: 0;
 }
 
@@ -164,34 +173,10 @@
     flex-wrap: wrap;
 }
 
-.badge-status-online {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    padding: 3px 9px;
-    background-color: rgba(46, 204, 113, 0.12);
-    border: 1px solid rgba(46, 204, 113, 0.3);
-    border-radius: 6px;
-    color: #2ecc71;
-    font-size: 0.75rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-}
-
-.pulse-dot {
-    width: 7px;
-    height: 7px;
-    background-color: #2ecc71;
-    border-radius: 50%;
-    display: inline-block;
-    box-shadow: 0 0 8px #2ecc71;
-}
-
 .badge-server-type {
     display: inline-flex;
     align-items: center;
-    padding: 3px 9px;
+    padding: 3px 10px;
     background-color: rgba(255, 255, 255, 0.06);
     border: 1px solid var(--color-border);
     border-radius: 6px;
@@ -202,10 +187,11 @@
 
 .server-hero-title {
     margin: 0;
-    font-size: 1.85rem;
+    font-size: 1.95rem;
     font-weight: 800;
+    letter-spacing: -0.02em;
     color: var(--color-text-main);
-    line-height: 1.2;
+    line-height: 1.15;
     overflow-wrap: break-word;
 }
 
@@ -222,38 +208,38 @@
 }
 
 .quick-ip-label {
-    font-size: 0.78rem;
+    font-size: 0.74rem;
     font-weight: 600;
-    color: var(--color-text-dim);
+    color: var(--color-text-muted);
     text-transform: uppercase;
-    letter-spacing: 0.5px;
+    letter-spacing: 0.6px;
 }
 
 .quick-ip-field {
     display: inline-flex;
     align-items: center;
-    gap: 8px;
+    gap: 10px;
     background-color: var(--color-surface-card);
-    border: 1px solid var(--color-border);
+    border: 1px solid var(--color-border-strong);
     border-radius: 8px;
-    padding: 6px 10px 6px 14px;
+    padding: 6px 8px 6px 14px;
     box-sizing: border-box;
 }
 
 .server-ip-code {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 0.9rem;
+    font-family: var(--font-mono);
+    font-size: 0.92rem;
     font-weight: 600;
     color: var(--theme-color);
-    letter-spacing: 0.3px;
+    letter-spacing: 0.2px;
 }
 
 .btn-copy-icon {
     background: rgba(255, 255, 255, 0.08);
     border: 1px solid var(--color-border);
-    color: var(--color-text-muted);
-    width: 32px;
-    height: 32px;
+    color: var(--color-text-main);
+    width: 34px;
+    height: 34px;
     border-radius: 6px;
     display: inline-flex;
     align-items: center;
@@ -270,9 +256,9 @@
 }
 
 .btn-copy-icon.copied {
-    background-color: #2ecc71 !important;
-    border-color: #2ecc71 !important;
-    color: #030407 !important;
+    background-color: #2ecc71;
+    border-color: #2ecc71;
+    color: #030407;
 }
 
 /* 3. Grade Principal de Conteúdo (2 Colunas no Desktop) */
@@ -293,7 +279,7 @@
 
 /* Blocos de Conteúdo */
 .server-card-block {
-    background-color: rgba(11, 15, 21, 0.92);
+    background-color: rgba(14, 18, 27, 0.94);
     border: 1px solid var(--color-border);
     border-radius: 12px;
     padding: 1.75rem;
@@ -322,8 +308,9 @@
 
 .block-header-title h2 {
     margin: 0;
-    font-size: 1.25rem;
+    font-size: 1.3rem;
     font-weight: 700;
+    letter-spacing: -0.01em;
     color: var(--color-text-main);
 }
 
@@ -334,46 +321,46 @@
 }
 
 .server-description-text {
-    color: #c9ccd3;
-    line-height: 1.8;
-    font-size: 1rem;
+    color: #cbd5e1;
+    line-height: 1.78;
+    font-size: 0.98rem;
+    max-width: 65ch;
     margin: 0;
     white-space: pre-line;
 }
 
-/* Grade de Recursos / Destaques */
+/* Grade de Recursos / Destaques (Informativa, sem parecer clicável) */
 .server-features-grid {
     list-style: none;
     padding: 0;
     margin: 0;
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-    gap: 10px;
+    gap: 14px 18px;
 }
 
 .server-features-grid li {
     display: flex;
     align-items: flex-start;
-    gap: 10px;
-    padding: 10px 14px;
-    background-color: var(--color-surface-card);
-    border: 1px solid var(--color-border);
-    border-radius: 8px;
+    gap: 12px;
+    padding: 4px 0;
     color: #e2e8f0;
-    font-size: 0.92rem;
-    line-height: 1.45;
-    transition: border-color 0.2s ease;
-}
-
-.server-features-grid li:hover {
-    border-color: rgba(255, 255, 255, 0.18);
+    font-size: 0.93rem;
+    line-height: 1.48;
 }
 
 .server-features-grid li i {
+    width: 26px;
+    height: 26px;
+    border-radius: 6px;
+    background-color: var(--theme-hover-bg);
     color: var(--theme-color);
-    font-size: 0.9rem;
-    margin-top: 3px;
+    font-size: 0.78rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
     flex-shrink: 0;
+    margin-top: 1px;
 }
 
 /* 4. Coluna Lateral (Sidebar) */
@@ -384,7 +371,7 @@
 }
 
 .server-action-card {
-    background-color: rgba(11, 15, 21, 0.92);
+    background-color: rgba(14, 18, 27, 0.94);
     border: 1px solid var(--color-border);
     border-radius: 12px;
     padding: 1.5rem;
@@ -408,9 +395,9 @@
 
 .sidebar-card-subtitle {
     margin: 0 0 1.25rem 0;
-    font-size: 0.85rem;
+    font-size: 0.86rem;
     color: var(--color-text-muted);
-    line-height: 1.4;
+    line-height: 1.45;
 }
 
 .sidebar-buttons-group {
@@ -428,7 +415,7 @@
     width: 100%;
     padding: 12px 18px;
     background-color: var(--theme-color);
-    color: #030407 !important;
+    color: #030407;
     font-weight: 700;
     font-size: 0.95rem;
     text-decoration: none;
@@ -436,43 +423,13 @@
     border: none;
     cursor: pointer;
     box-sizing: border-box;
+    box-shadow: var(--shadow-hard-sm);
     transition: filter 0.2s ease, transform 0.2s ease;
 }
 
 .btn-cta-primary:hover {
-    filter: brightness(1.1);
+    filter: brightness(1.08);
     transform: translateY(-1px);
-}
-
-.btn-cta-secondary {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    width: 100%;
-    padding: 11px 18px;
-    background-color: var(--color-surface-card);
-    border: 1px solid var(--color-border);
-    color: #ffffff;
-    font-weight: 600;
-    font-size: 0.92rem;
-    border-radius: 8px;
-    cursor: pointer;
-    font-family: inherit;
-    box-sizing: border-box;
-    transition: background-color 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
-}
-
-.btn-cta-secondary:hover {
-    background-color: var(--color-surface-hover);
-    border-color: rgba(255, 255, 255, 0.2);
-    transform: translateY(-1px);
-}
-
-.btn-cta-secondary.copied {
-    background-color: rgba(46, 204, 113, 0.15) !important;
-    border-color: #2ecc71 !important;
-    color: #2ecc71 !important;
 }
 
 /* Especificações Rápidas */
@@ -492,37 +449,47 @@
 }
 
 .spec-name {
-    color: var(--color-text-dim);
+    color: var(--color-text-muted);
     display: flex;
     align-items: center;
-    gap: 6px;
+    gap: 7px;
 }
 
 .spec-value {
-    color: #e2e8f0;
+    color: var(--color-text-main);
     font-weight: 600;
 }
 
 /* Card VIP na Sidebar */
 .server-vip-card {
-    background: var(--color-surface);
-    border: 1.5px solid rgba(185, 113, 218, 0.25);
+    background-color: rgba(14, 18, 27, 0.96);
+    border: 1px solid rgba(185, 113, 218, 0.35);
     border-radius: 12px;
-    padding: 1.4rem;
+    padding: 1.5rem 1.4rem 1.4rem 1.4rem;
     box-sizing: border-box;
     position: relative;
     overflow: hidden;
+    box-shadow: var(--shadow-hard);
+}
+
+.vip-card-glow-bar {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background-color: var(--color-primary);
 }
 
 .vip-card-badge {
     display: inline-flex;
     align-items: center;
     gap: 6px;
-    color: #B971DA;
-    font-size: 0.78rem;
+    color: var(--color-primary);
+    font-size: 0.76rem;
     font-weight: 700;
     text-transform: uppercase;
-    letter-spacing: 0.5px;
+    letter-spacing: 0.6px;
     margin-bottom: 8px;
 }
 
@@ -530,14 +497,14 @@
     margin: 0 0 6px 0;
     font-size: 1.05rem;
     font-weight: 700;
-    color: #ffffff;
+    color: var(--color-text-main);
 }
 
 .server-vip-card p {
-    margin: 0 0 1.1rem 0;
-    font-size: 0.85rem;
-    color: #a1a7b4;
-    line-height: 1.45;
+    margin: 0 0 1.15rem 0;
+    font-size: 0.86rem;
+    color: var(--color-text-muted);
+    line-height: 1.5;
 }
 
 .btn-cta-vip {
@@ -547,21 +514,101 @@
     gap: 8px;
     width: 100%;
     padding: 10px 16px;
-    background: rgba(185, 113, 218, 0.15);
-    border: 1.5px solid #B971DA;
-    color: #ffffff;
+    background: rgba(185, 113, 218, 0.14);
+    border: 1.5px solid var(--color-primary);
+    color: var(--color-text-main);
     font-weight: 700;
     font-size: 0.9rem;
     text-decoration: none;
     border-radius: 8px;
     box-sizing: border-box;
-    transition: all 0.2s ease;
+    transition: background-color 0.2s ease, color 0.2s ease, transform 0.2s ease;
 }
 
 .btn-cta-vip:hover {
-    background-color: #B971DA;
+    background-color: var(--color-primary);
     color: #030407;
     transform: translateY(-1px);
+}
+
+/* ==========================================================================
+   SKELETON LOADING STATE (Zero flash de conteúdo falso / Zero CLS)
+   ========================================================================== */
+@keyframes server-shimmer {
+    0% { background-position: -200% 0; }
+    100% { background-position: 200% 0; }
+}
+
+.skeleton-box {
+    display: none;
+    border-radius: 6px;
+    background: linear-gradient(
+        90deg,
+        rgba(255, 255, 255, 0.04) 25%,
+        rgba(255, 255, 255, 0.09) 50%,
+        rgba(255, 255, 255, 0.04) 75%
+    );
+    background-size: 200% 100%;
+    animation: server-shimmer 1.5s infinite linear;
+}
+
+.skeleton-lines,
+.skeleton-features {
+    display: none;
+}
+
+.is-loading .skeleton-box {
+    display: block;
+}
+
+.is-loading .skeleton-icon {
+    width: 100%;
+    height: 100%;
+    border-radius: 10px;
+}
+
+.is-loading .skeleton-badge {
+    width: 150px;
+    height: 24px;
+}
+
+.is-loading .skeleton-title {
+    width: 240px;
+    max-width: 100%;
+    height: 34px;
+}
+
+.is-loading .skeleton-lines {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.is-loading .skeleton-line {
+    width: 100%;
+    height: 16px;
+}
+
+.is-loading .skeleton-line.short {
+    width: 68%;
+}
+
+.is-loading .skeleton-features {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 12px;
+}
+
+.is-loading .skeleton-feature-item {
+    height: 30px;
+}
+
+.is-loading #server-status-badge,
+.is-loading #server-category-badge,
+.is-loading .server-hero-title,
+.is-loading .server-description-text,
+.is-loading .server-features-grid {
+    display: none;
 }
 
 /* ==========================================================================
@@ -591,6 +638,10 @@
     .server-grid-layout {
         grid-template-columns: 1fr;
     }
+
+    .server-sidebar {
+        order: -1;
+    }
 }
 
 @media (max-width: 540px) {
@@ -600,16 +651,16 @@
     }
 
     .server-hero-card {
-        padding: 1.15rem;
+        padding: 1.2rem;
     }
 
     .server-hero-icon-frame {
-        width: 60px;
-        height: 60px;
+        width: 62px;
+        height: 62px;
     }
 
     .server-hero-title {
-        font-size: 1.45rem;
+        font-size: 1.5rem;
     }
 
     .server-card-block {

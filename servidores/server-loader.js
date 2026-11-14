@@ -10,7 +10,9 @@ document.addEventListener("DOMContentLoaded", function () {
 const SERVIDORES_API_URL = "/api/servidores_api.php";
 
 function renderizarServidorDados(dados, key) {
+    const containerEl = document.getElementById("container");
     if (!dados || !dados.success || !Array.isArray(dados.servidores) || dados.servidores.length === 0) {
+        if (containerEl) containerEl.classList.remove("is-loading");
         return;
     }
 
@@ -113,6 +115,10 @@ function renderizarServidorDados(dados, key) {
     if (btnVipStore) {
         btnVipStore.href = `/loja?servidor=${encodeURIComponent(server.nome || 'potatonerds')}`;
     }
+
+    if (containerEl) {
+        containerEl.classList.remove("is-loading");
+    }
 }
 
 async function carregarServidor() {
@@ -123,7 +129,17 @@ async function carregarServidor() {
         await AppCache.fetchWithCache('servidores', SERVIDORES_API_URL, {
             onCached: (dados) => renderizarServidorDados(dados, key),
             onFresh: (dados) => renderizarServidorDados(dados, key),
-            onError: (err) => console.error("Erro ao carregar servidor:", err)
+            onError: (err) => {
+                console.error("Erro ao carregar servidor:", err);
+                const containerEl = document.getElementById("container");
+                if (containerEl && containerEl.classList.contains("is-loading")) {
+                    containerEl.classList.remove("is-loading");
+                    const titleEl = document.getElementById("server-section-title");
+                    if (titleEl) titleEl.textContent = "Servidor indisponível";
+                    const aboutEl = document.getElementById("server-about");
+                    if (aboutEl) aboutEl.textContent = "Não foi possível carregar as informações deste servidor no momento. Tente atualizar a página.";
+                }
+            }
         });
     } else {
         try {
