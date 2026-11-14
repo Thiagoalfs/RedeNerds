@@ -39,18 +39,6 @@ function renderizarServidorDados(dados, key) {
     const titleEl = document.getElementById("server-section-title");
     if (titleEl) titleEl.textContent = server.servername;
 
-    // Badge descritiva
-    const catBadge = document.getElementById("server-category-badge");
-    if (catBadge) {
-        if (server.servername.toLowerCase().includes("potato")) {
-            catBadge.textContent = "Modpack Tech & Automação";
-        } else if (server.servername.toLowerCase().includes("dead")) {
-            catBadge.textContent = "Hardcore Survival & Apocalipse";
-        } else {
-            catBadge.textContent = "Servidor Oficial";
-        }
-    }
-
     // 3.1 Fundo Temático Dinâmico do Servidor (via Banco de Dados ou Fallback)
     const bgBackdrop = document.getElementById("server-bg-backdrop");
     if (bgBackdrop) {
