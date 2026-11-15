@@ -37,7 +37,7 @@ require_once __DIR__ . '/../includes/admin_header.php';
         id="snappymail-frame"
         class="email-frame"
         src="/webmail/"
-        title="Cliente de E-Mail SnappyMail"
+        title="Cliente de E-Mail RNMail"
         loading="eager"
     ></iframe>
 </div>
@@ -2020,6 +2020,20 @@ require_once __DIR__ . '/../includes/admin_header.php';
         });
     }
 
+    function applyBranding(doc) {
+        if (doc.title && /snappymail/i.test(doc.title)) {
+            doc.title = doc.title.replace(/snappymail/gi, 'RNMail');
+        }
+        const loadingDesc = doc.getElementById('rl-loading-desc');
+        if (loadingDesc && loadingDesc.textContent.trim() !== 'RNMail') {
+            loadingDesc.textContent = 'RNMail';
+        }
+        const loginDesc = doc.querySelector('.LoginView .descWrapper');
+        if (loginDesc && loginDesc.textContent.trim() !== 'RNMail') {
+            loginDesc.textContent = 'RNMail';
+        }
+    }
+
     function applyThemeToIframe() {
         try {
             const doc = frame.contentDocument;
@@ -2047,6 +2061,7 @@ require_once __DIR__ . '/../includes/admin_header.php';
             enhanceSettingsIcons(doc);
             enhanceMessageView(doc);
             enhanceComposeModal(doc);
+            applyBranding(doc);
             fixEmailContrast(doc, isDark);
             if (!doc._adminNoDblClick) {
                 doc._adminNoDblClick = true;
@@ -2073,6 +2088,7 @@ require_once __DIR__ . '/../includes/admin_header.php';
                         enhanceSettingsIcons(doc);
                         enhanceMessageView(doc);
                         enhanceComposeModal(doc);
+                        applyBranding(doc);
                         fixEmailContrast(doc, darkNow);
                     });
                 });
@@ -2083,7 +2099,20 @@ require_once __DIR__ . '/../includes/admin_header.php';
         }
     }
 
-    frame.addEventListener('load', applyThemeToIframe);
+    frame.addEventListener('load', () => {
+        clearInterval(earlyBrandTimer);
+        applyThemeToIframe();
+    });
+
+    let earlyTicks = 0;
+    const earlyBrandTimer = setInterval(() => {
+        earlyTicks++;
+        try {
+            const doc = frame.contentDocument;
+            if (doc) applyBranding(doc);
+        } catch (_) {}
+        if (earlyTicks >= 120) clearInterval(earlyBrandTimer);
+    }, 25);
 
     const observer = new MutationObserver(applyThemeToIframe);
     observer.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
