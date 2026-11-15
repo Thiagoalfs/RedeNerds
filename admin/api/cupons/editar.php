@@ -82,7 +82,7 @@ try {
     $upd->execute([
         ':codigo' => $codigo,
         ':porcentagem' => $porcentagem,
-        ':servidor_id' => $servidor_id > 0 ? $servidor_id : 0,
+        ':servidor_id' => $servidor_id > 0 ? $servidor_id : null,
         ':expira_em' => $expiraSql,
         ':ativo' => $ativo,
         ':id' => $id

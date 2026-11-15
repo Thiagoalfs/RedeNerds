@@ -127,4 +127,22 @@ require_once __DIR__ . "/../admin/includes/image_upload_helper.php";
 assert(function_exists('adminConverterParaWebp') && function_exists('adminObterMimeImagem'), "Falha: image_upload_helper.php deve exportar funcoes compartilhadas");
 echo "  [PASS] prepararCheckoutLoja (VIP, Chave, Cupons), reset token e image_upload_helper validados.\n";
 
+// 7. Teste de endurecimento de schema (Escopo 1) e sentinela NULL em cupons
+$migrationFile = __DIR__ . "/../migrations/2026_11_15_schema_hardening.sql";
+assert(file_exists($migrationFile), "Falha: migracao 2026_11_15_schema_hardening.sql deve existir");
+$migrationSql = file_get_contents($migrationFile);
+assert(strpos($migrationSql, 'CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci') !== false, "Falha: migracao deve padronizar collation utf8mb4_unicode_ci");
+assert(strpos($migrationSql, 'UPDATE `chaves` SET `servidor_id` = NULL WHERE `servidor_id` = 0') !== false, "Falha: migracao deve converter sentinela 0 para NULL em chaves");
+assert(strpos($migrationSql, 'UPDATE `cupons` SET `servidor_id` = NULL WHERE `servidor_id` = 0') !== false, "Falha: migracao deve converter sentinela 0 para NULL em cupons");
+foreach (['fk_chaves_servidor', 'fk_cupons_servidor', 'fk_equipe_cargo', 'fk_admin_logs_usuario', 'fk_pedidos_vip', 'fk_pedidos_chave'] as $fk) {
+    assert(strpos($migrationSql, $fk) !== false, "Falha: migracao deve definir FK {$fk}");
+}
+assert(preg_match('/MODIFY COLUMN\s+`(?:criado_em|created_at|atualizado_em)`\s+DATETIME/i', $migrationSql) === 1, "Falha: migracao deve converter colunas TIMESTAMP para DATETIME");
+
+foreach (['criar.php', 'editar.php'] as $cupomApi) {
+    $src = file_get_contents(__DIR__ . "/../admin/api/cupons/" . $cupomApi);
+    assert(preg_match("/':servidor_id'\s*=>\s*\\\$servidor_id\s*>\s*0\s*\?\s*\\\$servidor_id\s*:\s*null/", $src) === 1, "Falha em cupons/{$cupomApi}: deve bindar null quando servidor_id <= 0");
+}
+echo "  [PASS] Migracao Scope 1 (collation, NULL sentinels, FKs, DATETIME) e bind NULL em cupons validados.\n";
+
 echo "✔ Todos os testes de correções de auditoria passaram com sucesso!\n";

@@ -42,6 +42,15 @@ if (!isset($pdo) || !($pdo instanceof PDO)) {
 }
 
 try {
+    $stmtCargo = $pdo->prepare("SELECT 1 FROM equipe_cargos WHERE nome = :nome LIMIT 1");
+    $stmtCargo->execute([':nome' => $cargo]);
+    if (!$stmtCargo->fetchColumn()) {
+        http_response_code(400);
+        header('Content-Type: application/json; charset=utf-8');
+        echo json_encode(["success" => false, "erro" => "Cargo inválido ou não cadastrado."], JSON_UNESCAPED_UNICODE);
+        exit;
+    }
+
     $stmt = $pdo->prepare("INSERT INTO equipe (nick, cargo) VALUES (:nick, :cargo)");
     $stmt->execute([':nick' => $nick, ':cargo' => $cargo]);
     $novoId = (int)$pdo->lastInsertId();

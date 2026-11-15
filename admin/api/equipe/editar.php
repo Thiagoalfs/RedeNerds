@@ -62,6 +62,15 @@ try {
         exit;
     }
 
+    $stmtCargo = $pdo->prepare("SELECT 1 FROM equipe_cargos WHERE nome = :nome LIMIT 1");
+    $stmtCargo->execute([':nome' => $cargo]);
+    if (!$stmtCargo->fetchColumn()) {
+        http_response_code(400);
+        header('Content-Type: application/json; charset=utf-8');
+        echo json_encode(["success" => false, "erro" => "Cargo inválido ou não cadastrado."], JSON_UNESCAPED_UNICODE);
+        exit;
+    }
+
     $versaoHash = trim($_POST['_versao_hash'] ?? '');
     $pdo->beginTransaction();
     exigirConcorrenciaEdicao($pdo, 'equipe', $id, $versaoHash, [], true);
