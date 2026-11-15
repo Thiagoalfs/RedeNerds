@@ -1,65 +1,17 @@
 <?php
 
+require_once __DIR__ . '/../includes/image_upload_helper.php';
+
 define('BG_UPLOAD_DIR_PUBLICA', '/assets/servidores/');
 
-/**
- * Retorna o caminho físico do diretório de assets/servidores.
- */
 function getBgUploadDirFisica(): string
 {
-    $candidatos = [
-        realpath(__DIR__ . '/../../') . '/assets/servidores/',
-        realpath(__DIR__ . '/../') . '/assets/servidores/',
-        realpath(__DIR__ . '/../../../') . '/public_html/assets/servidores/',
-        ($_SERVER['DOCUMENT_ROOT'] ?? '') . '/assets/servidores/'
-    ];
-
-    foreach ($candidatos as $dir) {
-        if (!empty($dir) && is_dir($dir)) {
-            return rtrim($dir, '/\\') . '/';
-        }
-    }
-
-    $fallback = (realpath(__DIR__ . '/../../') ?: dirname(__DIR__, 2)) . '/assets/servidores/';
-    if (!is_dir($fallback)) {
-        @mkdir($fallback, 0755, true);
-    }
-    return rtrim($fallback, '/\\') . '/';
+    return adminUploadDirFisica(BG_UPLOAD_DIR_PUBLICA);
 }
 
-/**
- * Obtém o MIME Type de forma segura sem quebrar se extensões estiverem ausentes.
- */
 function obterMimeBg(string $caminho, ?string $fallbackMime = null): string
 {
-    if (function_exists('finfo_open')) {
-        $finfo = @finfo_open(FILEINFO_MIME_TYPE);
-        if ($finfo) {
-            $mime = @finfo_file($finfo, $caminho);
-            if (PHP_VERSION_ID < 80500) {
-                @finfo_close($finfo);
-            }
-            if (!empty($mime)) {
-                return strtolower($mime);
-            }
-        }
-    }
-
-    if (function_exists('mime_content_type')) {
-        $mime = @mime_content_type($caminho);
-        if (!empty($mime)) {
-            return strtolower($mime);
-        }
-    }
-
-    if (function_exists('getimagesize')) {
-        $info = @getimagesize($caminho);
-        if (!empty($info['mime'])) {
-            return strtolower($info['mime']);
-        }
-    }
-
-    return $fallbackMime ? strtolower($fallbackMime) : 'application/octet-stream';
+    return adminObterMimeImagem($caminho, $fallbackMime);
 }
 
 /**
@@ -188,96 +140,12 @@ function processarUploadBgServidor(?string $bgAtual = null): array
     return [$bgAtual, "Não foi possível gravar a imagem de fundo no diretório do servidor."];
 }
 
-/**
- * Converte a imagem enviada para WebP preservando qualidade e transparência.
- */
 function converterImagemParaWebp(string $caminhoOrigem, string $caminhoDestino, string $mime, int $qualidade = 88): bool
 {
-    @ini_set('memory_limit', '256M');
-
-    $imagem = null;
-
-    try {
-        switch ($mime) {
-            case 'image/jpeg':
-            case 'image/pjpeg':
-                if (function_exists('imagecreatefromjpeg')) {
-                    $imagem = @imagecreatefromjpeg($caminhoOrigem);
-                }
-                break;
-            case 'image/png':
-            case 'image/x-png':
-                if (function_exists('imagecreatefrompng')) {
-                    $imagem = @imagecreatefrompng($caminhoOrigem);
-                }
-                break;
-            case 'image/webp':
-                if (function_exists('imagecreatefromwebp')) {
-                    $imagem = @imagecreatefromwebp($caminhoOrigem);
-                }
-                break;
-            case 'image/gif':
-                if (function_exists('imagecreatefromgif')) {
-                    $imagem = @imagecreatefromgif($caminhoOrigem);
-                }
-                break;
-            case 'image/avif':
-                if (function_exists('imagecreatefromavif')) {
-                    $imagem = @imagecreatefromavif($caminhoOrigem);
-                }
-                break;
-        }
-
-        // Fallback genérico via string de bytes
-        if (!$imagem && function_exists('imagecreatefromstring')) {
-            $conteudo = @file_get_contents($caminhoOrigem);
-            if ($conteudo !== false) {
-                $imagem = @imagecreatefromstring($conteudo);
-            }
-        }
-
-        if (!$imagem) {
-            return false;
-        }
-
-        if (function_exists('imageistruecolor') && !imageistruecolor($imagem)) {
-            if (function_exists('imagepalettetotruecolor')) {
-                @imagepalettetotruecolor($imagem);
-            }
-        }
-        if (function_exists('imagealphablending')) {
-            @imagealphablending($imagem, true);
-        }
-        if (function_exists('imagesavealpha')) {
-            @imagesavealpha($imagem, true);
-        }
-
-        $sucesso = @imagewebp($imagem, $caminhoDestino, $qualidade);
-
-        if (PHP_VERSION_ID < 80000 && is_resource($imagem)) {
-            @imagedestroy($imagem);
-        }
-
-        return (bool)$sucesso;
-    } catch (\Throwable $e) {
-        error_log("Erro em converterImagemParaWebp: " . $e->getMessage());
-        return false;
-    }
+    return adminConverterParaWebp($caminhoOrigem, $caminhoDestino, $mime, $qualidade);
 }
 
-/**
- * Apaga o arquivo físico antigo caso necessário.
- */
 function apagarBgAntigoSeForUpload(?string $bgAtual, string $bgNovo): void
 {
-    if (
-        $bgAtual
-        && strpos($bgAtual, BG_UPLOAD_DIR_PUBLICA) === 0
-        && $bgAtual !== $bgNovo
-    ) {
-        $antigoCaminhoFisico = getBgUploadDirFisica() . basename($bgAtual);
-        if (is_file($antigoCaminhoFisico)) {
-            @unlink($antigoCaminhoFisico);
-        }
-    }
+    adminApagarUploadAntigo($bgAtual, $bgNovo, BG_UPLOAD_DIR_PUBLICA);
 }

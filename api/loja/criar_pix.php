@@ -60,156 +60,33 @@ if (!is_array($data) || empty($data)) {
     $data = $_POST;
 }
 
-$nick = trim((string)($data['nick'] ?? ''));
-$tipoConta = strtolower(trim((string)($data['tipo_conta'] ?? 'original')));
-$servidor = trim((string)($data['servidor'] ?? ''));
-$tipoProduto = strtolower(trim((string)($data['tipo_produto'] ?? 'vip')));
-if (!in_array($tipoProduto, ['vip', 'chave'], true)) {
-    $tipoProduto = 'vip';
-}
-
-$vipId = (int)($data['vip_id'] ?? 0);
-$chaveId = (int)($data['chave_id'] ?? 0);
-$itemId = ($tipoProduto === 'chave') ? ($chaveId > 0 ? $chaveId : $vipId) : $vipId;
-
-$quantidade = filter_var($data['quantidade'] ?? 1, FILTER_VALIDATE_INT);
-if ($quantidade === false || $quantidade < 1) $quantidade = 1;
-if ($quantidade > 100) $quantidade = 100;
-if ($tipoProduto === 'vip') $quantidade = 1;
-
-// Validação dos campos obrigatórios
-if (empty($nick) || strlen($nick) < 3 || strlen($nick) > 16 || !preg_match('/^[a-zA-Z0-9_]+$/', $nick)) {
-    http_response_code(400);
-    echo json_encode(["erro" => "Nick inválido. Use de 3 a 16 caracteres alfanuméricos ou underline."], JSON_UNESCAPED_UNICODE);
-    exit;
-}
-
-if (!in_array($tipoConta, ['original', 'pirata'], true)) {
-    $tipoConta = 'original';
-}
-
-if (empty($servidor)) {
-    http_response_code(400);
-    echo json_encode(["erro" => "Selecione o servidor onde deseja receber o produto."], JSON_UNESCAPED_UNICODE);
-    exit;
-}
-
-$cupomEnviado = strtoupper(trim((string)($data['cupom'] ?? '')));
-$cupomCodigo = null;
-$valorOriginal = 0.00;
-$descontoAplicado = 0.00;
-
-// Validação e busca estrita do item no banco de dados
-if ($itemId <= 0) {
-    http_response_code(400);
-    echo json_encode(["erro" => "Identificador do produto inválido."], JSON_UNESCAPED_UNICODE);
-    exit;
-}
-
 if (!isset($pdo) || !($pdo instanceof PDO)) {
     http_response_code(500);
     echo json_encode(["erro" => "Conexão com o banco de dados indisponível."], JSON_UNESCAPED_UNICODE);
     exit;
 }
 
-
-
-if ($tipoProduto === 'chave') {
-    $stmtItem = $pdo->prepare("SELECT id, nome, preco, servidor_id FROM chaves WHERE id = :id AND (ativo = 1 OR ativo IS NULL) LIMIT 1");
-} else {
-    $stmtItem = $pdo->prepare("SELECT id, nome, preco, servidor_id FROM vips WHERE id = :id AND (ativo = 1 OR ativo IS NULL) LIMIT 1");
-}
-$stmtItem->execute([':id' => $itemId]);
-$itemRow = $stmtItem->fetch(PDO::FETCH_ASSOC);
-
-if (!$itemRow) {
-    http_response_code(404);
-    echo json_encode(["erro" => ($tipoProduto === 'chave' ? "Pacote" : "Pacote VIP") . " não encontrado ou inativo."], JSON_UNESCAPED_UNICODE);
+$checkout = prepararCheckoutLoja($pdo, $data);
+if (!$checkout['ok']) {
+    http_response_code($checkout['status']);
+    echo json_encode(["erro" => $checkout['erro']], JSON_UNESCAPED_UNICODE);
     exit;
 }
 
-$precoUnitario = (float)$itemRow['preco'];
-$valorOriginal = round($precoUnitario * $quantidade, 2);
-$itemNome = (string)$itemRow['nome'];
-$valor = $valorOriginal;
-
-if ($valor <= 0) {
-    http_response_code(400);
-    echo json_encode(["erro" => "Valor do produto inválido."], JSON_UNESCAPED_UNICODE);
-    exit;
-}
-
-// Validação do Servidor e correspondência com o item
-$srvSlug = strtolower(preg_replace('/[^a-zA-Z0-9]/', '', $servidor));
-$stmtCheckSrv = $pdo->prepare("SELECT id, servername, nome, enabled FROM servidores WHERE (servername = :srv OR nome = :srvSlug) LIMIT 1");
-$stmtCheckSrv->execute([':srv' => $servidor, ':srvSlug' => $srvSlug]);
-$srvRow = $stmtCheckSrv->fetch(PDO::FETCH_ASSOC);
-
-if (!$srvRow || (isset($srvRow['enabled']) && (int)$srvRow['enabled'] === 0)) {
-    http_response_code(400);
-    echo json_encode(["erro" => "O servidor selecionado é inválido ou está desabilitado."], JSON_UNESCAPED_UNICODE);
-    exit;
-}
-
-$servidorId = (int)$srvRow['id'];
-$servidor = (string)$srvRow['servername'];
-
-// Confere se o servidor do item corresponde ao servidor selecionado
-$itemServidorId = (int)($itemRow['servidor_id'] ?? 0);
-if ($itemServidorId > 0 && $itemServidorId !== $servidorId) {
-    http_response_code(400);
-    echo json_encode(["erro" => "O pacote selecionado não pertence ao servidor {$servidor}."], JSON_UNESCAPED_UNICODE);
-    exit;
-}
-
-// Validação de Cupom de Desconto se fornecido
-if (!empty($cupomEnviado)) {
-    $stmtCupom = $pdo->prepare("SELECT * FROM cupons WHERE codigo = :codigo LIMIT 1");
-    $stmtCupom->execute([':codigo' => $cupomEnviado]);
-    $cupomRow = $stmtCupom->fetch(PDO::FETCH_ASSOC);
-
-    if ($cupomRow) {
-        $now = time();
-        $expiraTs = strtotime((string)$cupomRow['expira_em']);
-        $isExpirado = ($expiraTs && $expiraTs < $now);
-
-        if (!$cupomRow['ativo']) {
-            http_response_code(400);
-            echo json_encode(["erro" => "O cupom '{$cupomEnviado}' está desativado."], JSON_UNESCAPED_UNICODE);
-            exit;
-        }
-
-        if ($isExpirado) {
-            http_response_code(400);
-            echo json_encode(["erro" => "O cupom '{$cupomEnviado}' expirou em " . date('d/m/Y H:i', $expiraTs) . "."], JSON_UNESCAPED_UNICODE);
-            exit;
-        }
-
-        // Verifica restrição de servidor do cupom
-        $cupomServidorId = (int)($cupomRow['servidor_id'] ?? 0);
-        if ($cupomServidorId > 0 && $cupomServidorId !== $servidorId) {
-            $stmtSrvNome = $pdo->prepare("SELECT servername FROM servidores WHERE id = :id LIMIT 1");
-            $stmtSrvNome->execute([':id' => $cupomServidorId]);
-            $srvNome = $stmtSrvNome->fetchColumn() ?: 'outro servidor';
-
-            http_response_code(400);
-            echo json_encode(["erro" => "O cupom '{$cupomEnviado}' é válido exclusivamente para compras no servidor {$srvNome}."], JSON_UNESCAPED_UNICODE);
-            exit;
-        }
-
-        $porcentagem = (float)$cupomRow['porcentagem_desconto'];
-        $descontoAplicado = round($valorOriginal * ($porcentagem / 100), 2);
-        $valor = max(0.01, round($valorOriginal - $descontoAplicado, 2));
-        $cupomCodigo = (string)$cupomRow['codigo'];
-    } else {
-        http_response_code(404);
-        echo json_encode(["erro" => "Cupom '{$cupomEnviado}' não encontrado."], JSON_UNESCAPED_UNICODE);
-        exit;
-    }
-}
+$nick = $checkout['nick'];
+$tipoConta = $checkout['tipo_conta'];
+$servidor = $checkout['servidor'];
+$tipoProduto = $checkout['tipo_produto'];
+$itemId = $checkout['item_id'];
+$itemNome = $checkout['item_nome'];
+$quantidade = $checkout['quantidade'];
+$valorOriginal = $checkout['valor_original'];
+$descontoAplicado = $checkout['desconto_aplicado'];
+$valor = $checkout['valor'];
+$cupomCodigo = $checkout['cupom_codigo'];
 
 // Gera identificador único para o pedido
-$txid = "NERD-" . strtoupper(substr(md5(uniqid($nick . time(), true)), 0, 16));
+$txid = "NERD-" . strtoupper(bin2hex(random_bytes(8)));
 
 // Token do Mercado Pago
 $mpAccessToken = obterMercadoPagoAccessToken();
@@ -219,6 +96,47 @@ if (!$mpAccessToken) {
 
 $siteUrl = obterSiteUrl();
 $paisIp = obterPaisIp();
+
+// Registra o pedido localmente antes de chamar o gateway para evitar cobrança sem registro
+$dbVipId = ($tipoProduto === 'vip') ? $itemId : null;
+$dbChaveId = ($tipoProduto === 'chave') ? $itemId : null;
+
+try {
+    $stmt = $pdo->prepare("
+        INSERT INTO pedidos (
+            txid, mp_payment_id, nick, pais_ip, tipo_conta, servidor, 
+            tipo_produto, quantidade, chave_id, vip_id, vip_nome, cupom_codigo, 
+            valor, valor_original, desconto_aplicado, status, metodo_pagamento, 
+            pix_copia_cola, pix_qr_base64, cupom_computado, criado_em
+        ) VALUES (
+            :txid, NULL, :nick, :pais_ip, :tipo_conta, :servidor, 
+            :tipo_produto, :quantidade, :chave_id, :vip_id, :vip_nome, :cupom_codigo, 
+            :valor, :valor_original, :desconto_aplicado, 'pendente', 'pix', 
+            NULL, NULL, 0, NOW()
+        )
+    ");
+    $stmt->execute([
+        ':txid' => $txid,
+        ':nick' => $nick,
+        ':pais_ip' => $paisIp,
+        ':tipo_conta' => $tipoConta,
+        ':servidor' => $servidor,
+        ':tipo_produto' => $tipoProduto,
+        ':quantidade' => $quantidade,
+        ':chave_id' => $dbChaveId,
+        ':vip_id' => $dbVipId,
+        ':vip_nome' => $itemNome,
+        ':cupom_codigo' => $cupomCodigo,
+        ':valor' => $valor,
+        ':valor_original' => $valorOriginal,
+        ':desconto_aplicado' => $descontoAplicado
+    ]);
+} catch (Exception $e) {
+    error_log("Erro crítico ao registrar pedido PIX antes do gateway: " . $e->getMessage());
+    http_response_code(500);
+    echo json_encode(["erro" => "Não foi possível registrar o pedido no banco de dados. Tente novamente."], JSON_UNESCAPED_UNICODE);
+    exit;
+}
 
 // Comunicação real com a API do Mercado Pago
 $mpUrl = "https://api.mercadopago.com/v1/payments";
@@ -264,6 +182,7 @@ $curlError = curl_error($ch);
 curl_close($ch);
 
 if ($curlError) {
+    try { $pdo->prepare("UPDATE pedidos SET status = 'recusado' WHERE txid = :txid AND status = 'pendente' LIMIT 1")->execute([':txid' => $txid]); } catch (Exception $e) {}
     http_response_code(500);
     echo json_encode(["erro" => "Falha ao conectar com o gateway de pagamento: {$curlError}"], JSON_UNESCAPED_UNICODE);
     exit;
@@ -279,6 +198,7 @@ if ($httpCode >= 200 && $httpCode < 300 && isset($mpData['id'])) {
     $pixCopiaCola = $transactionData['qr_code'] ?? null;
     $pixQrBase64 = $transactionData['qr_code_base64'] ?? null;
 } else {
+    try { $pdo->prepare("UPDATE pedidos SET status = 'recusado' WHERE txid = :txid AND status = 'pendente' LIMIT 1")->execute([':txid' => $txid]); } catch (Exception $e) {}
     $msgErro = $mpData['message'] ?? ($mpData['error'] ?? "Erro na criação do PIX no Mercado Pago.");
     if (isset($mpData['cause']) && is_array($mpData['cause']) && !empty($mpData['cause'][0]['description'])) {
         $msgErro .= " (" . $mpData['cause'][0]['description'] . ")";
@@ -288,52 +208,24 @@ if ($httpCode >= 200 && $httpCode < 300 && isset($mpData['id'])) {
     exit;
 }
 
-// Salva o pedido no banco de dados
-$dbVipId = ($tipoProduto === 'vip') ? $itemId : null;
-$dbChaveId = ($tipoProduto === 'chave') ? $itemId : null;
-
+// Atualiza o pedido com os dados do PIX retornado pelo Mercado Pago
 try {
-    if (!isset($pdo) || !($pdo instanceof PDO)) {
-        throw new RuntimeException("Conexão PDO não disponível.");
-    }
-
-    $stmt = $pdo->prepare("
-        INSERT INTO pedidos (
-            txid, mp_payment_id, nick, pais_ip, tipo_conta, servidor, 
-            tipo_produto, quantidade, chave_id, vip_id, vip_nome, cupom_codigo, 
-            valor, valor_original, desconto_aplicado, status, metodo_pagamento, 
-            pix_copia_cola, pix_qr_base64, cupom_computado, criado_em
-        ) VALUES (
-            :txid, :mp_id, :nick, :pais_ip, :tipo_conta, :servidor, 
-            :tipo_produto, :quantidade, :chave_id, :vip_id, :vip_nome, :cupom_codigo, 
-            :valor, :valor_original, :desconto_aplicado, 'pendente', 'pix', 
-            :pix_copia_cola, :pix_qr_base64, 0, NOW()
-        )
+    $stmtUp = $pdo->prepare("
+        UPDATE pedidos
+        SET mp_payment_id = :mp_id,
+            pix_copia_cola = :pix_copia_cola,
+            pix_qr_base64 = :pix_qr_base64
+        WHERE txid = :txid
+        LIMIT 1
     ");
-    $stmt->execute([
-        ':txid' => $txid,
+    $stmtUp->execute([
         ':mp_id' => $mpId,
-        ':nick' => $nick,
-        ':pais_ip' => $paisIp,
-        ':tipo_conta' => $tipoConta,
-        ':servidor' => $servidor,
-        ':tipo_produto' => $tipoProduto,
-        ':quantidade' => $quantidade,
-        ':chave_id' => $dbChaveId,
-        ':vip_id' => $dbVipId,
-        ':vip_nome' => $itemNome,
-        ':cupom_codigo' => $cupomCodigo,
-        ':valor' => $valor,
-        ':valor_original' => $valorOriginal,
-        ':desconto_aplicado' => $descontoAplicado,
         ':pix_copia_cola' => $pixCopiaCola,
-        ':pix_qr_base64' => $pixQrBase64
+        ':pix_qr_base64' => $pixQrBase64,
+        ':txid' => $txid
     ]);
 } catch (Exception $e) {
-    error_log("Erro crítico ao salvar pedido no MySQL: " . $e->getMessage());
-    http_response_code(500);
-    echo json_encode(["erro" => "Não foi possível registrar o pedido no banco de dados. Tente novamente."], JSON_UNESCAPED_UNICODE);
-    exit;
+    error_log("Erro ao atualizar dados PIX do pedido {$txid}: " . $e->getMessage());
 }
 
 $expiraEm = date('c', time() + (15 * 60)); // 15 minutos

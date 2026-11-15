@@ -232,7 +232,7 @@ try {
 
 <!-- MODAL: CRIAR NOVIDADE -->
 <div class="modal fade" id="modalCriarNoticia" tabindex="-1" aria-labelledby="modalCriarNoticiaLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-xl">
         <div class="modal-content shadow">
             <form id="formCriarNoticia" enctype="multipart/form-data">
                 <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($csrfToken, ENT_QUOTES, 'UTF-8'); ?>">
@@ -285,7 +285,6 @@ try {
                     <div class="mb-2">
                         <div class="d-flex align-items-center justify-content-between mb-1">
                             <label for="criar-noticia-conteudo" class="form-label fw-bold mb-0">Conteúdo (Markdown suportado) <span class="text-danger">*</span></label>
-                            <span class="badge bg-light text-dark border">Markdown suportado</span>
                         </div>
                         <?php 
                         $toolbarTarget = 'criar-noticia-conteudo';
@@ -295,13 +294,20 @@ try {
                     </div>
 
                     <div class="mb-3">
-                        <label class="form-label fw-bold">Imagem de Capa (Opcional)</label>
-                        <div class="row g-2 align-items-center">
-                            <div class="col-md-6">
-                                <input type="file" class="form-control" id="criar-noticia-capa-upload" name="capa_upload" accept="image/*">
-                            </div>
-                            <div class="col-md-6">
-                                <input type="url" class="form-control" id="criar-noticia-capa-url" name="capa_url" placeholder="Ou URL externa: https://...">
+                        <div class="border rounded p-3">
+                            <div class="fw-bold small mb-2">Imagem de Capa <span class="text-danger">*</span></div>
+                            <div class="d-flex flex-column flex-sm-row align-items-sm-center gap-3">
+                                <div id="criar-noticia-capa-preview" class="rounded d-flex flex-column align-items-center justify-content-center overflow-hidden flex-shrink-0" style="width: 192px; height: 108px; border: 1px dashed var(--border-color, #475569); background: var(--admin-bg, transparent);">
+                                    <i class="fa-regular fa-image text-muted fs-4 mb-1"></i>
+                                    <span class="text-muted" style="font-size: 0.72rem;">Sem capa</span>
+                                </div>
+                                <div class="min-w-0 flex-grow-1">
+                                    <input type="file" class="d-none" id="criar-noticia-capa-upload" name="capa_upload" accept="image/*">
+                                    <label for="criar-noticia-capa-upload" class="btn btn-sm btn-primary mb-1">
+                                        <i class="fa-solid fa-upload me-1"></i> Escolher capa
+                                    </label>
+                                    <div id="criar-noticia-capa-upload-name" class="text-muted small text-truncate">Nenhum arquivo selecionado</div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -332,7 +338,7 @@ try {
 
 <!-- MODAL: EDITAR NOVIDADE -->
 <div class="modal fade" id="modalEditarNoticia" tabindex="-1" aria-labelledby="modalEditarNoticiaLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-xl">
         <div class="modal-content shadow">
             <form id="formEditarNoticia" enctype="multipart/form-data">
                 <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($csrfToken, ENT_QUOTES, 'UTF-8'); ?>">
@@ -389,7 +395,6 @@ try {
                     <div class="mb-2">
                         <div class="d-flex align-items-center justify-content-between mb-1">
                             <label for="edit-noticia-conteudo" class="form-label fw-bold mb-0">Conteúdo (Markdown suportado) <span class="text-danger">*</span></label>
-                            <span class="badge bg-light text-dark border">Markdown suportado</span>
                         </div>
                         <?php 
                         $toolbarTarget = 'edit-noticia-conteudo';
@@ -399,18 +404,21 @@ try {
                     </div>
 
                     <div class="mb-3">
-                        <label class="form-label fw-bold">Imagem de Capa (Opcional)</label>
-                        <div class="row g-2 align-items-center">
-                            <div class="col-md-6">
-                                <input type="file" class="form-control" id="edit-noticia-capa-upload" name="capa_upload" accept="image/*">
+                        <div class="border rounded p-3">
+                            <div class="fw-bold small mb-2">Imagem de Capa <span class="text-danger">*</span></div>
+                            <div class="d-flex flex-column flex-sm-row align-items-sm-center gap-3">
+                                <div id="edit-noticia-capa-preview" class="rounded d-flex flex-column align-items-center justify-content-center overflow-hidden flex-shrink-0" style="width: 192px; height: 108px; border: 1px dashed var(--border-color, #475569); background: var(--admin-bg, transparent);">
+                                    <i class="fa-regular fa-image text-muted fs-4 mb-1"></i>
+                                    <span class="text-muted" style="font-size: 0.72rem;">Sem capa</span>
+                                </div>
+                                <div class="min-w-0 flex-grow-1">
+                                    <input type="file" class="d-none" id="edit-noticia-capa-upload" name="capa_upload" accept="image/*">
+                                    <label for="edit-noticia-capa-upload" class="btn btn-sm btn-primary mb-1">
+                                        <i class="fa-solid fa-upload me-1"></i> Trocar capa
+                                    </label>
+                                    <div id="edit-noticia-capa-upload-name" class="text-muted small text-truncate">Nenhum arquivo selecionado</div>
+                                </div>
                             </div>
-                            <div class="col-md-6">
-                                <input type="url" class="form-control" id="edit-noticia-capa-url" name="capa_url" placeholder="Ou URL externa: https://...">
-                            </div>
-                        </div>
-                        <div class="form-check mt-2" id="edit-noticia-remover-capa-box" style="display: none;">
-                            <input class="form-check-input" type="checkbox" id="edit-noticia-remover-capa" name="remover_capa" value="1">
-                            <label class="form-check-label small text-danger" for="edit-noticia-remover-capa">Remover imagem de capa atual</label>
                         </div>
                     </div>
                 </div>
@@ -477,17 +485,19 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         }
         document.getElementById('edit-noticia-conteudo').value = d.conteudo || '';
-        document.getElementById('edit-noticia-capa-url').value = '';
         document.getElementById('edit-noticia-capa-upload').value = '';
+        const editCapaName = document.getElementById('edit-noticia-capa-upload-name');
+        if (editCapaName) editCapaName.textContent = 'Nenhum arquivo selecionado';
 
-        const removerCapaBox = document.getElementById('edit-noticia-remover-capa-box');
-        const removerCapaChk = document.getElementById('edit-noticia-remover-capa');
-        if (removerCapaChk) removerCapaChk.checked = false;
-
-        if (d.capa) {
-            if (removerCapaBox) removerCapaBox.style.display = 'block';
-        } else {
-            if (removerCapaBox) removerCapaBox.style.display = 'none';
+        const editCapaPreview = document.getElementById('edit-noticia-capa-preview');
+        if (editCapaPreview) {
+            if (d.capa) {
+                editCapaPreview.style.borderStyle = 'solid';
+                editCapaPreview.innerHTML = `<img src="${escapeHtml(d.capa)}" class="w-100 h-100" style="object-fit: cover;" alt="Capa">`;
+            } else {
+                editCapaPreview.style.borderStyle = 'dashed';
+                editCapaPreview.innerHTML = '<i class="fa-regular fa-image text-muted fs-4 mb-1"></i><span class="text-muted" style="font-size: 0.72rem;">Sem capa</span>';
+            }
         }
 
         if (bsModalEditar) bsModalEditar.show();
@@ -569,11 +579,36 @@ document.addEventListener('DOMContentLoaded', function() {
         return tr;
     }
 
+    function setupCapaPreview(inputId, previewId) {
+        const input = document.getElementById(inputId);
+        const preview = document.getElementById(previewId);
+        const nameEl = document.getElementById(inputId + '-name');
+        if (!input || !preview) return;
+        input.addEventListener('change', function() {
+            if (this.files && this.files[0]) {
+                if (nameEl) nameEl.textContent = this.files[0].name;
+                const reader = new FileReader();
+                reader.onload = function(ev) {
+                    preview.style.borderStyle = 'solid';
+                    preview.innerHTML = `<img src="${ev.target.result}" class="w-100 h-100" style="object-fit: cover;" alt="Capa">`;
+                };
+                reader.readAsDataURL(this.files[0]);
+            }
+        });
+    }
+    setupCapaPreview('criar-noticia-capa-upload', 'criar-noticia-capa-preview');
+    setupCapaPreview('edit-noticia-capa-upload', 'edit-noticia-capa-preview');
+
     // SUBMIT: CRIAR NOTÍCIA
     const formCriar = document.getElementById('formCriarNoticia');
     if (formCriar) {
         formCriar.addEventListener('submit', async function(e) {
             e.preventDefault();
+            const capaInput = document.getElementById('criar-noticia-capa-upload');
+            if (!capaInput || !capaInput.files || !capaInput.files.length) {
+                AdminToast.error('A imagem de capa é obrigatória.');
+                return;
+            }
             const btnSubmit = document.getElementById('btn-submit-criar-noticia');
             const originalHtml = btnSubmit ? btnSubmit.innerHTML : '';
             if (btnSubmit) {
@@ -587,6 +622,13 @@ document.addEventListener('DOMContentLoaded', function() {
 
                 if (bsModalCriar) bsModalCriar.hide();
                 formCriar.reset();
+                const criarPreview = document.getElementById('criar-noticia-capa-preview');
+                if (criarPreview) {
+                    criarPreview.style.borderStyle = 'dashed';
+                    criarPreview.innerHTML = '<i class="fa-regular fa-image text-muted fs-4 mb-1"></i><span class="text-muted" style="font-size: 0.72rem;">Sem capa</span>';
+                }
+                const criarName = document.getElementById('criar-noticia-capa-upload-name');
+                if (criarName) criarName.textContent = 'Nenhum arquivo selecionado';
 
                 if (res.noticia) {
                     const tbody = document.getElementById('lista-noticias');
@@ -617,6 +659,14 @@ document.addEventListener('DOMContentLoaded', function() {
     if (formEditar) {
         formEditar.addEventListener('submit', async function(e) {
             e.preventDefault();
+            const editCapaInput = document.getElementById('edit-noticia-capa-upload');
+            const editCapaPreview = document.getElementById('edit-noticia-capa-preview');
+            const temCapaAtual = !!(editCapaPreview && editCapaPreview.querySelector('img'));
+            const temNovoArquivo = !!(editCapaInput && editCapaInput.files && editCapaInput.files.length);
+            if (!temCapaAtual && !temNovoArquivo) {
+                AdminToast.error('A imagem de capa é obrigatória.');
+                return;
+            }
             const btnSubmit = document.getElementById('btn-submit-editar-noticia');
             const originalHtml = btnSubmit ? btnSubmit.innerHTML : '';
             if (btnSubmit) {

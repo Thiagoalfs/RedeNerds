@@ -533,7 +533,7 @@ try {
 
 <!-- MODAL: CRIAR PACOTE -->
 <div class="modal fade" id="modalCriarChave" tabindex="-1" aria-labelledby="modalCriarChaveLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-xl">
         <div class="modal-content shadow">
             <form id="formCriarChave" enctype="multipart/form-data">
                 <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($csrfToken, ENT_QUOTES, 'UTF-8'); ?>">
@@ -545,8 +545,8 @@ try {
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
                 </div>
 
-                <div class="modal-body p-3 p-md-4">
-                    <div class="row g-2 mb-2">
+                <div class="modal-body p-4">
+                    <div class="row g-3 mb-3">
                         <div class="col-md-4">
                             <label for="criar-servidor-id" class="form-label fw-bold">Servidor <span class="text-danger">*</span></label>
                             <select class="form-select" id="criar-servidor-id" name="servidor_id" required>
@@ -563,40 +563,44 @@ try {
                             <input type="text" class="form-control" id="criar-nome" name="nome" placeholder="Ex: Chave Mítica" required>
                         </div>
                         <div class="col-md-3">
-                            <label for="criar-packageId" class="form-label fw-bold">Package ID <span class="text-danger">*</span></label>
-                            <input type="text" class="form-control font-monospace" id="criar-packageId" name="packageId" placeholder="Ex: potato_chave_mitica" required>
-                        </div>
-                    </div>
-
-                    <div class="row g-3 mb-3 align-items-start">
-                        <div class="col-md-5">
                             <label for="criar-preco" class="form-label fw-bold">Preço Unitário (R$) <span class="text-danger">*</span></label>
                             <div class="input-group">
                                 <span class="input-group-text bg-light text-muted fw-bold">R$</span>
                                 <input type="number" step="0.01" min="0.01" class="form-control" id="criar-preco" name="preco" value="4.90" required>
                             </div>
                         </div>
-                        <div class="col-md-7">
-                            <label for="criar-imagem-upload" class="form-label fw-bold">Imagem do Item (Topo do Card)</label>
-                            <div class="d-flex align-items-center gap-2">
-                                <input type="file" class="form-control" id="criar-imagem-upload" name="imagem_upload" accept="image/*">
-                                <div class="bg-dark border rounded d-flex align-items-center justify-content-center overflow-hidden flex-shrink-0" style="width: 42px; height: 38px;">
-                                    <img id="criar-preview-img" src="/assets/images/logo.webp" style="max-width: 32px; max-height: 32px; object-fit: contain; opacity: 0.35;" alt="Prévia">
+                    </div>
+
+                    <div class="row g-3 mb-4 align-items-stretch">
+                        <div class="col-lg-5">
+                            <div class="border rounded p-3 h-100">
+                                <div class="fw-bold small mb-2">Imagem do Item (Topo do Card)</div>
+                                <div class="d-flex align-items-center gap-3">
+                                    <div class="rounded d-flex align-items-center justify-content-center overflow-hidden flex-shrink-0" style="width: 64px; height: 64px; border: 1px dashed var(--border-color, #475569); background: var(--admin-bg, transparent);">
+                                        <img id="criar-preview-img" src="/assets/images/logo.webp" style="max-width: 48px; max-height: 48px; object-fit: contain; opacity: 0.35;" alt="Prévia">
+                                    </div>
+                                    <div class="min-w-0 flex-grow-1">
+                                        <input type="file" class="d-none" id="criar-imagem-upload" name="imagem_upload" accept="image/*">
+                                        <label for="criar-imagem-upload" class="btn btn-sm btn-primary mb-1">
+                                            <i class="fa-solid fa-upload me-1"></i> Escolher imagem
+                                        </label>
+                                        <div id="criar-imagem-upload-name" class="text-muted small text-truncate">Nenhum arquivo selecionado</div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
 
-                    <!-- SISTEMA DE COR DO TÍTULO / TAG (DEGRADÊ OU STRING MINECRAFT) -->
-                    <div class="mb-3">
-                        <label class="form-label fw-bold mb-2">Cor do Título</label>
-                        <div class="d-flex align-items-center gap-2">
-                            <!-- 1. PREVIEW NA ESQUERDA -->
-                            <div class="rounded border text-center font-monospace d-flex align-items-center justify-content-center px-3"
-                                 style="background: #0f172a; border-color: #334155 !important; height: 46px; min-width: 150px; max-width: 200px; flex-shrink: 0;"
-                                 title="Prévia em tempo real">
-                                <div id="criar-chave-tag-preview-content" class="fw-bold" style="font-size: 1.05rem; letter-spacing: 0.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;"></div>
-                            </div>
+                        <!-- SISTEMA DE COR DO TÍTULO / TAG (DEGRADÊ OU STRING MINECRAFT) -->
+                        <div class="col-lg-7">
+                            <div class="border rounded p-3 h-100">
+                                <div class="fw-bold small mb-2">Cor do Título</div>
+                                <div class="d-flex align-items-center gap-2">
+                                    <!-- 1. PREVIEW NA ESQUERDA -->
+                                    <div class="rounded border text-center font-monospace d-flex align-items-center justify-content-center px-3"
+                                         style="background: #0f172a; border-color: #334155 !important; height: 46px; min-width: 120px; max-width: 170px; flex-shrink: 0;"
+                                         title="Prévia em tempo real">
+                                        <div id="criar-chave-tag-preview-content" class="fw-bold" style="font-size: 1.05rem; letter-spacing: 0.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;"></div>
+                                    </div>
 
                             <!-- 2. INPUTFIELD NO MEIO -->
                             <div class="flex-grow-1 position-relative" style="min-width: 0;">
@@ -683,16 +687,14 @@ try {
                             </div>
                         </div>
                         <input type="hidden" id="criar-chave-cor_tipo" name="cor_tipo" value="colorwheel">
-                        <div id="criar-chave-string-helper" style="display: none;" class="mt-1 d-flex align-items-center justify-content-between">
-                            <span class="text-muted small" style="font-size: 0.72rem;">Suporta formatos hexadecimais (&amp;#RRGGBB, #RRGGBB) e códigos clássicos (&amp;0-&amp;f, &amp;l).</span>
-                            <button type="button" class="btn btn-link btn-sm p-0 text-decoration-none" style="font-size: 0.72rem;" onclick="preencherExemploStringChave('criar-chave')">Preencher exemplo</button>
+                            </div>
                         </div>
                     </div>
 
-                    <div class="mb-3">
+                    <div class="mb-4 pt-3 border-top">
                         <label class="form-label fw-bold d-flex align-items-center justify-content-between mb-2">
                             <span>Recompensas / Vantagens da Caixa</span>
-                            <button type="button" class="btn btn-outline-primary btn-sm" id="btn-adicionar-vantagem-criar">
+                            <button type="button" class="btn btn-sm btn-primary" id="btn-adicionar-vantagem-criar">
                                 Adicionar Item
                             </button>
                         </label>
@@ -705,7 +707,7 @@ try {
                         </div>
                     </div>
 
-                    <div class="row g-3 pt-2 border-top">
+                    <div class="row g-3 pt-3 border-top">
                         <div class="col-md-6">
                             <div class="form-check form-switch">
                                 <input class="form-check-input" type="checkbox" id="criar-destaque" name="destaque" value="1">
@@ -734,7 +736,7 @@ try {
 
 <!-- MODAL: EDITAR PACOTE -->
 <div class="modal fade" id="modalEditarChave" tabindex="-1" aria-labelledby="modalEditarChaveLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-xl">
         <div class="modal-content shadow">
             <form id="formEditarChave" enctype="multipart/form-data">
                 <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($csrfToken, ENT_QUOTES, 'UTF-8'); ?>">
@@ -748,8 +750,8 @@ try {
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
                 </div>
 
-                <div class="modal-body p-3 p-md-4">
-                    <div class="row g-2 mb-2">
+                <div class="modal-body p-4">
+                    <div class="row g-3 mb-3">
                         <div class="col-md-4">
                             <label for="edit-servidor-id" class="form-label fw-bold">Servidor <span class="text-danger">*</span></label>
                             <select class="form-select" id="edit-servidor-id" name="servidor_id" required>
@@ -766,46 +768,50 @@ try {
                             <input type="text" class="form-control" id="edit-nome" name="nome" required>
                         </div>
                         <div class="col-md-3">
-                            <label for="edit-packageId" class="form-label fw-bold">Package ID <span class="text-danger">*</span></label>
-                            <input type="text" class="form-control font-monospace" id="edit-packageId" name="packageId" required>
-                        </div>
-                    </div>
-
-                    <div class="row g-3 mb-3 align-items-start">
-                        <div class="col-md-5">
                             <label for="edit-preco" class="form-label fw-bold">Preço Unitário (R$) <span class="text-danger">*</span></label>
                             <div class="input-group">
                                 <span class="input-group-text bg-light text-muted fw-bold">R$</span>
                                 <input type="number" step="0.01" min="0.01" class="form-control" id="edit-preco" name="preco" required>
                             </div>
                         </div>
-                        <div class="col-md-7">
-                            <label for="edit-imagem-upload" class="form-label fw-bold">Imagem do Item (Topo do Card)</label>
-                            <div class="d-flex align-items-center gap-2">
-                                <input type="file" class="form-control" id="edit-imagem-upload" name="imagem_upload" accept="image/*">
-                                <div class="bg-dark border rounded d-flex align-items-center justify-content-center overflow-hidden flex-shrink-0" style="width: 42px; height: 38px;">
-                                    <img id="edit-preview-img" src="/assets/images/logo.webp" style="max-width: 32px; max-height: 32px; object-fit: contain;" alt="Prévia">
-                                </div>
-                            </div>
-                            <div class="form-check mt-1" id="edit-remover-imagem-box" style="display: none;">
-                                <input class="form-check-input" type="checkbox" id="edit-remover-imagem" name="remover_imagem" value="1">
-                                <label class="form-check-label small text-danger fw-semibold" for="edit-remover-imagem">
-                                    Remover imagem personalizada
-                                </label>
-                            </div>
-                        </div>
                     </div>
 
-                    <!-- SISTEMA DE COR DO TÍTULO / TAG (DEGRADÊ OU STRING MINECRAFT) -->
-                    <div class="mb-3">
-                        <label class="form-label fw-bold mb-2">Cor do Título</label>
-                        <div class="d-flex align-items-center gap-2">
-                            <!-- 1. PREVIEW NA ESQUERDA -->
-                            <div class="rounded border text-center font-monospace d-flex align-items-center justify-content-center px-3"
-                                 style="background: #0f172a; border-color: #334155 !important; height: 46px; min-width: 150px; max-width: 200px; flex-shrink: 0;"
-                                 title="Prévia em tempo real">
-                                <div id="edit-chave-tag-preview-content" class="fw-bold" style="font-size: 1.05rem; letter-spacing: 0.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;"></div>
+                    <div class="row g-3 mb-4 align-items-stretch">
+                        <div class="col-lg-5">
+                            <div class="border rounded p-3 h-100">
+                                <div class="fw-bold small mb-2">Imagem do Item (Topo do Card)</div>
+                                <div class="d-flex align-items-center gap-3">
+                                    <div class="rounded d-flex align-items-center justify-content-center overflow-hidden flex-shrink-0" style="width: 64px; height: 64px; border: 1px dashed var(--border-color, #475569); background: var(--admin-bg, transparent);">
+                                        <img id="edit-preview-img" src="/assets/images/logo.webp" style="max-width: 48px; max-height: 48px; object-fit: contain;" alt="Prévia">
+                                    </div>
+                                    <div class="min-w-0 flex-grow-1">
+                                        <input type="file" class="d-none" id="edit-imagem-upload" name="imagem_upload" accept="image/*">
+                                        <label for="edit-imagem-upload" class="btn btn-sm btn-primary mb-1">
+                                            <i class="fa-solid fa-upload me-1"></i> Trocar imagem
+                                        </label>
+                                        <div id="edit-imagem-upload-name" class="text-muted small text-truncate">Nenhum arquivo selecionado</div>
+                                        <div class="form-check mt-2" id="edit-remover-imagem-box" style="display: none;">
+                                            <input class="form-check-input" type="checkbox" id="edit-remover-imagem" name="remover_imagem" value="1">
+                                            <label class="form-check-label small text-danger fw-semibold" for="edit-remover-imagem">
+                                                Remover imagem personalizada
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
+                        </div>
+
+                        <!-- SISTEMA DE COR DO TÍTULO / TAG (DEGRADÊ OU STRING MINECRAFT) -->
+                        <div class="col-lg-7">
+                            <div class="border rounded p-3 h-100">
+                                <div class="fw-bold small mb-2">Cor do Título</div>
+                                <div class="d-flex align-items-center gap-2">
+                                    <!-- 1. PREVIEW NA ESQUERDA -->
+                                    <div class="rounded border text-center font-monospace d-flex align-items-center justify-content-center px-3"
+                                         style="background: #0f172a; border-color: #334155 !important; height: 46px; min-width: 120px; max-width: 170px; flex-shrink: 0;"
+                                         title="Prévia em tempo real">
+                                        <div id="edit-chave-tag-preview-content" class="fw-bold" style="font-size: 1.05rem; letter-spacing: 0.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;"></div>
+                                    </div>
 
                             <!-- 2. INPUTFIELD NO MEIO -->
                             <div class="flex-grow-1 position-relative" style="min-width: 0;">
@@ -892,23 +898,21 @@ try {
                             </div>
                         </div>
                         <input type="hidden" id="edit-chave-cor_tipo" name="cor_tipo" value="colorwheel">
-                        <div id="edit-chave-string-helper" style="display: none;" class="mt-1 d-flex align-items-center justify-content-between">
-                            <span class="text-muted small" style="font-size: 0.72rem;">Suporta formatos hexadecimais (&amp;#RRGGBB, #RRGGBB) e códigos clássicos (&amp;0-&amp;f, &amp;l).</span>
-                            <button type="button" class="btn btn-link btn-sm p-0 text-decoration-none" style="font-size: 0.72rem;" onclick="preencherExemploStringChave('edit-chave')">Preencher exemplo</button>
+                            </div>
                         </div>
                     </div>
 
-                    <div class="mb-3">
+                    <div class="mb-4 pt-3 border-top">
                         <label class="form-label fw-bold d-flex align-items-center justify-content-between mb-2">
                             <span>Recompensas / Vantagens da Caixa</span>
-                            <button type="button" class="btn btn-outline-primary btn-sm" id="btn-adicionar-vantagem-edit">
+                            <button type="button" class="btn btn-sm btn-primary" id="btn-adicionar-vantagem-edit">
                                 Adicionar Item
                             </button>
                         </label>
                         <div id="container-vantagens-edit" class="d-flex flex-column gap-2"></div>
                     </div>
 
-                    <div class="row g-3 pt-2 border-top">
+                    <div class="row g-3 pt-3 border-top">
                         <div class="col-md-6">
                             <div class="form-check form-switch">
                                 <input class="form-check-input" type="checkbox" id="edit-destaque" name="destaque" value="1">
@@ -1274,15 +1278,19 @@ document.addEventListener('DOMContentLoaded', function() {
     function setupImagePreview(inputId, imgId) {
         const input = document.getElementById(inputId);
         const img = document.getElementById(imgId);
+        const nameEl = document.getElementById(inputId + '-name');
         if (input && img) {
             input.addEventListener('change', function() {
                 if (this.files && this.files[0]) {
+                    if (nameEl) nameEl.textContent = this.files[0].name;
                     const reader = new FileReader();
                     reader.onload = function(e) {
                         img.src = e.target.result;
                         img.style.opacity = '1';
                     };
                     reader.readAsDataURL(this.files[0]);
+                } else if (nameEl) {
+                    nameEl.textContent = 'Nenhum arquivo selecionado';
                 }
             });
         }
@@ -1371,7 +1379,6 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('edit-nome').value = d.nome || '';
         document.getElementById('modalEditarChaveNomeHeader').textContent = d.nome || '';
         document.getElementById('edit-servidor-id').value = d.servidorId || '';
-        document.getElementById('edit-packageId').value = d.packageId || '';
         document.getElementById('edit-preco').value = d.preco || '';
         
         // Configuração de cores e modo
@@ -1396,8 +1403,10 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('edit-ativo').checked = (d.ativo === '1');
 
         const imgEl = document.getElementById('edit-preview-img');
+        const imgNameEl = document.getElementById('edit-imagem-upload-name');
         const removerBox = document.getElementById('edit-remover-imagem-box');
         const removerChk = document.getElementById('edit-remover-imagem');
+        if (imgNameEl) imgNameEl.textContent = 'Nenhum arquivo selecionado';
         if (removerChk) removerChk.checked = false;
 
         if (d.imagem) {
@@ -1558,6 +1567,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 atualizarPreviewTagChave('criar-chave');
                 document.getElementById('criar-preview-img').src = '/assets/images/logo.webp';
                 document.getElementById('criar-preview-img').style.opacity = '0.35';
+                const criarImgNameEl = document.getElementById('criar-imagem-upload-name');
+                if (criarImgNameEl) criarImgNameEl.textContent = 'Nenhum arquivo selecionado';
 
                 if (res.chave) {
                     const isAtivo = Boolean(Number(res.chave.ativo));

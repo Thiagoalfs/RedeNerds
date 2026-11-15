@@ -57,9 +57,8 @@ $emailsOrfaos = array_values(array_filter(
         <h2 class="h4 mb-1 fw-bold">Usuários do Painel</h2>
         <p class="text-muted small mb-0">Contas vinculadas à tabela <strong>equipe</strong>. Permissões e hierarquia seguem o cargo atual do membro.</p>
     </div>
-    <button type="button" class="btn btn-primary d-inline-flex align-items-center gap-2" id="btnAbrirNovoUsuario" <?php echo empty($membrosDisponiveis) ? 'disabled title="Nenhum membro elegível sem conta"' : ''; ?>>
-        <i class="fa-solid fa-user-plus"></i>
-        <span>Novo Usuário</span>
+    <button type="button" class="btn btn-success btn-sm" id="btnAbrirNovoUsuario" <?php echo empty($membrosDisponiveis) ? 'disabled title="Nenhum membro elegível sem conta"' : ''; ?>>
+        <i class="fa-solid fa-plus me-1"></i> Novo Usuário
     </button>
 </div>
 
@@ -259,7 +258,6 @@ $emailsOrfaos = array_values(array_filter(
                                 </option>
                             <?php endforeach; ?>
                         </select>
-                        <div class="form-text">Apenas membros da equipe com cargo permitido que ainda não possuem conta.</div>
                     </div>
 
                     <?php $dominioEmail = mb_strtolower(trim((string)(getenv('DA_DOMAIN') ?: 'redenerds.com.br')), 'UTF-8'); ?>
@@ -276,7 +274,7 @@ $emailsOrfaos = array_values(array_filter(
                     <div class="mb-3">
                         <label for="inputUsuarioEmailRec" class="form-label fw-semibold">E-Mail de Recuperação <span class="text-muted fw-normal">(opcional)</span></label>
                         <input type="email" class="form-control" id="inputUsuarioEmailRec" name="email_recuperacao" placeholder="pessoal@gmail.com" autocomplete="off">
-                        <div class="form-text">Se preenchido, links de redefinição de senha serão enviados para este e-mail.</div>
+                        <div class="form-text">Links de redefinição de senha serão enviados para este e-mail.</div>
                     </div>
 
                     <div class="mb-0">
@@ -293,8 +291,8 @@ $emailsOrfaos = array_values(array_filter(
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                    <button type="submit" class="btn btn-primary" id="btnSalvarUsuario" disabled>
+                    <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-success btn-sm" id="btnSalvarUsuario" disabled>
                         <i class="fa-solid fa-check me-1"></i> Criar Conta
                     </button>
                 </div>
@@ -348,15 +346,15 @@ $emailsOrfaos = array_values(array_filter(
                     <div class="border-top pt-3 mt-3 d-none" id="blocoTrocarPropriaSenha">
                         <label class="form-label fw-semibold d-block mb-1">Minha Senha</label>
                         <p class="text-muted small mb-2">Altere sua própria senha diretamente.</p>
-                        <button type="button" class="btn btn-outline-primary btn-sm d-inline-flex align-items-center gap-2" id="btnAbrirPropriaSenhaDoEdit">
+                        <button type="button" class="btn btn-sm btn-primary d-inline-flex align-items-center gap-2" id="btnAbrirPropriaSenhaDoEdit">
                             <i class="fa-solid fa-key"></i>
                             <span>Alterar minha senha</span>
                         </button>
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
-                    <button type="submit" class="btn btn-primary" id="btnSalvarEdicaoUsuario">
+                    <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-primary btn-sm" id="btnSalvarEdicaoUsuario">
                         <i class="fa-solid fa-check me-1"></i> Salvar Alterações
                     </button>
                 </div>

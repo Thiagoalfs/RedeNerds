@@ -43,6 +43,13 @@ if ($erro_upload) {
     exit;
 }
 
+if (empty($capa)) {
+    http_response_code(400);
+    header('Content-Type: application/json; charset=utf-8');
+    echo json_encode(["success" => false, "erro" => "A imagem de capa é obrigatória."], JSON_UNESCAPED_UNICODE);
+    exit;
+}
+
 $discordMsgId = null;
 if ($enviar_webhook) {
     $discordMsgId = enviarWebhookDiscord($categoria_envio, $titulo, $conteudo, $autor, $capa, $category, $marcar_everyone);

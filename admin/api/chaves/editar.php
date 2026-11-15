@@ -25,7 +25,7 @@ if (!$chaveAtual) {
 
 $servidor_id = (int)($_POST['servidor_id'] ?? $chaveAtual['servidor_id']);
 $nome = trim($_POST['nome'] ?? $chaveAtual['nome']);
-$packageId = trim($_POST['packageId'] ?? $chaveAtual['packageId']);
+$packageId = trim($_POST['packageId'] ?? ($chaveAtual['packageId'] ?? ''));
 $precoRaw = str_replace(',', '.', trim($_POST['preco'] ?? (string)$chaveAtual['preco']));
 $preco = (float)$precoRaw;
 $destaque = !empty($_POST['destaque']) ? 1 : 0;
@@ -67,11 +67,20 @@ if ($nome === '' || mb_strlen($nome) < 2) {
     exit;
 }
 
+// Preserva o packageId se enviado/existente; caso contrário, gera automaticamente a partir do nome
 if ($packageId === '') {
-    http_response_code(400);
-    header('Content-Type: application/json; charset=utf-8');
-    echo json_encode(["success" => false, "erro" => "Informe o Package ID correspondente no plugin."], JSON_UNESCAPED_UNICODE);
-    exit;
+    $cleanSlug = @iconv('UTF-8', 'ASCII//TRANSLIT//IGNORE', $nome);
+    if ($cleanSlug === false || $cleanSlug === '') {
+        $cleanSlug = $nome;
+    }
+    $cleanSlug = strtolower(trim($cleanSlug));
+    $cleanSlug = preg_replace('/[\s\-]+/', '_', $cleanSlug);
+    $cleanSlug = preg_replace('/[^a-z0-9_]/', '', $cleanSlug);
+    $cleanSlug = preg_replace('/_+/', '_', $cleanSlug);
+    $packageId = trim($cleanSlug, '_');
+    if ($packageId === '') {
+        $packageId = 'chave_' . time();
+    }
 }
 
 if ($preco <= 0) {

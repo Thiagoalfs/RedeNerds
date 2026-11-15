@@ -60,150 +60,36 @@ if (!is_array($data) || empty($data)) {
 $clientIp = obterIpRealCliente();
 $email = trim(strtolower((string)($data['email'] ?? '')));
 
-// 2. EXTRAÇÃO E VALIDAÇÃO DOS DADOS
-$nick = trim((string)($data['nick'] ?? ''));
-$tipoConta = strtolower(trim((string)($data['tipo_conta'] ?? 'original')));
-$servidor = trim((string)($data['servidor'] ?? ''));
-$tipoProduto = strtolower(trim((string)($data['tipo_produto'] ?? 'vip')));
-if (!in_array($tipoProduto, ['vip', 'chave'], true)) {
-    $tipoProduto = 'vip';
-}
-
-$vipId = (int)($data['vip_id'] ?? 0);
-$chaveId = (int)($data['chave_id'] ?? 0);
-$itemId = ($tipoProduto === 'chave') ? ($chaveId > 0 ? $chaveId : $vipId) : $vipId;
-
-$quantidade = filter_var($data['quantidade'] ?? 1, FILTER_VALIDATE_INT);
-if ($quantidade === false || $quantidade < 1) $quantidade = 1;
-if ($quantidade > 100) $quantidade = 100;
-if ($tipoProduto === 'vip') $quantidade = 1;
-
-if (empty($nick) || strlen($nick) < 3 || strlen($nick) > 16 || !preg_match('/^[a-zA-Z0-9_]+$/', $nick)) {
-    http_response_code(400);
-    echo json_encode(["erro" => "Invalid Minecraft Nickname. Use 3 to 16 alphanumeric characters or underscore."], JSON_UNESCAPED_UNICODE);
-    exit;
-}
-
-if (!in_array($tipoConta, ['original', 'pirata'], true)) {
-    $tipoConta = 'original';
-}
-
-if (empty($servidor)) {
-    http_response_code(400);
-    echo json_encode(["erro" => "Please select the server where you want to receive your item."], JSON_UNESCAPED_UNICODE);
-    exit;
-}
-
 if (empty($email) || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
     http_response_code(400);
     echo json_encode(["erro" => "Please provide a valid email address."], JSON_UNESCAPED_UNICODE);
     exit;
 }
 
-if ($itemId <= 0) {
-    http_response_code(400);
-    echo json_encode(["erro" => "Invalid package selected."], JSON_UNESCAPED_UNICODE);
-    exit;
-}
-
-$cupomEnviado = strtoupper(trim((string)($data['cupom'] ?? '')));
-$cupomCodigo = null;
-$valorOriginal = 0.0;
-$descontoAplicado = 0.0;
-$valor = 0.0;
-$itemNome = '';
-
-// 3. CONSULTA ESTRITA DE PREÇO E CUPOM NO BANCO DE DADOS
 if (!isset($pdo) || !($pdo instanceof PDO)) {
     http_response_code(500);
     echo json_encode(["erro" => "Database connection unavailable."], JSON_UNESCAPED_UNICODE);
     exit;
 }
 
-try {
-    if ($tipoProduto === 'chave') {
-        $stmtItem = $pdo->prepare("SELECT id, nome, preco, servidor_id FROM chaves WHERE id = :id AND (ativo = 1 OR ativo IS NULL) LIMIT 1");
-    } else {
-        $stmtItem = $pdo->prepare("SELECT id, nome, preco, servidor_id FROM vips WHERE id = :id AND (ativo = 1 OR ativo IS NULL) LIMIT 1");
-    }
-    $stmtItem->execute([':id' => $itemId]);
-    $itemRow = $stmtItem->fetch(PDO::FETCH_ASSOC);
-
-    if (!$itemRow) {
-        http_response_code(404);
-        echo json_encode(["erro" => ($tipoProduto === 'chave' ? "Keys package" : "VIP package") . " not found or currently inactive."], JSON_UNESCAPED_UNICODE);
-        exit;
-    }
-
-    $precoUnitario = (float)$itemRow['preco'];
-    $valorOriginal = round($precoUnitario * $quantidade, 2);
-    $itemNome = (string)$itemRow['nome'];
-    $valor = $valorOriginal;
-
-    // Validação de Cupom
-    if (!empty($cupomEnviado)) {
-        $stmtCupom = $pdo->prepare("SELECT * FROM cupons WHERE codigo = :codigo LIMIT 1");
-        $stmtCupom->execute([':codigo' => $cupomEnviado]);
-        $cupomRow = $stmtCupom->fetch(PDO::FETCH_ASSOC);
-
-        if ($cupomRow) {
-            $now = time();
-            $expiraTs = strtotime((string)$cupomRow['expira_em']);
-            $isExpirado = ($expiraTs && $expiraTs < $now);
-
-            if (!$cupomRow['ativo']) {
-                http_response_code(400);
-                echo json_encode(["erro" => "Coupon '{$cupomEnviado}' is inactive."], JSON_UNESCAPED_UNICODE);
-                exit;
-            }
-
-            if ($isExpirado) {
-                http_response_code(400);
-                echo json_encode(["erro" => "Coupon '{$cupomEnviado}' has expired."], JSON_UNESCAPED_UNICODE);
-                exit;
-            }
-
-            // Restrição de servidor se houver
-            $cupomServidorId = (int)($cupomRow['servidor_id'] ?? 0);
-            if ($cupomServidorId > 0) {
-                $itemServidorId = (int)($itemRow['servidor_id'] ?? 0);
-                if ($itemServidorId > 0 && $itemServidorId !== $cupomServidorId) {
-                    http_response_code(400);
-                    echo json_encode(["erro" => "This coupon is not valid for the selected server."], JSON_UNESCAPED_UNICODE);
-                    exit;
-                }
-            }
-
-            $porcentagem = (float)$cupomRow['porcentagem_desconto'];
-            $descontoAplicado = round($valorOriginal * ($porcentagem / 100), 2);
-            $valor = max(0.01, round($valorOriginal - $descontoAplicado, 2));
-            $cupomCodigo = (string)$cupomRow['codigo'];
-        } else {
-            http_response_code(404);
-            echo json_encode(["erro" => "Coupon '{$cupomEnviado}' not found."], JSON_UNESCAPED_UNICODE);
-            exit;
-        }
-    }
-
-    // Validação de Servidor Ativo
-    $srvSlug = strtolower(preg_replace('/[^a-zA-Z0-9]/', '', $servidor));
-    $stmtCheckSrv = $pdo->prepare("SELECT id, servername, enabled FROM servidores WHERE (servername = :srv OR nome = :srvSlug) LIMIT 1");
-    $stmtCheckSrv->execute([':srv' => $servidor, ':srvSlug' => $srvSlug]);
-    $srvRow = $stmtCheckSrv->fetch(PDO::FETCH_ASSOC);
-    if ($srvRow) {
-        if (isset($srvRow['enabled']) && (int)$srvRow['enabled'] === 0) {
-            http_response_code(400);
-            echo json_encode(["erro" => "Purchases for this server are temporarily disabled."], JSON_UNESCAPED_UNICODE);
-            exit;
-        }
-        $servidor = (string)$srvRow['servername'];
-    }
-} catch (Exception $e) {
-    error_log("Erro no banco ao validar dados do checkout internacional: " . $e->getMessage());
-    http_response_code(500);
-    echo json_encode(["erro" => "An internal database error occurred."], JSON_UNESCAPED_UNICODE);
+$checkout = prepararCheckoutLoja($pdo, $data);
+if (!$checkout['ok']) {
+    http_response_code($checkout['status']);
+    echo json_encode(["erro" => $checkout['erro']], JSON_UNESCAPED_UNICODE);
     exit;
 }
+
+$nick = $checkout['nick'];
+$tipoConta = $checkout['tipo_conta'];
+$servidor = $checkout['servidor'];
+$tipoProduto = $checkout['tipo_produto'];
+$itemId = $checkout['item_id'];
+$itemNome = $checkout['item_nome'];
+$quantidade = $checkout['quantidade'];
+$valorOriginal = $checkout['valor_original'];
+$descontoAplicado = $checkout['desconto_aplicado'];
+$valor = $checkout['valor'];
+$cupomCodigo = $checkout['cupom_codigo'];
 
 // 4. CRIAÇÃO DA PREFERÊNCIA NO MERCADO PAGO
 $mpAccessToken = obterMercadoPagoAccessToken();
@@ -211,9 +97,50 @@ if (!$mpAccessToken) {
     responder503ServicoIndisponivel("MERCADO_PAGO_ACCESS_TOKEN ausente ou inválido no criar_checkout_internacional.");
 }
 
-$txid = "NERD-" . strtoupper(substr(md5(uniqid($nick . time(), true)), 0, 16));
+$txid = "NERD-" . strtoupper(bin2hex(random_bytes(8)));
 $siteUrl = obterSiteUrl();
 $paisIp = obterPaisIp();
+
+// Registra o pedido localmente antes de chamar o gateway para evitar cobrança sem registro
+$dbVipId = ($tipoProduto === 'vip') ? $itemId : null;
+$dbChaveId = ($tipoProduto === 'chave') ? $itemId : null;
+
+try {
+    $stmtIns = $pdo->prepare("
+        INSERT INTO pedidos (
+            txid, mp_payment_id, nick, payer_email, payer_cpf, pais_ip, tipo_conta, servidor, 
+            tipo_produto, quantidade, chave_id, vip_id, vip_nome, cupom_codigo, valor, valor_original, desconto_aplicado, 
+            valor_total, status, metodo_pagamento, cupom_computado, criado_em
+        ) VALUES (
+            :txid, NULL, :nick, :email, NULL, :pais_ip, :tipo_conta, :servidor,
+            :tipo_produto, :quantidade, :chave_id, :vip_id, :vip_nome, :cupom_codigo, :valor, :valor_original, :desconto_aplicado,
+            :valor_total, 'pendente', 'checkout_pro', 0, NOW()
+        )
+    ");
+    $stmtIns->execute([
+        ':txid'              => $txid,
+        ':nick'              => $nick,
+        ':email'             => $email,
+        ':pais_ip'           => $paisIp,
+        ':tipo_conta'        => $tipoConta,
+        ':servidor'          => $servidor,
+        ':tipo_produto'      => $tipoProduto,
+        ':quantidade'        => $quantidade,
+        ':chave_id'          => $dbChaveId,
+        ':vip_id'            => $dbVipId,
+        ':vip_nome'          => $itemNome,
+        ':cupom_codigo'      => $cupomCodigo,
+        ':valor'             => $valor,
+        ':valor_original'    => $valorOriginal,
+        ':desconto_aplicado' => $descontoAplicado,
+        ':valor_total'       => $valor
+    ]);
+} catch (Exception $e) {
+    error_log("Erro ao salvar pedido de Checkout Pro antes do gateway: " . $e->getMessage());
+    http_response_code(500);
+    echo json_encode(["erro" => "Could not register order in database."], JSON_UNESCAPED_UNICODE);
+    exit;
+}
 
 $now = time();
 $expiraFrom = date('Y-m-d\TH:i:s.000P', $now - 120);
@@ -290,6 +217,7 @@ $curlError = curl_error($ch);
 curl_close($ch);
 
 if ($curlError) {
+    try { $pdo->prepare("UPDATE pedidos SET status = 'recusado' WHERE txid = :txid AND status = 'pendente' LIMIT 1")->execute([':txid' => $txid]); } catch (Exception $e) {}
     http_response_code(500);
     echo json_encode(["erro" => "Connection failure with payment gateway: {$curlError}"], JSON_UNESCAPED_UNICODE);
     exit;
@@ -298,6 +226,7 @@ if ($curlError) {
 $mpData = json_decode((string)$mpResponse, true);
 
 if ($httpCode < 200 || $httpCode >= 300 || !isset($mpData['id'])) {
+    try { $pdo->prepare("UPDATE pedidos SET status = 'recusado' WHERE txid = :txid AND status = 'pendente' LIMIT 1")->execute([':txid' => $txid]); } catch (Exception $e) {}
     $msgErro = $mpData['message'] ?? ($mpData['error'] ?? "Failed to create payment checkout preference.");
     if (isset($mpData['cause']) && is_array($mpData['cause']) && !empty($mpData['cause'][0]['description'])) {
         $msgErro .= " (" . $mpData['cause'][0]['description'] . ")";
@@ -310,46 +239,12 @@ if ($httpCode < 200 || $httpCode >= 300 || !isset($mpData['id'])) {
 $prefId = (string)$mpData['id'];
 $initPoint = (string)($mpData['init_point'] ?? '');
 
-// 5. REGISTRO DO PEDIDO NO BANCO DE DADOS
-$dbVipId = ($tipoProduto === 'vip') ? $itemId : null;
-$dbChaveId = ($tipoProduto === 'chave') ? $itemId : null;
-
+// Atualiza o pedido com o ID da preferência no Mercado Pago
 try {
-    $stmtIns = $pdo->prepare("
-        INSERT INTO pedidos (
-            txid, mp_payment_id, nick, payer_email, payer_cpf, pais_ip, tipo_conta, servidor, 
-            tipo_produto, quantidade, chave_id, vip_id, vip_nome, cupom_codigo, valor, valor_original, desconto_aplicado, 
-            valor_total, status, metodo_pagamento, cupom_computado, criado_em
-        ) VALUES (
-            :txid, :mp_id, :nick, :email, NULL, :pais_ip, :tipo_conta, :servidor,
-            :tipo_produto, :quantidade, :chave_id, :vip_id, :vip_nome, :cupom_codigo, :valor, :valor_original, :desconto_aplicado,
-            :valor_total, 'pendente', 'checkout_pro', 0, NOW()
-        )
-    ");
-    $stmtIns->execute([
-        ':txid'              => $txid,
-        ':mp_id'             => $prefId,
-        ':nick'              => $nick,
-        ':email'             => $email,
-        ':pais_ip'           => $paisIp,
-        ':tipo_conta'        => $tipoConta,
-        ':servidor'          => $servidor,
-        ':tipo_produto'      => $tipoProduto,
-        ':quantidade'        => $quantidade,
-        ':chave_id'          => $dbChaveId,
-        ':vip_id'            => $dbVipId,
-        ':vip_nome'          => $itemNome,
-        ':cupom_codigo'      => $cupomCodigo,
-        ':valor'             => $valor,
-        ':valor_original'    => $valorOriginal,
-        ':desconto_aplicado' => $descontoAplicado,
-        ':valor_total'       => $valor
-    ]);
+    $pdo->prepare("UPDATE pedidos SET mp_payment_id = :mp_id WHERE txid = :txid LIMIT 1")
+        ->execute([':mp_id' => $prefId, ':txid' => $txid]);
 } catch (Exception $e) {
-    error_log("Erro ao salvar pedido de Checkout Pro no banco: " . $e->getMessage());
-    http_response_code(500);
-    echo json_encode(["erro" => "Could not register order in database."], JSON_UNESCAPED_UNICODE);
-    exit;
+    error_log("Erro ao atualizar mp_payment_id de Checkout Pro ({$txid}): " . $e->getMessage());
 }
 
 echo json_encode([

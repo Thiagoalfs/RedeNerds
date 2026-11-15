@@ -5,6 +5,7 @@
  */
 
 declare(strict_types=1);
+date_default_timezone_set('America/Sao_Paulo');
 
 /**
  * Retorna a URL base oficial do site de forma estrita e segura.
@@ -245,4 +246,123 @@ function cancelarPagamentoMercadoPago(string|int $mpPaymentId): bool {
     }
 
     return $sucesso;
+}
+
+/**
+ * Valida os dados de entrada do checkout, consulta produto/servidor/cupom no banco
+ * e calcula o valor final (Zero-Trust) de forma única para PIX, Cartão e Internacional.
+ *
+ * @return array{ok:bool,status?:int,erro?:string,nick?:string,tipo_conta?:string,servidor?:string,servidor_id?:int,tipo_produto?:string,item_id?:int,item_nome?:string,quantidade?:int,valor_original?:float,desconto_aplicado?:float,valor?:float,cupom_codigo?:?string}
+ */
+function prepararCheckoutLoja(PDO $pdo, array $data): array {
+    $nick = trim((string)($data['nick'] ?? ''));
+    $tipoConta = strtolower(trim((string)($data['tipo_conta'] ?? 'original')));
+    if (!in_array($tipoConta, ['original', 'pirata'], true)) {
+        $tipoConta = 'original';
+    }
+
+    $servidor = trim((string)($data['servidor'] ?? ''));
+    $tipoProduto = strtolower(trim((string)($data['tipo_produto'] ?? 'vip')));
+    if (!in_array($tipoProduto, ['vip', 'chave'], true)) {
+        $tipoProduto = 'vip';
+    }
+
+    $vipId = (int)($data['vip_id'] ?? 0);
+    $chaveId = (int)($data['chave_id'] ?? 0);
+    $itemId = ($tipoProduto === 'chave') ? ($chaveId > 0 ? $chaveId : $vipId) : $vipId;
+
+    $quantidade = filter_var($data['quantidade'] ?? 1, FILTER_VALIDATE_INT);
+    if ($quantidade === false || $quantidade < 1) $quantidade = 1;
+    if ($quantidade > 100) $quantidade = 100;
+    if ($tipoProduto === 'vip') $quantidade = 1;
+
+    if ($nick === '' || strlen($nick) < 3 || strlen($nick) > 16 || !preg_match('/^[a-zA-Z0-9_]+$/', $nick)) {
+        return ['ok' => false, 'status' => 400, 'erro' => 'Nick inválido. Use de 3 a 16 caracteres alfanuméricos ou underline.'];
+    }
+    if ($servidor === '') {
+        return ['ok' => false, 'status' => 400, 'erro' => 'Selecione o servidor onde deseja receber o produto.'];
+    }
+    if ($itemId <= 0) {
+        return ['ok' => false, 'status' => 400, 'erro' => 'Identificador do produto inválido.'];
+    }
+
+    $tabelaItem = ($tipoProduto === 'chave') ? 'chaves' : 'vips';
+    $stmtItem = $pdo->prepare("SELECT id, nome, preco, servidor_id FROM {$tabelaItem} WHERE id = :id AND (ativo = 1 OR ativo IS NULL) LIMIT 1");
+    $stmtItem->execute([':id' => $itemId]);
+    $itemRow = $stmtItem->fetch(PDO::FETCH_ASSOC);
+
+    if (!$itemRow) {
+        return ['ok' => false, 'status' => 404, 'erro' => ($tipoProduto === 'chave' ? 'Pacote' : 'Pacote VIP') . ' não encontrado ou inativo.'];
+    }
+
+    $valorOriginal = round((float)$itemRow['preco'] * $quantidade, 2);
+    if ($valorOriginal <= 0) {
+        return ['ok' => false, 'status' => 400, 'erro' => 'Valor do produto inválido.'];
+    }
+
+    $srvSlug = strtolower(preg_replace('/[^a-zA-Z0-9]/', '', $servidor));
+    $stmtCheckSrv = $pdo->prepare("SELECT id, servername, nome, enabled FROM servidores WHERE (servername = :srv OR nome = :srvSlug) LIMIT 1");
+    $stmtCheckSrv->execute([':srv' => $servidor, ':srvSlug' => $srvSlug]);
+    $srvRow = $stmtCheckSrv->fetch(PDO::FETCH_ASSOC);
+
+    if (!$srvRow || (isset($srvRow['enabled']) && (int)$srvRow['enabled'] === 0)) {
+        return ['ok' => false, 'status' => 400, 'erro' => 'O servidor selecionado é inválido ou está desabilitado.'];
+    }
+
+    $servidorId = (int)$srvRow['id'];
+    $servidorNome = (string)$srvRow['servername'];
+
+    $itemServidorId = (int)($itemRow['servidor_id'] ?? 0);
+    if ($itemServidorId > 0 && $itemServidorId !== $servidorId) {
+        return ['ok' => false, 'status' => 400, 'erro' => "O pacote selecionado não pertence ao servidor {$servidorNome}."];
+    }
+
+    $valor = $valorOriginal;
+    $descontoAplicado = 0.00;
+    $cupomCodigo = null;
+    $cupomEnviado = strtoupper(trim((string)($data['cupom'] ?? '')));
+
+    if ($cupomEnviado !== '') {
+        $stmtCupom = $pdo->prepare("SELECT * FROM cupons WHERE codigo = :codigo LIMIT 1");
+        $stmtCupom->execute([':codigo' => $cupomEnviado]);
+        $cupomRow = $stmtCupom->fetch(PDO::FETCH_ASSOC);
+
+        if (!$cupomRow) {
+            return ['ok' => false, 'status' => 404, 'erro' => "Cupom '{$cupomEnviado}' não encontrado."];
+        }
+        if (empty($cupomRow['ativo'])) {
+            return ['ok' => false, 'status' => 400, 'erro' => "O cupom '{$cupomEnviado}' está desativado."];
+        }
+        $expiraTs = !empty($cupomRow['expira_em']) ? strtotime((string)$cupomRow['expira_em']) : false;
+        if ($expiraTs && $expiraTs < time()) {
+            return ['ok' => false, 'status' => 400, 'erro' => "O cupom '{$cupomEnviado}' expirou em " . date('d/m/Y H:i', $expiraTs) . "."];
+        }
+        $cupomServidorId = (int)($cupomRow['servidor_id'] ?? 0);
+        if ($cupomServidorId > 0 && $cupomServidorId !== $servidorId) {
+            $stmtSrvNome = $pdo->prepare("SELECT servername FROM servidores WHERE id = :id LIMIT 1");
+            $stmtSrvNome->execute([':id' => $cupomServidorId]);
+            $srvNome = $stmtSrvNome->fetchColumn() ?: 'outro servidor';
+            return ['ok' => false, 'status' => 400, 'erro' => "O cupom '{$cupomEnviado}' é válido exclusivamente para compras no servidor {$srvNome}."];
+        }
+
+        $descontoAplicado = round($valorOriginal * ((float)$cupomRow['porcentagem_desconto'] / 100), 2);
+        $valor = max(0.01, round($valorOriginal - $descontoAplicado, 2));
+        $cupomCodigo = (string)$cupomRow['codigo'];
+    }
+
+    return [
+        'ok' => true,
+        'nick' => $nick,
+        'tipo_conta' => $tipoConta,
+        'servidor' => $servidorNome,
+        'servidor_id' => $servidorId,
+        'tipo_produto' => $tipoProduto,
+        'item_id' => $itemId,
+        'item_nome' => (string)$itemRow['nome'],
+        'quantidade' => $quantidade,
+        'valor_original' => $valorOriginal,
+        'desconto_aplicado' => $descontoAplicado,
+        'valor' => $valor,
+        'cupom_codigo' => $cupomCodigo,
+    ];
 }

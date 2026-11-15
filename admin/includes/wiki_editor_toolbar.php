@@ -9,7 +9,7 @@ $fileInputId = 'inputUploadImagemWiki_' . preg_replace('/[^a-zA-Z0-9_-]/', '', $
 $feedbackId = 'uploadFeedbackWiki_' . preg_replace('/[^a-zA-Z0-9_-]/', '', $toolbarTarget);
 $btnUploadId = 'btnUploadImgWiki_' . preg_replace('/[^a-zA-Z0-9_-]/', '', $toolbarTarget);
 ?>
-<div id="<?php echo $toolbarId; ?>" class="wiki-editor-toolbar mb-2 d-flex flex-wrap gap-1 p-2 bg-light border rounded align-items-center" data-editor-target="<?php echo htmlspecialchars($toolbarTarget, ENT_QUOTES, 'UTF-8'); ?>">
+<div id="<?php echo $toolbarId; ?>" class="wiki-editor-toolbar mb-2 d-flex flex-wrap gap-2 p-2 bg-light border rounded align-items-center" data-editor-target="<?php echo htmlspecialchars($toolbarTarget, ENT_QUOTES, 'UTF-8'); ?>">
     <div class="btn-group btn-group-sm">
         <button type="button" class="btn btn-outline-secondary editor-btn" onclick="inserirFormatacao('**', '**', 'texto em negrito', this)" title="Negrito (Ctrl+B)">
             <i class="fa-solid fa-bold"></i>
@@ -22,8 +22,6 @@ $btnUploadId = 'btnUploadImgWiki_' . preg_replace('/[^a-zA-Z0-9_-]/', '', $toolb
         </button>
     </div>
 
-    <div class="vr my-1 mx-1 d-none d-sm-block"></div>
-
     <div class="btn-group btn-group-sm">
         <button type="button" class="btn btn-outline-secondary editor-btn" onclick="inserirLinha('## ', 'Título da Seção', this)" title="Título de Seção (H2)">
             <i class="fa-solid fa-heading"></i> 2
@@ -32,8 +30,6 @@ $btnUploadId = 'btnUploadImgWiki_' . preg_replace('/[^a-zA-Z0-9_-]/', '', $toolb
             <i class="fa-solid fa-heading"></i> 3
         </button>
     </div>
-
-    <div class="vr my-1 mx-1 d-none d-sm-block"></div>
 
     <div class="btn-group btn-group-sm">
         <button type="button" class="btn btn-outline-secondary editor-btn" onclick="inserirLinha('- ', 'Item da lista', this)" title="Lista com Marcadores">
@@ -50,8 +46,6 @@ $btnUploadId = 'btnUploadImgWiki_' . preg_replace('/[^a-zA-Z0-9_-]/', '', $toolb
         </button>
     </div>
 
-    <div class="vr my-1 mx-1 d-none d-sm-block"></div>
-
     <div class="btn-group btn-group-sm">
         <button type="button" class="btn btn-outline-success editor-btn" onclick="inserirCallout('TIP', 'Escreva uma dica valiosa aqui...', this)" title="Caixa de Dica">
             <i class="fa-solid fa-lightbulb"></i> Dica
@@ -66,8 +60,6 @@ $btnUploadId = 'btnUploadImgWiki_' . preg_replace('/[^a-zA-Z0-9_-]/', '', $toolb
             <i class="fa-solid fa-terminal"></i> Comando
         </button>
     </div>
-
-    <div class="vr my-1 mx-1 d-none d-sm-block"></div>
 
     <div class="btn-group btn-group-sm ms-auto">
         <button type="button" class="btn btn-outline-secondary editor-btn" onclick="inserirLink(this)" title="Inserir Link">

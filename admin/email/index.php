@@ -2392,8 +2392,8 @@ require_once __DIR__ . '/../includes/admin_header.php';
             doc.title = doc.title.replace(/snappymail/gi, 'RNMail');
         }
         const loadingDesc = doc.getElementById('rl-loading-desc');
-        if (loadingDesc && loadingDesc.textContent.trim() !== 'RNMail') {
-            loadingDesc.textContent = 'RNMail';
+        if (loadingDesc && !loadingDesc.querySelector('img.admin-rnmail-splash-logo')) {
+            loadingDesc.innerHTML = '<img src="/assets/images/rn-monogram.webp" alt="RNMail" class="admin-rnmail-splash-logo" style="width: 72px; height: 72px; object-fit: contain; display: block; margin: 0 auto;">';
         }
         const loginDesc = doc.querySelector('.LoginView .descWrapper');
         if (loginDesc && loginDesc.textContent.trim() !== 'RNMail') {

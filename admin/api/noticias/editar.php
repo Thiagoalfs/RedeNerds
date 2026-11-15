@@ -52,18 +52,19 @@ if ($autor === '') {
 }
 
 $capaAtual = $noticiaAtual['capa'] ?? null;
-if (!empty($_POST['remover_capa'])) {
-    apagarCapaAntigaSeForUpload($capaAtual, '');
-    $capa = null;
-    $erro_upload = null;
-} else {
-    [$capa, $erro_upload] = processarCapa($capaAtual);
-}
+[$capa, $erro_upload] = processarCapa($capaAtual);
 
 if ($erro_upload) {
     http_response_code(400);
     header('Content-Type: application/json; charset=utf-8');
     echo json_encode(["success" => false, "erro" => $erro_upload], JSON_UNESCAPED_UNICODE);
+    exit;
+}
+
+if (empty($capa)) {
+    http_response_code(400);
+    header('Content-Type: application/json; charset=utf-8');
+    echo json_encode(["success" => false, "erro" => "A imagem de capa é obrigatória."], JSON_UNESCAPED_UNICODE);
     exit;
 }
 

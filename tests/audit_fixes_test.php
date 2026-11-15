@@ -73,4 +73,58 @@ assert(discordMensagemIdValido($validSnowflake) === true, "Falha: snowflake num�
 assert(discordMensagemIdValido($invalidTitle) === false, "Falha: texto não pode ser aceito como mensagem ID");
 echo "  [PASS] Validação de snowflake e assinaturas de webhook do Discord testadas com sucesso.\n";
 
+// 5. Teste das correções da auditoria (fuso, ordem INSERT->gateway, txid criptográfico, sem ALTER TABLE em runtime)
+require_once __DIR__ . "/../api/loja/config_loja.php";
+assert(date_default_timezone_get() === 'America/Sao_Paulo', "Falha: config_loja.php deve definir timezone America/Sao_Paulo");
+
+foreach (['criar_pix.php', 'criar_cartao.php', 'criar_checkout_internacional.php'] as $checkoutFile) {
+    $src = file_get_contents(__DIR__ . "/../api/loja/" . $checkoutFile);
+    $posInsert = strpos($src, 'INSERT INTO pedidos');
+    $posCurl = strpos($src, 'curl_exec(');
+    assert($posInsert !== false && $posCurl !== false && $posInsert < $posCurl, "Falha em {$checkoutFile}: INSERT INTO pedidos deve ocorrer antes de curl_exec");
+    assert(strpos($src, 'uniqid(') === false, "Falha em {$checkoutFile}: nao deve usar uniqid() para txid");
+}
+
+$vipsEditarSrc = file_get_contents(__DIR__ . "/../admin/api/vips/editar.php");
+assert(stripos($vipsEditarSrc, 'ALTER TABLE') === false, "Falha: admin/api/vips/editar.php nao deve executar ALTER TABLE em runtime");
+echo "  [PASS] Fuso horario, ordem INSERT->gateway, txid seguro e ausencia de ALTER TABLE validados.\n";
+
+// 6. Teste de integracao de prepararCheckoutLoja() (VIP, Chave, Cupom valido/expirado/servidor) e token de reset
+$pdoLoja = new PDO('sqlite::memory:');
+$pdoLoja->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+$pdoLoja->exec("CREATE TABLE servidores (id INTEGER PRIMARY KEY, servername TEXT, nome TEXT, enabled INTEGER)");
+$pdoLoja->exec("CREATE TABLE vips (id INTEGER PRIMARY KEY, nome TEXT, preco REAL, servidor_id INTEGER, ativo INTEGER)");
+$pdoLoja->exec("CREATE TABLE chaves (id INTEGER PRIMARY KEY, nome TEXT, preco REAL, servidor_id INTEGER, ativo INTEGER)");
+$pdoLoja->exec("CREATE TABLE cupons (id INTEGER PRIMARY KEY, codigo TEXT, porcentagem_desconto REAL, servidor_id INTEGER, ativo INTEGER, expira_em TEXT)");
+$pdoLoja->exec("INSERT INTO servidores VALUES (1, 'AeroCity', 'aerocity', 1), (2, 'Pixel', 'pixel', 1)");
+$pdoLoja->exec("INSERT INTO vips VALUES (10, 'VIP Ouro', 50.00, 1, 1)");
+$pdoLoja->exec("INSERT INTO chaves VALUES (20, 'Chave Mitica', 10.00, 1, 1)");
+$pdoLoja->exec("INSERT INTO cupons VALUES (1, 'AERO10', 10, 1, 1, '2099-12-31 23:59:59'), (2, 'EXPIRADO', 20, 0, 1, '2020-01-01 00:00:00'), (3, 'SO_PIXEL', 15, 2, 1, '2099-12-31 23:59:59')");
+
+$okVip = prepararCheckoutLoja($pdoLoja, ['nick' => 'Steve_123', 'servidor' => 'AeroCity', 'tipo_produto' => 'vip', 'vip_id' => 10, 'quantidade' => 5, 'cupom' => 'aero10']);
+assert($okVip['ok'] === true && $okVip['quantidade'] === 1 && $okVip['valor_original'] === 50.0 && $okVip['desconto_aplicado'] === 5.0 && $okVip['valor'] === 45.0, "Falha: calculo de VIP + cupom deve forcar quantidade=1 e aplicar 10%");
+
+$okChave = prepararCheckoutLoja($pdoLoja, ['nick' => 'Alex_99', 'servidor' => 'aerocity', 'tipo_produto' => 'chave', 'chave_id' => 20, 'quantidade' => 3]);
+assert($okChave['ok'] === true && $okChave['quantidade'] === 3 && $okChave['valor'] === 30.0, "Falha: calculo de Chave x3 deve somar 30.00");
+
+$errExp = prepararCheckoutLoja($pdoLoja, ['nick' => 'Steve_123', 'servidor' => 'AeroCity', 'tipo_produto' => 'vip', 'vip_id' => 10, 'cupom' => 'EXPIRADO']);
+assert($errExp['ok'] === false && $errExp['status'] === 400, "Falha: cupom expirado deve retornar 400");
+
+$errSrv = prepararCheckoutLoja($pdoLoja, ['nick' => 'Steve_123', 'servidor' => 'AeroCity', 'tipo_produto' => 'vip', 'vip_id' => 10, 'cupom' => 'SO_PIXEL']);
+assert($errSrv['ok'] === false && $errSrv['status'] === 400, "Falha: cupom de outro servidor deve retornar 400");
+
+$pdoLoja->exec("CREATE TABLE usuarios (id INTEGER PRIMARY KEY, reset_token_hash TEXT, reset_expira_em TEXT)");
+$rawToken = bin2hex(random_bytes(32));
+$pdoLoja->prepare("INSERT INTO usuarios VALUES (1, ?, '2099-12-31 23:59:59'), (2, ?, '2020-01-01 00:00:00')")
+    ->execute([hash('sha256', $rawToken), hash('sha256', str_repeat('a', 64))]);
+$stmtTok = $pdoLoja->prepare("SELECT id FROM usuarios WHERE reset_token_hash = ? AND reset_expira_em > datetime('now')");
+$stmtTok->execute([hash('sha256', $rawToken)]);
+assert((int)$stmtTok->fetchColumn() === 1, "Falha: token valido nao foi encontrado");
+$stmtTok->execute([hash('sha256', str_repeat('a', 64))]);
+assert($stmtTok->fetchColumn() === false, "Falha: token expirado nao pode ser aceito");
+
+require_once __DIR__ . "/../admin/includes/image_upload_helper.php";
+assert(function_exists('adminConverterParaWebp') && function_exists('adminObterMimeImagem'), "Falha: image_upload_helper.php deve exportar funcoes compartilhadas");
+echo "  [PASS] prepararCheckoutLoja (VIP, Chave, Cupons), reset token e image_upload_helper validados.\n";
+
 echo "✔ Todos os testes de correções de auditoria passaram com sucesso!\n";

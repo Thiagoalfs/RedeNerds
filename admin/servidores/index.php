@@ -267,7 +267,7 @@ function renderIconeTable(?string $icone): string {
 
 <!-- MODAL: CRIAR SERVIDOR -->
 <div class="modal fade" id="modalCriarServidor" tabindex="-1" aria-labelledby="modalCriarServidorLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-xl">
         <div class="modal-content shadow">
             <form id="formCriarServidor" enctype="multipart/form-data">
                 <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($csrfToken, ENT_QUOTES, 'UTF-8'); ?>">
@@ -277,8 +277,8 @@ function renderIconeTable(?string $icone): string {
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
                 </div>
 
-                <div class="modal-body p-3 p-md-4">
-                    <div class="row g-2 mb-2">
+                <div class="modal-body p-4">
+                    <div class="row g-3 mb-3">
                         <div class="col-md-6">
                             <label for="criar-srv-servername" class="form-label fw-bold">Nome do Servidor <span class="text-danger">*</span></label>
                             <input type="text" class="form-control" id="criar-srv-servername" name="servername" placeholder="Ex: Potato Nerds" required>
@@ -289,12 +289,12 @@ function renderIconeTable(?string $icone): string {
                         </div>
                     </div>
 
-                    <div class="mb-2">
+                    <div class="mb-3">
                         <label for="criar-srv-descricao" class="form-label fw-bold">Descrição <span class="text-danger">*</span></label>
-                        <textarea class="form-control" id="criar-srv-descricao" name="descricao" rows="2" placeholder="Descrição curta do servidor..." required></textarea>
+                        <textarea class="form-control" id="criar-srv-descricao" name="descricao" rows="3" placeholder="Descrição curta do servidor..." required></textarea>
                     </div>
 
-                    <div class="row g-2 mb-2">
+                    <div class="row g-3 mb-3">
                         <div class="col-md-8">
                             <label for="criar-srv-modpackurl" class="form-label fw-bold">URL do Modpack / Launcher</label>
                             <input type="url" class="form-control" id="criar-srv-modpackurl" name="modpackurl" placeholder="https://...">
@@ -308,31 +308,48 @@ function renderIconeTable(?string $icone): string {
                         </div>
                     </div>
 
-                    <div class="row g-2 mb-2">
+                    <div class="row g-3 mb-3">
                         <div class="col-md-6">
-                            <label class="form-label fw-bold">Ícone do Servidor</label>
-                            <div class="d-flex align-items-center gap-2">
-                                <input type="file" class="form-control" id="criar-srv-icon" name="icon_upload" accept="image/*">
-                                <div id="criar-srv-icon-preview" class="bg-light border rounded d-flex align-items-center justify-content-center overflow-hidden flex-shrink-0" style="width: 42px; height: 42px;">
-                                    <i class="fa-solid fa-server text-muted"></i>
+                            <div class="border rounded p-3 h-100">
+                                <div class="fw-bold small mb-3">Ícone do Servidor</div>
+                                <div class="d-flex align-items-center gap-3">
+                                    <div id="criar-srv-icon-preview" class="rounded d-flex align-items-center justify-content-center overflow-hidden flex-shrink-0" style="width: 64px; height: 64px; border: 1px dashed var(--border-color, #475569); background: var(--admin-bg, transparent);">
+                                        <i class="fa-solid fa-server text-muted fs-5"></i>
+                                    </div>
+                                    <div class="min-w-0 flex-grow-1">
+                                        <input type="file" class="d-none" id="criar-srv-icon" name="icon_upload" accept="image/*">
+                                        <label for="criar-srv-icon" class="btn btn-sm btn-primary mb-1">
+                                            <i class="fa-solid fa-upload me-1"></i> Escolher ícone
+                                        </label>
+                                        <div id="criar-srv-icon-name" class="text-muted small text-truncate">Nenhum arquivo selecionado</div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label fw-bold">Background do Servidor (Wallpaper)</label>
-                            <div class="d-flex align-items-center gap-2">
-                                <input type="file" class="form-control" id="criar-srv-bg" name="bg_upload" accept="image/*">
-                                <div id="criar-srv-bg-preview" class="bg-dark border rounded d-flex align-items-center justify-content-center overflow-hidden flex-shrink-0" style="width: 70px; height: 42px;">
-                                    <span class="text-white-50" style="font-size: 0.65rem;">Sem fundo</span>
+                            <div class="border rounded p-3 h-100">
+                                <div class="fw-bold small mb-3">Background / Wallpaper</div>
+                                <div class="d-flex align-items-center gap-3">
+                                    <div id="criar-srv-bg-preview" class="rounded d-flex flex-column align-items-center justify-content-center overflow-hidden flex-shrink-0" style="width: 128px; height: 72px; border: 1px dashed var(--border-color, #475569); background: var(--admin-bg, transparent);">
+                                        <i class="fa-regular fa-image text-muted mb-1"></i>
+                                        <span class="text-muted" style="font-size: 0.68rem;">Sem fundo</span>
+                                    </div>
+                                    <div class="min-w-0 flex-grow-1">
+                                        <input type="file" class="d-none" id="criar-srv-bg" name="bg_upload" accept="image/*">
+                                        <label for="criar-srv-bg" class="btn btn-sm btn-primary mb-1">
+                                            <i class="fa-solid fa-upload me-1"></i> Escolher fundo
+                                        </label>
+                                        <div id="criar-srv-bg-name" class="text-muted small text-truncate">Nenhum arquivo selecionado</div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    <div class="mb-3">
+                    <div class="mb-3 pt-2 border-top">
                         <label class="form-label fw-bold d-flex align-items-center justify-content-between mb-2">
                             <span>Destaques / Features</span>
-                            <button type="button" class="btn btn-outline-primary btn-sm" id="btn-add-feature-criar-srv">
+                            <button type="button" class="btn btn-sm btn-primary" id="btn-add-feature-criar-srv">
                                 Adicionar Feature
                             </button>
                         </label>
@@ -344,7 +361,7 @@ function renderIconeTable(?string $icone): string {
                         </div>
                     </div>
 
-                    <div class="pt-2 border-top">
+                    <div class="pt-3 border-top">
                         <div class="form-check form-switch">
                             <input class="form-check-input" type="checkbox" id="criar-srv-enabled" name="enabled" value="1" checked>
                             <label class="form-check-label fw-bold" for="criar-srv-enabled">Servidor Ativo e Visível no Site</label>
@@ -365,7 +382,7 @@ function renderIconeTable(?string $icone): string {
 
 <!-- MODAL: EDITAR SERVIDOR -->
 <div class="modal fade" id="modalEditarServidor" tabindex="-1" aria-labelledby="modalEditarServidorLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-xl">
         <div class="modal-content shadow">
             <form id="formEditarServidor" enctype="multipart/form-data">
                 <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($csrfToken, ENT_QUOTES, 'UTF-8'); ?>">
@@ -379,8 +396,8 @@ function renderIconeTable(?string $icone): string {
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
                 </div>
 
-                <div class="modal-body p-3 p-md-4">
-                    <div class="row g-2 mb-2">
+                <div class="modal-body p-4">
+                    <div class="row g-3 mb-3">
                         <div class="col-md-6">
                             <label for="edit-srv-servername" class="form-label fw-bold">Nome do Servidor <span class="text-danger">*</span></label>
                             <input type="text" class="form-control" id="edit-srv-servername" name="servername" required>
@@ -391,12 +408,12 @@ function renderIconeTable(?string $icone): string {
                         </div>
                     </div>
 
-                    <div class="mb-2">
+                    <div class="mb-3">
                         <label for="edit-srv-descricao" class="form-label fw-bold">Descrição <span class="text-danger">*</span></label>
-                        <textarea class="form-control" id="edit-srv-descricao" name="descricao" rows="2" required></textarea>
+                        <textarea class="form-control" id="edit-srv-descricao" name="descricao" rows="3" required></textarea>
                     </div>
 
-                    <div class="row g-2 mb-2">
+                    <div class="row g-3 mb-3">
                         <div class="col-md-8">
                             <label for="edit-srv-modpackurl" class="form-label fw-bold">URL do Modpack / Launcher</label>
                             <input type="url" class="form-control" id="edit-srv-modpackurl" name="modpackurl" placeholder="https://...">
@@ -410,42 +427,59 @@ function renderIconeTable(?string $icone): string {
                         </div>
                     </div>
 
-                    <div class="row g-2 mb-2">
+                    <div class="row g-3 mb-3">
                         <div class="col-md-6">
-                            <label class="form-label fw-bold">Ícone do Servidor</label>
-                            <div class="d-flex align-items-center gap-2">
-                                <input type="file" class="form-control" id="edit-srv-icon" name="icon_upload" accept="image/*">
-                                <div id="edit-srv-icon-preview" class="bg-light border rounded d-flex align-items-center justify-content-center overflow-hidden flex-shrink-0" style="width: 42px; height: 42px;">
-                                    <i class="fa-solid fa-server text-muted"></i>
+                            <div class="border rounded p-3 h-100">
+                                <div class="fw-bold small mb-3">Ícone do Servidor</div>
+                                <div class="d-flex align-items-center gap-3">
+                                    <div id="edit-srv-icon-preview" class="rounded d-flex align-items-center justify-content-center overflow-hidden flex-shrink-0" style="width: 64px; height: 64px; border: 1px dashed var(--border-color, #475569); background: var(--admin-bg, transparent);">
+                                        <i class="fa-solid fa-server text-muted fs-5"></i>
+                                    </div>
+                                    <div class="min-w-0 flex-grow-1">
+                                        <input type="file" class="d-none" id="edit-srv-icon" name="icon_upload" accept="image/*">
+                                        <label for="edit-srv-icon" class="btn btn-sm btn-primary mb-1">
+                                            <i class="fa-solid fa-upload me-1"></i> Trocar ícone
+                                        </label>
+                                        <div id="edit-srv-icon-name" class="text-muted small text-truncate">Nenhum arquivo selecionado</div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label fw-bold">Background do Servidor (Wallpaper)</label>
-                            <div class="d-flex align-items-center gap-2">
-                                <input type="file" class="form-control" id="edit-srv-bg" name="bg_upload" accept="image/*">
-                                <div id="edit-srv-bg-preview" class="bg-dark border rounded d-flex align-items-center justify-content-center overflow-hidden flex-shrink-0" style="width: 70px; height: 42px;">
-                                    <span class="text-white-50" style="font-size: 0.65rem;">Sem fundo</span>
+                            <div class="border rounded p-3 h-100">
+                                <div class="fw-bold small mb-3">Background / Wallpaper</div>
+                                <div class="d-flex align-items-center gap-3">
+                                    <div id="edit-srv-bg-preview" class="rounded d-flex flex-column align-items-center justify-content-center overflow-hidden flex-shrink-0" style="width: 128px; height: 72px; border: 1px dashed var(--border-color, #475569); background: var(--admin-bg, transparent);">
+                                        <i class="fa-regular fa-image text-muted mb-1"></i>
+                                        <span class="text-muted" style="font-size: 0.68rem;">Sem fundo</span>
+                                    </div>
+                                    <div class="min-w-0 flex-grow-1">
+                                        <input type="file" class="d-none" id="edit-srv-bg" name="bg_upload" accept="image/*">
+                                        <label for="edit-srv-bg" class="btn btn-sm btn-primary mb-1">
+                                            <i class="fa-solid fa-upload me-1"></i> Trocar fundo
+                                        </label>
+                                        <div id="edit-srv-bg-name" class="text-muted small text-truncate">Nenhum arquivo selecionado</div>
+                                        <div class="form-check mt-2" id="edit-srv-remover-bg-box" style="display: none;">
+                                            <input class="form-check-input" type="checkbox" id="edit-srv-remover-bg" name="remover_bg" value="1">
+                                            <label class="form-check-label small text-danger" for="edit-srv-remover-bg">Remover background atual</label>
+                                        </div>
+                                    </div>
                                 </div>
-                            </div>
-                            <div class="form-check mt-1" id="edit-srv-remover-bg-box" style="display: none;">
-                                <input class="form-check-input" type="checkbox" id="edit-srv-remover-bg" name="remover_bg" value="1">
-                                <label class="form-check-label small text-danger" for="edit-srv-remover-bg">Remover background atual</label>
                             </div>
                         </div>
                     </div>
 
-                    <div class="mb-3">
+                    <div class="mb-3 pt-2 border-top">
                         <label class="form-label fw-bold d-flex align-items-center justify-content-between mb-2">
                             <span>Destaques / Features</span>
-                            <button type="button" class="btn btn-outline-primary btn-sm" id="btn-add-feature-edit-srv">
+                            <button type="button" class="btn btn-sm btn-primary" id="btn-add-feature-edit-srv">
                                 Adicionar Feature
                             </button>
                         </label>
                         <div id="container-features-edit-srv" class="d-flex flex-column gap-2"></div>
                     </div>
 
-                    <div class="pt-2 border-top">
+                    <div class="pt-3 border-top">
                         <div class="form-check form-switch">
                             <input class="form-check-input" type="checkbox" id="edit-srv-enabled" name="enabled" value="1">
                             <label class="form-check-label fw-bold" for="edit-srv-enabled">Servidor Ativo e Visível no Site</label>
@@ -498,14 +532,18 @@ document.addEventListener('DOMContentLoaded', function() {
     function setupFilePreview(inputId, boxId, isBg = false) {
         const input = document.getElementById(inputId);
         const box = document.getElementById(boxId);
+        const nameEl = document.getElementById(inputId + '-name');
         if (input && box) {
             input.addEventListener('change', function() {
                 if (this.files && this.files[0]) {
+                    if (nameEl) nameEl.textContent = this.files[0].name;
                     const reader = new FileReader();
                     reader.onload = function(e) {
                         box.innerHTML = `<img src="${e.target.result}" alt="preview" style="width:100%;height:100%;object-fit:${isBg ? 'cover' : 'contain'};">`;
                     };
                     reader.readAsDataURL(this.files[0]);
+                } else if (nameEl) {
+                    nameEl.textContent = 'Nenhum arquivo selecionado';
                 }
             });
         }
@@ -736,8 +774,10 @@ document.addEventListener('DOMContentLoaded', function() {
 
                 if (bsModalCriar) bsModalCriar.hide();
                 formCriar.reset();
-                document.getElementById('criar-srv-icon-preview').innerHTML = '<i class="fa-solid fa-server text-muted"></i>';
-                document.getElementById('criar-srv-bg-preview').innerHTML = '<span class="text-white-50" style="font-size: 0.65rem;">Sem fundo</span>';
+                document.getElementById('criar-srv-icon-preview').innerHTML = '<i class="fa-solid fa-server text-muted fs-5"></i>';
+                document.getElementById('criar-srv-bg-preview').innerHTML = '<i class="fa-regular fa-image text-muted mb-1"></i><span class="text-muted" style="font-size: 0.68rem;">Sem fundo</span>';
+                document.getElementById('criar-srv-icon-name').textContent = 'Nenhum arquivo selecionado';
+                document.getElementById('criar-srv-bg-name').textContent = 'Nenhum arquivo selecionado';
 
                 if (res.servidor) {
                     const isVisivel = Boolean(Number(res.servidor.enabled));

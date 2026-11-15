@@ -729,7 +729,7 @@ try {
                     <div class="mb-3">
                         <label class="form-label fw-bold d-flex align-items-center justify-content-between mb-2">
                             <span>Benefícios do VIP <small class="text-muted fw-normal ms-1" style="font-size: 0.72rem;">(arraste para reordenar)</small></span>
-                            <button type="button" class="btn btn-outline-primary btn-sm" id="btn-add-vantagem-criar-vip">
+                            <button type="button" class="btn btn-sm btn-primary" id="btn-add-vantagem-criar-vip">
                                 <i class="fa-solid fa-plus me-1"></i> Adicionar Benefício
                             </button>
                         </label>
@@ -928,7 +928,7 @@ try {
                     <div class="mb-3">
                         <label class="form-label fw-bold d-flex align-items-center justify-content-between mb-2">
                             <span>Benefícios do VIP <small class="text-muted fw-normal ms-1" style="font-size: 0.72rem;">(arraste para reordenar)</small></span>
-                            <button type="button" class="btn btn-outline-primary btn-sm" id="btn-add-vantagem-edit-vip">
+                            <button type="button" class="btn btn-sm btn-primary" id="btn-add-vantagem-edit-vip">
                                 <i class="fa-solid fa-plus me-1"></i> Adicionar Benefício
                             </button>
                         </label>

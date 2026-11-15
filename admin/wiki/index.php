@@ -321,7 +321,6 @@ $categoriasIniciais = $primeiroServidorId > 0 ? getCategoriasServidorWiki($pdo, 
                     <div class="mb-3">
                         <div class="d-flex align-items-center justify-content-between mb-1">
                             <label for="criar-conteudo" class="form-label fw-bold mb-0">Conteúdo do Artigo (Markdown) <span class="text-danger">*</span></label>
-                            <span class="badge bg-light text-dark border">Markdown suportado</span>
                         </div>
                         <?php 
                         $toolbarTarget = 'criar-conteudo';
@@ -408,7 +407,6 @@ $categoriasIniciais = $primeiroServidorId > 0 ? getCategoriasServidorWiki($pdo, 
                     <div class="mb-3">
                         <div class="d-flex align-items-center justify-content-between mb-1">
                             <label for="edit-conteudo" class="form-label fw-bold mb-0">Conteúdo do Artigo (Markdown) <span class="text-danger">*</span></label>
-                            <span class="badge bg-light text-dark border">Markdown suportado</span>
                         </div>
                         <?php 
                         $toolbarTarget = 'edit-conteudo';

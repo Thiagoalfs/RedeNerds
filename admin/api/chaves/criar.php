@@ -49,10 +49,18 @@ if ($nome === '' || mb_strlen($nome) < 2) {
 }
 
 if ($packageId === '') {
-    http_response_code(400);
-    header('Content-Type: application/json; charset=utf-8');
-    echo json_encode(["success" => false, "erro" => "Informe o Package ID correspondente no plugin."], JSON_UNESCAPED_UNICODE);
-    exit;
+    $cleanSlug = @iconv('UTF-8', 'ASCII//TRANSLIT//IGNORE', $nome);
+    if ($cleanSlug === false || $cleanSlug === '') {
+        $cleanSlug = $nome;
+    }
+    $cleanSlug = strtolower(trim($cleanSlug));
+    $cleanSlug = preg_replace('/[\s\-]+/', '_', $cleanSlug);
+    $cleanSlug = preg_replace('/[^a-z0-9_]/', '', $cleanSlug);
+    $cleanSlug = preg_replace('/_+/', '_', $cleanSlug);
+    $packageId = trim($cleanSlug, '_');
+    if ($packageId === '') {
+        $packageId = 'chave_' . time();
+    }
 }
 
 if ($preco <= 0) {
