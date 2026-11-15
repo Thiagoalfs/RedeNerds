@@ -139,6 +139,7 @@ try {
     $busca = $pdo->prepare("SELECT * FROM vips WHERE id = :id LIMIT 1");
     $busca->execute([':id' => $id]);
     $vipAtualizado = $busca->fetch(PDO::FETCH_ASSOC);
+    registrarLogAdmin($pdo, 'editar', 'vips', "Editou VIP '{$nome}' (#{$id}, R$ {$preco})", $id);
 
     header('Content-Type: application/json; charset=utf-8');
     echo json_encode([
@@ -179,6 +180,7 @@ try {
             $busca = $pdo->prepare("SELECT * FROM vips WHERE id = :id LIMIT 1");
             $busca->execute([':id' => $id]);
             $vipAtualizado = $busca->fetch(PDO::FETCH_ASSOC);
+    registrarLogAdmin($pdo, 'editar', 'vips', "Editou VIP '{$nome}' (#{$id}, R$ {$preco})", $id);
             header('Content-Type: application/json; charset=utf-8');
             echo json_encode([
                 "success" => true,

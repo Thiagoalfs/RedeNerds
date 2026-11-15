@@ -63,6 +63,7 @@ try {
         ':senha' => password_hash($novaSenha, PASSWORD_DEFAULT),
         ':id' => $usuarioId,
     ]);
+    registrarLogAdmin($pdo, 'editar', 'conta', 'Alterou a própria senha', (int)$usuarioId);
 
     echo json_encode([
         "success" => true,

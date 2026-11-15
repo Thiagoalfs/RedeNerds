@@ -103,6 +103,7 @@ try {
     $stmt = $pdo->prepare("INSERT INTO equipe_cargos (nome, cor, ordem) VALUES (:nome, :cor, :ordem)");
     $stmt->execute([':nome' => $nome, ':cor' => $cor, ':ordem' => $ordem]);
     $newId = (int)$pdo->lastInsertId();
+    registrarLogAdmin($pdo, 'criar', 'equipe', "Criou cargo '{$nome}'", $newId ?: null);
 
     require_once __DIR__ . "/../../../api/cache_helper.php";
     invalidarCache('equipe');

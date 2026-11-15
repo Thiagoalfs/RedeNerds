@@ -86,6 +86,7 @@ try {
 
     $novoServidorId = (int)$pdo->lastInsertId();
     garantirCategoriasPadraoWiki($pdo, $novoServidorId);
+    registrarLogAdmin($pdo, 'criar', 'servidores', "Criou servidor '{$servername}'", $novoServidorId ?: null);
 
     require_once __DIR__ . "/../../../api/cache_helper.php";
     invalidarCache('servidores');

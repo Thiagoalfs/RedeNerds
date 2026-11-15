@@ -115,6 +115,7 @@ try {
     $busca = $pdo->prepare("SELECT * FROM servidores WHERE id = :id LIMIT 1");
     $busca->execute([':id' => $id]);
     $servidorAtualizado = $busca->fetch(PDO::FETCH_ASSOC);
+    registrarLogAdmin($pdo, 'editar', 'servidores', "Editou servidor '{$servername}' (#{$id})", $id);
 
     header('Content-Type: application/json; charset=utf-8');
     echo json_encode([

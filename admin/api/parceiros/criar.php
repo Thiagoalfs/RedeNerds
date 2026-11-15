@@ -76,6 +76,7 @@ try {
     ]);
 
     $novoId = (int)$pdo->lastInsertId();
+    registrarLogAdmin($pdo, 'criar', 'parceiros', "Criou parceiro '{$nome}'", $novoId ?: null);
 
     require_once __DIR__ . "/../../../api/cache_helper.php";
     invalidarCache('parceiros');

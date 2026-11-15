@@ -40,6 +40,14 @@
             </div>
         </a>
         <?php endif; ?>
+        <?php if (usuarioPodeAcessar('logs', $cargoNivel)): ?>
+        <a href="/admin/logs/" class="nav-item-link <?php echo ($paginaAtiva === 'logs') ? 'active' : ''; ?>">
+            <div class="icon-wrap">
+                <i class="fa-solid fa-clipboard-list"></i>
+                <span>Logs</span>
+            </div>
+        </a>
+        <?php endif; ?>
         <?php if (usuarioPodeAcessar('usuarios', $cargoNivel)): ?>
         <a href="/admin/usuarios/" class="nav-item-link <?php echo ($paginaAtiva === 'usuarios') ? 'active' : ''; ?>">
             <div class="icon-wrap">

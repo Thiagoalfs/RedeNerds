@@ -39,6 +39,7 @@ if (isset($pdo) && $pdo instanceof PDO) {
             $novoStatus = $chave['ativo'] ? 0 : 1;
             $upd = $pdo->prepare("UPDATE chaves SET ativo = :novo WHERE id = :id");
             $upd->execute([':novo' => $novoStatus, ':id' => $id]);
+            registrarLogAdmin($pdo, 'toggle', 'chaves', ($novoStatus ? 'Ativou' : 'Desativou') . " chave '{$chave['nome']}' (#{$id})", $id);
 
             require_once __DIR__ . "/../../../api/cache_helper.php";
             invalidarCache('chaves');

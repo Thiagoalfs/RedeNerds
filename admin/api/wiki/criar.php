@@ -92,6 +92,7 @@ try {
     ]);
 
     $novoId = (int)$pdo->lastInsertId();
+    registrarLogAdmin($pdo, 'criar', 'wiki', "Criou artigo da wiki '{$titulo}'", $novoId ?: null);
 
     $busca = $pdo->prepare("
         SELECT a.id, a.titulo, a.slug, a.publicado, a.visualizacoes, a.autor, a.criado_em, a.conteudo, a.categoria_id,

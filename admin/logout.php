@@ -11,6 +11,19 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
+if (!empty($_SESSION['usuario_id'])) {
+    foreach ([__DIR__ . "/../../config.php", __DIR__ . "/../config.php"] as $cp) {
+        if (file_exists($cp)) {
+            require_once $cp;
+            break;
+        }
+    }
+    require_once __DIR__ . "/includes/logger.php";
+    if (isset($pdo) && $pdo instanceof PDO) {
+        registrarLogAdmin($pdo, 'logout', 'auth', 'Logout do painel administrativo', (int)$_SESSION['usuario_id']);
+    }
+}
+
 // Limpa todas as variáveis da sessão
 $_SESSION = [];
 

@@ -39,6 +39,7 @@ if (isset($pdo) && $pdo instanceof PDO) {
             $novoStatus = $srv['enabled'] ? 0 : 1;
             $upd = $pdo->prepare("UPDATE servidores SET enabled = :novo WHERE id = :id");
             $upd->execute([':novo' => $novoStatus, ':id' => $id]);
+            registrarLogAdmin($pdo, 'toggle', 'servidores', ($novoStatus ? 'Ativou' : 'Desativou') . " servidor '{$srv['servername']}' (#{$id})", $id);
 
             require_once __DIR__ . "/../../../api/cache_helper.php";
             invalidarCache('servidores');

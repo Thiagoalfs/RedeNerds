@@ -27,6 +27,7 @@ if ($id > 0 && isset($pdo) && $pdo instanceof PDO) {
         if ($srv) {
             $del = $pdo->prepare("DELETE FROM servidores WHERE id = :id");
             $del->execute([':id' => $id]);
+            registrarLogAdmin($pdo, 'deletar', 'servidores', "Deletou servidor '{$srv['servername']}' (#{$id})", $id);
 
             require_once __DIR__ . "/../../../api/cache_helper.php";
             invalidarCache('servidores');

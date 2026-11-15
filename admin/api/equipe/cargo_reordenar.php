@@ -71,6 +71,9 @@ try {
             }
         }
         $pdo->commit();
+        if ($alterados > 0) {
+            registrarLogAdmin($pdo, 'reordenar', 'equipe', "Reordenou {$alterados} cargo(s) da equipe");
+        }
 
         if ($alterados > 0) {
             require_once __DIR__ . "/../../../api/cache_helper.php";
@@ -124,6 +127,9 @@ try {
                     $stmtNorm->execute([':ordem' => $pos + 1, ':id' => (int)$c['id']]);
                 }
                 $pdo->commit();
+        if ($alterados > 0) {
+            registrarLogAdmin($pdo, 'reordenar', 'equipe', "Reordenou {$alterados} cargo(s) da equipe");
+        }
 
                 require_once __DIR__ . "/../../../api/cache_helper.php";
                 invalidarCache('equipe');

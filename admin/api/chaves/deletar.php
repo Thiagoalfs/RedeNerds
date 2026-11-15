@@ -27,6 +27,7 @@ if ($id > 0 && isset($pdo) && $pdo instanceof PDO) {
         if ($chave) {
             $del = $pdo->prepare("DELETE FROM chaves WHERE id = :id");
             $del->execute([':id' => $id]);
+            registrarLogAdmin($pdo, 'deletar', 'chaves', "Deletou chave '{$chave['nome']}' (#{$id})", $id);
 
             require_once __DIR__ . "/../../../api/cache_helper.php";
             invalidarCache('chaves');

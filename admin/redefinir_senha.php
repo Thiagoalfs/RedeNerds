@@ -26,6 +26,7 @@ foreach ($configPaths as $cp) {
     }
 }
 require_once __DIR__ . "/includes/permissoes.php";
+require_once __DIR__ . "/includes/logger.php";
 
 $token = trim((string)($_GET['token'] ?? $_POST['token'] ?? ''));
 $tokenFormatoValido = ($token !== '' && strlen($token) === 64 && ctype_xdigit($token));
@@ -76,6 +77,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $upd->execute([
                 ':senha' => password_hash($novaSenha, PASSWORD_DEFAULT),
                 ':id' => (int)$usuarioAlvo['id'],
+            ]);
+            registrarLogAdmin($pdo, 'reset_senha', 'auth', 'Redefiniu a senha via link de recuperação', (int)$usuarioAlvo['id'], null, [
+                'usuario_id' => (int)$usuarioAlvo['id'],
+                'usuario_nome' => $usuarioAlvo['nick'] ?: $usuarioAlvo['usuario'],
             ]);
             $sucesso = 'Senha redefinida com sucesso! Você já pode entrar no painel.';
             $usuarioAlvo = null;

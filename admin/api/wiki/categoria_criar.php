@@ -77,6 +77,7 @@ try {
         ':ordem'       => $ordem
     ]);
     $newId = (int)$pdo->lastInsertId();
+    registrarLogAdmin($pdo, 'criar', 'wiki_categorias', "Criou categoria da wiki '{$nome}'", $newId ?: null);
 
     if ($isAjax) {
         header('Content-Type: application/json; charset=utf-8');

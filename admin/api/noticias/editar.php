@@ -95,6 +95,7 @@ try {
     $busca = $pdo->prepare("SELECT * FROM novidades WHERE id = :id LIMIT 1");
     $busca->execute([':id' => $id]);
     $noticiaAtualizada = $busca->fetch(PDO::FETCH_ASSOC);
+    registrarLogAdmin($pdo, 'editar', 'noticias', "Editou notícia '{$titulo}' (#{$id})", $id);
 
     header('Content-Type: application/json; charset=utf-8');
     echo json_encode([

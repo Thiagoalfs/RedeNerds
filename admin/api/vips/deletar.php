@@ -37,6 +37,7 @@ if (isset($pdo) && $pdo instanceof PDO) {
         if ($vip) {
             $del = $pdo->prepare("DELETE FROM vips WHERE id = :id");
             $del->execute([':id' => $id]);
+            registrarLogAdmin($pdo, 'deletar', 'vips', "Deletou VIP '{$vip['nome']}' (#{$id})", $id);
 
             require_once __DIR__ . "/../../../api/cache_helper.php";
             invalidarCache('vips');

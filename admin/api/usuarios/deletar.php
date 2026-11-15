@@ -60,6 +60,7 @@ try {
 
     $del = $pdo->prepare("DELETE FROM usuarios WHERE id = :id LIMIT 1");
     $del->execute([':id' => $alvoId]);
+    registrarLogAdmin($pdo, 'deletar', 'usuarios', "Removeu usuário admin '{$alvo['usuario']}'", $alvoId);
 
     echo json_encode([
         "success" => true,

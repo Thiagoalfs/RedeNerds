@@ -35,12 +35,12 @@ if (!function_exists('usuarioPodeAcessar')) {
         }
         static $mapa = [
             'fundador' => [
-                'dashboard', 'email', 'usuarios',
+                'dashboard', 'email', 'logs', 'usuarios',
                 'pedidos', 'vips', 'chaves', 'cupons',
                 'servidores', 'equipe', 'parceiros', 'wiki', 'wiki_categorias', 'noticias',
             ],
             'diretor' => [
-                'dashboard', 'email', 'usuarios',
+                'dashboard', 'email', 'logs', 'usuarios',
                 'pedidos', 'vips', 'chaves', 'cupons',
                 'servidores', 'equipe', 'parceiros', 'wiki', 'wiki_categorias', 'noticias',
             ],

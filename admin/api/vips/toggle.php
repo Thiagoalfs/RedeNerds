@@ -39,6 +39,7 @@ if (isset($pdo) && $pdo instanceof PDO) {
             $novoStatus = $vip['ativo'] ? 0 : 1;
             $upd = $pdo->prepare("UPDATE vips SET ativo = :novo WHERE id = :id");
             $upd->execute([':novo' => $novoStatus, ':id' => $id]);
+            registrarLogAdmin($pdo, 'toggle', 'vips', ($novoStatus ? 'Ativou' : 'Desativou') . " VIP '{$vip['nome']}' (#{$id})", $id);
 
             require_once __DIR__ . "/../../../api/cache_helper.php";
             invalidarCache('vips');

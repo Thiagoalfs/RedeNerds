@@ -68,6 +68,7 @@ try {
     // Mantém o nome de usuário sincronizado caso o nick do membro seja alterado
     $pdo->prepare("UPDATE usuarios SET usuario = :nick WHERE equipe_id = :id")
         ->execute([':nick' => $nick, ':id' => $id]);
+    registrarLogAdmin($pdo, 'editar', 'equipe', "Editou membro '{$nick}' ({$cargo}, #{$id})", $id);
 
     require_once __DIR__ . "/../../../api/cache_helper.php";
     invalidarCache('equipe');

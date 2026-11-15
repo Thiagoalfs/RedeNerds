@@ -224,6 +224,7 @@ try {
     ];
 
     fputcsv($output, $cabecalhos, ';');
+    registrarLogAdmin($pdo, 'exportar', 'pedidos', 'Exportou relatório CSV de pedidos');
 
     while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
         $st = strtolower($row['status'] ?? '');

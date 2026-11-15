@@ -43,6 +43,7 @@ try {
     // Exclui a categoria
     $stmtDelete = $pdo->prepare("DELETE FROM wiki_categorias WHERE id = :id");
     $stmtDelete->execute([':id' => $id]);
+    registrarLogAdmin($pdo, 'deletar', 'wiki_categorias', "Deletou categoria da wiki '{$catAtual['nome']}' (#{$id})", $id);
 
     header("Location: /admin/wiki/categorias.php?servidor_id=$servidorId&sucesso=deletado");
     exit;

@@ -49,6 +49,7 @@ if (isset($pdo) && $pdo instanceof PDO) {
         $novoStatus = $cupom['ativo'] ? 0 : 1;
         $upd = $pdo->prepare("UPDATE cupons SET ativo = :ativo WHERE id = :id");
         $upd->execute([':ativo' => $novoStatus, ':id' => $id]);
+        registrarLogAdmin($pdo, 'toggle', 'cupons', ($novoStatus ? 'Ativou' : 'Desativou') . " cupom '{$cupom['codigo']}' (#{$id})", $id);
 
         if ($isAjax) {
             header('Content-Type: application/json; charset=utf-8');

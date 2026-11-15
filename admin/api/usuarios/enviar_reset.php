@@ -50,6 +50,7 @@ try {
         echo json_encode(["success" => false, "erro" => $res['erro']], JSON_UNESCAPED_UNICODE);
         exit;
     }
+    registrarLogAdmin($pdo, 'reset_senha', 'usuarios', "Enviou e-mail de redefinição de senha para '{$alvo['usuario']}' ({$res['destino']})", $alvoId);
 
     echo json_encode([
         "success" => true,

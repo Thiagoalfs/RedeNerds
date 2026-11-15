@@ -58,6 +58,9 @@ if (isset($pdo) && $pdo instanceof PDO) {
         }
 
         $pdo->commit();
+        if ($atualizados > 0) {
+            registrarLogAdmin($pdo, 'editar', 'equipe', "Atualizou cargos de {$atualizados} membro(s) da equipe");
+        }
 
         if ($atualizados > 0) {
             require_once __DIR__ . "/../../../api/cache_helper.php";

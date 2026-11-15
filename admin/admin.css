@@ -37,6 +37,7 @@
 }
 
 [data-theme="dark"] {
+  color-scheme: dark;
   --admin-bg: #090d16;
   --admin-surface: #111827;
   --sidebar-bg: #080c14;

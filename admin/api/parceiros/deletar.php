@@ -39,6 +39,7 @@ if (isset($pdo) && $pdo instanceof PDO) {
         if ($parceiro) {
             $del = $pdo->prepare("DELETE FROM parceiros WHERE id = :id");
             $del->execute([':id' => $id]);
+            registrarLogAdmin($pdo, 'deletar', 'parceiros', "Deletou parceiro '{$parceiro['nome']}' (#{$id})", $id);
 
             require_once __DIR__ . "/../../../api/cache_helper.php";
             invalidarCache('parceiros');

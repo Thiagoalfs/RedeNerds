@@ -11,6 +11,7 @@ $isAjax = (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTT
 
 if (isset($pdo) && $pdo instanceof PDO) {
     setWikiHabilitada($pdo, $habilitar);
+    registrarLogAdmin($pdo, 'toggle', 'wiki', ($habilitar ? 'Ativou' : 'Desativou') . ' visualização pública da Wiki');
 }
 
 if ($isAjax) {

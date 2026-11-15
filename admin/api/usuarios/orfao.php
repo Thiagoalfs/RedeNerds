@@ -44,6 +44,9 @@ if ($acao === 'editar_senha') {
         echo json_encode(["success" => false, "erro" => $erroDa ?: "Não foi possível atualizar a senha do e-mail."], JSON_UNESCAPED_UNICODE);
         exit;
     }
+    if (isset($pdo) && $pdo instanceof PDO) {
+        registrarLogAdmin($pdo, 'editar', 'usuarios', "Alterou senha do e-mail órfão '{$email}'");
+    }
     echo json_encode(["success" => true, "mensagem" => "Senha do e-mail '{$email}' atualizada com sucesso!"], JSON_UNESCAPED_UNICODE);
     exit;
 }
@@ -53,6 +56,9 @@ if ($acao === 'deletar') {
         http_response_code(502);
         echo json_encode(["success" => false, "erro" => $erroDa ?: "Não foi possível deletar o e-mail."], JSON_UNESCAPED_UNICODE);
         exit;
+    }
+    if (isset($pdo) && $pdo instanceof PDO) {
+        registrarLogAdmin($pdo, 'deletar', 'usuarios', "Removeu e-mail órfão '{$email}'");
     }
     echo json_encode(["success" => true, "mensagem" => "E-mail '{$email}' removido com sucesso!"], JSON_UNESCAPED_UNICODE);
     exit;

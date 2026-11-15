@@ -82,6 +82,7 @@ try {
         ':ativo' => $ativo,
         ':id' => $id
     ]);
+    registrarLogAdmin($pdo, 'editar', 'cupons', "Editou cupom '{$codigo}' (#{$id}, {$porcentagem}%)", $id);
 
     $busca = $pdo->prepare("SELECT * FROM cupons WHERE id = :id LIMIT 1");
     $busca->execute([':id' => $id]);

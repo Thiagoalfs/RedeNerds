@@ -45,6 +45,7 @@ try {
     $stmt = $pdo->prepare("INSERT INTO equipe (nick, cargo) VALUES (:nick, :cargo)");
     $stmt->execute([':nick' => $nick, ':cargo' => $cargo]);
     $novoId = (int)$pdo->lastInsertId();
+    registrarLogAdmin($pdo, 'criar', 'equipe', "Adicionou membro '{$nick}' ({$cargo}) à equipe", $novoId ?: null);
 
     require_once __DIR__ . "/../../../api/cache_helper.php";
     invalidarCache('equipe');

@@ -33,6 +33,7 @@ if (!$configPath) {
 }
 require_once $configPath;
 require_once __DIR__ . "/includes/permissoes.php";
+require_once __DIR__ . "/includes/logger.php";
 
 if (isset($_SESSION['usuario_id']) && isset($_SESSION['admin']) && $_SESSION['admin'] == 1 && !empty($_SESSION['cargo_nivel'])) {
     header("Location: " . paginaInicialAdmin($_SESSION['cargo_nivel']));
@@ -81,6 +82,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $bloqueado = true;
                 $minutosRestantes = ceil((strtotime($registro['bloqueado_ate']) - time()) / 60);
                 $mensagem_erro = "Muitas tentativas. Tente novamente em {$minutosRestantes} " . ($minutosRestantes == 1 ? "minuto." : "minutos.");
+                registrarLogAdmin($pdo, 'login_falha', 'auth', 'Tentativa de login bloqueada para "' . $usuario . '"', null, ['bloqueado' => true], ['usuario_nome' => $usuario]);
             }
         }
 
@@ -115,6 +117,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $_SESSION['cargo_nivel'] = $cargoNivel;
                     $_SESSION['admin'] = 1;
 
+                    registrarLogAdmin($pdo, 'login', 'auth', 'Login no painel administrativo', (int)$user['id']);
+
                     if (empty($user['email']) || !autenticarSnappyMail((string)$user['email'], $senha)) {
                         limparCookiesSnappyMail();
                     }
@@ -134,6 +138,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         $bloqueadoAte = null;
                         $mensagem_erro = "Usuário ou senha inválidos. Tentativa {$novasTentativas} de " . MAX_TENTATIVAS . ".";
                     }
+                    registrarLogAdmin(
+                        $pdo,
+                        'login_falha',
+                        'auth',
+                        'Tentativa de login falha para "' . $usuario . '"',
+                        $user ? (int)$user['id'] : null,
+                        ['tentativa' => $novasTentativas],
+                        ['usuario_id' => $user ? (int)$user['id'] : null, 'usuario_nome' => $user ? ($user['nick'] ?: $usuario) : $usuario, 'cargo' => $user['cargo'] ?? null]
+                    );
 
                     $stmt = $pdo->prepare("
                         INSERT INTO tentativas_login (identificador, tentativas, bloqueado_ate, ultima_tentativa)

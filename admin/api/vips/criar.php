@@ -105,6 +105,7 @@ try {
     ]);
 
     $novoId = (int)$pdo->lastInsertId();
+    registrarLogAdmin($pdo, 'criar', 'vips', "Criou VIP '{$nome}' (R$ {$preco})", $novoId ?: null);
 
     require_once __DIR__ . "/../../../api/cache_helper.php";
     invalidarCache('vips');

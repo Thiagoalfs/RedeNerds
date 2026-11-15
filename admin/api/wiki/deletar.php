@@ -10,6 +10,7 @@ if ($id > 0 && isset($pdo) && $pdo instanceof PDO) {
     try {
         $stmt = $pdo->prepare("DELETE FROM wiki_artigos WHERE id = :id");
         $stmt->execute([':id' => $id]);
+        registrarLogAdmin($pdo, 'deletar', 'wiki', "Deletou artigo da wiki (#{$id})", $id);
         if ($isAjax) {
             echo json_encode(["success" => true]);
             exit;

@@ -47,6 +47,7 @@ if (isset($pdo) && $pdo instanceof PDO) {
             }
             $del = $pdo->prepare("DELETE FROM equipe WHERE id = :id");
             $del->execute([':id' => $id]);
+            registrarLogAdmin($pdo, 'deletar', 'equipe', "Removeu membro '{$membro['nick']}' (#{$id}) da equipe", $id);
 
             require_once __DIR__ . "/../../../api/cache_helper.php";
             invalidarCache('equipe');

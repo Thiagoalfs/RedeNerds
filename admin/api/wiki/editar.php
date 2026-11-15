@@ -105,6 +105,7 @@ try {
     ");
     $busca->execute([':id' => $id]);
     $artigoAtualizado = $busca->fetch(PDO::FETCH_ASSOC);
+    registrarLogAdmin($pdo, 'editar', 'wiki', "Editou artigo da wiki '{$titulo}' (#{$id})", $id);
 
     header('Content-Type: application/json; charset=utf-8');
     echo json_encode([

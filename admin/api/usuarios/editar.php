@@ -98,6 +98,11 @@ try {
         $_SESSION['usuario_email'] = $emailNorm;
     }
 
+    registrarLogAdmin($pdo, 'editar', 'usuarios', "Editou usuário admin '{$alvo['usuario']}'", $alvoId, [
+        'email' => $emailNorm,
+        'alterou_senha' => ($novaSenha !== ''),
+    ]);
+
     echo json_encode([
         "success" => true,
         "mensagem" => "Configurações de '{$alvo['usuario']}' atualizadas com sucesso!",

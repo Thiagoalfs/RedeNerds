@@ -63,6 +63,7 @@ try {
     ]);
 
     $novoId = (int)$pdo->lastInsertId();
+    registrarLogAdmin($pdo, 'criar', 'cupons', "Criou cupom '{$codigo}' ({$porcentagem}%)", $novoId ?: null);
 
     $busca = $pdo->prepare("SELECT * FROM cupons WHERE id = :id LIMIT 1");
     $busca->execute([':id' => $novoId]);

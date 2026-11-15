@@ -15,6 +15,7 @@ if ($id > 0 && isset($pdo) && $pdo instanceof PDO) {
             $novo = $art['publicado'] ? 0 : 1;
             $upd = $pdo->prepare("UPDATE wiki_artigos SET publicado = :novo WHERE id = :id");
             $upd->execute([':novo' => $novo, ':id' => $id]);
+            registrarLogAdmin($pdo, 'toggle', 'wiki', ($novo ? 'Publicou' : 'Ocultou') . " artigo da wiki (#{$id})", $id);
 
             if ($isAjax) {
                 echo json_encode(["success" => true, "publicado" => $novo]);

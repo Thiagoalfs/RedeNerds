@@ -105,6 +105,8 @@ try {
         ':email_recuperacao' => $emailRecuperacao !== '' ? mb_strtolower($emailRecuperacao, 'UTF-8') : null,
         ':senha' => $hash,
     ]);
+    $novoUsuarioId = (int)$pdo->lastInsertId();
+    registrarLogAdmin($pdo, 'criar', 'usuarios', "Criou usuário admin '{$membro['nick']}' (" . mb_strtolower($email, 'UTF-8') . ")", $novoUsuarioId ?: null);
 
     echo json_encode([
         "success" => true,

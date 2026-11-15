@@ -38,6 +38,7 @@ if (isset($pdo) && $pdo instanceof PDO) {
         if ($noticia) {
             $del = $pdo->prepare("DELETE FROM novidades WHERE id = :id");
             $del->execute([':id' => $id]);
+            registrarLogAdmin($pdo, 'deletar', 'noticias', "Deletou notícia '{$noticia['titulo']}' (#{$id})", $id);
 
             require_once __DIR__ . "/../../../api/cache_helper.php";
             invalidarCache('novidades');

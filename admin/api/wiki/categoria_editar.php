@@ -49,6 +49,7 @@ try {
         ':ordem' => $ordem,
         ':id'    => $id
     ]);
+    registrarLogAdmin($pdo, 'editar', 'wiki_categorias', "Editou categoria da wiki '{$nome}' (#{$id})", $id);
 
     header("Location: /admin/wiki/categorias.php?servidor_id=$servidorId&sucesso=editado");
     exit;

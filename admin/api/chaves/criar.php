@@ -99,6 +99,7 @@ try {
     ]);
 
     $novoId = (int)$pdo->lastInsertId();
+    registrarLogAdmin($pdo, 'criar', 'chaves', "Criou chave '{$nome}' (R$ {$preco})", $novoId ?: null);
 
     require_once __DIR__ . "/../../../api/cache_helper.php";
     invalidarCache('chaves');

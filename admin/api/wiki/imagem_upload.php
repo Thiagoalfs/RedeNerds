@@ -132,6 +132,10 @@ if ($mime === 'image/gif') {
     }
 }
 
+if (isset($pdo) && $pdo instanceof PDO) {
+    registrarLogAdmin($pdo, 'upload', 'wiki', "Enviou imagem da wiki '{$nomeOriginal}'", null, ['url' => $urlPublica]);
+}
+
 echo json_encode([
     "success"  => true,
     "url"      => $urlPublica,

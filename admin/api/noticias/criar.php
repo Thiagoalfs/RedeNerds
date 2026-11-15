@@ -64,6 +64,7 @@ try {
     ]);
 
     $novoId = (int)$pdo->lastInsertId();
+    registrarLogAdmin($pdo, 'criar', 'noticias', "Criou notícia '{$titulo}'", $novoId ?: null);
 
     require_once __DIR__ . "/../../../api/cache_helper.php";
     invalidarCache('novidades');

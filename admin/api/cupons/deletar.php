@@ -37,6 +37,7 @@ if (isset($pdo) && $pdo instanceof PDO) {
         if ($cupom) {
             $del = $pdo->prepare("DELETE FROM cupons WHERE id = :id");
             $del->execute([':id' => $id]);
+            registrarLogAdmin($pdo, 'deletar', 'cupons', "Deletou cupom '{$cupom['codigo']}' (#{$id})", $id);
 
             if ($isAjax) {
                 header('Content-Type: application/json; charset=utf-8');

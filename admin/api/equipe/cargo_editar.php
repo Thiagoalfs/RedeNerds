@@ -125,6 +125,7 @@ try {
     }
 
     $pdo->commit();
+    registrarLogAdmin($pdo, 'editar', 'equipe', "Editou cargo '{$nome}' (#{$id})", $id);
 
     require_once __DIR__ . "/../../../api/cache_helper.php";
     invalidarCache('equipe');

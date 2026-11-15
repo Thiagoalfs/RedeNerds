@@ -96,6 +96,7 @@ try {
 
     $stmtDel = $pdo->prepare("DELETE FROM equipe_cargos WHERE id = :id");
     $stmtDel->execute([':id' => $id]);
+    registrarLogAdmin($pdo, 'deletar', 'equipe', "Deletou cargo '{$cargo['nome']}' (#{$id})", $id);
 
     require_once __DIR__ . "/../../../api/cache_helper.php";
     invalidarCache('equipe');
