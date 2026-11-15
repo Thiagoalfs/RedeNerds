@@ -70,15 +70,6 @@ $tituloPagina = $tituloPagina ?? 'Painel Administrativo';
                         <i class="fa-solid fa-sun theme-icon-light"></i>
                         <span class="theme-label d-none d-xl-inline">Tema</span>
                     </button>
-
-                    <a href="/loja/" target="_blank" class="btn-view-site">
-                        <i class="fa-solid fa-cart-shopping"></i>
-                        <span>Ver Loja</span>
-                    </a>
-                    <a href="/" target="_blank" class="btn-view-site d-none d-md-inline-flex">
-                        <i class="fa-solid fa-globe"></i>
-                        <span>Ver Site</span>
-                    </a>
                 </div>
             </header>
 

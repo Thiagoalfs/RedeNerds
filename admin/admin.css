@@ -387,12 +387,10 @@ body {
 
 .theme-icon-light {
   display: none;
-  color: #f59e0b;
 }
 
 .theme-icon-dark {
   display: inline-block;
-  color: #818cf8;
 }
 
 [data-theme="dark"] .theme-icon-light {
@@ -401,28 +399,6 @@ body {
 
 [data-theme="dark"] .theme-icon-dark {
   display: none;
-}
-
-.btn-view-site {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.45rem;
-  font-size: 0.82rem;
-  font-weight: 600;
-  color: var(--text-muted);
-  text-decoration: none;
-  height: 36px;
-  padding: 0 0.85rem;
-  border: 1px solid var(--border-color);
-  border-radius: var(--radius-sm);
-  transition: all 0.15s ease;
-  box-sizing: border-box;
-}
-
-.btn-view-site:hover {
-  color: var(--color-primary);
-  background: #eff6ff;
-  border-color: #bfdbfe;
 }
 
 /* ======================================================== */
@@ -1099,17 +1075,6 @@ body {
 
 [data-theme="dark"] .btn-toggle-sidebar:hover {
   background-color: #1e293b;
-}
-
-[data-theme="dark"] .btn-view-site {
-  color: var(--text-muted);
-  border-color: var(--border-color);
-}
-
-[data-theme="dark"] .btn-view-site:hover {
-  color: #60a5fa;
-  background: rgba(37, 99, 235, 0.15);
-  border-color: rgba(37, 99, 235, 0.35);
 }
 
 /* Tabelas no Dark Mode */

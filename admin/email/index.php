@@ -5,13 +5,19 @@ require_once __DIR__ . '/../includes/admin_header.php';
 ?>
 
 <style>
+.admin-content:has(.email-frame-shell) {
+    padding: 0 !important;
+    max-width: none !important;
+    margin: 0 !important;
+}
+
 .email-frame-shell {
     position: relative;
     width: 100%;
-    height: calc(100vh - 68px);
-    min-height: 560px;
+    height: calc(100vh - 60px);
+    min-height: 480px;
     background: var(--admin-surface);
-    border: 1px solid var(--border-color);
+    border: 0;
     border-radius: 0;
     box-shadow: none;
     overflow: hidden;
@@ -27,7 +33,7 @@ require_once __DIR__ . '/../includes/admin_header.php';
 
 @media (max-width: 768px) {
     .email-frame-shell {
-        height: calc(100dvh - 84px);
+        height: calc(100dvh - 60px);
         min-height: 0;
     }
 }
@@ -257,7 +263,6 @@ require_once __DIR__ . '/../includes/admin_header.php';
                 justify-content: flex-start;
                 gap: 14px;
                 background: transparent;
-                border-bottom: 1px solid var(--border-color);
                 z-index: 104;
             }
             .admin-hamburger-btn,
@@ -345,13 +350,92 @@ require_once __DIR__ . '/../includes/admin_header.php';
                 color: var(--folders-hover-color) !important;
                 border-color: var(--border-color) !important;
             }
+            #V-SystemDropDown #top-system-dropdown-id {
+                display: inline-flex !important;
+                align-items: center !important;
+                gap: 7px !important;
+                height: 32px !important;
+                padding: 0 10px !important;
+                border-radius: 8px !important;
+                background: ${isDark ? 'rgba(255, 255, 255, 0.04)' : '#f8fafc'} !important;
+                border: 1px solid var(--border-color) !important;
+                box-shadow: none !important;
+                outline: none !important;
+                color: var(--main-color) !important;
+                font-family: var(--fontSans) !important;
+                font-size: 0.84rem !important;
+                transition: background-color 0.14s ease, border-color 0.14s ease !important;
+            }
+            #V-SystemDropDown #top-system-dropdown-id:hover,
+            #V-SystemDropDown .open #top-system-dropdown-id {
+                background: ${isDark ? 'rgba(255, 255, 255, 0.08)' : '#f1f5f9'} !important;
+                border-color: ${isDark ? 'rgba(255, 255, 255, 0.16)' : '#cbd5e1'} !important;
+            }
+            #V-SystemDropDown #top-system-dropdown-id:focus-visible {
+                box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.35) !important;
+                border-color: #3b82f6 !important;
+            }
+            #V-SystemDropDown #top-system-dropdown-id .accountPlace {
+                border: 0 !important;
+                margin: 0 !important;
+                padding: 0 !important;
+                line-height: 1.2 !important;
+                font-weight: 500 !important;
+            }
+            #V-SystemDropDown #top-system-dropdown-id .fontastic {
+                opacity: 0.78;
+                font-size: 0.9rem !important;
+                line-height: 1 !important;
+            }
+            #V-SystemDropDown #top-system-dropdown-id::after {
+                font-size: 0.62rem !important;
+                opacity: 0.65;
+                margin-left: 1px;
+            }
+            @keyframes adminDropdownPop {
+                from { opacity: 0; transform: scale(0.97); }
+                to { opacity: 1; transform: scale(1); }
+            }
+            #V-SystemDropDown .dropdown-menu {
+                margin-top: 6px !important;
+                min-width: 230px !important;
+                padding: 6px !important;
+                border-radius: 10px !important;
+                border: 1px solid var(--dropdown-menu-border-clr) !important;
+                box-shadow: ${isDark ? '0 14px 32px rgba(0, 0, 0, 0.48)' : '0 12px 28px rgba(15, 23, 42, 0.12)'} !important;
+                animation: adminDropdownPop 0.14s cubic-bezier(0.16, 1, 0.3, 1);
+                transform-origin: top right;
+            }
+            #V-SystemDropDown .dropdown-menu li > a {
+                border-radius: 6px !important;
+                padding: 7px 10px !important;
+                font-family: var(--fontSans) !important;
+                font-size: 0.86rem !important;
+                line-height: 1.35 !important;
+                transition: background-color 0.12s ease, color 0.12s ease !important;
+            }
+            #V-SystemDropDown .dropdown-menu * + .dividerbar {
+                margin-top: 5px !important;
+                padding-top: 5px !important;
+                border-top: 1px solid var(--border-color) !important;
+            }
+            #V-SystemDropDown .dropdown-menu li > a[data-i18n="GLOBAL/LOGOUT"]:hover,
+            #V-SystemDropDown .dropdown-menu li > a[data-i18n="GLOBAL/LOGOUT"]:focus {
+                background-color: rgba(239, 68, 68, 0.14) !important;
+                color: ${isDark ? '#f87171' : '#dc2626'} !important;
+            }
             #V-MailFolderList .b-footer {
                 display: none !important;
             }
-            html.rl-left-panel-disabled #V-MailMessageView .top-toolbar {
-                margin-left: 140px !important;
+            #V-MailMessageView .top-toolbar {
+                height: 50px !important;
+                min-height: 50px !important;
+                box-sizing: border-box !important;
+                margin: 0 !important;
+                padding: 0 !important;
+                z-index: 1 !important;
             }
-            #V-MailMessageView .top-toolbar .btn-group:has(.buttonUp, .buttonDown) {
+            #V-MailMessageView .top-toolbar > .btn-group {
                 display: none !important;
             }
             /* Lista de e-mails começa abaixo do header de 50px e barra de ações fica abaixo da busca */
@@ -373,32 +457,65 @@ require_once __DIR__ . '/../includes/admin_header.php';
                 border-bottom: 1px solid var(--border-color) !important;
                 position: static !important;
             }
-            #V-MailMessageList .btn-toolbar.admin-actions-bar .btn {
+            #V-MailMessageList .btn-toolbar.admin-actions-bar .btn,
+            #V-MailMessageList .btn-toolbar.admin-actions-bar .icon-folder-add {
                 background: transparent !important;
                 border-color: transparent !important;
                 box-shadow: none !important;
                 color: var(--folders-color) !important;
-                padding: 5px 8px !important;
+                display: inline-flex !important;
+                align-items: center !important;
+                justify-content: center !important;
+                gap: 2px !important;
+                height: 30px !important;
+                min-width: 30px !important;
+                padding: 0 7px !important;
+                margin: 0 !important;
+                line-height: 1 !important;
+                vertical-align: middle !important;
                 border-radius: 6px !important;
+                box-sizing: border-box !important;
             }
-            #V-MailMessageList .btn-toolbar.admin-actions-bar .btn:hover {
+            #V-MailMessageList .btn-toolbar.admin-actions-bar .btn > i,
+            #V-MailMessageList .btn-toolbar.admin-actions-bar .btn > span,
+            #V-MailMessageList .btn-toolbar.admin-actions-bar .btn::before,
+            #V-MailMessageList .btn-toolbar.admin-actions-bar .btn::after,
+            #V-MailMessageList .btn-toolbar.admin-actions-bar .icon-folder-add::before {
+                line-height: 1 !important;
+                vertical-align: middle !important;
+                margin: 0 !important;
+            }
+            #V-MailMessageList .btn-toolbar.admin-actions-bar .btn:hover,
+            #V-MailMessageList .btn-toolbar.admin-actions-bar .icon-folder-add:hover {
                 background: var(--folders-hover-bg-color) !important;
                 color: var(--folders-hover-color) !important;
             }
             #V-MailMessageList .btn-toolbar.admin-actions-bar .btn-group {
                 display: inline-flex !important;
                 align-items: center !important;
+                height: 30px !important;
+                margin: 0 !important;
                 gap: 2px !important;
             }
             #V-MailMessageList .btn-toolbar.admin-actions-bar .btn.disabled,
             #V-MailMessageList .btn-toolbar.admin-actions-bar .btn[disabled],
-            #V-MailMessageList .btn-toolbar.admin-actions-bar .btn-group:not(:has(.btn:not(.disabled):not([disabled]))),
+            #V-MailMessageList .btn-toolbar.admin-actions-bar .toggleLeft,
+            #V-MailMessageList .btn-toolbar.admin-actions-bar .buttonCompose,
+            #V-MailMessageList .btn-toolbar.admin-actions-bar .btn-group:not(:has(.btn:not(.disabled):not([disabled]):not(.toggleLeft):not(.buttonCompose))),
             #V-MailMessageList .btn-toolbar.admin-actions-bar .btn-group:has(#no-sort-list),
             #no-sort-list {
                 display: none !important;
             }
             #V-MailMessageList .btn-toolbar.admin-actions-bar > .btn-group:has(#more-list-dropdown-id) {
                 margin-left: auto !important;
+                position: relative !important;
+            }
+            html.rl-left-panel-disabled #more-list-dropdown-id + .dropdown-menu,
+            #V-MailMessageList .btn-toolbar.admin-actions-bar #more-list-dropdown-id + .dropdown-menu {
+                position: absolute !important;
+                top: calc(100% + 4px) !important;
+                right: 0 !important;
+                left: auto !important;
             }
             #V-MailMessageList .btn-toolbar.admin-actions-bar i.icon-spinner {
                 width: 15px !important;
@@ -554,6 +671,9 @@ require_once __DIR__ . '/../includes/admin_header.php';
             .messageList .b-header {
                 border-bottom: 1px solid var(--border-color) !important;
             }
+            #V-MailMessageList .second-toolbar {
+                align-items: center !important;
+            }
             .b-list-footer-toolbar,
             .footer-toolbar,
             .messageList .b-footer {
@@ -627,6 +747,32 @@ require_once __DIR__ . '/../includes/admin_header.php';
             .admin-quota-widget:hover .admin-quota-tooltip {
                 opacity: 1;
             }
+            html.rl-left-panel-disabled .admin-quota-widget .admin-quota-tooltip {
+                display: none !important;
+            }
+            .admin-quota-floating-tooltip {
+                position: fixed;
+                left: 0;
+                top: 0;
+                transform: translateY(-50%);
+                padding: 6px 10px;
+                border-radius: 6px;
+                font-size: 0.75rem;
+                line-height: 1.35;
+                white-space: nowrap;
+                max-width: 280px;
+                background: ${isDark ? '#020617' : '#0f172a'};
+                color: #f8fafc;
+                border: 1px solid rgba(255, 255, 255, 0.14);
+                box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+                opacity: 0;
+                pointer-events: none;
+                transition: opacity 0.15s ease;
+                z-index: 99999;
+            }
+            .admin-quota-floating-tooltip.visible {
+                opacity: 1;
+            }
             /* Corrige sidebar retraída (60px) sem vazar texto nem esmagar a barra */
             html.rl-left-panel-disabled #rl-left {
                 width: 60px !important;
@@ -674,9 +820,18 @@ require_once __DIR__ . '/../includes/admin_header.php';
             html.rl-left-panel-disabled #rl-left .b-folders li a .flag-icon,
             html.rl-left-panel-disabled #rl-left .b-folders li a .e-collapsed-sign,
             #V-MailFolderList .b-content > *:not(ul):not(#admin-quota-widget):not(.b-toolbar),
-            .b-folders-user li a .flag-icon,
+            #V-SystemDropDown .color-scheme-toggle,
+            .b-folders li a .flag-icon,
             .b-folders-user li a .e-collapsed-sign:empty {
                 display: none !important;
+            }
+            .b-folders li a.selectable.selected.admin-muted-selected {
+                background-color: transparent !important;
+                color: var(--folders-color) !important;
+            }
+            .b-folders li a.selectable.selected.admin-muted-selected:hover {
+                background-color: var(--folders-hover-bg-color) !important;
+                color: var(--folders-hover-color) !important;
             }
             /* Seção separada para pastas customizadas (ex.: spam) */
             .b-folders li a {
@@ -1541,6 +1696,39 @@ require_once __DIR__ . '/../includes/admin_header.php';
         }
     }
 
+    function syncFlaggedCategory(doc, systemList) {
+        if (!systemList) return;
+        const inboxLi = Array.from(systemList.children).find(
+            (li) => li.id !== 'admin-flagged-folder-item' && li.querySelector('.flag-icon')
+        );
+        if (!inboxLi) return;
+        let flaggedLi = doc.getElementById('admin-flagged-folder-item');
+        if (!flaggedLi) {
+            flaggedLi = doc.createElement('li');
+            flaggedLi.id = 'admin-flagged-folder-item';
+            flaggedLi.innerHTML = `<a href="#flagged" class="selectable" data-icon="☆" title="Favoritos"> Favoritos</a>`;
+            flaggedLi.querySelector('a').addEventListener('click', (e) => {
+                e.preventDefault();
+                const flagIcon = inboxLi.querySelector('.flag-icon');
+                if (flagIcon) flagIcon.click();
+            });
+        }
+        if (inboxLi.nextElementSibling !== flaggedLi) {
+            inboxLi.after(flaggedLi);
+        }
+        const isFlaggedView = /(?:^|[\/?&])flagged(?:[\/?&]|$)/i.test(doc.location.hash || '');
+        const flaggedLink = flaggedLi.querySelector('a');
+        const inboxLink = inboxLi.querySelector('a');
+        if (flaggedLink) flaggedLink.classList.toggle('selected', isFlaggedView);
+        if (inboxLink) inboxLink.classList.toggle('admin-muted-selected', isFlaggedView);
+        if (!doc._adminFlaggedHashListener && doc.defaultView) {
+            doc._adminFlaggedHashListener = true;
+            doc.defaultView.addEventListener('hashchange', () => {
+                syncFlaggedCategory(doc, doc.querySelector('#rl-left .b-folders-system'));
+            });
+        }
+    }
+
     function ensureSidebarHeader(doc) {
         const app = doc.getElementById('rl-app');
         if (!app) return;
@@ -1589,6 +1777,7 @@ require_once __DIR__ . '/../includes/admin_header.php';
         if (composeToolbar && systemList && systemList.nextElementSibling !== composeToolbar) {
             systemList.after(composeToolbar);
         }
+        syncFlaggedCategory(doc, systemList);
 
         const msgActions = doc.querySelector('#V-MailMessageList .btn-toolbar');
         const searchBar = doc.querySelector('#V-MailMessageList .second-toolbar, #V-MailMessageList .b-list-toolbar');
@@ -1596,10 +1785,6 @@ require_once __DIR__ . '/../includes/admin_header.php';
             msgActions.classList.add('admin-actions-bar');
             if (searchBar.nextElementSibling !== msgActions) {
                 searchBar.after(msgActions);
-            }
-            const selectAll = searchBar.querySelector('.e-checkbox, .checkboxMessage, [class*="checkbox"]');
-            if (selectAll && selectAll.parentElement !== msgActions) {
-                msgActions.prepend(selectAll);
             }
             const folderAddBtn = doc.querySelector('#V-MailFolderList .b-footer .icon-folder-add');
             if (folderAddBtn && folderAddBtn.parentElement !== msgActions) {
@@ -1690,6 +1875,31 @@ require_once __DIR__ . '/../includes/admin_header.php';
                 <div class="admin-quota-tooltip">Armazenamento: 0%</div>
             `;
             sidebarFolders.appendChild(widget);
+            const getFloatingTip = () => {
+                let ft = doc.getElementById('admin-quota-floating-tooltip');
+                if (!ft && doc.body) {
+                    ft = doc.createElement('div');
+                    ft.id = 'admin-quota-floating-tooltip';
+                    ft.className = 'admin-quota-floating-tooltip';
+                    doc.body.appendChild(ft);
+                }
+                return ft;
+            };
+            widget.addEventListener('mouseenter', () => {
+                const tip = widget.querySelector('.admin-quota-tooltip');
+                const ft = getFloatingTip();
+                if (!tip || !ft) return;
+                if (doc.documentElement.classList.contains('rl-left-panel-disabled')) {
+                    const r = widget.getBoundingClientRect();
+                    ft.textContent = tip.textContent || '';
+                    ft.style.left = (r.right + 8) + 'px';
+                    ft.style.top = (r.top + r.height / 2) + 'px';
+                    ft.classList.add('visible');
+                }
+            });
+            widget.addEventListener('mouseleave', () => {
+                doc.getElementById('admin-quota-floating-tooltip')?.classList.remove('visible');
+            });
         } else if (widget.parentElement !== sidebarFolders) {
             sidebarFolders.appendChild(widget);
         }
@@ -2200,6 +2410,42 @@ require_once __DIR__ . '/../includes/admin_header.php';
                 doc.addEventListener('dblclick', (e) => {
                     if (e.target && e.target.closest && e.target.closest('.messageItem, #V-MailMessageList, #V-MailMessageView')) {
                         e.stopImmediatePropagation();
+                    }
+                }, true);
+            }
+            if (!doc._adminLogoutHandler) {
+                doc._adminLogoutHandler = true;
+                doc.addEventListener('click', async (e) => {
+                    const logoutBtn = e.target && e.target.closest && e.target.closest('#V-SystemDropDown .dropdown-menu a[data-i18n="GLOBAL/LOGOUT"]');
+                    if (!logoutBtn) return;
+                    const accountLinks = Array.from(doc.querySelectorAll('#V-SystemDropDown .dropdown-menu a.email-title'));
+                    const activeAdditional = accountLinks.slice(1).find((a) => a.getAttribute('data-icon') === '✔');
+                    if (!activeAdditional) return;
+                    const email = (activeAdditional.getAttribute('title') || activeAdditional.textContent || '').trim();
+                    if (!email) return;
+                    e.preventDefault();
+                    e.stopImmediatePropagation();
+                    try {
+                        const appRes = await fetch('/webmail/?/AppData/', { credentials: 'same-origin' });
+                        const appData = await appRes.json();
+                        const token = appData?.System?.token || '';
+                        const res = await fetch('/webmail/?/Json/', {
+                            method: 'POST',
+                            credentials: 'same-origin',
+                            headers: {
+                                'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
+                                ...(token ? { 'X-SM-Token': token } : {}),
+                            },
+                            body: new URLSearchParams({ Action: 'AccountDelete', emailToDelete: email, XToken: token }),
+                        });
+                        const json = await res.json();
+                        if (json && json.Result) {
+                            doc.location.hash = '';
+                            doc.location.reload();
+                            return;
+                        }
+                    } catch (err) {
+                        console.error('Erro ao sair da conta adicional:', err);
                     }
                 }, true);
             }
