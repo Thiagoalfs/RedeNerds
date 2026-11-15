@@ -27,7 +27,8 @@ require_once __DIR__ . '/../includes/admin_header.php';
 
 @media (max-width: 768px) {
     .email-frame-shell {
-        height: calc(100vh - 84px);
+        height: calc(100dvh - 84px);
+        min-height: 0;
     }
 }
 </style>
@@ -349,6 +350,9 @@ require_once __DIR__ . '/../includes/admin_header.php';
             }
             html.rl-left-panel-disabled #V-MailMessageView .top-toolbar {
                 margin-left: 140px !important;
+            }
+            #V-MailMessageView .top-toolbar .btn-group:has(.buttonUp, .buttonDown) {
+                display: none !important;
             }
             /* Lista de e-mails começa abaixo do header de 50px e barra de ações fica abaixo da busca */
             #V-MailMessageList {
@@ -1395,6 +1399,113 @@ require_once __DIR__ . '/../includes/admin_header.php';
                 outline: 2px solid #3b82f6;
                 outline-offset: 2px;
             }
+            @media screen and (max-width: 799px) {
+                .admin-snappymail-brand {
+                    width: auto !important;
+                    padding: 0 10px !important;
+                    gap: 10px !important;
+                    border-bottom: none !important;
+                }
+                html.rl-left-panel-disabled #rl-left,
+                html.rl-left-panel-disabled #rl-left:has(#V-SettingsMenu:not([hidden])) {
+                    display: none !important;
+                }
+                #rl-left {
+                    width: min(260px, 78vw) !important;
+                    min-width: 0 !important;
+                    background: var(--main-bg-color) !important;
+                    border-right: 1px solid var(--border-color) !important;
+                    z-index: 105 !important;
+                }
+                html.rl-left-panel-disabled #V-MailMessageView .top-toolbar {
+                    margin-left: 0 !important;
+                }
+                #V-MailMessageList .messageList {
+                    height: calc(100dvh - 50px) !important;
+                }
+                #V-MailMessageView {
+                    padding-top: 50px !important;
+                    box-sizing: border-box !important;
+                }
+                #V-MailMessageView .top-toolbar {
+                    display: flex !important;
+                    align-items: center !important;
+                    gap: 4px !important;
+                    padding: 6px 12px !important;
+                    margin: 0 !important;
+                    background: var(--panel-bg-clr) !important;
+                    border-bottom: 1px solid var(--border-color) !important;
+                }
+                #V-MailMessageView .top-toolbar .btn-group {
+                    display: inline-flex !important;
+                    align-items: center !important;
+                    gap: 2px !important;
+                    margin: 0 !important;
+                }
+                #V-MailMessageView .top-toolbar .btn-group:last-child {
+                    margin-left: auto !important;
+                }
+                #V-MailMessageView .top-toolbar .btn {
+                    background: transparent !important;
+                    border-color: transparent !important;
+                    box-shadow: none !important;
+                    color: var(--folders-color) !important;
+                    width: 32px !important;
+                    height: 32px !important;
+                    padding: 0 !important;
+                    display: inline-flex !important;
+                    align-items: center !important;
+                    justify-content: center !important;
+                    border-radius: 6px !important;
+                }
+                #V-MailMessageView .top-toolbar .btn:hover {
+                    background: var(--folders-hover-bg-color) !important;
+                    color: var(--folders-hover-color) !important;
+                }
+                #V-MailMessageView .messageView {
+                    height: calc(100dvh - 95px) !important;
+                }
+                #V-SettingsPane {
+                    padding: 58px 14px 20px !important;
+                    box-sizing: border-box !important;
+                }
+                #V-MailMessageView .b-message > .messageItemHeader {
+                    padding: 14px 16px 10px !important;
+                }
+                #V-MailMessageView #messageItem > .messageItemHeader {
+                    padding: 0 16px 12px !important;
+                }
+                #V-MailMessageView #messageItem .bodyText {
+                    padding: 16px 16px 24px !important;
+                }
+                #V-MailMessageView .subjectParent {
+                    padding-right: 76px !important;
+                }
+                #V-MailMessageView .subjectParent .close {
+                    right: 12px !important;
+                }
+                #V-MailMessageView .message-fixed-button-toolbar {
+                    right: 44px !important;
+                }
+                #V-PopupsCompose {
+                    width: 100vw !important;
+                    max-width: 100vw !important;
+                    height: 100dvh !important;
+                    max-height: 100dvh !important;
+                    margin: 0 !important;
+                    border-radius: 0 !important;
+                    border: none !important;
+                }
+                #V-PopupsCompose .admin-compose-footer .btn .hide-mobile {
+                    display: inline !important;
+                }
+                #V-PopupsCompose > ul.attachmentList {
+                    padding: 8px 12px !important;
+                }
+                #V-PopupsCompose > ul.attachmentList .attachmentItem {
+                    width: 100% !important;
+                }
+            }
         `;
     }
 
@@ -1900,6 +2011,25 @@ require_once __DIR__ . '/../includes/admin_header.php';
     }
 
     function enhanceMessageView(doc) {
+        const msgView = doc.getElementById('V-MailMessageView');
+        if (msgView) {
+            const accountEmail = (doc.querySelector('#top-system-dropdown-id .accountPlace')?.getAttribute('title') || '').trim().toLowerCase();
+            const senderEl = msgView.querySelector('.b-message > .messageItemHeader .from a, .b-message > .messageItemHeader .from, .informationFull tr:first-child td:last-child');
+            const senderText = (senderEl ? senderEl.textContent : '').toLowerCase();
+            const isOwnEmail = Boolean(accountEmail && senderText.includes(accountEmail));
+
+            const editAsNewLi = msgView.querySelector('a[data-bind*="editAsNewCommand"]')?.closest('li');
+            if (editAsNewLi) {
+                const nextDisplay = isOwnEmail ? '' : 'none';
+                if (editAsNewLi.style.display !== nextDisplay) editAsNewLi.style.display = nextDisplay;
+            }
+            msgView.querySelectorAll('.buttonEdit').forEach((btn) => {
+                const target = btn.closest('.top-toolbar .btn-group') || btn;
+                const nextDisplay = isOwnEmail ? '' : 'none';
+                if (target.style.display !== nextDisplay) target.style.display = nextDisplay;
+            });
+        }
+
         const infoRow = doc.querySelector('#V-MailMessageView .b-message > .messageItemHeader .informationShort');
         if (infoRow) {
             const staleAvatar = infoRow.querySelector(':scope > .admin-sender-avatar');
