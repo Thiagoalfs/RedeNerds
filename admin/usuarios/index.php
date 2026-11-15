@@ -175,9 +175,8 @@ $emailsOrfaos = array_values(array_filter(
 <div class="card admin-card mt-4">
     <div class="card-header py-3 px-4 d-flex flex-wrap justify-content-between align-items-center gap-2" style="border-bottom: 1px solid var(--border-color);">
         <div>
-            <h3 class="h6 mb-0 fw-bold d-flex align-items-center gap-2" style="color: var(--text-main);">
-                <i class="fa-solid fa-envelope-open-text text-warning"></i>
-                <span>E-mails Órfãos</span>
+            <h3 class="h6 mb-0 fw-bold" style="color: var(--text-main);">
+                E-mails Órfãos
             </h3>
         </div>
     </div>
@@ -243,7 +242,7 @@ $emailsOrfaos = array_values(array_filter(
             <form id="formCriarUsuario">
                 <input type="hidden" id="criarVincularExistente" name="vincular_existente" value="">
                 <div class="modal-header">
-                    <h5 class="modal-title fw-bold" id="tituloModalCriarUsuario"><i class="fa-solid fa-user-plus me-2 text-primary"></i>Criar Usuário</h5>
+                    <h5 class="modal-title fw-bold" id="tituloModalCriarUsuario">Criar Usuário</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
                 </div>
                 <div class="modal-body">
@@ -254,7 +253,7 @@ $emailsOrfaos = array_values(array_filter(
                         <select class="form-select" id="selectEquipeId" name="equipe_id" required>
                             <option value="">Selecione um membro...</option>
                             <?php foreach ($membrosDisponiveis as $m): ?>
-                                <option value="<?php echo (int)$m['id']; ?>">
+                                <option value="<?php echo (int)$m['id']; ?>" data-nick="<?php echo htmlspecialchars($m['nick'], ENT_QUOTES, 'UTF-8'); ?>">
                                     <?php echo htmlspecialchars($m['nick'] . ' (' . $m['cargo'] . ')', ENT_QUOTES, 'UTF-8'); ?>
                                 </option>
                             <?php endforeach; ?>
@@ -262,9 +261,14 @@ $emailsOrfaos = array_values(array_filter(
                         <div class="form-text">Apenas membros da equipe com cargo permitido que ainda não possuem conta.</div>
                     </div>
 
-                    <div class="mb-3">
-                        <label for="inputUsuarioEmail" class="form-label fw-semibold">E-Mail da Empresa</label>
-                        <input type="email" class="form-control" id="inputUsuarioEmail" name="email" required placeholder="nome@redenerds.com.br" autocomplete="off">
+                    <?php $dominioEmail = mb_strtolower(trim((string)(getenv('DA_DOMAIN') ?: 'redenerds.com.br')), 'UTF-8'); ?>
+                    <div class="mb-3" id="grupoEmailEmpresaCriar">
+                        <label for="inputUsuarioEmailLocal" class="form-label fw-semibold">E-Mail da Empresa</label>
+                        <div class="input-group">
+                            <input type="text" class="form-control" id="inputUsuarioEmailLocal" required placeholder="Usuário" autocomplete="off" autocapitalize="none" autocorrect="off" spellcheck="false">
+                            <span class="input-group-text">@<?php echo htmlspecialchars($dominioEmail, ENT_QUOTES, 'UTF-8'); ?></span>
+                        </div>
+                        <input type="hidden" id="inputUsuarioEmail" name="email" value="">
                         <div class="form-text">Permite logar usando o e-mail e ativa o login automático no RNMail.</div>
                     </div>
 
@@ -276,7 +280,10 @@ $emailsOrfaos = array_values(array_filter(
 
                     <div class="mb-0">
                         <label for="inputUsuarioSenha" class="form-label fw-semibold">Senha</label>
-                        <input type="password" class="form-control" id="inputUsuarioSenha" name="senha" minlength="8" required placeholder="Mín. 8 caracteres, 1 número e 1 especial" autocomplete="new-password">
+                        <div class="input-group">
+                            <input type="password" class="form-control" id="inputUsuarioSenha" name="senha" minlength="8" required placeholder="Mín. 8 caracteres, 1 número e 1 especial" autocomplete="new-password">
+                            <button type="button" class="btn btn-outline-secondary" data-toggle-pwd="inputUsuarioSenha" title="Mostrar ou ocultar senha" aria-label="Mostrar ou ocultar senha"><i class="fa-solid fa-eye"></i></button>
+                        </div>
                         <div class="d-grid gap-1 mt-2 small text-muted" id="criarPwRules">
                             <div class="d-flex align-items-center gap-2" data-rule="len"><i class="fa-regular fa-circle"></i><span>Mínimo de 8 caracteres</span></div>
                             <div class="d-flex align-items-center gap-2" data-rule="num"><i class="fa-regular fa-circle"></i><span>Pelo menos 1 número (0–9)</span></div>
@@ -302,7 +309,7 @@ $emailsOrfaos = array_values(array_filter(
             <form id="formEditarUsuario">
                 <input type="hidden" id="editUsuarioId" name="id" value="">
                 <div class="modal-header">
-                    <h5 class="modal-title fw-bold"><i class="fa-solid fa-user-pen me-2 text-primary"></i>Editar Usuário: <span id="editUsuarioNick"></span></h5>
+                    <h5 class="modal-title fw-bold">Editar Usuário: <span id="editUsuarioNick"></span></h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
                 </div>
                 <div class="modal-body">
@@ -320,7 +327,10 @@ $emailsOrfaos = array_values(array_filter(
 
                     <div class="mb-3">
                         <label for="editUsuarioNovaSenha" class="form-label fw-semibold">Nova Senha <span class="text-muted fw-normal">(opcional)</span></label>
-                        <input type="password" class="form-control" id="editUsuarioNovaSenha" name="nova_senha" placeholder="Deixe em branco para manter a senha atual" autocomplete="new-password">
+                        <div class="input-group">
+                            <input type="password" class="form-control" id="editUsuarioNovaSenha" name="nova_senha" placeholder="Deixe em branco para manter a senha atual" autocomplete="new-password">
+                            <button type="button" class="btn btn-outline-secondary" data-toggle-pwd="editUsuarioNovaSenha" title="Mostrar ou ocultar senha" aria-label="Mostrar ou ocultar nova senha"><i class="fa-solid fa-eye"></i></button>
+                        </div>
                         <div class="form-text">Preencha para alterar a senha do usuário e do e-mail diretamente, sem validação adicional.</div>
                     </div>
 
@@ -359,7 +369,7 @@ $emailsOrfaos = array_values(array_filter(
         <div class="modal-content">
             <form id="formEditarOrfao">
                 <div class="modal-header">
-                    <h5 class="modal-title fw-bold"><i class="fa-solid fa-key me-2 text-primary"></i>Editar Senha do E-Mail</h5>
+                    <h5 class="modal-title fw-bold">Editar Senha do E-Mail</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
                 </div>
                 <div class="modal-body">
@@ -370,7 +380,10 @@ $emailsOrfaos = array_values(array_filter(
                     </div>
                     <div class="mb-0">
                         <label for="editOrfaoNovaSenha" class="form-label fw-semibold">Nova Senha</label>
-                        <input type="password" class="form-control" id="editOrfaoNovaSenha" name="nova_senha" required placeholder="Digite a nova senha" autocomplete="new-password">
+                        <div class="input-group">
+                            <input type="password" class="form-control" id="editOrfaoNovaSenha" name="nova_senha" required placeholder="Digite a nova senha" autocomplete="new-password">
+                            <button type="button" class="btn btn-outline-secondary" data-toggle-pwd="editOrfaoNovaSenha" title="Mostrar ou ocultar senha" aria-label="Mostrar ou ocultar senha"><i class="fa-solid fa-eye"></i></button>
+                        </div>
                     </div>
                 </div>
                 <div class="modal-footer">
@@ -391,36 +404,61 @@ document.addEventListener('DOMContentLoaded', () => {
     const inputSenha = document.getElementById('inputUsuarioSenha');
     const btnCriar = document.getElementById('btnSalvarUsuario');
 
-    const validarSenhaCriar = () => {
-        if (!inputSenha || !btnCriar) return true;
-        const v = inputSenha.value;
-        const checks = {
-            len: v.length >= 8,
-            num: /[0-9]/.test(v),
-            sym: /[^A-Za-z0-9]/.test(v)
-        };
-        Object.entries(checks).forEach(([k, ok]) => {
-            const row = document.querySelector(`#criarPwRules [data-rule="${k}"]`);
-            if (!row) return;
-            row.classList.toggle('text-success', ok);
-            row.classList.toggle('fw-semibold', ok);
-            row.querySelector('i').className = ok ? 'fa-solid fa-circle-check' : 'fa-regular fa-circle';
-        });
-        const valido = Object.values(checks).every(Boolean);
-        btnCriar.disabled = !valido;
-        return valido;
-    };
+    const validarSenhaCriar = () => window.AdminSenhaUI
+        ? window.AdminSenhaUI.validarForte(inputSenha, document.getElementById('criarPwRules'), btnCriar)
+        : true;
 
     const modalCriarEl = document.getElementById('modalCriarUsuario');
     const tituloCriar = document.getElementById('tituloModalCriarUsuario');
     const inputVincularExistente = document.getElementById('criarVincularExistente');
+    const selectEquipeCriar = document.getElementById('selectEquipeId');
+    const grupoEmailEmpresaCriar = document.getElementById('grupoEmailEmpresaCriar');
+    const inputEmailLocal = document.getElementById('inputUsuarioEmailLocal');
     const inputEmailCriar = document.getElementById('inputUsuarioEmail');
+    const dominioEmail = <?php echo json_encode($dominioEmail, JSON_UNESCAPED_UNICODE); ?>;
+    let emailEditadoManualmente = false;
+
+    const sincronizarEmailCriar = () => {
+        if (!inputEmailLocal || !inputEmailCriar) return;
+        let local = inputEmailLocal.value.trim().toLowerCase();
+        if (local.includes('@')) {
+            local = local.split('@')[0];
+            inputEmailLocal.value = local;
+        }
+        inputEmailCriar.value = local ? `${local}@${dominioEmail}` : '';
+    };
+
+    selectEquipeCriar?.addEventListener('change', () => {
+        if ((inputVincularExistente?.value || '') === '1' || emailEditadoManualmente) return;
+        const opt = selectEquipeCriar.selectedOptions[0];
+        const nick = opt?.dataset.nick || '';
+        const sugestao = nick
+            .normalize('NFD')
+            .replace(/[\u0300-\u036f]/g, '')
+            .toLowerCase()
+            .replace(/[^a-z0-9._-]/g, '');
+        if (inputEmailLocal) {
+            inputEmailLocal.value = sugestao;
+            sincronizarEmailCriar();
+        }
+    });
+
+    inputEmailLocal?.addEventListener('input', () => {
+        emailEditadoManualmente = inputEmailLocal.value.trim() !== '';
+        sincronizarEmailCriar();
+    });
 
     document.getElementById('btnAbrirNovoUsuario')?.addEventListener('click', () => {
         if (form) form.reset();
+        emailEditadoManualmente = false;
         if (inputVincularExistente) inputVincularExistente.value = '';
-        if (inputEmailCriar) inputEmailCriar.readOnly = false;
-        if (tituloCriar) tituloCriar.innerHTML = '<i class="fa-solid fa-user-plus me-2 text-primary"></i>Criar Usuário';
+        grupoEmailEmpresaCriar?.classList.remove('d-none');
+        if (inputEmailLocal) {
+            inputEmailLocal.readOnly = false;
+            inputEmailLocal.required = true;
+        }
+        sincronizarEmailCriar();
+        if (tituloCriar) tituloCriar.textContent = 'Criar Usuário';
         validarSenhaCriar();
         bootstrap.Modal.getOrCreateInstance(modalCriarEl).show();
     });
@@ -428,12 +466,20 @@ document.addEventListener('DOMContentLoaded', () => {
     document.querySelectorAll('.btn-atribuir-orfao').forEach((btn) => {
         btn.addEventListener('click', () => {
             if (form) form.reset();
+            emailEditadoManualmente = true;
             if (inputVincularExistente) inputVincularExistente.value = '1';
-            if (inputEmailCriar) {
-                inputEmailCriar.value = btn.dataset.email || '';
-                inputEmailCriar.readOnly = true;
+            const fullEmail = (btn.dataset.email || '').trim().toLowerCase();
+            const local = fullEmail.split('@')[0] || '';
+            grupoEmailEmpresaCriar?.classList.add('d-none');
+            if (inputEmailLocal) {
+                inputEmailLocal.value = local;
+                inputEmailLocal.readOnly = true;
+                inputEmailLocal.required = false;
             }
-            if (tituloCriar) tituloCriar.innerHTML = '<i class="fa-solid fa-link me-2 text-primary"></i>Atribuir Usuário ao E-Mail';
+            if (inputEmailCriar) {
+                inputEmailCriar.value = fullEmail;
+            }
+            if (tituloCriar) tituloCriar.textContent = 'Atribuir Usuário ao E-Mail';
             validarSenhaCriar();
             bootstrap.Modal.getOrCreateInstance(modalCriarEl).show();
         });
@@ -456,6 +502,7 @@ document.addEventListener('DOMContentLoaded', () => {
             btnCriar.disabled = true;
 
             try {
+                sincronizarEmailCriar();
                 const fd = new FormData(form);
                 fd.append('csrf_token', csrfToken);
                 const res = await fetch('/admin/api/usuarios/criar.php', { method: 'POST', body: fd });
@@ -563,11 +610,27 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    modalCriarEl?.addEventListener('hidden.bs.modal', () => {
+        document.getElementById('erroCriarUsuario')?.classList.add('d-none');
+        window.AdminSenhaUI?.resetarVisibilidade(modalCriarEl);
+    });
+
+    modalEditEl?.addEventListener('hidden.bs.modal', () => {
+        if (fbEdit) fbEdit.className = 'alert d-none small';
+        window.AdminSenhaUI?.resetarVisibilidade(modalEditEl);
+    });
+
     const modalOrfaoEl = document.getElementById('modalEditarOrfao');
     const formOrfao = document.getElementById('formEditarOrfao');
     const fbOrfao = document.getElementById('feedbackEditarOrfao');
     const editOrfaoEmail = document.getElementById('editOrfaoEmail');
     const editOrfaoNovaSenha = document.getElementById('editOrfaoNovaSenha');
+
+    modalOrfaoEl?.addEventListener('hidden.bs.modal', () => {
+        if (fbOrfao) fbOrfao.className = 'alert d-none small';
+        if (editOrfaoNovaSenha) editOrfaoNovaSenha.value = '';
+        window.AdminSenhaUI?.resetarVisibilidade(modalOrfaoEl);
+    });
 
     document.querySelectorAll('.btn-editar-orfao').forEach((btn) => {
         btn.addEventListener('click', () => {
@@ -596,10 +659,9 @@ document.addEventListener('DOMContentLoaded', () => {
                     btnSaveOrfao.disabled = false;
                     return;
                 }
-                fbOrfao.textContent = data.mensagem || 'Senha atualizada com sucesso!';
-                fbOrfao.className = 'alert alert-success small';
                 btnSaveOrfao.disabled = false;
-                if (editOrfaoNovaSenha) editOrfaoNovaSenha.value = '';
+                bootstrap.Modal.getInstance(modalOrfaoEl)?.hide();
+                window.AdminToast?.success(data.mensagem || 'Senha atualizada com sucesso!');
             } catch (err) {
                 fbOrfao.textContent = 'Erro de conexão ao atualizar senha.';
                 fbOrfao.className = 'alert alert-danger small';
@@ -614,7 +676,10 @@ document.addEventListener('DOMContentLoaded', () => {
             if (!email || !confirm(`Tem certeza que deseja deletar a caixa de e-mail "${email}"? Esta ação não pode ser desfeita.`)) {
                 return;
             }
+            const row = btn.closest('tr');
+            const origHtml = btn.innerHTML;
             btn.disabled = true;
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>';
             try {
                 const fd = new FormData();
                 fd.append('acao', 'deletar');
@@ -623,14 +688,26 @@ document.addEventListener('DOMContentLoaded', () => {
                 const res = await fetch('/admin/api/usuarios/orfao.php', { method: 'POST', body: fd });
                 const data = await res.json().catch(() => ({}));
                 if (!res.ok || !data.success) {
-                    alert(data.erro || `Erro ao deletar e-mail (HTTP ${res.status}).`);
+                    window.AdminToast?.error(data.erro || `Erro ao deletar e-mail (HTTP ${res.status}).`);
                     btn.disabled = false;
+                    btn.innerHTML = origHtml;
                     return;
                 }
-                window.location.reload();
+                if (row) {
+                    const tbody = row.parentElement;
+                    row.remove();
+                    if (tbody && tbody.querySelectorAll('tr').length === 0) {
+                        const cardBody = tbody.closest('.card-body');
+                        if (cardBody) {
+                            cardBody.innerHTML = '<div class="text-center text-muted small py-4">Nenhum e-mail órfão encontrado.</div>';
+                        }
+                    }
+                }
+                window.AdminToast?.success(data.mensagem || 'E-mail removido com sucesso!');
             } catch (err) {
-                alert('Erro de conexão ao deletar e-mail.');
+                window.AdminToast?.error('Erro de conexão ao deletar e-mail.');
                 btn.disabled = false;
+                btn.innerHTML = origHtml;
             }
         });
     });
