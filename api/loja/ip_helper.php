@@ -126,7 +126,21 @@ function isProxyInterno(string $ip): bool {
     return false;
 }
 
+function normalizarIpv4Mapeado(string $ip): string {
+    if (filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV6)) {
+        $bin = @inet_pton($ip);
+        if ($bin !== false && strlen($bin) === 16 && substr($bin, 0, 12) === str_repeat("\x00", 10) . "\xff\xff") {
+            $ipv4 = inet_ntop(substr($bin, 12));
+            if ($ipv4 !== false) {
+                return $ipv4;
+            }
+        }
+    }
+    return $ip;
+}
+
 function resolverIpAposProxyInterno(string $remoteAddr): string {
+    $remoteAddr = normalizarIpv4Mapeado($remoteAddr);
     if (!isProxyInterno($remoteAddr)) {
         return $remoteAddr;
     }
@@ -134,12 +148,13 @@ function resolverIpAposProxyInterno(string $remoteAddr): string {
     if ($xff !== '') {
         $partes = array_reverse(array_map('trim', explode(',', $xff)));
         foreach ($partes as $cand) {
+            $cand = normalizarIpv4Mapeado($cand);
             if (filter_var($cand, FILTER_VALIDATE_IP) && !isProxyInterno($cand)) {
                 return $cand;
             }
         }
     }
-    $xReal = trim($_SERVER['HTTP_X_REAL_IP'] ?? '');
+    $xReal = normalizarIpv4Mapeado(trim($_SERVER['HTTP_X_REAL_IP'] ?? ''));
     if ($xReal !== '' && filter_var($xReal, FILTER_VALIDATE_IP) && !isProxyInterno($xReal)) {
         return $xReal;
     }
@@ -160,6 +175,7 @@ function obterIpRealCliente(): string {
         if (strpos($cfIp, ',') !== false) {
             $cfIp = trim(explode(',', $cfIp)[0]);
         }
+        $cfIp = normalizarIpv4Mapeado($cfIp);
         if (filter_var($cfIp, FILTER_VALIDATE_IP)) {
             if (defined('LOJA_DEBUG_LOG') && LOJA_DEBUG_LOG === true) {
                 error_log("[IP_HELPER DEBUG] IP resolvido via Cloudflare: {$cfIp} (Proxy: {$remoteAddr})");

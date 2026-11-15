@@ -52,4 +52,10 @@ $_SERVER['HTTP_CF_CONNECTING_IP'] = '9.9.9.9';
 assert(obterIpRealCliente() === '177.50.60.70', "Falha: atrás de Caddy sem CF deve usar último hop externo de X-Forwarded-For");
 echo "  [PASS] Proxy Docker/Caddy resolve IP real sem aceitar spoofing.\n";
 
+// 6. Teste IPv6 mapeado para IPv4 (::ffff:x.x.x.x)
+$_SERVER['REMOTE_ADDR'] = '::ffff:172.18.0.4';
+$_SERVER['HTTP_X_FORWARDED_FOR'] = '::ffff:177.50.60.70';
+assert(obterIpRealCliente() === '177.50.60.70', "Falha: IPv6 mapeado para IPv4 deve ser normalizado para IPv4");
+echo "  [PASS] IPv6 mapeado (::ffff:) normalizado para IPv4.\n";
+
 echo "✔ Todos os testes de ip_helper passaram com sucesso!\n\n";
