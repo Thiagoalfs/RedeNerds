@@ -64,21 +64,6 @@
         );
 }
 
-/* Overlay SVG pixelado antes do footer */
-.server-footer-divider {
-    position: relative;
-    z-index: 2;
-    width: 100%;
-    height: clamp(42px, 5vw, 68px);
-    margin-top: 1.5rem;
-    margin-bottom: -1px;
-    background-image: url("/assets/images/hero-divider.svg");
-    background-size: 100% 100%;
-    background-repeat: no-repeat;
-    background-position: bottom center;
-    pointer-events: none;
-}
-
 /* Container da Página */
 .server-page-container {
     position: relative;
