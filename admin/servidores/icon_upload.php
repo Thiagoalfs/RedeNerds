@@ -164,8 +164,13 @@ function processarUploadIcone(?string $iconeAtual = null): array
     }
 
     $uploadDir = getIconUploadDirFisica();
-    if (!is_dir($uploadDir)) {
-        @mkdir($uploadDir, 0755, true);
+    if (!is_dir($uploadDir) && !@mkdir($uploadDir, 0775, true) && !is_dir($uploadDir)) {
+        error_log("icon_upload: falha ao criar diretório '{$uploadDir}'");
+        return [$iconeAtual, "Diretório de ícones sem permissão de criação/escrita no servidor."];
+    }
+    if (!is_writable($uploadDir)) {
+        error_log("icon_upload: diretório sem permissão de escrita '{$uploadDir}'");
+        return [$iconeAtual, "Diretório de ícones sem permissão de escrita no servidor."];
     }
 
     // Tenta conversão para WebP se GD estiver disponível

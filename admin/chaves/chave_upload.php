@@ -160,8 +160,13 @@ function processarUploadImagemChave(?string $imagemAtual = null): array
     }
 
     $uploadDir = getChaveUploadDirFisica();
-    if (!is_dir($uploadDir)) {
-        @mkdir($uploadDir, 0755, true);
+    if (!is_dir($uploadDir) && !@mkdir($uploadDir, 0775, true) && !is_dir($uploadDir)) {
+        error_log("chave_upload: falha ao criar diretório '{$uploadDir}'");
+        return [$imagemAtual, "Diretório de chaves sem permissão de criação/escrita no servidor."];
+    }
+    if (!is_writable($uploadDir)) {
+        error_log("chave_upload: diretório sem permissão de escrita '{$uploadDir}'");
+        return [$imagemAtual, "Diretório de chaves sem permissão de escrita no servidor."];
     }
 
     // Conversão para WebP se GD estiver disponível

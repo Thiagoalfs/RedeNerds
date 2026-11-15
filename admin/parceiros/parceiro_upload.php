@@ -176,8 +176,13 @@ function processarUploadFotoParceiro(?string $fotoAtual = null, string $nomeParc
     }
 
     $uploadDir = getParceiroUploadDirFisica();
-    if (!is_dir($uploadDir)) {
-        @mkdir($uploadDir, 0755, true);
+    if (!is_dir($uploadDir) && !@mkdir($uploadDir, 0775, true) && !is_dir($uploadDir)) {
+        error_log("parceiro_upload: falha ao criar diretório '{$uploadDir}'");
+        return [$fotoAtual, "Diretório de parceiros sem permissão de criação/escrita no servidor."];
+    }
+    if (!is_writable($uploadDir)) {
+        error_log("parceiro_upload: diretório sem permissão de escrita '{$uploadDir}'");
+        return [$fotoAtual, "Diretório de parceiros sem permissão de escrita no servidor."];
     }
 
     $slug = slugificarNomeParceiro($nomeParceiro);

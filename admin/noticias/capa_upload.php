@@ -102,8 +102,13 @@ function processarUploadCapa(?string $capaAtual = null): array
     }
 
     $uploadDir = getCapaUploadDirFisica();
-    if (!is_dir($uploadDir)) {
-        @mkdir($uploadDir, 0755, true);
+    if (!is_dir($uploadDir) && !@mkdir($uploadDir, 0775, true) && !is_dir($uploadDir)) {
+        error_log("capa_upload: falha ao criar diretório '{$uploadDir}'");
+        return [$capaAtual, "Diretório de capas sem permissão de criação/escrita no servidor."];
+    }
+    if (!is_writable($uploadDir)) {
+        error_log("capa_upload: diretório sem permissão de escrita '{$uploadDir}'");
+        return [$capaAtual, "Diretório de capas sem permissão de escrita no servidor."];
     }
 
     // Gera o arquivo com extensão .webp

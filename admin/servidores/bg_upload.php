@@ -145,8 +145,13 @@ function processarUploadBgServidor(?string $bgAtual = null): array
     }
 
     $diretorioFisico = getBgUploadDirFisica();
-    if (!is_dir($diretorioFisico)) {
-        @mkdir($diretorioFisico, 0755, true);
+    if (!is_dir($diretorioFisico) && !@mkdir($diretorioFisico, 0775, true) && !is_dir($diretorioFisico)) {
+        error_log("bg_upload: falha ao criar diretório '{$diretorioFisico}'");
+        return [$bgAtual, "Diretório de imagens de fundo sem permissão de criação/escrita no servidor."];
+    }
+    if (!is_writable($diretorioFisico)) {
+        error_log("bg_upload: diretório sem permissão de escrita '{$diretorioFisico}'");
+        return [$bgAtual, "Diretório de imagens de fundo sem permissão de escrita no servidor."];
     }
 
     // Tenta conversão para WebP se GD estiver disponível

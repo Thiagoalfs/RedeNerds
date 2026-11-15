@@ -251,6 +251,28 @@ require_once __DIR__ . '/../includes/admin_header.php';
                 padding-top: 8px !important;
                 box-sizing: border-box !important;
             }
+            @media screen and (min-width: 800px) {
+                html:not(.rl-left-panel-disabled) #rl-left {
+                    min-width: 240px !important;
+                    max-width: 320px !important;
+                }
+                html.sm-msgView-side #V-MailMessageList {
+                    flex: 0 0 auto !important;
+                    width: auto !important;
+                    min-width: 300px !important;
+                    max-width: 420px !important;
+                }
+                html.sm-msgView-side #V-MailMessageList .messageList {
+                    width: clamp(300px, 32vw, 420px);
+                    min-width: 300px !important;
+                    max-width: 420px !important;
+                    box-sizing: border-box !important;
+                }
+                html.sm-msgView-side #V-MailMessageView {
+                    flex: 1 1 0% !important;
+                    min-width: 0 !important;
+                }
+            }
             .admin-snappymail-brand {
                 position: fixed;
                 top: 0;
@@ -457,8 +479,8 @@ require_once __DIR__ . '/../includes/admin_header.php';
                 border-bottom: 1px solid var(--border-color) !important;
                 position: static !important;
             }
-            #V-MailMessageList .btn-toolbar.admin-actions-bar .btn,
-            #V-MailMessageList .btn-toolbar.admin-actions-bar .icon-folder-add {
+            #V-MailMessageList .btn-toolbar.admin-actions-bar .btn:where(:not([hidden]):not([style*="display: none"]):not([style*="display:none"])),
+            #V-MailMessageList .btn-toolbar.admin-actions-bar .icon-folder-add:where(:not([hidden]):not([style*="display: none"]):not([style*="display:none"])) {
                 background: transparent !important;
                 border-color: transparent !important;
                 box-shadow: none !important;
@@ -499,9 +521,12 @@ require_once __DIR__ . '/../includes/admin_header.php';
             }
             #V-MailMessageList .btn-toolbar.admin-actions-bar .btn.disabled,
             #V-MailMessageList .btn-toolbar.admin-actions-bar .btn[disabled],
+            #V-MailMessageList .btn-toolbar.admin-actions-bar .btn[hidden],
+            #V-MailMessageList .btn-toolbar.admin-actions-bar .btn[style*="display: none"],
+            #V-MailMessageList .btn-toolbar.admin-actions-bar .btn[style*="display:none"],
             #V-MailMessageList .btn-toolbar.admin-actions-bar .toggleLeft,
             #V-MailMessageList .btn-toolbar.admin-actions-bar .buttonCompose,
-            #V-MailMessageList .btn-toolbar.admin-actions-bar .btn-group:not(:has(.btn:not(.disabled):not([disabled]):not(.toggleLeft):not(.buttonCompose))),
+            #V-MailMessageList .btn-toolbar.admin-actions-bar .btn-group:not(:has(.btn:not(.disabled):not([disabled]):not([hidden]):not([style*="display: none"]):not([style*="display:none"]):not(.toggleLeft):not(.buttonCompose))),
             #V-MailMessageList .btn-toolbar.admin-actions-bar .btn-group:has(#no-sort-list),
             #no-sort-list {
                 display: none !important;

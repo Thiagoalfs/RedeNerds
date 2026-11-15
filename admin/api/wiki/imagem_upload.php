@@ -84,9 +84,18 @@ foreach ($candidatos as $dir) {
 
 if (!$dirFisica) {
     $dirFisica = realpath(__DIR__ . '/../../../') . '/assets/images/wiki/';
-    if (!is_dir($dirFisica)) {
-        @mkdir($dirFisica, 0755, true);
+    if (!is_dir($dirFisica) && !@mkdir($dirFisica, 0775, true) && !is_dir($dirFisica)) {
+        error_log("wiki_imagem_upload: falha ao criar diretório '{$dirFisica}'");
+        http_response_code(500);
+        echo json_encode(["success" => false, "erro" => "Diretório de imagens da wiki sem permissão de criação/escrita no servidor."], JSON_UNESCAPED_UNICODE);
+        exit;
     }
+}
+if (!is_writable($dirFisica)) {
+    error_log("wiki_imagem_upload: diretório sem permissão de escrita '{$dirFisica}'");
+    http_response_code(500);
+    echo json_encode(["success" => false, "erro" => "Diretório de imagens da wiki sem permissão de escrita no servidor."], JSON_UNESCAPED_UNICODE);
+    exit;
 }
 
 $nomeOriginal = pathinfo($fileField['name'], PATHINFO_FILENAME);
