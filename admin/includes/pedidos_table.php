@@ -117,10 +117,11 @@ $mostrarPaginacao = $mostrarPaginacao ?? false;
                         </td>
                         <td class="text-end">
                             <button type="button" 
-                                    class="btn btn-sm btn-outline-primary btn-ver-detalhes" 
+                                    class="btn btn-sm btn-primary btn-ver-detalhes" 
                                     data-id="<?php echo (int)$p['id']; ?>"
                                     data-pedido="<?php echo htmlspecialchars(json_encode($p), ENT_QUOTES, 'UTF-8'); ?>"
-                                    title="Ver Detalhes do Pedido">
+                                    title="Ver Detalhes do Pedido"
+                                    aria-label="Ver detalhes do pedido #<?php echo (int)$p['id']; ?>">
                                 <i class="fa-solid fa-eye"></i>
                             </button>
                         </td>

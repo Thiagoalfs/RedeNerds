@@ -7,6 +7,7 @@ header('Content-Type: application/json; charset=utf-8');
 $alvoId = isset($_POST['id']) ? (int)$_POST['id'] : 0;
 $email = trim((string)($_POST['email'] ?? ''));
 $emailRecuperacao = trim((string)($_POST['email_recuperacao'] ?? ''));
+$novaSenha = (string)($_POST['nova_senha'] ?? '');
 
 if ($alvoId <= 0) {
     http_response_code(400);
@@ -70,12 +71,28 @@ try {
         }
     }
 
-    $upd = $pdo->prepare("UPDATE usuarios SET email = :email, email_recuperacao = :email_recuperacao WHERE id = :id LIMIT 1");
-    $upd->execute([
-        ':email' => $emailNorm,
-        ':email_recuperacao' => $emailRecuperacao !== '' ? mb_strtolower($emailRecuperacao, 'UTF-8') : null,
-        ':id' => $alvoId,
-    ]);
+    if ($novaSenha !== '') {
+        $erroDa = null;
+        if (!atualizarSenhaEmailDirectAdmin($emailNorm, $novaSenha, $erroDa)) {
+            http_response_code(502);
+            echo json_encode(["success" => false, "erro" => $erroDa ?: "Não foi possível atualizar a senha do e-mail."], JSON_UNESCAPED_UNICODE);
+            exit;
+        }
+        $upd = $pdo->prepare("UPDATE usuarios SET email = :email, email_recuperacao = :email_recuperacao, senha = :senha WHERE id = :id LIMIT 1");
+        $upd->execute([
+            ':email' => $emailNorm,
+            ':email_recuperacao' => $emailRecuperacao !== '' ? mb_strtolower($emailRecuperacao, 'UTF-8') : null,
+            ':senha' => password_hash($novaSenha, PASSWORD_DEFAULT),
+            ':id' => $alvoId,
+        ]);
+    } else {
+        $upd = $pdo->prepare("UPDATE usuarios SET email = :email, email_recuperacao = :email_recuperacao WHERE id = :id LIMIT 1");
+        $upd->execute([
+            ':email' => $emailNorm,
+            ':email_recuperacao' => $emailRecuperacao !== '' ? mb_strtolower($emailRecuperacao, 'UTF-8') : null,
+            ':id' => $alvoId,
+        ]);
+    }
 
     if ($alvoId === $atorId) {
         $_SESSION['usuario_email'] = $emailNorm;

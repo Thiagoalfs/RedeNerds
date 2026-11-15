@@ -286,7 +286,7 @@ $percCartao = $totalMetodosQtd > 0 ? (100 - $percPix) : 0;
         <h5 class="admin-card-title">
             <i class="fa-solid fa-clock-rotate-left text-muted me-1"></i> Últimos Pedidos da Loja
         </h5>
-        <a href="/admin/pedidos/" class="btn btn-outline-primary btn-sm">Ver todos os pedidos →</a>
+        <a href="/admin/pedidos/" class="btn btn-primary btn-sm">Ver todos os pedidos →</a>
     </div>
     <div class="card-body p-0">
         <?php 

@@ -61,13 +61,15 @@
 
         if (btnToggle && sidebar && overlay) {
             btnToggle.addEventListener('click', () => {
-                sidebar.classList.toggle('open');
+                const aberto = sidebar.classList.toggle('open');
                 overlay.classList.toggle('active');
+                btnToggle.setAttribute('aria-expanded', aberto ? 'true' : 'false');
             });
 
             overlay.addEventListener('click', () => {
                 sidebar.classList.remove('open');
                 overlay.classList.remove('active');
+                btnToggle.setAttribute('aria-expanded', 'false');
             });
         }
 

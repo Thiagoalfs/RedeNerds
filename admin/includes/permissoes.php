@@ -236,9 +236,13 @@ if (!function_exists('chamarDirectAdminEmailPop')) {
             'action' => $action,
             'domain' => $domain,
             'user' => $localPart,
-            'passwd' => $senha,
-            'passwd2' => $senha,
         ];
+        if ($action === 'delete') {
+            $payload['select0'] = $localPart;
+        } else {
+            $payload['passwd'] = $senha;
+            $payload['passwd2'] = $senha;
+        }
         if ($action === 'create') {
             $payload['quota'] = 0;
         }
@@ -282,6 +286,12 @@ if (!function_exists('criarEmailDirectAdmin')) {
 if (!function_exists('atualizarSenhaEmailDirectAdmin')) {
     function atualizarSenhaEmailDirectAdmin(string $email, string $novaSenha, ?string &$erro = null): bool {
         return chamarDirectAdminEmailPop('modify', $email, $novaSenha, $erro);
+    }
+}
+
+if (!function_exists('deletarEmailDirectAdmin')) {
+    function deletarEmailDirectAdmin(string $email, ?string &$erro = null): bool {
+        return chamarDirectAdminEmailPop('delete', $email, '', $erro);
     }
 }
 
@@ -402,11 +412,11 @@ if (!function_exists('listarEmailsDirectAdmin')) {
 if (!function_exists('autenticarSnappyMail')) {
     /**
      * Autentica no SnappyMail (RNMail) server-to-server e repassa os cookies de sessão ao navegador.
-     * Falha silenciosamente caso o e-mail/senha não correspondam ao IMAP ou o serviço esteja indisponível.
+     * Retorna true se autenticou e enviou os cookies; false caso contrário.
      */
-    function autenticarSnappyMail(string $email, string $senha): void {
+    function autenticarSnappyMail(string $email, string $senha): bool {
         if ($email === '' || $senha === '' || !function_exists('curl_init')) {
-            return;
+            return false;
         }
 
         $envUrl = trim((string)(getenv('SNAPPYMAIL_INTERNAL_URL') ?: ''));
@@ -441,7 +451,7 @@ if (!function_exists('autenticarSnappyMail')) {
         }
 
         if ($baseUrl === '' || $resp === '') {
-            return;
+            return false;
         }
 
         $rawHeaders = substr($resp, 0, $headerSize);
@@ -454,7 +464,7 @@ if (!function_exists('autenticarSnappyMail')) {
             $smtoken = $m[1];
         }
         if ($xToken === '' || $smtoken === '') {
-            return;
+            return false;
         }
 
         // 2. Executa Action=Login em /?/Json/
@@ -481,17 +491,18 @@ if (!function_exists('autenticarSnappyMail')) {
         curl_close($ch);
 
         if (!is_string($loginResp) || $loginResp === '') {
-            return;
+            return false;
         }
 
         $loginHeaders = substr($loginResp, 0, $loginHeaderSize);
         $loginBody = json_decode(substr($loginResp, $loginHeaderSize), true);
         if (!is_array($loginBody) || empty($loginBody['Result'])) {
             error_log('RNMail auto-login falhou para ' . $email . ': ' . ($loginBody['message'] ?? 'sem resposta'));
-            return;
+            return false;
         }
 
         // Repassa os cookies de sessão do SnappyMail para o navegador no escopo /webmail/
+        // Usa setrawcookie() porque os valores vindos do Set-Cookie do SnappyMail já estão URL-encoded.
         $cookies = ['smtoken' => $smtoken];
         if (preg_match_all('/^Set-Cookie:\s*([^=\s;]+)=([^;\r\n]*)/mi', $loginHeaders, $matches, PREG_SET_ORDER)) {
             foreach ($matches as $m) {
@@ -502,7 +513,7 @@ if (!function_exists('autenticarSnappyMail')) {
             if ($valor === '') {
                 continue;
             }
-            setcookie($nome, $valor, [
+            setrawcookie($nome, $valor, [
                 'expires' => 0,
                 'path' => '/webmail/',
                 'domain' => '',
@@ -511,6 +522,7 @@ if (!function_exists('autenticarSnappyMail')) {
                 'samesite' => 'Lax',
             ]);
         }
+        return true;
     }
 }
 

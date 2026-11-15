@@ -130,15 +130,17 @@ $emailsOrfaos = array_values(array_filter(
                                                     data-nick="<?php echo htmlspecialchars($nickExibir, ENT_QUOTES, 'UTF-8'); ?>"
                                                     data-email="<?php echo htmlspecialchars((string)($u['email'] ?? ''), ENT_QUOTES, 'UTF-8'); ?>"
                                                     data-email-recuperacao="<?php echo htmlspecialchars((string)($u['email_recuperacao'] ?? ''), ENT_QUOTES, 'UTF-8'); ?>"
-                                                    title="Editar e-mail / redefinir senha">
+                                                    title="Editar e-mail / redefinir senha"
+                                                    aria-label="Editar usuário <?php echo htmlspecialchars($nickExibir, ENT_QUOTES, 'UTF-8'); ?>">
                                                 <i class="fa-solid fa-pen-to-square"></i>
                                             </button>
                                         <?php elseif ((int)$u['id'] === $atorId): ?>
                                             <button type="button"
-                                                    class="btn btn-sm btn-outline-primary"
+                                                    class="btn btn-sm btn-primary"
                                                     data-bs-toggle="modal"
                                                     data-bs-target="#modalAlterarPropriaSenha"
-                                                    title="Alterar minha senha">
+                                                    title="Alterar minha senha"
+                                                    aria-label="Alterar minha senha">
                                                 <i class="fa-solid fa-key"></i>
                                             </button>
                                         <?php endif; ?>
@@ -150,7 +152,8 @@ $emailsOrfaos = array_values(array_filter(
                                                     data-id="<?php echo (int)$u['id']; ?>"
                                                     data-name="<?php echo htmlspecialchars($nickExibir, ENT_QUOTES, 'UTF-8'); ?>"
                                                     data-confirm="Excluir a conta de <?php echo htmlspecialchars($nickExibir, ENT_QUOTES, 'UTF-8'); ?>?"
-                                                    title="Excluir usuário">
+                                                    title="Excluir usuário"
+                                                    aria-label="Excluir usuário <?php echo htmlspecialchars($nickExibir, ENT_QUOTES, 'UTF-8'); ?>">
                                                 <i class="fa-solid fa-trash"></i>
                                             </button>
                                         <?php endif; ?>
@@ -192,21 +195,37 @@ $emailsOrfaos = array_values(array_filter(
                     <thead>
                         <tr>
                             <th>Endereço de E-Mail</th>
-                            <th class="text-end" style="width: 180px;">Ação</th>
+                            <th class="text-end" style="min-width: 168px;">Ações</th>
                         </tr>
                     </thead>
                     <tbody>
                         <?php foreach ($emailsOrfaos as $emailOrfao): ?>
                             <tr>
-                                <td><span class="font-monospace small"><?php echo htmlspecialchars($emailOrfao, ENT_QUOTES, 'UTF-8'); ?></span></td>
-                                <td class="text-end">
-                                    <button type="button"
-                                            class="btn btn-sm btn-outline-primary btn-atribuir-orfao d-inline-flex align-items-center gap-1"
-                                            data-email="<?php echo htmlspecialchars($emailOrfao, ENT_QUOTES, 'UTF-8'); ?>"
-                                            <?php echo empty($membrosDisponiveis) ? 'disabled title="Nenhum membro elegível disponível"' : ''; ?>>
-                                        <i class="fa-solid fa-user-plus"></i>
-                                        <span>Atribuir Usuário</span>
-                                    </button>
+                                <td><span class="font-monospace small text-break"><?php echo htmlspecialchars($emailOrfao, ENT_QUOTES, 'UTF-8'); ?></span></td>
+                                <td class="text-end text-nowrap">
+                                    <div class="d-inline-flex align-items-center justify-content-end gap-1">
+                                        <button type="button"
+                                                class="btn btn-sm btn-primary btn-editar-orfao"
+                                                data-email="<?php echo htmlspecialchars($emailOrfao, ENT_QUOTES, 'UTF-8'); ?>"
+                                                title="Editar senha"
+                                                aria-label="Editar senha">
+                                            <i class="fa-solid fa-pen-to-square"></i>
+                                        </button>
+                                        <button type="button"
+                                                class="btn btn-sm btn-outline-secondary btn-atribuir-orfao"
+                                                data-email="<?php echo htmlspecialchars($emailOrfao, ENT_QUOTES, 'UTF-8'); ?>"
+                                                aria-label="Atribuir Usuário"
+                                                <?php echo empty($membrosDisponiveis) ? 'disabled title="Nenhum membro elegível disponível"' : 'title="Atribuir Usuário"'; ?>>
+                                            <i class="fa-solid fa-user-plus"></i>
+                                        </button>
+                                        <button type="button"
+                                                class="btn btn-sm btn-danger btn-deletar-orfao"
+                                                data-email="<?php echo htmlspecialchars($emailOrfao, ENT_QUOTES, 'UTF-8'); ?>"
+                                                title="Deletar e-mail"
+                                                aria-label="Deletar e-mail">
+                                            <i class="fa-solid fa-trash"></i>
+                                        </button>
+                                    </div>
                                 </td>
                             </tr>
                         <?php endforeach; ?>
@@ -299,6 +318,12 @@ $emailsOrfaos = array_values(array_filter(
                         <input type="email" class="form-control" id="editUsuarioEmailRec" name="email_recuperacao" placeholder="pessoal@gmail.com" autocomplete="off">
                     </div>
 
+                    <div class="mb-3">
+                        <label for="editUsuarioNovaSenha" class="form-label fw-semibold">Nova Senha <span class="text-muted fw-normal">(opcional)</span></label>
+                        <input type="password" class="form-control" id="editUsuarioNovaSenha" name="nova_senha" placeholder="Deixe em branco para manter a senha atual" autocomplete="new-password">
+                        <div class="form-text">Preencha para alterar a senha do usuário e do e-mail diretamente, sem validação adicional.</div>
+                    </div>
+
                     <div class="border-top pt-3 mt-3" id="blocoResetEmailUsuario">
                         <label class="form-label fw-semibold d-block mb-1">Redefinição de Senha</label>
                         <p class="text-muted small mb-2">Envia um link de uso único (válido por 1 hora) para o e-mail cadastrado.</p>
@@ -320,7 +345,38 @@ $emailsOrfaos = array_values(array_filter(
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
                     <button type="submit" class="btn btn-primary" id="btnSalvarEdicaoUsuario">
-                        <i class="fa-solid fa-check me-1"></i> Salvar E-Mail
+                        <i class="fa-solid fa-check me-1"></i> Salvar Alterações
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- MODAL EDITAR E-MAIL ÓRFÃO -->
+<div class="modal fade" id="modalEditarOrfao" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <form id="formEditarOrfao">
+                <div class="modal-header">
+                    <h5 class="modal-title fw-bold"><i class="fa-solid fa-key me-2 text-primary"></i>Editar Senha do E-Mail</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="feedbackEditarOrfao" class="alert d-none small"></div>
+                    <div class="mb-3">
+                        <label for="editOrfaoEmail" class="form-label fw-semibold">E-Mail</label>
+                        <input type="email" class="form-control font-monospace" id="editOrfaoEmail" name="email" readonly>
+                    </div>
+                    <div class="mb-0">
+                        <label for="editOrfaoNovaSenha" class="form-label fw-semibold">Nova Senha</label>
+                        <input type="password" class="form-control" id="editOrfaoNovaSenha" name="nova_senha" required placeholder="Digite a nova senha" autocomplete="new-password">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-primary" id="btnSalvarOrfao">
+                        <i class="fa-solid fa-check me-1"></i> Salvar Senha
                     </button>
                 </div>
             </form>
@@ -403,9 +459,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 const fd = new FormData(form);
                 fd.append('csrf_token', csrfToken);
                 const res = await fetch('/admin/api/usuarios/criar.php', { method: 'POST', body: fd });
-                const data = await res.json();
+                const data = await res.json().catch(() => ({}));
                 if (!res.ok || !data.success) {
-                    errEl.textContent = data.erro || 'Erro ao criar usuário.';
+                    errEl.textContent = data.erro || `Erro ao criar usuário (HTTP ${res.status}).`;
                     errEl.classList.remove('d-none');
                     btnCriar.disabled = false;
                     return;
@@ -427,6 +483,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const editNick = document.getElementById('editUsuarioNick');
     const editEmail = document.getElementById('editUsuarioEmail');
     const editEmailRec = document.getElementById('editUsuarioEmailRec');
+    const editNovaSenha = document.getElementById('editUsuarioNovaSenha');
     const blocoReset = document.getElementById('blocoResetEmailUsuario');
     const blocoPropriaSenha = document.getElementById('blocoTrocarPropriaSenha');
     const btnAbrirPropriaSenha = document.getElementById('btnAbrirPropriaSenhaDoEdit');
@@ -444,6 +501,7 @@ document.addEventListener('DOMContentLoaded', () => {
             editNick.textContent = btn.dataset.nick || '';
             editEmail.value = btn.dataset.email || '';
             if (editEmailRec) editEmailRec.value = btn.dataset.emailRecuperacao || '';
+            if (editNovaSenha) editNovaSenha.value = '';
             btnReset.disabled = !(btn.dataset.email || '').trim() && !(btn.dataset.emailRecuperacao || '').trim();
             blocoReset?.classList.toggle('d-none', ehProprio);
             blocoPropriaSenha?.classList.toggle('d-none', !ehProprio);
@@ -472,9 +530,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 const fd = new FormData(formEdit);
                 fd.append('csrf_token', csrfToken);
                 const res = await fetch('/admin/api/usuarios/editar.php', { method: 'POST', body: fd });
-                const data = await res.json();
+                const data = await res.json().catch(() => ({}));
                 if (!res.ok || !data.success) {
-                    mostrarFbEdit(data.erro || 'Erro ao salvar alterações.', false);
+                    mostrarFbEdit(data.erro || `Erro ao salvar alterações (HTTP ${res.status}).`, false);
                     btnSave.disabled = false;
                     return;
                 }
@@ -495,8 +553,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 fd.append('id', editId.value);
                 fd.append('csrf_token', csrfToken);
                 const res = await fetch('/admin/api/usuarios/enviar_reset.php', { method: 'POST', body: fd });
-                const data = await res.json();
-                mostrarFbEdit(data.success ? data.mensagem : (data.erro || 'Erro ao enviar e-mail.'), !!data.success);
+                const data = await res.json().catch(() => ({}));
+                mostrarFbEdit(data.success ? data.mensagem : (data.erro || `Erro ao enviar e-mail (HTTP ${res.status}).`), !!data.success);
             } catch (err) {
                 mostrarFbEdit('Erro de conexão ao enviar e-mail.', false);
             } finally {
@@ -504,6 +562,78 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
     }
+
+    const modalOrfaoEl = document.getElementById('modalEditarOrfao');
+    const formOrfao = document.getElementById('formEditarOrfao');
+    const fbOrfao = document.getElementById('feedbackEditarOrfao');
+    const editOrfaoEmail = document.getElementById('editOrfaoEmail');
+    const editOrfaoNovaSenha = document.getElementById('editOrfaoNovaSenha');
+
+    document.querySelectorAll('.btn-editar-orfao').forEach((btn) => {
+        btn.addEventListener('click', () => {
+            if (editOrfaoEmail) editOrfaoEmail.value = btn.dataset.email || '';
+            if (editOrfaoNovaSenha) editOrfaoNovaSenha.value = '';
+            if (fbOrfao) fbOrfao.className = 'alert d-none small';
+            bootstrap.Modal.getOrCreateInstance(modalOrfaoEl).show();
+        });
+    });
+
+    if (formOrfao) {
+        formOrfao.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btnSaveOrfao = document.getElementById('btnSalvarOrfao');
+            btnSaveOrfao.disabled = true;
+            fbOrfao.className = 'alert d-none small';
+            try {
+                const fd = new FormData(formOrfao);
+                fd.append('acao', 'editar_senha');
+                fd.append('csrf_token', csrfToken);
+                const res = await fetch('/admin/api/usuarios/orfao.php', { method: 'POST', body: fd });
+                const data = await res.json().catch(() => ({}));
+                if (!res.ok || !data.success) {
+                    fbOrfao.textContent = data.erro || `Erro ao atualizar senha (HTTP ${res.status}).`;
+                    fbOrfao.className = 'alert alert-danger small';
+                    btnSaveOrfao.disabled = false;
+                    return;
+                }
+                fbOrfao.textContent = data.mensagem || 'Senha atualizada com sucesso!';
+                fbOrfao.className = 'alert alert-success small';
+                btnSaveOrfao.disabled = false;
+                if (editOrfaoNovaSenha) editOrfaoNovaSenha.value = '';
+            } catch (err) {
+                fbOrfao.textContent = 'Erro de conexão ao atualizar senha.';
+                fbOrfao.className = 'alert alert-danger small';
+                btnSaveOrfao.disabled = false;
+            }
+        });
+    }
+
+    document.querySelectorAll('.btn-deletar-orfao').forEach((btn) => {
+        btn.addEventListener('click', async () => {
+            const email = btn.dataset.email || '';
+            if (!email || !confirm(`Tem certeza que deseja deletar a caixa de e-mail "${email}"? Esta ação não pode ser desfeita.`)) {
+                return;
+            }
+            btn.disabled = true;
+            try {
+                const fd = new FormData();
+                fd.append('acao', 'deletar');
+                fd.append('email', email);
+                fd.append('csrf_token', csrfToken);
+                const res = await fetch('/admin/api/usuarios/orfao.php', { method: 'POST', body: fd });
+                const data = await res.json().catch(() => ({}));
+                if (!res.ok || !data.success) {
+                    alert(data.erro || `Erro ao deletar e-mail (HTTP ${res.status}).`);
+                    btn.disabled = false;
+                    return;
+                }
+                window.location.reload();
+            } catch (err) {
+                alert('Erro de conexão ao deletar e-mail.');
+                btn.disabled = false;
+            }
+        });
+    });
 });
 </script>
 

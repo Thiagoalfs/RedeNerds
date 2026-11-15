@@ -111,162 +111,6 @@ $nickExibir = $usuarioAlvo ? ($usuarioAlvo['nick'] ?: $usuarioAlvo['usuario']) :
         localStorage.setItem('admin_theme', next);
     }
     </script>
-    <style>
-        body.admin-reset-body {
-            background-color: var(--admin-bg);
-            background-image: radial-gradient(circle at 50% 15%, rgba(37, 99, 235, 0.12) 0%, transparent 60%);
-            min-height: 100dvh;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: flex-start;
-            padding: 1.25rem 1rem;
-            color: var(--text-main);
-            font-family: var(--font-main);
-        }
-        .reset-topbar {
-            width: 100%;
-            max-width: 1200px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 1rem;
-        }
-        .reset-back-link {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
-            color: var(--text-muted);
-            text-decoration: none;
-            font-size: 0.85rem;
-            font-weight: 500;
-            padding: 0.5rem 0.85rem;
-            border-radius: 6px;
-            background: var(--admin-surface);
-            border: 1px solid var(--border-color);
-        }
-        .reset-back-link:hover { color: var(--color-primary); border-color: var(--color-primary); }
-        .reset-card {
-            max-width: 440px;
-            width: 100%;
-            margin: auto 0;
-            background-color: var(--admin-surface);
-            border: 1px solid var(--border-color);
-            border-radius: 14px;
-            box-shadow: 0 20px 45px rgba(0, 0, 0, 0.35);
-            position: relative;
-            overflow: hidden;
-        }
-        .reset-card::before {
-            content: "";
-            position: absolute;
-            top: 0; left: 0; right: 0;
-            height: 3px;
-            background: linear-gradient(90deg, #2563eb 0%, #38bdf8 100%);
-        }
-        .reset-logo-wrap {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            width: 58px;
-            height: 58px;
-            border-radius: 12px;
-            background: rgba(37, 99, 235, 0.1);
-            border: 1px solid rgba(37, 99, 235, 0.25);
-            margin-bottom: 0.9rem;
-            padding: 6px;
-        }
-        .reset-logo-wrap img { width: 100%; height: 100%; object-fit: contain; border-radius: 8px; }
-        .reset-title {
-            font-family: 'Outfit', var(--font-main);
-            font-size: 1.45rem;
-            font-weight: 800;
-            color: var(--text-main);
-            margin: 0;
-        }
-        .reset-subtitle { font-size: 0.85rem; color: var(--text-muted); margin: 0.3rem 0 0 0; }
-        .reset-user-pill {
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-            padding: 0.65rem 0.9rem;
-            border-radius: 10px;
-            background: var(--admin-bg);
-            border: 1px solid var(--border-color);
-            margin-bottom: 1.25rem;
-        }
-        .reset-user-pill img {
-            width: 36px;
-            height: 36px;
-            border-radius: 6px;
-            border: 1px solid var(--border-color);
-            flex-shrink: 0;
-        }
-        .reset-user-nick {
-            font-weight: 700;
-            font-size: 0.95rem;
-            color: var(--text-main);
-            line-height: 1.2;
-        }
-        .reset-user-hint { font-size: 0.75rem; color: var(--text-muted); }
-        .reset-label { font-size: 0.8rem; font-weight: 600; color: var(--text-main); margin-bottom: 0.4rem; display: block; }
-        .reset-input-group {
-            border-radius: 6px;
-            overflow: hidden;
-            border: 1px solid var(--border-color);
-            background-color: var(--admin-bg);
-            transition: border-color 0.15s ease, box-shadow 0.15s ease;
-        }
-        .reset-input-group:focus-within {
-            border-color: var(--color-primary);
-            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.2);
-        }
-        .reset-input-group .input-group-text {
-            background: transparent;
-            border: none;
-            border-right: 1px solid var(--border-color);
-            color: var(--text-muted);
-            width: 44px;
-            justify-content: center;
-        }
-        .reset-input-group .form-control {
-            background: transparent;
-            border: none;
-            color: var(--text-main);
-            box-shadow: none;
-            padding: 0.65rem 0.75rem;
-            font-size: 0.9rem;
-        }
-        .reset-input-group .form-control::placeholder { color: var(--text-muted); opacity: 0.7; }
-        .btn-toggle-pass {
-            background: transparent;
-            border: none;
-            color: var(--text-muted);
-            padding: 0 0.85rem;
-        }
-        .btn-toggle-pass:hover { color: var(--text-main); }
-        .pw-rules {
-            display: grid;
-            gap: 0.35rem;
-            margin: 0.85rem 0 1.25rem;
-            padding: 0.75rem 0.9rem;
-            border-radius: 8px;
-            background: var(--admin-bg);
-            border: 1px solid var(--border-color);
-            font-size: 0.78rem;
-        }
-        .pw-rule { display: flex; align-items: center; gap: 0.5rem; color: var(--text-muted); transition: color 0.15s ease; }
-        .pw-rule.ok { color: #10b981; font-weight: 600; }
-        .btn-reset-submit {
-            background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
-            border: none;
-            color: #fff;
-            font-weight: 600;
-            padding: 0.72rem 1rem;
-            border-radius: 8px;
-        }
-        .btn-reset-submit:disabled { opacity: 0.55; cursor: not-allowed; }
-    </style>
 </head>
 <body class="admin-reset-body">
     <header class="reset-topbar">
@@ -295,8 +139,9 @@ $nickExibir = $usuarioAlvo ? ($usuarioAlvo['nick'] ?: $usuarioAlvo['usuario']) :
                     <i class="fa-solid fa-circle-check"></i>
                     <span><?php echo htmlspecialchars($sucesso, ENT_QUOTES, 'UTF-8'); ?></span>
                 </div>
-                <a href="/admin/index.php" class="btn btn-reset-submit w-100 text-decoration-none text-center d-block">
-                    <i class="fa-solid fa-arrow-right-to-bracket me-1"></i> Entrar no Painel
+                <a href="/admin/index.php" class="btn btn-reset-submit w-100 d-flex align-items-center justify-content-center gap-2 text-decoration-none">
+                    <i class="fa-solid fa-arrow-right-to-bracket"></i>
+                    <span>Entrar no Painel</span>
                 </a>
             <?php elseif ($erro !== '' && !$usuarioAlvo): ?>
                 <div class="alert alert-danger small d-flex align-items-center gap-2">
@@ -353,8 +198,9 @@ $nickExibir = $usuarioAlvo ? ($usuarioAlvo['nick'] ?: $usuarioAlvo['usuario']) :
                         <div class="pw-rule" data-rule="match"><i class="fa-regular fa-circle"></i><span>As duas senhas conferem</span></div>
                     </div>
 
-                    <button type="submit" class="btn btn-reset-submit w-100" id="btnSalvarNovaSenha" disabled>
-                        <i class="fa-solid fa-key me-1"></i> Salvar Nova Senha
+                    <button type="submit" class="btn btn-reset-submit w-100 d-flex align-items-center justify-content-center gap-2" id="btnSalvarNovaSenha" disabled>
+                        <i class="fa-solid fa-key"></i>
+                        <span>Salvar Nova Senha</span>
                     </button>
                 </form>
             <?php endif; ?>

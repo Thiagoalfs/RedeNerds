@@ -95,111 +95,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         localStorage.setItem('admin_theme', next);
     }
     </script>
-    <style>
-        body.admin-reset-body {
-            background-color: var(--admin-bg);
-            background-image: radial-gradient(circle at 50% 15%, rgba(37, 99, 235, 0.12) 0%, transparent 60%);
-            min-height: 100dvh;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: flex-start;
-            padding: 1.25rem 1rem;
-            color: var(--text-main);
-            font-family: var(--font-main);
-        }
-        .reset-topbar {
-            width: 100%;
-            max-width: 1200px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 1rem;
-        }
-        .reset-back-link {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
-            color: var(--text-muted);
-            text-decoration: none;
-            font-size: 0.85rem;
-            font-weight: 500;
-            padding: 0.5rem 0.85rem;
-            border-radius: 6px;
-            background: var(--admin-surface);
-            border: 1px solid var(--border-color);
-        }
-        .reset-back-link:hover { color: var(--color-primary); border-color: var(--color-primary); }
-        .reset-card {
-            max-width: 440px;
-            width: 100%;
-            margin: auto 0;
-            background-color: var(--admin-surface);
-            border: 1px solid var(--border-color);
-            border-radius: 14px;
-            box-shadow: 0 20px 45px rgba(0, 0, 0, 0.35);
-            position: relative;
-            overflow: hidden;
-        }
-        .reset-card::before {
-            content: "";
-            position: absolute;
-            top: 0; left: 0; right: 0;
-            height: 3px;
-            background: linear-gradient(90deg, #2563eb 0%, #38bdf8 100%);
-        }
-        .reset-logo-wrap {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            width: 58px;
-            height: 58px;
-            border-radius: 12px;
-            background: rgba(37, 99, 235, 0.1);
-            border: 1px solid rgba(37, 99, 235, 0.25);
-            margin-bottom: 0.9rem;
-            padding: 6px;
-        }
-        .reset-logo-wrap img { width: 100%; height: 100%; object-fit: contain; border-radius: 8px; }
-        .reset-title { font-family: 'Outfit', var(--font-main); font-size: 1.45rem; font-weight: 800; color: var(--text-main); margin: 0; }
-        .reset-subtitle { font-size: 0.85rem; color: var(--text-muted); margin: 0.3rem 0 0 0; }
-        .reset-label { font-size: 0.8rem; font-weight: 600; color: var(--text-main); margin-bottom: 0.4rem; display: block; }
-        .reset-input-group {
-            border-radius: 6px;
-            overflow: hidden;
-            border: 1px solid var(--border-color);
-            background-color: var(--admin-bg);
-        }
-        .reset-input-group:focus-within {
-            border-color: var(--color-primary);
-            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.2);
-        }
-        .reset-input-group .input-group-text {
-            background: transparent;
-            border: none;
-            border-right: 1px solid var(--border-color);
-            color: var(--text-muted);
-            width: 44px;
-            justify-content: center;
-        }
-        .reset-input-group .form-control {
-            background: transparent;
-            border: none;
-            color: var(--text-main);
-            box-shadow: none;
-            padding: 0.65rem 0.75rem;
-            font-size: 0.9rem;
-        }
-        .reset-input-group .form-control::placeholder { color: var(--text-muted); opacity: 0.7; }
-        .btn-reset-submit {
-            background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
-            border: none;
-            color: #fff;
-            font-weight: 600;
-            padding: 0.72rem 1rem;
-            border-radius: 8px;
-        }
-    </style>
 </head>
 <body class="admin-reset-body">
     <header class="reset-topbar">
@@ -228,8 +123,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <i class="fa-solid fa-circle-check mt-1"></i>
                     <span>Se a conta existir e tiver acesso ao painel, enviamos um link de redefinição para o e-mail de recuperação (ou e-mail da empresa) cadastrado.</span>
                 </div>
-                <a href="/admin/index.php" class="btn btn-reset-submit w-100 text-decoration-none text-center d-block">
-                    Voltar para o Login
+                <a href="/admin/index.php" class="btn btn-reset-submit w-100 d-flex align-items-center justify-content-center gap-2 text-decoration-none">
+                    <i class="fa-solid fa-arrow-right-to-bracket"></i>
+                    <span>Voltar para o Login</span>
                 </a>
             <?php else: ?>
                 <?php if ($erro !== ''): ?>
@@ -239,7 +135,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     </div>
                 <?php endif; ?>
 
-                <form method="POST" action="esqueci_senha.php">
+                <form method="POST" action="esqueci_senha.php" onsubmit="const b=this.querySelector('[type=submit]');if(b){b.disabled=true;b.innerHTML='<i class=\'fa-solid fa-spinner fa-spin\'></i><span>Enviando...</span>';}">
                     <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token'], ENT_QUOTES, 'UTF-8'); ?>">
                     <div class="mb-4">
                         <label for="identificador" class="reset-label">Usuário ou E-Mail da Empresa</label>
@@ -248,8 +144,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             <input type="text" class="form-control" id="identificador" name="identificador" required autofocus placeholder="Seu nick ou e-mail da empresa">
                         </div>
                     </div>
-                    <button type="submit" class="btn btn-reset-submit w-100">
-                        <i class="fa-solid fa-paper-plane me-1"></i> Enviar Link de Redefinição
+                    <button type="submit" class="btn btn-reset-submit w-100 d-flex align-items-center justify-content-center gap-2">
+                        <i class="fa-solid fa-paper-plane"></i>
+                        <span>Enviar Link de Redefinição</span>
                     </button>
                 </form>
             <?php endif; ?>

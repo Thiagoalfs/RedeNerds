@@ -115,9 +115,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $_SESSION['cargo_nivel'] = $cargoNivel;
                     $_SESSION['admin'] = 1;
 
-                    limparCookiesSnappyMail();
-                    if (!empty($user['email'])) {
-                        autenticarSnappyMail((string)$user['email'], $senha);
+                    if (empty($user['email']) || !autenticarSnappyMail((string)$user['email'], $senha)) {
+                        limparCookiesSnappyMail();
                     }
 
                     header("Location: " . paginaInicialAdmin($cargoNivel));
@@ -441,6 +440,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         .btn-login-submit:active {
             transform: scale(0.99);
+        }
+
+        .btn-login-submit:disabled,
+        .btn-login-submit.disabled {
+            background-color: var(--color-primary);
+            border-color: var(--color-primary);
+            color: #ffffff;
+            opacity: 0.85;
+            cursor: wait;
         }
 
         /* Alerta de Erro Harmonizado */

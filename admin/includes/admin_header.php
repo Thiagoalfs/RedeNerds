@@ -53,7 +53,7 @@ $tituloPagina = $tituloPagina ?? 'Painel Administrativo';
             <!-- TOPBAR -->
             <header class="admin-topbar">
                 <div class="topbar-left">
-                    <button type="button" class="btn-toggle-sidebar d-lg-none" id="btn-toggle-sidebar" title="Menu">
+                    <button type="button" class="btn-toggle-sidebar d-lg-none" id="btn-toggle-sidebar" title="Menu" aria-label="Abrir menu lateral" aria-controls="admin-sidebar" aria-expanded="false">
                         <i class="fa-solid fa-bars"></i>
                     </button>
                     <div class="topbar-breadcrumbs d-none d-sm-flex">
