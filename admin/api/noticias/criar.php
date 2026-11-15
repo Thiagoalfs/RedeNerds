@@ -73,10 +73,16 @@ try {
     $busca->execute([':id' => $novoId]);
     $noticia = $busca->fetch(PDO::FETCH_ASSOC);
 
+    $msgSucesso = "Novidade '{$titulo}' publicada com sucesso!";
+    if ($enviar_webhook && $discordMsgId === null) {
+        $erroWh = discordUltimoErro() ?: "falha desconhecida";
+        $msgSucesso .= " (Aviso: erro no webhook do Discord — {$erroWh})";
+    }
+
     header('Content-Type: application/json; charset=utf-8');
     echo json_encode([
         "success" => true,
-        "mensagem" => "Novidade '{$titulo}' publicada com sucesso!",
+        "mensagem" => $msgSucesso,
         "noticia" => $noticia
     ], JSON_UNESCAPED_UNICODE);
     exit;

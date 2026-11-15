@@ -38,18 +38,36 @@ function discordMensagemIdValido($mensagemID): bool {
     return !empty($mensagemID) && preg_match('/^\d{10,25}$/', (string)$mensagemID) === 1;
 }
 
+function discordUltimoErro(?string $definir = null): ?string {
+    static $ultimo = null;
+    if ($definir !== null) {
+        $ultimo = $definir === '' ? null : $definir;
+    }
+    return $ultimo;
+}
+
+function truncarTextoDiscord(string $texto, int $limite): string {
+    if (mb_strlen($texto, 'UTF-8') <= $limite) {
+        return $texto;
+    }
+    return rtrim(mb_substr($texto, 0, max(1, $limite - 3), 'UTF-8')) . '...';
+}
+
 /**
  * Envia uma nova notícia para o Discord via Webhook e retorna o ID da mensagem criada.
  */
 function enviarWebhookDiscord($categoriaEnvio, $titulo, $conteudo, $autor, $capa, $servidor, $marcarEveryone = false) {
+    discordUltimoErro('');
     // 1. Verifica se a constante foi definida
     if (empty(DISCORD_WEBHOOKS)) {
+        discordUltimoErro("Nenhum webhook configurado no config.php.");
         error_log("ERRO DISCORD: Nenhum webhook configurado no config.php.");
         return null;
     }
 
-    $urlWebhook = DISCORD_WEBHOOKS[$categoriaEnvio] ?? null;
+    $urlWebhook = trim((string)(DISCORD_WEBHOOKS[$categoriaEnvio] ?? ''));
     if (empty($urlWebhook)) {
+        discordUltimoErro("Nenhuma URL de webhook encontrada para '{$categoriaEnvio}'.");
         error_log("ERRO DISCORD: Nenhuma URL de webhook encontrada para a categoria '{$categoriaEnvio}'.");
         return null;
     }
@@ -58,15 +76,15 @@ function enviarWebhookDiscord($categoriaEnvio, $titulo, $conteudo, $autor, $capa
     $content = $marcarEveryone ? "@everyone" : "";
 
     $embed = [
-        "title" => $titulo,
-        "description" => $conteudo,
+        "title" => truncarTextoDiscord((string)$titulo, 256),
+        "description" => truncarTextoDiscord((string)$conteudo, 4096),
         "color" => 3447003,
         "author" => [
-            "name" => $autor,
+            "name" => truncarTextoDiscord((string)$autor, 256),
             "icon_url" => "https://mc-heads.net/avatar/" . urlencode($autor)
         ],
         "footer" => [
-            "text" => "Servidor: " . $servidor
+            "text" => truncarTextoDiscord("Servidor: " . $servidor, 2048)
         ],
         "timestamp" => date('c')
     ];
@@ -114,6 +132,7 @@ function enviarWebhookDiscord($categoriaEnvio, $titulo, $conteudo, $autor, $capa
 
     // Se houve erro de cURL no servidor
     if ($curlError) {
+        discordUltimoErro("Erro cURL: " . $curlError);
         error_log("ERRO cURL DISCORD: " . $curlError);
         return null;
     }
@@ -125,6 +144,7 @@ function enviarWebhookDiscord($categoriaEnvio, $titulo, $conteudo, $autor, $capa
     }
 
     // Se o Discord recusou a requisição (ex: HTTP 400 ou 404)
+    discordUltimoErro("Discord retornou HTTP {$httpCode}");
     error_log("ERRO DISCORD HTTP {$httpCode}: " . $response);
     return null;
 }
@@ -142,18 +162,18 @@ function editarWebhookDiscord($categoriaEnvio, $mensagemID, $titulo, $conteudo, 
         return false;
     }
 
-    $url = rtrim(DISCORD_WEBHOOKS[$categoriaEnvio], '/') . "/messages/" . $mensagemID;
+    $url = rtrim(trim((string)DISCORD_WEBHOOKS[$categoriaEnvio]), '/') . "/messages/" . $mensagemID;
 
     $embed = [
-        "title" => $titulo,
-        "description" => $conteudo,
+        "title" => truncarTextoDiscord((string)$titulo, 256),
+        "description" => truncarTextoDiscord((string)$conteudo, 4096),
         "color" => 3447003,
         "author" => [
-            "name" => $autor,
+            "name" => truncarTextoDiscord((string)$autor, 256),
             "icon_url" => "https://mc-heads.net/avatar/" . urlencode($autor)
         ],
         "footer" => [
-            "text" => "Servidor: " . $servidor
+            "text" => truncarTextoDiscord("Servidor: " . $servidor, 2048)
         ],
         "timestamp" => date('c')
     ];
