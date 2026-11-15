@@ -1,3 +1,14 @@
 {$DOMAIN:redenerds.com.br}, www.{$DOMAIN:redenerds.com.br} {
-    reverse_proxy web:80
+    redir /webmail /webmail/ 308
+
+    handle_path /webmail/* {
+        reverse_proxy snappymail:8888 {
+            header_up X-Real-IP {remote_host}
+            header_up X-Forwarded-Proto {scheme}
+        }
+    }
+
+    handle {
+        reverse_proxy web:80
+    }
 }

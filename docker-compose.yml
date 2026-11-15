@@ -19,9 +19,9 @@ services:
       - ./docker-init:/docker-entrypoint-initdb.d:ro
     networks:
       - nerdcube_net
-    # Caso queira acessar o banco diretamente da sua máquina via DBeaver/Navicat, descomente:
-    # ports:
-    #   - "127.0.0.1:3306:3306"
+    # Caso queira acessar o banco diretamente da sua máquina via DBeaver/Navicat (ou túnel SSH), descomente:
+    ports:
+      - "127.0.0.1:3306:3306"
 
   # ========================================================
   # APLICAÇÃO WEB: PHP 8.2 + Apache (Interno)
@@ -66,6 +66,18 @@ services:
     networks:
       - nerdcube_net
 
+  # ========================================================
+  # WEBMAIL: SnappyMail (Ponte IMAP/SMTP com a Homehost)
+  # ========================================================
+  snappymail:
+    image: djmaze/snappymail:latest
+    container_name: nerdcube_snappymail
+    restart: unless-stopped
+    volumes:
+      - snappymail_data:/var/lib/snappymail
+    networks:
+      - nerdcube_net
+
 networks:
   nerdcube_net:
     driver: bridge
@@ -76,4 +88,6 @@ volumes:
   caddy_data:
     driver: local
   caddy_config:
+    driver: local
+  snappymail_data:
     driver: local
