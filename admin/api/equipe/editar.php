@@ -62,12 +62,17 @@ try {
         exit;
     }
 
+    $versaoHash = trim($_POST['_versao_hash'] ?? '');
+    $pdo->beginTransaction();
+    exigirConcorrenciaEdicao($pdo, 'equipe', $id, $versaoHash, [], true);
+
     $upd = $pdo->prepare("UPDATE equipe SET nick = :nick, cargo = :cargo WHERE id = :id");
     $upd->execute([':nick' => $nick, ':cargo' => $cargo, ':id' => $id]);
 
     // Mantém o nome de usuário sincronizado caso o nick do membro seja alterado
     $pdo->prepare("UPDATE usuarios SET usuario = :nick WHERE equipe_id = :id")
         ->execute([':nick' => $nick, ':id' => $id]);
+    $pdo->commit();
     registrarLogAdmin($pdo, 'editar', 'equipe', "Editou membro '{$nick}' ({$cargo}, #{$id})", $id);
 
     require_once __DIR__ . "/../../../api/cache_helper.php";
@@ -76,6 +81,9 @@ try {
     $busca = $pdo->prepare("SELECT * FROM equipe WHERE id = :id LIMIT 1");
     $busca->execute([':id' => $id]);
     $membroAtualizado = $busca->fetch(PDO::FETCH_ASSOC);
+    if ($membroAtualizado) {
+        $membroAtualizado['_versao_hash'] = gerarHashRegistro($membroAtualizado);
+    }
 
     header('Content-Type: application/json; charset=utf-8');
     echo json_encode([

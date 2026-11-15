@@ -250,19 +250,32 @@
       const id = btn.dataset.id;
       if (!url || !id) return;
 
+      const row = btn.closest('tr');
+      const badgeInicial = row ? row.querySelector('.badge-status, [data-status-badge]') : null;
+      let estadoEsperado = btn.dataset.estadoAtual;
+      if (estadoEsperado === undefined && badgeInicial) {
+        if (badgeInicial.classList.contains('ativo') || badgeInicial.classList.contains('visivel') || badgeInicial.classList.contains('pendente')) {
+          estadoEsperado = '1';
+        } else if (badgeInicial.classList.contains('inativo') || badgeInicial.classList.contains('oculto')) {
+          estadoEsperado = '0';
+        }
+      }
+
       const originalHtml = btn.innerHTML;
       btn.disabled = true;
       btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>';
 
       try {
-        const res = await AdminApi.post(url, { id, format: 'json' });
+        const payload = { id, format: 'json' };
+        if (estadoEsperado !== undefined) payload.estado_esperado = estadoEsperado;
+        const res = await AdminApi.post(url, payload);
         const novoStatus = res.ativo !== undefined ? Boolean(res.ativo) :
           (res.enabled !== undefined ? Boolean(res.enabled) :
             (res.novo_status !== undefined ? Boolean(res.novo_status) :
               (res.publicado !== undefined ? Boolean(res.publicado) : true)));
+        btn.dataset.estadoAtual = novoStatus ? '1' : '0';
 
         // Atualiza o badge de status na mesma linha da tabela
-        const row = btn.closest('tr');
         let isVisibilityType = false;
 
         if (row) {

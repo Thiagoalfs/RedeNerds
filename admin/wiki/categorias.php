@@ -148,7 +148,7 @@ $erro = $_GET['erro'] ?? '';
                                 </td>
                                 <td class="text-end text-nowrap">
                                     <div class="d-inline-flex align-items-center justify-content-end gap-1">
-                                        <button type="button" class="btn btn-sm btn-primary" onclick="abrirModalEditarCategoria(<?php echo (int)$cat['id']; ?>, '<?php echo htmlspecialchars(addslashes($cat['nome']), ENT_QUOTES, 'UTF-8'); ?>', '<?php echo htmlspecialchars(addslashes($cat['icone']), ENT_QUOTES, 'UTF-8'); ?>', <?php echo (int)$cat['ordem']; ?>)">
+                                        <button type="button" class="btn btn-sm btn-primary" onclick="abrirModalEditarCategoria(<?php echo (int)$cat['id']; ?>, '<?php echo htmlspecialchars(addslashes($cat['nome']), ENT_QUOTES, 'UTF-8'); ?>', '<?php echo htmlspecialchars(addslashes($cat['icone']), ENT_QUOTES, 'UTF-8'); ?>', <?php echo (int)$cat['ordem']; ?>, '<?php echo htmlspecialchars(gerarHashRegistro($cat, ['total_artigos']), ENT_QUOTES, 'UTF-8'); ?>')">
                                             <i class="fa-solid fa-pen-to-square"></i> Editar
                                         </button>
                                         <form method="POST" action="/admin/api/wiki/categoria_deletar.php" class="d-inline" onsubmit="return confirm('Tem certeza que deseja excluir esta categoria?');">
@@ -235,6 +235,7 @@ $erro = $_GET['erro'] ?? '';
             <form method="POST" action="/admin/api/wiki/categoria_editar.php">
                 <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($csrfToken, ENT_QUOTES, 'UTF-8'); ?>">
                 <input type="hidden" name="id" id="edit-cat-id" value="">
+                <input type="hidden" name="_versao_hash" id="edit-cat-versao-hash" value="">
 
                 <div class="modal-header">
                     <h5 class="modal-title fw-bold" id="modalEditarCategoriaLabel">
@@ -335,8 +336,9 @@ function definirIconeRapido(iconClass, inputId, previewId) {
     }
 }
 
-function abrirModalEditarCategoria(id, nome, icone, ordem) {
+function abrirModalEditarCategoria(id, nome, icone, ordem, versaoHash = '') {
     document.getElementById('edit-cat-id').value = id;
+    document.getElementById('edit-cat-versao-hash').value = versaoHash || '';
     document.getElementById('edit-cat-nome').value = nome;
     document.getElementById('edit-cat-icone').value = icone || 'fa-solid fa-folder';
     document.getElementById('edit-cat-ordem').value = ordem || 0;

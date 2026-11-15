@@ -68,6 +68,10 @@ if ($erro_upload) {
 }
 
 try {
+    $versaoHash = trim($_POST['_versao_hash'] ?? '');
+    $pdo->beginTransaction();
+    exigirConcorrenciaEdicao($pdo, 'novidades', $id, $versaoHash, [], true);
+
     $upd = $pdo->prepare("
         UPDATE novidades 
         SET titulo = :titulo, conteudo = :conteudo, autor = :autor, capa = :capa, category = :category, categoria_envio = :categoria_envio
@@ -82,6 +86,7 @@ try {
         ':categoria_envio' => $categoria_envio,
         ':id'              => $id
     ]);
+    $pdo->commit();
 
     require_once __DIR__ . "/../../../api/cache_helper.php";
     invalidarCache('novidades');
@@ -95,6 +100,9 @@ try {
     $busca = $pdo->prepare("SELECT * FROM novidades WHERE id = :id LIMIT 1");
     $busca->execute([':id' => $id]);
     $noticiaAtualizada = $busca->fetch(PDO::FETCH_ASSOC);
+    if ($noticiaAtualizada) {
+        $noticiaAtualizada['_versao_hash'] = gerarHashRegistro($noticiaAtualizada);
+    }
     registrarLogAdmin($pdo, 'editar', 'noticias', "Editou notícia '{$titulo}' (#{$id})", $id);
 
     header('Content-Type: application/json; charset=utf-8');

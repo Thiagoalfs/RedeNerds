@@ -90,6 +90,10 @@ if ($erro_bg) {
 }
 
 try {
+    $versaoHash = trim($_POST['_versao_hash'] ?? '');
+    $pdo->beginTransaction();
+    exigirConcorrenciaEdicao($pdo, 'servidores', $id, $versaoHash, [], true);
+
     $stmtUp = $pdo->prepare("
         UPDATE servidores 
         SET servername = :servername, icon = :icon, bg_image = :bg_image, descricao = :descricao,
@@ -108,6 +112,7 @@ try {
         ':enabled'    => $enabled,
         ':id'         => $id,
     ]);
+    $pdo->commit();
 
     require_once __DIR__ . "/../../../api/cache_helper.php";
     invalidarCache('servidores');
@@ -115,6 +120,9 @@ try {
     $busca = $pdo->prepare("SELECT * FROM servidores WHERE id = :id LIMIT 1");
     $busca->execute([':id' => $id]);
     $servidorAtualizado = $busca->fetch(PDO::FETCH_ASSOC);
+    if ($servidorAtualizado) {
+        $servidorAtualizado['_versao_hash'] = gerarHashRegistro($servidorAtualizado);
+    }
     registrarLogAdmin($pdo, 'editar', 'servidores', "Editou servidor '{$servername}' (#{$id})", $id);
 
     header('Content-Type: application/json; charset=utf-8');

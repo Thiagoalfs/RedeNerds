@@ -79,6 +79,10 @@ if ($erroFoto) {
 }
 
 try {
+    $versaoHash = trim($_POST['_versao_hash'] ?? '');
+    $pdo->beginTransaction();
+    exigirConcorrenciaEdicao($pdo, 'parceiros', $id, $versaoHash, [], true);
+
     $upd = $pdo->prepare("
         UPDATE parceiros 
         SET nome = :nome, foto = :foto, youtube = :youtube, tiktok = :tiktok, 
@@ -96,6 +100,7 @@ try {
         ':ativo' => $ativo,
         ':id' => $id
     ]);
+    $pdo->commit();
 
     require_once __DIR__ . "/../../../api/cache_helper.php";
     invalidarCache('parceiros');
@@ -103,6 +108,9 @@ try {
     $busca = $pdo->prepare("SELECT * FROM parceiros WHERE id = :id LIMIT 1");
     $busca->execute([':id' => $id]);
     $parceiroAtualizado = $busca->fetch(PDO::FETCH_ASSOC);
+    if ($parceiroAtualizado) {
+        $parceiroAtualizado['_versao_hash'] = gerarHashRegistro($parceiroAtualizado);
+    }
     registrarLogAdmin($pdo, 'editar', 'parceiros', "Editou parceiro '{$nome}' (#{$id})", $id);
 
     header('Content-Type: application/json; charset=utf-8');

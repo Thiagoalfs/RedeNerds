@@ -134,6 +134,7 @@ function gerarHtmlRedesParceiro(array $p): string {
                         ?>
                             <tr id="parceiro-row-<?php echo (int)$p['id']; ?>"
                                 data-id="<?php echo (int)$p['id']; ?>"
+                                data-versao-hash="<?php echo htmlspecialchars(gerarHashRegistro($p), ENT_QUOTES, 'UTF-8'); ?>"
                                 data-nome="<?php echo htmlspecialchars($p['nome'], ENT_QUOTES, 'UTF-8'); ?>"
                                 data-foto="<?php echo htmlspecialchars($p['foto'] ?? '', ENT_QUOTES, 'UTF-8'); ?>"
                                 data-youtube="<?php echo htmlspecialchars($p['youtube'] ?? '', ENT_QUOTES, 'UTF-8'); ?>"
@@ -173,6 +174,7 @@ function gerarHtmlRedesParceiro(array $p): string {
                                                 data-action="async-toggle" 
                                                 data-url="/admin/api/parceiros/toggle.php" 
                                                 data-id="<?php echo (int)$p['id']; ?>"
+                                data-versao-hash="<?php echo htmlspecialchars(gerarHashRegistro($p), ENT_QUOTES, 'UTF-8'); ?>"
                                                 title="<?php echo !empty($p['ativo']) ? 'Desativar na Home' : 'Ativar na Home'; ?>">
                                             <i class="fa-solid <?php echo !empty($p['ativo']) ? 'fa-eye' : 'fa-eye-slash'; ?>"></i>
                                         </button>
@@ -180,6 +182,7 @@ function gerarHtmlRedesParceiro(array $p): string {
                                                 data-action="async-delete" 
                                                 data-url="/admin/api/parceiros/deletar.php" 
                                                 data-id="<?php echo (int)$p['id']; ?>"
+                                data-versao-hash="<?php echo htmlspecialchars(gerarHashRegistro($p), ENT_QUOTES, 'UTF-8'); ?>"
                                                 data-name="<?php echo htmlspecialchars($p['nome'], ENT_QUOTES, 'UTF-8'); ?>"
                                                 data-confirm="Tem certeza que deseja remover o parceiro <?php echo htmlspecialchars($p['nome'], ENT_QUOTES, 'UTF-8'); ?>?"
                                                 title="Deletar Parceiro">
@@ -322,6 +325,7 @@ function gerarHtmlRedesParceiro(array $p): string {
             <form id="formEditarParceiro" enctype="multipart/form-data">
                 <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($csrfToken, ENT_QUOTES, 'UTF-8'); ?>">
                 <input type="hidden" name="id" id="edit-id" value="">
+                <input type="hidden" name="_versao_hash" id="edit-versao-hash" value="">
 
                 <div class="modal-header">
                     <h5 class="modal-title fw-bold" id="modalEditarParceiroLabel">
@@ -544,6 +548,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const d = row.dataset;
 
         document.getElementById('edit-id').value = d.id || '';
+        document.getElementById('edit-versao-hash').value = d.versaoHash || '';
         document.getElementById('edit-nome').value = d.nome || '';
         document.getElementById('modalEditarParceiroNomeHeader').textContent = d.nome || '';
         document.getElementById('edit-youtube').value = d.youtube || '';
@@ -797,6 +802,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
                 if (res.parceiro) {
                     atualizarLinhaTabela(res.parceiro);
+                    const trAtualizada = document.getElementById(`parceiro-row-${res.parceiro.id}`);
+                    if (trAtualizada) trAtualizada.dataset.versaoHash = res.parceiro._versao_hash || '';
                 }
 
                 AdminToast.success(res.mensagem || 'Parceiro atualizado com sucesso!');

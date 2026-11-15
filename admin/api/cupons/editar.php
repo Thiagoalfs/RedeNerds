@@ -60,9 +60,14 @@ if (empty($expira_em)) {
 $expiraSql = date('Y-m-d H:i:s', strtotime($expira_em));
 
 try {
+    $versaoHash = trim($_POST['_versao_hash'] ?? '');
+    $pdo->beginTransaction();
+    exigirConcorrenciaEdicao($pdo, 'cupons', $id, $versaoHash, [], true);
+
     $check = $pdo->prepare("SELECT id FROM cupons WHERE codigo = :codigo AND id != :id LIMIT 1");
     $check->execute([':codigo' => $codigo, ':id' => $id]);
     if ($check->fetch()) {
+        $pdo->rollBack();
         http_response_code(400);
         header('Content-Type: application/json; charset=utf-8');
         echo json_encode(["success" => false, "erro" => "Já existe outro cupom cadastrado com o código '{$codigo}'."], JSON_UNESCAPED_UNICODE);
@@ -82,11 +87,15 @@ try {
         ':ativo' => $ativo,
         ':id' => $id
     ]);
+    $pdo->commit();
     registrarLogAdmin($pdo, 'editar', 'cupons', "Editou cupom '{$codigo}' (#{$id}, {$porcentagem}%)", $id);
 
     $busca = $pdo->prepare("SELECT * FROM cupons WHERE id = :id LIMIT 1");
     $busca->execute([':id' => $id]);
     $cupomAtualizado = $busca->fetch(PDO::FETCH_ASSOC);
+    if ($cupomAtualizado) {
+        $cupomAtualizado['_versao_hash'] = gerarHashRegistro($cupomAtualizado);
+    }
 
     header('Content-Type: application/json; charset=utf-8');
     echo json_encode([

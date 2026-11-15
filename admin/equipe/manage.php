@@ -151,7 +151,7 @@ $coresPredefinidas = [
                                 </td>
                                 <td class="text-end text-nowrap">
                                     <div class="d-inline-flex align-items-center justify-content-end gap-1">
-                                        <button type="button" class="btn btn-sm btn-primary" onclick="abrirModalEditarCargo(<?php echo (int)$c['id']; ?>, '<?php echo htmlspecialchars(addslashes($c['nome']), ENT_QUOTES, 'UTF-8'); ?>', '<?php echo htmlspecialchars(addslashes($cargoCor), ENT_QUOTES, 'UTF-8'); ?>', <?php echo (int)$c['ordem']; ?>)">
+                                        <button type="button" class="btn btn-sm btn-primary" onclick="abrirModalEditarCargo(<?php echo (int)$c['id']; ?>, '<?php echo htmlspecialchars(addslashes($c['nome']), ENT_QUOTES, 'UTF-8'); ?>', '<?php echo htmlspecialchars(addslashes($cargoCor), ENT_QUOTES, 'UTF-8'); ?>', <?php echo (int)$c['ordem']; ?>, '<?php echo htmlspecialchars(gerarHashRegistro($c, ['total_membros']), ENT_QUOTES, 'UTF-8'); ?>')">
                                             <i class="fa-solid fa-pen-to-square"></i> Editar
                                         </button>
                                         <form method="POST" action="/admin/api/equipe/cargo_deletar.php" class="d-inline" onsubmit="return confirm('Tem certeza que deseja excluir o cargo <?php echo htmlspecialchars(addslashes($c['nome']), ENT_QUOTES, 'UTF-8'); ?>?');">
@@ -236,6 +236,7 @@ $coresPredefinidas = [
             <form method="POST" action="/admin/api/equipe/cargo_editar.php">
                 <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($csrfToken, ENT_QUOTES, 'UTF-8'); ?>">
                 <input type="hidden" name="id" id="edit-cargo-id" value="">
+                <input type="hidden" name="_versao_hash" id="edit-cargo-versao-hash" value="">
 
                 <div class="modal-header">
                     <h5 class="modal-title fw-bold" id="modalEditarCargoLabel">
@@ -314,9 +315,10 @@ function padronizarHex(cor) {
     return '#27acff';
 }
 
-function abrirModalEditarCargo(id, nome, cor, ordem) {
+function abrirModalEditarCargo(id, nome, cor, ordem, versaoHash = '') {
     const corValida = padronizarHex(cor);
     document.getElementById('edit-cargo-id').value = id;
+    document.getElementById('edit-cargo-versao-hash').value = versaoHash || '';
     document.getElementById('edit-cargo-nome').value = nome;
     document.getElementById('edit-cargo-cor').value = corValida.toUpperCase();
     document.getElementById('edit-cargo-cor-picker').value = corValida;

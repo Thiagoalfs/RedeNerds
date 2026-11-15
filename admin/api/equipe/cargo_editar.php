@@ -112,7 +112,9 @@ try {
         exit;
     }
 
+    $versaoHash = trim($_POST['_versao_hash'] ?? '');
     $pdo->beginTransaction();
+    exigirConcorrenciaEdicao($pdo, 'equipe_cargos', $id, $versaoHash, [], $isAjax, '/admin/equipe/manage.php');
 
     // Atualiza cargo incluindo cor
     $stmtUpd = $pdo->prepare("UPDATE equipe_cargos SET nome = :nome, cor = :cor, ordem = :ordem WHERE id = :id");

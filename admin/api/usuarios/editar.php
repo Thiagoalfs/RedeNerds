@@ -71,6 +71,13 @@ try {
         }
     }
 
+    $versaoHash = trim($_POST['_versao_hash'] ?? '');
+    $ignorarUsuarios = ['ultimo_login', 'reset_token', 'reset_expira', 'nick', 'cargo', 'cargo_cor', 'cargo_ordem'];
+    $checkConc = verificarConcorrenciaEdicao($pdo, 'usuarios', $alvoId, $versaoHash, $ignorarUsuarios);
+    if (!$checkConc['ok']) {
+        responderErroConcorrencia((int)$checkConc['status'], (string)$checkConc['erro'], true);
+    }
+
     if ($novaSenha !== '') {
         $erroDa = null;
         if (!atualizarSenhaEmailDirectAdmin($emailNorm, $novaSenha, $erroDa)) {
@@ -78,6 +85,12 @@ try {
             echo json_encode(["success" => false, "erro" => $erroDa ?: "Não foi possível atualizar a senha do e-mail."], JSON_UNESCAPED_UNICODE);
             exit;
         }
+    }
+
+    $pdo->beginTransaction();
+    exigirConcorrenciaEdicao($pdo, 'usuarios', $alvoId, $versaoHash, $ignorarUsuarios, true);
+
+    if ($novaSenha !== '') {
         $upd = $pdo->prepare("UPDATE usuarios SET email = :email, email_recuperacao = :email_recuperacao, senha = :senha WHERE id = :id LIMIT 1");
         $upd->execute([
             ':email' => $emailNorm,
@@ -93,6 +106,7 @@ try {
             ':id' => $alvoId,
         ]);
     }
+    $pdo->commit();
 
     if ($alvoId === $atorId) {
         $_SESSION['usuario_email'] = $emailNorm;

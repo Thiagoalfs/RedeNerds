@@ -36,6 +36,7 @@ try {
     $vipsRaw = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
     foreach ($vipsRaw as $v) {
+        $v['_versao_hash'] = gerarHashRegistro($v);
         $srvObj = null;
         if (!empty($v['servidor_id']) && isset($servidoresMap[$v['servidor_id']])) {
             $srvObj = $servidoresMap[$v['servidor_id']];
@@ -335,6 +336,7 @@ try {
                         ?>
                             <tr id="vip-row-<?php echo (int)$v['id']; ?>"
                                 data-id="<?php echo (int)$v['id']; ?>"
+                                data-versao-hash="<?php echo htmlspecialchars($v['_versao_hash'], ENT_QUOTES, 'UTF-8'); ?>"
                                 data-servidor-id="<?php echo (int)$v['servidor_id']; ?>"
                                 data-nome="<?php echo htmlspecialchars($v['nome'], ENT_QUOTES, 'UTF-8'); ?>"
                                 data-package-id="<?php echo htmlspecialchars($v['packageId'] ?? '', ENT_QUOTES, 'UTF-8'); ?>"
@@ -469,6 +471,7 @@ try {
                         ?>
                             <tr id="vip-row-<?php echo (int)$v['id']; ?>"
                                 data-id="<?php echo (int)$v['id']; ?>"
+                                data-versao-hash="<?php echo htmlspecialchars($v['_versao_hash'], ENT_QUOTES, 'UTF-8'); ?>"
                                 data-servidor-id="<?php echo (int)$v['servidor_id']; ?>"
                                 data-nome="<?php echo htmlspecialchars($v['nome'], ENT_QUOTES, 'UTF-8'); ?>"
                                 data-package-id="<?php echo htmlspecialchars($v['packageId'] ?? '', ENT_QUOTES, 'UTF-8'); ?>"
@@ -774,6 +777,7 @@ try {
             <form id="formEditarVip">
                 <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($csrfToken, ENT_QUOTES, 'UTF-8'); ?>">
                 <input type="hidden" name="id" id="edit-vip-id" value="">
+                <input type="hidden" name="_versao_hash" id="edit-vip-versao-hash" value="">
 
                 <div class="modal-header">
                     <h5 class="modal-title fw-bold" id="modalEditarVipLabel">
@@ -1450,6 +1454,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const d = row.dataset;
 
         document.getElementById('edit-vip-id').value = d.id || '';
+        document.getElementById('edit-vip-versao-hash').value = d.versaoHash || '';
         document.getElementById('edit-vip-nome').value = d.nome || '';
         document.getElementById('modalEditarVipNomeHeader').textContent = d.nome || '';
         document.getElementById('edit-vip-servidor').value = (d.servidorId !== undefined && d.servidorId !== '') ? d.servidorId : '0';
@@ -1678,6 +1683,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         const novaLinha = criarElementoLinhaVip(v);
                         tr.replaceWith(novaLinha);
                         tr = novaLinha;
+                        tr.dataset.versaoHash = v._versao_hash || '';
 
                         if (tr.parentElement !== destinoTbody && destinoTbody) {
                             const emptyRow = isAtivo ? document.getElementById('linha-sem-vips-ativos') : document.getElementById('linha-sem-vips-inativos');

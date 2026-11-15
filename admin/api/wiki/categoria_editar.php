@@ -28,13 +28,9 @@ if (empty($icone)) {
 }
 
 try {
-    $stmtFind = $pdo->prepare("SELECT servidor_id FROM wiki_categorias WHERE id = :id LIMIT 1");
-    $stmtFind->execute([':id' => $id]);
-    $catAtual = $stmtFind->fetch(PDO::FETCH_ASSOC);
-    if (!$catAtual) {
-        header("Location: /admin/wiki/categorias.php?erro=" . urlencode("Categoria não encontrada."));
-        exit;
-    }
+    $versaoHash = trim($_POST['_versao_hash'] ?? '');
+    $pdo->beginTransaction();
+    $catAtual = exigirConcorrenciaEdicao($pdo, 'wiki_categorias', $id, $versaoHash, [], false, '/admin/wiki/categorias.php');
 
     $servidorId = (int)$catAtual['servidor_id'];
 
@@ -49,6 +45,7 @@ try {
         ':ordem' => $ordem,
         ':id'    => $id
     ]);
+    $pdo->commit();
     registrarLogAdmin($pdo, 'editar', 'wiki_categorias', "Editou categoria da wiki '{$nome}' (#{$id})", $id);
 
     header("Location: /admin/wiki/categorias.php?servidor_id=$servidorId&sucesso=editado");

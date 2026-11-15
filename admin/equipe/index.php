@@ -99,7 +99,7 @@ $todosCargos = array_unique(array_merge($cargosOrdem, array_keys($grupos)));
                                 <tr class="membro-vazio"><td colspan="4" class="text-center text-muted small py-3"><i class="fa-solid fa-arrows-up-down me-1"></i> Arraste membros para este cargo</td></tr>
                             <?php else: ?>
                                 <?php foreach ($lista as $m): ?>
-                                    <tr class="membro-row" id="membro-row-<?php echo (int)$m['id']; ?>" data-id="<?php echo (int)$m['id']; ?>" data-nick="<?php echo htmlspecialchars($m['nick'], ENT_QUOTES, 'UTF-8'); ?>" data-cargo="<?php echo htmlspecialchars($m['cargo'], ENT_QUOTES, 'UTF-8'); ?>" draggable="true">
+                                    <tr class="membro-row" id="membro-row-<?php echo (int)$m['id']; ?>" data-id="<?php echo (int)$m['id']; ?>" data-versao-hash="<?php echo htmlspecialchars(gerarHashRegistro($m), ENT_QUOTES, 'UTF-8'); ?>" data-nick="<?php echo htmlspecialchars($m['nick'], ENT_QUOTES, 'UTF-8'); ?>" data-cargo="<?php echo htmlspecialchars($m['cargo'], ENT_QUOTES, 'UTF-8'); ?>" draggable="true">
                                         <td class="membro-drag-handle" title="Arrastar para outro cargo"><i class="fa-solid fa-grip-vertical text-muted"></i></td>
                                         <td>
                                             <img class="rounded border js-membro-avatar" src="https://mc-heads.net/avatar/<?php echo urlencode($m['nick']); ?>" width="32" height="32" alt="" onerror="this.src='https://mc-heads.net/avatar/MHF_Steve'">
@@ -186,6 +186,7 @@ $todosCargos = array_unique(array_merge($cargosOrdem, array_keys($grupos)));
             <form id="formEditarMembro">
                 <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($csrfToken, ENT_QUOTES, 'UTF-8'); ?>">
                 <input type="hidden" name="id" id="edit-membro-id" value="">
+                <input type="hidden" name="_versao_hash" id="edit-membro-versao-hash" value="">
 
                 <div class="modal-header">
                     <h5 class="modal-title fw-bold" id="modalEditarMembroLabel">
@@ -392,6 +393,7 @@ document.addEventListener('DOMContentLoaded', function() {
         if (!row || !modalEditarEl) return;
         const d = row.dataset;
         document.getElementById('edit-membro-id').value = d.id || '';
+        document.getElementById('edit-membro-versao-hash').value = d.versaoHash || '';
         document.getElementById('edit-membro-nick').value = d.nick || '';
         document.getElementById('modalEditarMembroNickHeader').textContent = d.nick || '';
         document.getElementById('edit-membro-cargo').value = d.cargo || '';
@@ -527,6 +529,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     if (row) {
                         row.dataset.nick = m.nick;
                         row.dataset.cargo = m.cargo;
+                        row.dataset.versaoHash = m._versao_hash || '';
                         const avatarImg = row.querySelector('.js-membro-avatar');
                         if (avatarImg) avatarImg.src = `https://mc-heads.net/avatar/${encodeURIComponent(m.nick)}`;
                         const nickText = row.querySelector('.js-membro-nick');

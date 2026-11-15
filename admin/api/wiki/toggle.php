@@ -8,19 +8,18 @@ $isAjax = (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTT
 
 if ($id > 0 && isset($pdo) && $pdo instanceof PDO) {
     try {
-        $stmt = $pdo->prepare("SELECT publicado FROM wiki_artigos WHERE id = :id LIMIT 1");
-        $stmt->execute([':id' => $id]);
-        $art = $stmt->fetch(PDO::FETCH_ASSOC);
-        if ($art) {
-            $novo = $art['publicado'] ? 0 : 1;
-            $upd = $pdo->prepare("UPDATE wiki_artigos SET publicado = :novo WHERE id = :id");
-            $upd->execute([':novo' => $novo, ':id' => $id]);
-            registrarLogAdmin($pdo, 'toggle', 'wiki', ($novo ? 'Publicou' : 'Ocultou') . " artigo da wiki (#{$id})", $id);
+        $estadoEsperado = isset($_POST['estado_esperado']) && $_POST['estado_esperado'] !== '' ? (int)$_POST['estado_esperado'] : null;
+        $res = executarToggleAtomico($pdo, 'wiki_artigos', 'publicado', $id, 'titulo', $estadoEsperado);
+        if (!$res['ok']) {
+            responderErroConcorrencia((int)$res['status'], (string)$res['erro'], $isAjax, '/admin/wiki/');
+        }
+        $novo = $res['novo'];
+        registrarLogAdmin($pdo, 'toggle', 'wiki', ($novo ? 'Publicou' : 'Ocultou') . " artigo da wiki (#{$id})", $id);
 
-            if ($isAjax) {
-                echo json_encode(["success" => true, "publicado" => $novo]);
-                exit;
-            }
+        if ($isAjax) {
+            header('Content-Type: application/json; charset=utf-8');
+            echo json_encode(["success" => true, "publicado" => $novo]);
+            exit;
         }
     } catch (Exception $e) {
         error_log("Erro ao alternar status artigo wiki: " . $e->getMessage());

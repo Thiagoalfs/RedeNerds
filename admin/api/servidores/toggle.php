@@ -31,38 +31,29 @@ if ($id <= 0) {
 
 if (isset($pdo) && $pdo instanceof PDO) {
     try {
-        $stmt = $pdo->prepare("SELECT enabled, servername FROM servidores WHERE id = :id LIMIT 1");
-        $stmt->execute([':id' => $id]);
-        $srv = $stmt->fetch(PDO::FETCH_ASSOC);
-
-        if ($srv) {
-            $novoStatus = $srv['enabled'] ? 0 : 1;
-            $upd = $pdo->prepare("UPDATE servidores SET enabled = :novo WHERE id = :id");
-            $upd->execute([':novo' => $novoStatus, ':id' => $id]);
-            registrarLogAdmin($pdo, 'toggle', 'servidores', ($novoStatus ? 'Ativou' : 'Desativou') . " servidor '{$srv['servername']}' (#{$id})", $id);
-
-            require_once __DIR__ . "/../../../api/cache_helper.php";
-            invalidarCache('servidores');
-
-            if ($isAjax) {
-                header('Content-Type: application/json; charset=utf-8');
-                echo json_encode(["success" => true, "ativo" => $novoStatus]);
-                exit;
-            }
-
-            $msg = $novoStatus
-                ? "Servidor '{$srv['servername']}' ativado com sucesso!"
-                : "Servidor '{$srv['servername']}' ocultado com sucesso!";
-            header("Location: /admin/servidores/?msg=" . urlencode($msg));
-            exit;
-        } else {
-            if ($isAjax) {
-                http_response_code(404);
-                header('Content-Type: application/json; charset=utf-8');
-                echo json_encode(["success" => false, "erro" => "Servidor não encontrado."]);
-                exit;
-            }
+        $estadoEsperado = isset($input['estado_esperado']) && $input['estado_esperado'] !== '' ? (int)$input['estado_esperado'] : null;
+        $res = executarToggleAtomico($pdo, 'servidores', 'enabled', $id, 'servername', $estadoEsperado);
+        if (!$res['ok']) {
+            responderErroConcorrencia((int)$res['status'], (string)$res['erro'], $isAjax, '/admin/servidores/');
         }
+        $srv = $res['row'];
+        $novoStatus = $res['novo'];
+        registrarLogAdmin($pdo, 'toggle', 'servidores', ($novoStatus ? 'Ativou' : 'Desativou') . " servidor '{$srv['servername']}' (#{$id})", $id);
+
+        require_once __DIR__ . "/../../../api/cache_helper.php";
+        invalidarCache('servidores');
+
+        if ($isAjax) {
+            header('Content-Type: application/json; charset=utf-8');
+            echo json_encode(["success" => true, "ativo" => $novoStatus]);
+            exit;
+        }
+
+        $msg = $novoStatus
+            ? "Servidor '{$srv['servername']}' ativado com sucesso!"
+            : "Servidor '{$srv['servername']}' ocultado com sucesso!";
+        header("Location: /admin/servidores/?msg=" . urlencode($msg));
+        exit;
     } catch (Exception $e) {
         error_log("Erro ao alternar status do servidor: " . $e->getMessage());
         if ($isAjax) {

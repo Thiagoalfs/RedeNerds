@@ -100,6 +100,7 @@ function renderLinhaCupom(array $c, array $servidoresMap): string {
 
     $html = '<tr id="cupom-row-' . (int)$c['id'] . '" '
           . 'data-id="' . (int)$c['id'] . '" '
+          . 'data-versao-hash="' . htmlspecialchars(gerarHashRegistro($c), ENT_QUOTES, 'UTF-8') . '" '
           . 'data-codigo="' . htmlspecialchars($c['codigo'], ENT_QUOTES, 'UTF-8') . '" '
           . 'data-porcentagem="' . (float)$c['porcentagem_desconto'] . '" '
           . 'data-servidor-id="' . $sId . '" '
@@ -358,6 +359,7 @@ function renderLinhaCupom(array $c, array $servidoresMap): string {
             <form id="formEditarCupom">
                 <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($csrfToken, ENT_QUOTES, 'UTF-8'); ?>">
                 <input type="hidden" name="id" id="edit-id" value="">
+                <input type="hidden" name="_versao_hash" id="edit-versao-hash" value="">
 
                 <div class="modal-header">
                     <h5 class="modal-title fw-bold" id="modalEditarCupomLabel">
@@ -471,6 +473,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const d = row.dataset;
 
         document.getElementById('edit-id').value = d.id || '';
+        document.getElementById('edit-versao-hash').value = d.versaoHash || '';
         document.getElementById('edit-codigo').value = d.codigo || '';
         document.getElementById('modalEditarCupomCodigoHeader').textContent = d.codigo || '';
         document.getElementById('edit-porcentagem').value = d.porcentagem || '';
@@ -614,6 +617,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         const novaLinha = criarElementoLinhaCupom(c);
                         tr.replaceWith(novaLinha);
                         tr = novaLinha;
+                        tr.dataset.versaoHash = c._versao_hash || '';
 
                         // Se a linha estava na outra tabela, move para a tabela correta
                         if (tr.parentElement !== destinoTbody && destinoTbody) {

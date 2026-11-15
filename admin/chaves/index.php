@@ -34,6 +34,7 @@ try {
     $chavesRaw = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
     foreach ($chavesRaw as $c) {
+        $c['_versao_hash'] = gerarHashRegistro($c);
         $srvObj = null;
         if (!empty($c['servidor_id']) && isset($servidoresMap[$c['servidor_id']])) {
             $srvObj = $servidoresMap[$c['servidor_id']];
@@ -302,6 +303,7 @@ try {
                         ?>
                             <tr id="chave-row-<?php echo (int)$c['id']; ?>"
                                 data-id="<?php echo (int)$c['id']; ?>"
+                                data-versao-hash="<?php echo htmlspecialchars($c['_versao_hash'], ENT_QUOTES, 'UTF-8'); ?>"
                                 data-servidor-id="<?php echo (int)$c['servidor_id']; ?>"
                                 data-nome="<?php echo htmlspecialchars($c['nome'], ENT_QUOTES, 'UTF-8'); ?>"
                                 data-package-id="<?php echo htmlspecialchars($c['packageId'], ENT_QUOTES, 'UTF-8'); ?>"
@@ -429,6 +431,7 @@ try {
                         ?>
                             <tr id="chave-row-<?php echo (int)$c['id']; ?>"
                                 data-id="<?php echo (int)$c['id']; ?>"
+                                data-versao-hash="<?php echo htmlspecialchars($c['_versao_hash'], ENT_QUOTES, 'UTF-8'); ?>"
                                 data-servidor-id="<?php echo (int)$c['servidor_id']; ?>"
                                 data-nome="<?php echo htmlspecialchars($c['nome'], ENT_QUOTES, 'UTF-8'); ?>"
                                 data-package-id="<?php echo htmlspecialchars($c['packageId'], ENT_QUOTES, 'UTF-8'); ?>"
@@ -736,6 +739,7 @@ try {
             <form id="formEditarChave" enctype="multipart/form-data">
                 <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($csrfToken, ENT_QUOTES, 'UTF-8'); ?>">
                 <input type="hidden" name="id" id="edit-id" value="">
+                <input type="hidden" name="_versao_hash" id="edit-versao-hash" value="">
 
                 <div class="modal-header">
                     <h5 class="modal-title fw-bold" id="modalEditarChaveLabel">
@@ -1363,6 +1367,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const d = row.dataset;
 
         document.getElementById('edit-id').value = d.id || '';
+        document.getElementById('edit-versao-hash').value = d.versaoHash || '';
         document.getElementById('edit-nome').value = d.nome || '';
         document.getElementById('modalEditarChaveNomeHeader').textContent = d.nome || '';
         document.getElementById('edit-servidor-id').value = d.servidorId || '';
@@ -1607,6 +1612,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         const novaLinha = criarElementoLinhaChave(c);
                         tr.replaceWith(novaLinha);
                         tr = novaLinha;
+                        tr.dataset.versaoHash = c._versao_hash || '';
 
                         if (tr.parentElement !== destinoTbody && destinoTbody) {
                             const emptyRow = isAtivo ? document.getElementById('linha-sem-chaves-ativas') : document.getElementById('linha-sem-chaves-inativas');

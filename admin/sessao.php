@@ -35,6 +35,7 @@ if (!isset($pdo) || !$pdo instanceof PDO) {
 
 require_once __DIR__ . "/includes/permissoes.php";
 require_once __DIR__ . "/includes/logger.php";
+require_once __DIR__ . "/includes/concorrencia.php";
 
 $isApiOrAjax = (
     (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest') ||

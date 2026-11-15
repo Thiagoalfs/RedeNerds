@@ -109,6 +109,10 @@ if ($vantagensPost !== null) {
 }
 
 try {
+    $versaoHash = trim($_POST['_versao_hash'] ?? '');
+    $pdo->beginTransaction();
+    exigirConcorrenciaEdicao($pdo, 'vips', $id, $versaoHash, [], true);
+
     $stmtUp = $pdo->prepare("
         UPDATE vips 
         SET servidor_id = :servidor_id, nome = :nome, packageId = :packageId, preco = :preco, 
@@ -132,6 +136,7 @@ try {
         ':cor_string'   => $cor_string,
         ':id'           => $id,
     ]);
+    $pdo->commit();
 
     require_once __DIR__ . "/../../../api/cache_helper.php";
     invalidarCache('vips');
@@ -139,6 +144,9 @@ try {
     $busca = $pdo->prepare("SELECT * FROM vips WHERE id = :id LIMIT 1");
     $busca->execute([':id' => $id]);
     $vipAtualizado = $busca->fetch(PDO::FETCH_ASSOC);
+    if ($vipAtualizado) {
+        $vipAtualizado['_versao_hash'] = gerarHashRegistro($vipAtualizado);
+    }
     registrarLogAdmin($pdo, 'editar', 'vips', "Editou VIP '{$nome}' (#{$id}, R$ {$preco})", $id);
 
     header('Content-Type: application/json; charset=utf-8');

@@ -31,24 +31,13 @@ if ($id <= 0) {
 
 if (isset($pdo) && $pdo instanceof PDO) {
     try {
-        $stmt = $pdo->prepare("SELECT codigo, ativo FROM cupons WHERE id = :id LIMIT 1");
-        $stmt->execute([':id' => $id]);
-        $cupom = $stmt->fetch(PDO::FETCH_ASSOC);
-
-        if (!$cupom) {
-            if ($isAjax) {
-                http_response_code(404);
-                header('Content-Type: application/json; charset=utf-8');
-                echo json_encode(["success" => false, "erro" => "Cupom não encontrado."]);
-                exit;
-            }
-            header("Location: /admin/cupons/?erro=" . urlencode("Cupom não encontrado."));
-            exit;
+        $estadoEsperado = isset($input['estado_esperado']) && $input['estado_esperado'] !== '' ? (int)$input['estado_esperado'] : null;
+        $res = executarToggleAtomico($pdo, 'cupons', 'ativo', $id, 'codigo', $estadoEsperado);
+        if (!$res['ok']) {
+            responderErroConcorrencia((int)$res['status'], (string)$res['erro'], $isAjax, '/admin/cupons/');
         }
-
-        $novoStatus = $cupom['ativo'] ? 0 : 1;
-        $upd = $pdo->prepare("UPDATE cupons SET ativo = :ativo WHERE id = :id");
-        $upd->execute([':ativo' => $novoStatus, ':id' => $id]);
+        $cupom = $res['row'];
+        $novoStatus = $res['novo'];
         registrarLogAdmin($pdo, 'toggle', 'cupons', ($novoStatus ? 'Ativou' : 'Desativou') . " cupom '{$cupom['codigo']}' (#{$id})", $id);
 
         if ($isAjax) {

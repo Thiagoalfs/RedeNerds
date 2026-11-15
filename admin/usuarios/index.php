@@ -12,7 +12,7 @@ $membrosDisponiveis = [];
 if (isset($pdo) && $pdo instanceof PDO) {
     try {
         $usuarios = $pdo->query("
-            SELECT u.id, u.usuario, u.email, u.email_recuperacao, e.nick, e.cargo, ec.cor AS cargo_cor, ec.ordem AS cargo_ordem
+            SELECT u.*, e.nick, e.cargo, ec.cor AS cargo_cor, ec.ordem AS cargo_ordem
             FROM usuarios u
             LEFT JOIN equipe e ON (u.equipe_id = e.id OR (u.equipe_id IS NULL AND LOWER(e.nick) COLLATE utf8mb4_unicode_ci = LOWER(u.usuario) COLLATE utf8mb4_unicode_ci))
             LEFT JOIN equipe_cargos ec ON ec.nome = e.cargo
@@ -130,6 +130,7 @@ $emailsOrfaos = array_values(array_filter(
                                                     data-nick="<?php echo htmlspecialchars($nickExibir, ENT_QUOTES, 'UTF-8'); ?>"
                                                     data-email="<?php echo htmlspecialchars((string)($u['email'] ?? ''), ENT_QUOTES, 'UTF-8'); ?>"
                                                     data-email-recuperacao="<?php echo htmlspecialchars((string)($u['email_recuperacao'] ?? ''), ENT_QUOTES, 'UTF-8'); ?>"
+                                                    data-versao-hash="<?php echo htmlspecialchars(gerarHashRegistro($u, ['ultimo_login', 'reset_token', 'reset_expira', 'nick', 'cargo', 'cargo_cor', 'cargo_ordem']), ENT_QUOTES, 'UTF-8'); ?>"
                                                     title="Editar e-mail / redefinir senha"
                                                     aria-label="Editar usuário <?php echo htmlspecialchars($nickExibir, ENT_QUOTES, 'UTF-8'); ?>">
                                                 <i class="fa-solid fa-pen-to-square"></i>
@@ -308,6 +309,7 @@ $emailsOrfaos = array_values(array_filter(
         <div class="modal-content">
             <form id="formEditarUsuario">
                 <input type="hidden" id="editUsuarioId" name="id" value="">
+                <input type="hidden" id="editUsuarioVersaoHash" name="_versao_hash" value="">
                 <div class="modal-header">
                     <h5 class="modal-title fw-bold">Editar Usuário: <span id="editUsuarioNick"></span></h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
@@ -545,6 +547,8 @@ document.addEventListener('DOMContentLoaded', () => {
         btn.addEventListener('click', () => {
             const ehProprio = Number(btn.dataset.id) === atorId;
             editId.value = btn.dataset.id || '';
+            const editVersaoHash = document.getElementById('editUsuarioVersaoHash');
+            if (editVersaoHash) editVersaoHash.value = btn.dataset.versaoHash || '';
             editNick.textContent = btn.dataset.nick || '';
             editEmail.value = btn.dataset.email || '';
             if (editEmailRec) editEmailRec.value = btn.dataset.emailRecuperacao || '';

@@ -31,36 +31,27 @@ if ($id <= 0) {
 
 if (isset($pdo) && $pdo instanceof PDO) {
     try {
-        $stmt = $pdo->prepare("SELECT ativo, nome FROM parceiros WHERE id = :id LIMIT 1");
-        $stmt->execute([':id' => $id]);
-        $parceiro = $stmt->fetch(PDO::FETCH_ASSOC);
-
-        if ($parceiro) {
-            $novoStatus = $parceiro['ativo'] ? 0 : 1;
-            $upd = $pdo->prepare("UPDATE parceiros SET ativo = :novo WHERE id = :id");
-            $upd->execute([':novo' => $novoStatus, ':id' => $id]);
-            registrarLogAdmin($pdo, 'toggle', 'parceiros', ($novoStatus ? 'Ativou' : 'Desativou') . " parceiro '{$parceiro['nome']}' (#{$id})", $id);
-
-            require_once __DIR__ . "/../../../api/cache_helper.php";
-            invalidarCache('parceiros');
-
-            if ($isAjax) {
-                header('Content-Type: application/json; charset=utf-8');
-                echo json_encode(["success" => true, "ativo" => $novoStatus]);
-                exit;
-            }
-
-            $msg = $novoStatus ? "Parceiro '{$parceiro['nome']}' ativado com sucesso!" : "Parceiro '{$parceiro['nome']}' desativado com sucesso!";
-            header("Location: /admin/parceiros/?msg=" . urlencode($msg));
-            exit;
-        } else {
-            if ($isAjax) {
-                http_response_code(404);
-                header('Content-Type: application/json; charset=utf-8');
-                echo json_encode(["success" => false, "erro" => "Parceiro não encontrado."]);
-                exit;
-            }
+        $estadoEsperado = isset($input['estado_esperado']) && $input['estado_esperado'] !== '' ? (int)$input['estado_esperado'] : null;
+        $res = executarToggleAtomico($pdo, 'parceiros', 'ativo', $id, 'nome', $estadoEsperado);
+        if (!$res['ok']) {
+            responderErroConcorrencia((int)$res['status'], (string)$res['erro'], $isAjax, '/admin/parceiros/');
         }
+        $parceiro = $res['row'];
+        $novoStatus = $res['novo'];
+        registrarLogAdmin($pdo, 'toggle', 'parceiros', ($novoStatus ? 'Ativou' : 'Desativou') . " parceiro '{$parceiro['nome']}' (#{$id})", $id);
+
+        require_once __DIR__ . "/../../../api/cache_helper.php";
+        invalidarCache('parceiros');
+
+        if ($isAjax) {
+            header('Content-Type: application/json; charset=utf-8');
+            echo json_encode(["success" => true, "ativo" => $novoStatus]);
+            exit;
+        }
+
+        $msg = $novoStatus ? "Parceiro '{$parceiro['nome']}' ativado com sucesso!" : "Parceiro '{$parceiro['nome']}' desativado com sucesso!";
+        header("Location: /admin/parceiros/?msg=" . urlencode($msg));
+        exit;
     } catch (Exception $e) {
         error_log("Erro ao alternar status do parceiro: " . $e->getMessage());
         if ($isAjax) {

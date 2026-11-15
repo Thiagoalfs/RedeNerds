@@ -173,6 +173,7 @@ try {
                         ?>
                             <tr id="noticia-row-<?php echo (int)$n['id']; ?>"
                                 data-id="<?php echo (int)$n['id']; ?>"
+                                data-versao-hash="<?php echo htmlspecialchars(gerarHashRegistro($n), ENT_QUOTES, 'UTF-8'); ?>"
                                 data-titulo="<?php echo htmlspecialchars($n['titulo'], ENT_QUOTES, 'UTF-8'); ?>"
                                 data-category="<?php echo htmlspecialchars($n['category'] ?? '', ENT_QUOTES, 'UTF-8'); ?>"
                                 data-categoria-envio="<?php echo htmlspecialchars($n['categoria_envio'] ?? 'Anúncios', ENT_QUOTES, 'UTF-8'); ?>"
@@ -336,6 +337,7 @@ try {
             <form id="formEditarNoticia" enctype="multipart/form-data">
                 <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($csrfToken, ENT_QUOTES, 'UTF-8'); ?>">
                 <input type="hidden" name="id" id="edit-noticia-id" value="">
+                <input type="hidden" name="_versao_hash" id="edit-noticia-versao-hash" value="">
 
                 <div class="modal-header">
                     <h5 class="modal-title fw-bold" id="modalEditarNoticiaLabel">
@@ -451,6 +453,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const d = row.dataset;
 
         document.getElementById('edit-noticia-id').value = d.id || '';
+        document.getElementById('edit-noticia-versao-hash').value = d.versaoHash || '';
         document.getElementById('edit-noticia-titulo').value = d.titulo || '';
         document.getElementById('modalEditarNoticiaTituloHeader').textContent = d.titulo || '';
         document.getElementById('edit-noticia-category').value = d.category || '';
@@ -633,6 +636,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     if (tr) {
                         const novaLinha = criarElementoLinhaNoticia(n);
                         tr.replaceWith(novaLinha);
+                        novaLinha.dataset.versaoHash = n._versao_hash || '';
                         novaLinha.classList.add('table-row-highlight');
                         setTimeout(() => novaLinha.classList.remove('table-row-highlight'), 1000);
                     }

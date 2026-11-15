@@ -104,6 +104,7 @@ function renderIconeTable(?string $icone): string {
                         <?php foreach ($servidoresVisiveis as $s): ?>
                             <tr id="servidor-row-<?php echo (int)$s['id']; ?>"
                                 data-id="<?php echo (int)$s['id']; ?>"
+                                data-versao-hash="<?php echo htmlspecialchars(gerarHashRegistro($s), ENT_QUOTES, 'UTF-8'); ?>"
                                 data-servername="<?php echo htmlspecialchars($s['servername'], ENT_QUOTES, 'UTF-8'); ?>"
                                 data-nome="<?php echo htmlspecialchars($s['nome'] ?? '', ENT_QUOTES, 'UTF-8'); ?>"
                                 data-ip="<?php echo htmlspecialchars($s['ip'] ?? '', ENT_QUOTES, 'UTF-8'); ?>"
@@ -140,6 +141,7 @@ function renderIconeTable(?string $icone): string {
                                                 data-action="async-toggle" 
                                                 data-url="/admin/api/servidores/toggle.php" 
                                                 data-id="<?php echo (int)$s['id']; ?>"
+                                data-versao-hash="<?php echo htmlspecialchars(gerarHashRegistro($s), ENT_QUOTES, 'UTF-8'); ?>"
                                                 title="Ocultar servidor">
                                             <i class="fa-solid fa-eye"></i>
                                         </button>
@@ -147,6 +149,7 @@ function renderIconeTable(?string $icone): string {
                                                 data-action="async-delete" 
                                                 data-url="/admin/api/servidores/deletar.php" 
                                                 data-id="<?php echo (int)$s['id']; ?>"
+                                data-versao-hash="<?php echo htmlspecialchars(gerarHashRegistro($s), ENT_QUOTES, 'UTF-8'); ?>"
                                                 data-name="<?php echo htmlspecialchars($s['servername'], ENT_QUOTES, 'UTF-8'); ?>"
                                                 data-confirm="Deletar o servidor <?php echo htmlspecialchars($s['servername'], ENT_QUOTES, 'UTF-8'); ?>? Essa ação não pode ser desfeita."
                                                 title="Deletar">
@@ -200,6 +203,7 @@ function renderIconeTable(?string $icone): string {
                         <?php foreach ($servidoresOcultos as $s): ?>
                             <tr id="servidor-row-<?php echo (int)$s['id']; ?>"
                                 data-id="<?php echo (int)$s['id']; ?>"
+                                data-versao-hash="<?php echo htmlspecialchars(gerarHashRegistro($s), ENT_QUOTES, 'UTF-8'); ?>"
                                 data-servername="<?php echo htmlspecialchars($s['servername'], ENT_QUOTES, 'UTF-8'); ?>"
                                 data-nome="<?php echo htmlspecialchars($s['nome'] ?? '', ENT_QUOTES, 'UTF-8'); ?>"
                                 data-ip="<?php echo htmlspecialchars($s['ip'] ?? '', ENT_QUOTES, 'UTF-8'); ?>"
@@ -236,6 +240,7 @@ function renderIconeTable(?string $icone): string {
                                                 data-action="async-toggle" 
                                                 data-url="/admin/api/servidores/toggle.php" 
                                                 data-id="<?php echo (int)$s['id']; ?>"
+                                data-versao-hash="<?php echo htmlspecialchars(gerarHashRegistro($s), ENT_QUOTES, 'UTF-8'); ?>"
                                                 title="Tornar servidor visível">
                                             <i class="fa-solid fa-eye-slash"></i>
                                         </button>
@@ -243,6 +248,7 @@ function renderIconeTable(?string $icone): string {
                                                 data-action="async-delete" 
                                                 data-url="/admin/api/servidores/deletar.php" 
                                                 data-id="<?php echo (int)$s['id']; ?>"
+                                data-versao-hash="<?php echo htmlspecialchars(gerarHashRegistro($s), ENT_QUOTES, 'UTF-8'); ?>"
                                                 data-name="<?php echo htmlspecialchars($s['servername'], ENT_QUOTES, 'UTF-8'); ?>"
                                                 data-confirm="Deletar o servidor <?php echo htmlspecialchars($s['servername'], ENT_QUOTES, 'UTF-8'); ?>? Essa ação não pode ser desfeita."
                                                 title="Deletar">
@@ -364,6 +370,7 @@ function renderIconeTable(?string $icone): string {
             <form id="formEditarServidor" enctype="multipart/form-data">
                 <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($csrfToken, ENT_QUOTES, 'UTF-8'); ?>">
                 <input type="hidden" name="id" id="edit-srv-id" value="">
+                <input type="hidden" name="_versao_hash" id="edit-srv-versao-hash" value="">
 
                 <div class="modal-header">
                     <h5 class="modal-title fw-bold" id="modalEditarServidorLabel">
@@ -576,6 +583,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const d = row.dataset;
 
         document.getElementById('edit-srv-id').value = d.id || '';
+        document.getElementById('edit-srv-versao-hash').value = d.versaoHash || '';
         document.getElementById('edit-srv-servername').value = d.servername || '';
         document.getElementById('modalEditarServidorNomeHeader').textContent = d.servername || '';
         document.getElementById('edit-srv-ip').value = d.ip || '';
@@ -784,6 +792,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         const novaLinha = criarElementoLinhaServidor(s);
                         tr.replaceWith(novaLinha);
                         tr = novaLinha;
+                        tr.dataset.versaoHash = s._versao_hash || '';
 
                         if (tr.parentElement !== destinoTbody && destinoTbody) {
                             const emptyRow = isVisivel ? document.getElementById('linha-sem-servidores-ativos') : document.getElementById('linha-sem-servidores-inativos');

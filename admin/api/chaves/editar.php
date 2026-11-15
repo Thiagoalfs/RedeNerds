@@ -101,6 +101,10 @@ if ($vantagensPost !== null) {
 }
 
 try {
+    $versaoHash = trim($_POST['_versao_hash'] ?? '');
+    $pdo->beginTransaction();
+    exigirConcorrenciaEdicao($pdo, 'chaves', $id, $versaoHash, [], true);
+
     $stmtUp = $pdo->prepare("
         UPDATE chaves 
         SET servidor_id = :servidor_id, servidor = :servidor, nome = :nome, imagem = :imagem,
@@ -125,6 +129,7 @@ try {
         ':cor_string'  => $cor_string,
         ':id'          => $id,
     ]);
+    $pdo->commit();
 
     require_once __DIR__ . "/../../../api/cache_helper.php";
     invalidarCache('chaves');
@@ -132,6 +137,9 @@ try {
     $busca = $pdo->prepare("SELECT * FROM chaves WHERE id = :id LIMIT 1");
     $busca->execute([':id' => $id]);
     $chaveAtualizada = $busca->fetch(PDO::FETCH_ASSOC);
+    if ($chaveAtualizada) {
+        $chaveAtualizada['_versao_hash'] = gerarHashRegistro($chaveAtualizada);
+    }
     registrarLogAdmin($pdo, 'editar', 'chaves', "Editou chave '{$nome}' (#{$id}, R$ {$preco})", $id);
 
     header('Content-Type: application/json; charset=utf-8');

@@ -80,6 +80,11 @@ if ($categoria_id <= 0) {
 }
 
 try {
+    $versaoHash = trim($_POST['_versao_hash'] ?? '');
+    $ignorarWiki = ['visualizacoes', 'atualizado_em', 'criado_em', 'servidor_id', 'servername', 'servidor_slug', 'themecolor', 'categoria_nome'];
+    $pdo->beginTransaction();
+    exigirConcorrenciaEdicao($pdo, 'wiki_artigos', $id, $versaoHash, $ignorarWiki, true);
+
     $upd = $pdo->prepare("
         UPDATE wiki_artigos 
         SET categoria_id = :categoria_id, titulo = :titulo, conteudo = :conteudo, autor = :autor, publicado = :publicado, atualizado_em = NOW()
@@ -93,6 +98,7 @@ try {
         ':publicado'    => $publicado,
         ':id'           => $id
     ]);
+    $pdo->commit();
 
     $busca = $pdo->prepare("
         SELECT a.id, a.titulo, a.slug, a.publicado, a.visualizacoes, a.autor, a.criado_em, a.conteudo, a.categoria_id,
@@ -105,6 +111,12 @@ try {
     ");
     $busca->execute([':id' => $id]);
     $artigoAtualizado = $busca->fetch(PDO::FETCH_ASSOC);
+    $buscaRaw = $pdo->prepare("SELECT * FROM wiki_artigos WHERE id = :id LIMIT 1");
+    $buscaRaw->execute([':id' => $id]);
+    $artigoRaw = $buscaRaw->fetch(PDO::FETCH_ASSOC);
+    if ($artigoAtualizado && $artigoRaw) {
+        $artigoAtualizado['_versao_hash'] = gerarHashRegistro($artigoRaw, $ignorarWiki);
+    }
     registrarLogAdmin($pdo, 'editar', 'wiki', "Editou artigo da wiki '{$titulo}' (#{$id})", $id);
 
     header('Content-Type: application/json; charset=utf-8');

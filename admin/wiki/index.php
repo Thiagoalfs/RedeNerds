@@ -196,6 +196,7 @@ $categoriasIniciais = $primeiroServidorId > 0 ? getCategoriasServidorWiki($pdo, 
                         <?php foreach ($artigos as $art): ?>
                             <tr id="artigo-row-<?php echo (int)$art['id']; ?>"
                                 data-id="<?php echo (int)$art['id']; ?>"
+                                data-versao-hash="<?php echo htmlspecialchars(gerarHashRegistro($art, ['visualizacoes', 'atualizado_em', 'criado_em', 'servidor_id', 'servername', 'servidor_slug', 'themecolor', 'categoria_nome']), ENT_QUOTES, 'UTF-8'); ?>"
                                 data-titulo="<?php echo htmlspecialchars($art['titulo'], ENT_QUOTES, 'UTF-8'); ?>"
                                 data-slug="<?php echo htmlspecialchars($art['slug'], ENT_QUOTES, 'UTF-8'); ?>"
                                 data-servidor-id="<?php echo (int)$art['servidor_id']; ?>"
@@ -353,6 +354,7 @@ $categoriasIniciais = $primeiroServidorId > 0 ? getCategoriasServidorWiki($pdo, 
             <form id="formEditarArtigo">
                 <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($csrfToken, ENT_QUOTES, 'UTF-8'); ?>">
                 <input type="hidden" name="id" id="edit-artigo-id" value="">
+                <input type="hidden" name="_versao_hash" id="edit-artigo-versao-hash" value="">
 
                 <div class="modal-header">
                     <h5 class="modal-title fw-bold" id="modalEditarArtigoLabel">
@@ -684,6 +686,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Modal Editar: abrir e preencher
     function abrirModalEditarArtigo(dataset) {
         document.getElementById('edit-artigo-id').value = dataset.id || '';
+        document.getElementById('edit-artigo-versao-hash').value = dataset.versaoHash || '';
         document.getElementById('modalEditarArtigoTituloHeader').textContent = dataset.titulo || '';
         document.getElementById('edit-titulo').value = dataset.titulo || '';
         document.getElementById('edit-conteudo').value = dataset.conteudo || '';
@@ -811,6 +814,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     if (rowAntiga) {
                         const rowNova = renderLinhaArtigo(data.artigo);
                         rowAntiga.replaceWith(rowNova);
+                        rowNova.dataset.versaoHash = data.artigo._versao_hash || '';
                     }
 
                     if (bsModalEditar) bsModalEditar.hide();
