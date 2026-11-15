@@ -5,7 +5,12 @@
         reverse_proxy snappymail:8888 {
             header_up X-Real-IP {remote_host}
             header_up X-Forwarded-Proto {scheme}
+            header_down X-Frame-Options SAMEORIGIN
         }
+    }
+
+    handle /snappymail/* {
+        reverse_proxy snappymail:8888
     }
 
     handle {

@@ -22,13 +22,6 @@
                 <span>Dashboard</span>
             </div>
         </a>
-        <a href="https://webmail.redenerds.com.br/webmail" target="_blank" rel="noopener noreferrer" class="nav-item-link">
-            <div class="icon-wrap">
-                <i class="fa-solid fa-envelope"></i>
-                <span>Webmail</span>
-            </div>
-            <i class="fa-solid fa-arrow-up-right-from-square" style="font-size: 0.72rem; opacity: 0.6;"></i>
-        </a>
         <a href="/admin/email/" class="nav-item-link <?php echo ($paginaAtiva === 'email') ? 'active' : ''; ?>">
             <div class="icon-wrap">
                 <i class="fa-solid fa-inbox"></i>
