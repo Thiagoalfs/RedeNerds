@@ -54,8 +54,20 @@ try {
         exit;
     }
 
+    $atorNivel = $_SESSION['cargo_nivel'] ?? null;
+    if (!coordenadorPodeGerenciarCargo($atorNivel, $membro['cargo']) || !coordenadorPodeGerenciarCargo($atorNivel, $cargo)) {
+        http_response_code(403);
+        header('Content-Type: application/json; charset=utf-8');
+        echo json_encode(["success" => false, "erro" => "Seu cargo não pode alterar membros ou atribuir cargos da Diretoria/Fundadores."], JSON_UNESCAPED_UNICODE);
+        exit;
+    }
+
     $upd = $pdo->prepare("UPDATE equipe SET nick = :nick, cargo = :cargo WHERE id = :id");
     $upd->execute([':nick' => $nick, ':cargo' => $cargo, ':id' => $id]);
+
+    // Mantém o nome de usuário sincronizado caso o nick do membro seja alterado
+    $pdo->prepare("UPDATE usuarios SET usuario = :nick WHERE equipe_id = :id")
+        ->execute([':nick' => $nick, ':id' => $id]);
 
     require_once __DIR__ . "/../../../api/cache_helper.php";
     invalidarCache('equipe');

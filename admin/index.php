@@ -32,9 +32,10 @@ if (!$configPath) {
     die("Erro: Arquivo config.php não encontrado.");
 }
 require_once $configPath;
+require_once __DIR__ . "/includes/permissoes.php";
 
-if (isset($_SESSION['usuario_id']) && isset($_SESSION['admin']) && $_SESSION['admin'] == 1) {
-    header("Location: dashboard.php");
+if (isset($_SESSION['usuario_id']) && isset($_SESSION['admin']) && $_SESSION['admin'] == 1 && !empty($_SESSION['cargo_nivel'])) {
+    header("Location: " . paginaInicialAdmin($_SESSION['cargo_nivel']));
     exit;
 }
 
@@ -64,6 +65,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if ($usuario === '' || $senha === '') {
         $mensagem_erro = "Preencha todos os campos.";
+    } elseif (!isset($pdo) || !($pdo instanceof PDO)) {
+        $mensagem_erro = "Conexão com o banco de dados indisponível no momento.";
     } else {
         $identificador = getIdentificador($usuario);
 
@@ -83,20 +86,41 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         if (!$bloqueado) {
             try {
-                $stmt = $pdo->prepare("SELECT id, usuario, senha, admin FROM usuarios WHERE usuario = :usuario LIMIT 1");
-                $stmt->execute([':usuario' => $usuario]);
+                $stmt = $pdo->prepare("
+                    SELECT u.id, u.usuario, u.email, u.senha, u.admin, e.id AS equipe_id, e.nick, e.cargo
+                    FROM usuarios u
+                    INNER JOIN equipe e ON (u.equipe_id = e.id OR (u.equipe_id IS NULL AND LOWER(e.nick) COLLATE utf8mb4_unicode_ci = LOWER(u.usuario) COLLATE utf8mb4_unicode_ci))
+                    WHERE LOWER(u.usuario) = LOWER(:identificador)
+                       OR (u.email IS NOT NULL AND u.email <> '' AND LOWER(u.email) = LOWER(:identificador2))
+                    LIMIT 1
+                ");
+                $stmt->execute([
+                    ':identificador' => $usuario,
+                    ':identificador2' => $usuario,
+                ]);
                 $user = $stmt->fetch(PDO::FETCH_ASSOC);
+                $cargoNivel = $user ? normalizarCargoAdmin($user['cargo']) : null;
 
-                if ($user && password_verify($senha, $user['senha']) && (int)$user['admin'] === 1) {
+                if ($user && password_verify($senha, $user['senha']) && (int)$user['admin'] === 1 && $cargoNivel !== null) {
                     // Login OK -> limpa tentativas
                     $pdo->prepare("DELETE FROM tentativas_login WHERE identificador = :id")
                         ->execute([':id' => $identificador]);
 
                     session_regenerate_id(true);
                     $_SESSION['usuario_id'] = (int)$user['id'];
-                    $_SESSION['usuario_nome'] = $user['usuario'];
+                    $_SESSION['usuario_nome'] = $user['nick'];
+                    $_SESSION['usuario_email'] = $user['email'] ?? null;
+                    $_SESSION['equipe_id'] = (int)$user['equipe_id'];
+                    $_SESSION['cargo'] = $user['cargo'];
+                    $_SESSION['cargo_nivel'] = $cargoNivel;
                     $_SESSION['admin'] = 1;
-                    header("Location: dashboard.php");
+
+                    limparCookiesSnappyMail();
+                    if (!empty($user['email'])) {
+                        autenticarSnappyMail((string)$user['email'], $senha);
+                    }
+
+                    header("Location: " . paginaInicialAdmin($cargoNivel));
                     exit;
                 } else {
                     // Falha de credencial OU usuário sem permissão: mensagem genérica
@@ -507,15 +531,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token'], ENT_QUOTES, 'UTF-8'); ?>">
 
                 <div class="mb-3">
-                    <label for="usuario" class="login-label d-block">Usuário</label>
+                    <label for="usuario" class="login-label d-block">Usuário ou E-Mail</label>
                     <div class="input-group login-input-group">
                         <span class="input-group-text"><i class="fa-solid fa-user"></i></span>
-                        <input type="text" class="form-control" id="usuario" name="usuario" placeholder="Seu nome de usuário" required autofocus autocomplete="username" autocapitalize="none" autocorrect="off" spellcheck="false" value="<?php echo htmlspecialchars($_POST['usuario'] ?? '', ENT_QUOTES, 'UTF-8'); ?>">
+                        <input type="text" class="form-control" id="usuario" name="usuario" placeholder="Seu nick ou e-mail da empresa" required autofocus autocomplete="username" autocapitalize="none" autocorrect="off" spellcheck="false" value="<?php echo htmlspecialchars($_POST['usuario'] ?? '', ENT_QUOTES, 'UTF-8'); ?>">
                     </div>
                 </div>
 
                 <div class="mb-4">
-                    <label for="senha" class="login-label d-block">Senha</label>
+                    <div class="d-flex justify-content-between align-items-center mb-1">
+                        <label for="senha" class="login-label mb-0">Senha</label>
+                        <a href="/admin/esqueci_senha.php" class="small text-decoration-none" style="color: var(--color-primary);">Esqueci minha senha</a>
+                    </div>
                     <div class="input-group login-input-group">
                         <span class="input-group-text"><i class="fa-solid fa-lock"></i></span>
                         <input type="password" class="form-control" id="senha" name="senha" placeholder="Sua chave de acesso" required autocomplete="current-password" autocapitalize="none" autocorrect="off" spellcheck="false">

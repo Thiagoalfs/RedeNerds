@@ -27,6 +27,13 @@ if (empty($cargo)) {
     exit;
 }
 
+if (!coordenadorPodeGerenciarCargo($_SESSION['cargo_nivel'] ?? null, $cargo)) {
+    http_response_code(403);
+    header('Content-Type: application/json; charset=utf-8');
+    echo json_encode(["success" => false, "erro" => "Seu cargo não pode adicionar membros à Diretoria ou Fundadores."], JSON_UNESCAPED_UNICODE);
+    exit;
+}
+
 if (!isset($pdo) || !($pdo instanceof PDO)) {
     http_response_code(500);
     header('Content-Type: application/json; charset=utf-8');

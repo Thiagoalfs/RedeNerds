@@ -23,6 +23,9 @@ if (ini_get("session.use_cookies")) {
     );
 }
 
+require_once __DIR__ . "/includes/permissoes.php";
+limparCookiesSnappyMail();
+
 // Destrói completamente a sessão
 session_destroy();
 

@@ -30,11 +30,21 @@ if ($id <= 0) {
 
 if (isset($pdo) && $pdo instanceof PDO) {
     try {
-        $stmt = $pdo->prepare("SELECT nick FROM equipe WHERE id = :id LIMIT 1");
+        $stmt = $pdo->prepare("SELECT nick, cargo FROM equipe WHERE id = :id LIMIT 1");
         $stmt->execute([':id' => $id]);
         $membro = $stmt->fetch(PDO::FETCH_ASSOC);
 
         if ($membro) {
+            if (!coordenadorPodeGerenciarCargo($_SESSION['cargo_nivel'] ?? null, $membro['cargo'])) {
+                if ($isAjax) {
+                    http_response_code(403);
+                    header('Content-Type: application/json; charset=utf-8');
+                    echo json_encode(["success" => false, "erro" => "Seu cargo não pode remover membros da Diretoria ou Fundadores."]);
+                    exit;
+                }
+                header("Location: /admin/equipe/?erro=" . urlencode("Seu cargo não pode remover membros da Diretoria ou Fundadores."));
+                exit;
+            }
             $del = $pdo->prepare("DELETE FROM equipe WHERE id = :id");
             $del->execute([':id' => $id]);
 

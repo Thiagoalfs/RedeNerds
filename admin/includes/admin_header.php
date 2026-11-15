@@ -57,7 +57,7 @@ $tituloPagina = $tituloPagina ?? 'Painel Administrativo';
                         <i class="fa-solid fa-bars"></i>
                     </button>
                     <div class="topbar-breadcrumbs d-none d-sm-flex">
-                        <a href="/admin/dashboard.php"><i class="fa-solid fa-house"></i> Painel</a>
+                        <a href="<?php echo htmlspecialchars(paginaInicialAdmin($_SESSION['cargo_nivel'] ?? null), ENT_QUOTES, 'UTF-8'); ?>"><i class="fa-solid fa-house"></i> Painel</a>
                         <i class="fa-solid fa-chevron-right small text-muted"></i>
                         <span class="current"><?php echo htmlspecialchars($tituloPagina, ENT_QUOTES, 'UTF-8'); ?></span>
                     </div>

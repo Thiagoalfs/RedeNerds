@@ -1,6 +1,13 @@
 <?php
 require_once __DIR__ . "/../../sessao.php";
 
+if (!in_array($_SESSION['cargo_nivel'] ?? null, ['fundador', 'diretor'], true)) {
+    http_response_code(403);
+    header('Content-Type: application/json; charset=utf-8');
+    echo json_encode(["success" => false, "erro" => "Apenas Diretoria e Fundadores podem gerenciar cargos."], JSON_UNESCAPED_UNICODE);
+    exit;
+}
+
 
 $isAjax = (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest') 
           || (isset($_SERVER['CONTENT_TYPE']) && strpos($_SERVER['CONTENT_TYPE'], 'application/json') !== false)

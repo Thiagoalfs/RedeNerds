@@ -392,7 +392,9 @@ require_once __DIR__ . '/../includes/admin_header.php';
             }
             #V-MailMessageList .btn-toolbar.admin-actions-bar .btn.disabled,
             #V-MailMessageList .btn-toolbar.admin-actions-bar .btn[disabled],
-            #V-MailMessageList .btn-toolbar.admin-actions-bar .btn-group:not(:has(.btn:not(.disabled):not([disabled]))) {
+            #V-MailMessageList .btn-toolbar.admin-actions-bar .btn-group:not(:has(.btn:not(.disabled):not([disabled]))),
+            #V-MailMessageList .btn-toolbar.admin-actions-bar .btn-group:has(#no-sort-list),
+            #no-sort-list {
                 display: none !important;
             }
             #V-MailMessageList .btn-toolbar.admin-actions-bar > .btn-group:has(#more-list-dropdown-id) {

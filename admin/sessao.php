@@ -33,31 +33,94 @@ if (!isset($pdo) || !$pdo instanceof PDO) {
     }
 }
 
+require_once __DIR__ . "/includes/permissoes.php";
+
+$isApiOrAjax = (
+    (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest') ||
+    (isset($_SERVER['HTTP_ACCEPT']) && strpos($_SERVER['HTTP_ACCEPT'], 'application/json') !== false) ||
+    (strpos($_SERVER['REQUEST_URI'] ?? '', '/api/') !== false)
+);
+
 // Rate limit preventivo para endpoints de API interna do painel.
 // Antes da checagem de login (requisições não autenticadas também contam) e com
- // buckets separados: leitura (GET) tem cota própria para não bloquear escritas.
+// buckets separados: leitura (GET) tem cota própria para não bloquear escritas.
 if (stripos($_SERVER['REQUEST_URI'] ?? '', '/admin/api/') !== false) {
     require_once __DIR__ . "/../api/rate_limiter.php";
     $ehGet = (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'GET');
     exigirRateLimit($ehGet ? 'admin_api_read' : 'admin_api_action', $ehGet ? 120 : 60, 60);
 }
 
-// Se não estiver logado ou não for admin
-if (!isset($_SESSION['usuario_id']) || !isset($_SESSION['admin']) || $_SESSION['admin'] != 1) {
-    $isApiOrAjax = (
-        (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest') ||
-        (isset($_SERVER['HTTP_ACCEPT']) && strpos($_SERVER['HTTP_ACCEPT'], 'application/json') !== false) ||
-        (strpos($_SERVER['REQUEST_URI'] ?? '', '/api/') !== false)
-    );
-
+$encerrarSessaoNaoAutorizada = function() use ($isApiOrAjax): void {
     if ($isApiOrAjax) {
         http_response_code(401);
         header('Content-Type: application/json; charset=utf-8');
         echo json_encode(["erro" => "Sessão expirada. Faça login novamente no painel."], JSON_UNESCAPED_UNICODE);
         exit;
     }
-
     header("Location: /admin/index.php");
+    exit;
+};
+
+// Se não estiver logado ou não for admin
+if (!isset($_SESSION['usuario_id']) || !isset($_SESSION['admin']) || $_SESSION['admin'] != 1) {
+    $encerrarSessaoNaoAutorizada();
+}
+
+// Revalida vínculo com a equipe e cargo atualizado no banco a cada requisição
+if (isset($pdo) && $pdo instanceof PDO) {
+    $stmtSessao = $pdo->prepare("
+        SELECT u.id, u.email, u.admin, e.id AS equipe_id, e.nick, e.cargo
+        FROM usuarios u
+        INNER JOIN equipe e ON (u.equipe_id = e.id OR (u.equipe_id IS NULL AND LOWER(e.nick) COLLATE utf8mb4_unicode_ci = LOWER(u.usuario) COLLATE utf8mb4_unicode_ci))
+        WHERE u.id = :id
+        LIMIT 1
+    ");
+    $stmtSessao->execute([':id' => (int)$_SESSION['usuario_id']]);
+    $dadosSessao = $stmtSessao->fetch(PDO::FETCH_ASSOC);
+    $cargoNivel = $dadosSessao ? normalizarCargoAdmin($dadosSessao['cargo']) : null;
+
+    if (!$dadosSessao || (int)$dadosSessao['admin'] !== 1 || $cargoNivel === null) {
+        $_SESSION = [];
+        session_destroy();
+        $encerrarSessaoNaoAutorizada();
+    }
+
+    $_SESSION['usuario_nome'] = $dadosSessao['nick'];
+    $_SESSION['usuario_email'] = $dadosSessao['email'] ?? null;
+    $_SESSION['equipe_id'] = (int)$dadosSessao['equipe_id'];
+    $_SESSION['cargo'] = $dadosSessao['cargo'];
+    $_SESSION['cargo_nivel'] = $cargoNivel;
+}
+
+// Resolve o módulo atual (página UI via $paginaAtiva ou endpoint API via caminho do script)
+$moduloAtual = isset($paginaAtiva) && is_string($paginaAtiva) && $paginaAtiva !== '' ? $paginaAtiva : null;
+if ($moduloAtual === null) {
+    $scriptPath = $_SERVER['SCRIPT_NAME'] ?? ($_SERVER['PHP_SELF'] ?? '');
+    if (preg_match('#/admin/api/([^/]+)/#', $scriptPath, $m)) {
+        $moduloAtual = $m[1];
+    } elseif (str_ends_with($scriptPath, '/admin/pedidos/exportar.php')) {
+        $moduloAtual = 'pedidos';
+    } elseif (str_ends_with($scriptPath, '/admin/servidores/bg_upload.php')) {
+        $moduloAtual = 'servidores';
+    }
+}
+
+$cargoNivelSessao = $_SESSION['cargo_nivel'] ?? null;
+if ($moduloAtual === null || !usuarioPodeAcessar($moduloAtual, $cargoNivelSessao)) {
+    if ($isApiOrAjax) {
+        http_response_code(403);
+        header('Content-Type: application/json; charset=utf-8');
+        echo json_encode(["success" => false, "erro" => "Acesso negado para o seu cargo."], JSON_UNESCAPED_UNICODE);
+        exit;
+    }
+    $destino = paginaInicialAdmin($cargoNivelSessao);
+    $uriAtual = $_SERVER['REQUEST_URI'] ?? '';
+    if ($destino !== '' && stripos($uriAtual, $destino) === false) {
+        header("Location: " . $destino);
+        exit;
+    }
+    http_response_code(403);
+    echo "Acesso negado para o seu cargo.";
     exit;
 }
 

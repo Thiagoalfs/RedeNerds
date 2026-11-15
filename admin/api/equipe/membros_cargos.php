@@ -36,12 +36,19 @@ if (isset($pdo) && $pdo instanceof PDO) {
 
         $pdo->beginTransaction();
 
+        $atorNivel = $_SESSION['cargo_nivel'] ?? null;
+        $cargosAtuais = $pdo->query("SELECT id, cargo FROM equipe")->fetchAll(PDO::FETCH_KEY_PAIR);
+
         $upd = $pdo->prepare("UPDATE equipe SET cargo = :cargo WHERE id = :id AND cargo != :cargo_check");
         $atualizados = 0;
         foreach ($membroCargos as $membroId => $cargo) {
             $membroId = (int)$membroId;
             $cargo = trim((string)$cargo);
             if ($membroId <= 0 || $cargo === '' || !in_array($cargo, $cargosValidos, true)) {
+                continue;
+            }
+            $cargoAtual = $cargosAtuais[$membroId] ?? null;
+            if ($cargoAtual === null || !coordenadorPodeGerenciarCargo($atorNivel, $cargoAtual) || !coordenadorPodeGerenciarCargo($atorNivel, $cargo)) {
                 continue;
             }
             $upd->execute([':cargo' => $cargo, ':id' => $membroId, ':cargo_check' => $cargo]);
