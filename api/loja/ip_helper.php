@@ -109,13 +109,51 @@ function isCloudflareIp(string $ip): bool {
     return false;
 }
 
+function isProxyInterno(string $ip): bool {
+    if (filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4)) {
+        foreach (['127.0.0.0/8', '10.0.0.0/8', '172.16.0.0/12', '192.168.0.0/16'] as $cidr) {
+            if (ipPertenceCidr($ip, $cidr)) {
+                return true;
+            }
+        }
+    } elseif (filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV6)) {
+        foreach (['::1/128', 'fc00::/7'] as $cidr) {
+            if (ipPertenceCidr($ip, $cidr)) {
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
+function resolverIpAposProxyInterno(string $remoteAddr): string {
+    if (!isProxyInterno($remoteAddr)) {
+        return $remoteAddr;
+    }
+    $xff = trim($_SERVER['HTTP_X_FORWARDED_FOR'] ?? '');
+    if ($xff !== '') {
+        $partes = array_reverse(array_map('trim', explode(',', $xff)));
+        foreach ($partes as $cand) {
+            if (filter_var($cand, FILTER_VALIDATE_IP) && !isProxyInterno($cand)) {
+                return $cand;
+            }
+        }
+    }
+    $xReal = trim($_SERVER['HTTP_X_REAL_IP'] ?? '');
+    if ($xReal !== '' && filter_var($xReal, FILTER_VALIDATE_IP) && !isProxyInterno($xReal)) {
+        return $xReal;
+    }
+    return $remoteAddr;
+}
+
 /**
  * Obtém o IP real do cliente.
- * Se REMOTE_ADDR pertencer à Cloudflare, aceita HTTP_CF_CONNECTING_IP.
+ * Se REMOTE_ADDR for um proxy interno (ex.: Caddy/Docker), resolve o peer externo via X-Forwarded-For (direita para esquerda).
+ * Se o peer for da Cloudflare, aceita HTTP_CF_CONNECTING_IP.
  * Caso contrário, ignora headers de proxy para prevenir spoofing e retorna REMOTE_ADDR.
  */
 function obterIpRealCliente(): string {
-    $remoteAddr = trim($_SERVER['REMOTE_ADDR'] ?? '127.0.0.1');
+    $remoteAddr = resolverIpAposProxyInterno(trim($_SERVER['REMOTE_ADDR'] ?? '127.0.0.1'));
 
     if (isCloudflareIp($remoteAddr)) {
         $cfIp = trim($_SERVER['HTTP_CF_CONNECTING_IP'] ?? '');
@@ -142,7 +180,7 @@ function obterIpRealCliente(): string {
  * Retorna null se não estiver atrás da Cloudflare ou se o header não estiver presente.
  */
 function obterPaisIp(): ?string {
-    $remoteAddr = trim($_SERVER['REMOTE_ADDR'] ?? '127.0.0.1');
+    $remoteAddr = resolverIpAposProxyInterno(trim($_SERVER['REMOTE_ADDR'] ?? '127.0.0.1'));
 
     if (isCloudflareIp($remoteAddr) && !empty($_SERVER['HTTP_CF_IPCOUNTRY'])) {
         $country = strtoupper(trim($_SERVER['HTTP_CF_IPCOUNTRY']));

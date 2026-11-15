@@ -41,4 +41,15 @@ assert($ipResolvidoCf === '189.40.10.5', "Falha: CF-Connecting-IP legítimo deve
 assert(obterPaisIp() === 'BR', "Falha: CF-IPCountry deve retornar 'BR'");
 echo "  [PASS] Conexão legítima da Cloudflare resolve IP do visitante e país.\n";
 
+// 5. Teste atrás de proxy Docker/Caddy (172.18.0.4) com Cloudflare e sem Cloudflare
+$_SERVER['REMOTE_ADDR'] = '172.18.0.4';
+$_SERVER['HTTP_X_FORWARDED_FOR'] = '1.2.3.4, 108.162.192.50';
+$_SERVER['HTTP_CF_CONNECTING_IP'] = '189.40.10.5';
+assert(obterIpRealCliente() === '189.40.10.5', "Falha: atrás de Caddy+CF deve resolver CF-Connecting-IP");
+
+$_SERVER['HTTP_X_FORWARDED_FOR'] = '1.2.3.4, 177.50.60.70';
+$_SERVER['HTTP_CF_CONNECTING_IP'] = '9.9.9.9';
+assert(obterIpRealCliente() === '177.50.60.70', "Falha: atrás de Caddy sem CF deve usar último hop externo de X-Forwarded-For");
+echo "  [PASS] Proxy Docker/Caddy resolve IP real sem aceitar spoofing.\n";
+
 echo "✔ Todos os testes de ip_helper passaram com sucesso!\n\n";
