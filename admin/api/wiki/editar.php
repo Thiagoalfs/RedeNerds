@@ -115,7 +115,7 @@ try {
     $buscaRaw->execute([':id' => $id]);
     $artigoRaw = $buscaRaw->fetch(PDO::FETCH_ASSOC);
     if ($artigoAtualizado && $artigoRaw) {
-        $artigoAtualizado['_versao_hash'] = gerarHashRegistro($artigoRaw, $ignorarWiki);
+        $artigoAtualizado['_versao_hash'] = gerarHashRegistro($artigoRaw, [], 'wiki_artigos');
     }
     registrarLogAdmin($pdo, 'editar', 'wiki', "Editou artigo da wiki '{$titulo}' (#{$id})", $id);
 

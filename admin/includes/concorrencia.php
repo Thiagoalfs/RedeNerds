@@ -1,12 +1,32 @@
 <?php
 
 /**
+ * Mapeia os campos usados no hash de concorrência quando a listagem não faz SELECT *.
+ */
+function camposConcorrenciaTabela(string $tabela): ?array {
+    static $mapa = [
+        'servidores' => ['id', 'servername', 'nome', 'title', 'icon', 'bg_image', 'descricao', 'features', 'modpackurl', 'ip', 'themecolor', 'enabled'],
+        'equipe' => ['id', 'nick', 'cargo'],
+        'equipe_cargos' => ['id', 'nome', 'cor', 'ordem'],
+        'wiki_artigos' => ['id', 'categoria_id', 'titulo', 'slug', 'conteudo', 'autor', 'publicado'],
+        'wiki_categorias' => ['id', 'servidor_id', 'nome', 'icone', 'ordem'],
+        'usuarios' => ['id', 'usuario', 'email', 'email_recuperacao', 'senha', 'equipe_id'],
+        'novidades' => ['id', 'titulo', 'conteudo', 'category', 'categoria_envio', 'capa', 'autor'],
+    ];
+    return $mapa[$tabela] ?? null;
+}
+
+/**
  * Gera hash determinístico do estado atual de um registro para optimistic locking.
  */
-function gerarHashRegistro(array $row, array $ignorar = []): string {
+function gerarHashRegistro(array $row, array $ignorar = [], ?string $tabela = null): string {
+    $somenteCampos = $tabela !== null ? camposConcorrenciaTabela($tabela) : null;
     $filtrado = [];
     foreach ($row as $k => $v) {
         if (is_int($k) || in_array($k, $ignorar, true) || $k === '_versao_hash') {
+            continue;
+        }
+        if ($somenteCampos !== null && !in_array((string)$k, $somenteCampos, true)) {
             continue;
         }
         $filtrado[(string)$k] = $v === null ? '' : (string)$v;
@@ -37,7 +57,7 @@ function verificarConcorrenciaEdicao(
     if (!$atual) {
         return ['ok' => false, 'status' => 404, 'erro' => 'Registro não encontrado ou já foi excluído por outro administrador.'];
     }
-    if ($hashEnviado !== '' && !hash_equals(gerarHashRegistro($atual, $ignorar), $hashEnviado)) {
+    if ($hashEnviado !== '' && !hash_equals(gerarHashRegistro($atual, $ignorar, $tabela), $hashEnviado)) {
         return ['ok' => false, 'status' => 409, 'erro' => 'Este registro foi alterado por outro administrador enquanto você editava. Recarregue a página para ver os dados atuais.'];
     }
 

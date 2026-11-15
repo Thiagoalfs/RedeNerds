@@ -82,7 +82,7 @@ try {
     $busca->execute([':id' => $id]);
     $membroAtualizado = $busca->fetch(PDO::FETCH_ASSOC);
     if ($membroAtualizado) {
-        $membroAtualizado['_versao_hash'] = gerarHashRegistro($membroAtualizado);
+        $membroAtualizado['_versao_hash'] = gerarHashRegistro($membroAtualizado, [], 'equipe');
     }
 
     header('Content-Type: application/json; charset=utf-8');

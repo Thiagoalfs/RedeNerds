@@ -173,7 +173,7 @@ try {
                         ?>
                             <tr id="noticia-row-<?php echo (int)$n['id']; ?>"
                                 data-id="<?php echo (int)$n['id']; ?>"
-                                data-versao-hash="<?php echo htmlspecialchars(gerarHashRegistro($n), ENT_QUOTES, 'UTF-8'); ?>"
+                                data-versao-hash="<?php echo htmlspecialchars(gerarHashRegistro($n, [], 'novidades'), ENT_QUOTES, 'UTF-8'); ?>"
                                 data-titulo="<?php echo htmlspecialchars($n['titulo'], ENT_QUOTES, 'UTF-8'); ?>"
                                 data-category="<?php echo htmlspecialchars($n['category'] ?? '', ENT_QUOTES, 'UTF-8'); ?>"
                                 data-categoria-envio="<?php echo htmlspecialchars($n['categoria_envio'] ?? 'Anúncios', ENT_QUOTES, 'UTF-8'); ?>"

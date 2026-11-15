@@ -101,7 +101,7 @@ try {
     $busca->execute([':id' => $id]);
     $noticiaAtualizada = $busca->fetch(PDO::FETCH_ASSOC);
     if ($noticiaAtualizada) {
-        $noticiaAtualizada['_versao_hash'] = gerarHashRegistro($noticiaAtualizada);
+        $noticiaAtualizada['_versao_hash'] = gerarHashRegistro($noticiaAtualizada, [], 'novidades');
     }
     registrarLogAdmin($pdo, 'editar', 'noticias', "Editou notícia '{$titulo}' (#{$id})", $id);
 

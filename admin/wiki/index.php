@@ -196,7 +196,7 @@ $categoriasIniciais = $primeiroServidorId > 0 ? getCategoriasServidorWiki($pdo, 
                         <?php foreach ($artigos as $art): ?>
                             <tr id="artigo-row-<?php echo (int)$art['id']; ?>"
                                 data-id="<?php echo (int)$art['id']; ?>"
-                                data-versao-hash="<?php echo htmlspecialchars(gerarHashRegistro($art, ['visualizacoes', 'atualizado_em', 'criado_em', 'servidor_id', 'servername', 'servidor_slug', 'themecolor', 'categoria_nome']), ENT_QUOTES, 'UTF-8'); ?>"
+                                data-versao-hash="<?php echo htmlspecialchars(gerarHashRegistro($art, [], 'wiki_artigos'), ENT_QUOTES, 'UTF-8'); ?>"
                                 data-titulo="<?php echo htmlspecialchars($art['titulo'], ENT_QUOTES, 'UTF-8'); ?>"
                                 data-slug="<?php echo htmlspecialchars($art['slug'], ENT_QUOTES, 'UTF-8'); ?>"
                                 data-servidor-id="<?php echo (int)$art['servidor_id']; ?>"

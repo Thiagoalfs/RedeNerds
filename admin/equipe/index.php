@@ -99,7 +99,7 @@ $todosCargos = array_unique(array_merge($cargosOrdem, array_keys($grupos)));
                                 <tr class="membro-vazio"><td colspan="4" class="text-center text-muted small py-3"><i class="fa-solid fa-arrows-up-down me-1"></i> Arraste membros para este cargo</td></tr>
                             <?php else: ?>
                                 <?php foreach ($lista as $m): ?>
-                                    <tr class="membro-row" id="membro-row-<?php echo (int)$m['id']; ?>" data-id="<?php echo (int)$m['id']; ?>" data-versao-hash="<?php echo htmlspecialchars(gerarHashRegistro($m), ENT_QUOTES, 'UTF-8'); ?>" data-nick="<?php echo htmlspecialchars($m['nick'], ENT_QUOTES, 'UTF-8'); ?>" data-cargo="<?php echo htmlspecialchars($m['cargo'], ENT_QUOTES, 'UTF-8'); ?>" draggable="true">
+                                    <tr class="membro-row" id="membro-row-<?php echo (int)$m['id']; ?>" data-id="<?php echo (int)$m['id']; ?>" data-versao-hash="<?php echo htmlspecialchars(gerarHashRegistro($m, [], 'equipe'), ENT_QUOTES, 'UTF-8'); ?>" data-nick="<?php echo htmlspecialchars($m['nick'], ENT_QUOTES, 'UTF-8'); ?>" data-cargo="<?php echo htmlspecialchars($m['cargo'], ENT_QUOTES, 'UTF-8'); ?>" draggable="true">
                                         <td class="membro-drag-handle" title="Arrastar para outro cargo"><i class="fa-solid fa-grip-vertical text-muted"></i></td>
                                         <td>
                                             <img class="rounded border js-membro-avatar" src="https://mc-heads.net/avatar/<?php echo urlencode($m['nick']); ?>" width="32" height="32" alt="" onerror="this.src='https://mc-heads.net/avatar/MHF_Steve'">

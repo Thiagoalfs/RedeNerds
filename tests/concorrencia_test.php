@@ -32,4 +32,12 @@ assert($toggleStale['ok'] === false && $toggleStale['status'] === 409, 'Toggle c
 $toggleOk = executarToggleAtomico($pdo, 'cupons', 'ativo', 1, 'codigo', 1);
 assert($toggleOk['ok'] === true && $toggleOk['novo'] === 0, 'Toggle com estado esperado correto deve alternar para 0');
 
+// 5. Tabela com subset de colunas na listagem vs SELECT * no editar
+$pdo->exec('CREATE TABLE servidores (id INTEGER PRIMARY KEY, servername TEXT, nome TEXT, title TEXT, icon TEXT, bg_image TEXT, descricao TEXT, features TEXT, modpackurl TEXT, ip TEXT, themecolor TEXT, enabled INTEGER, criado_em TEXT)');
+$pdo->exec("INSERT INTO servidores (id, servername, nome, title, icon, bg_image, descricao, features, modpackurl, ip, themecolor, enabled, criado_em) VALUES (1, 'Cobble', 'cobble', 'Cobble', '', '', '', '[]', '', 'play.x', '#fff', 1, '2026-01-01')");
+$srvSubset = $pdo->query('SELECT id, servername, nome, title, icon, bg_image, descricao, features, modpackurl, ip, themecolor, enabled FROM servidores WHERE id = 1')->fetch(PDO::FETCH_ASSOC);
+$hashSrv = gerarHashRegistro($srvSubset, [], 'servidores');
+$okSrv = verificarConcorrenciaEdicao($pdo, 'servidores', 1, $hashSrv);
+assert($okSrv['ok'] === true, 'Subset da listagem deve bater com SELECT * via camposConcorrenciaTabela');
+
 echo "concorrencia_test.php OK\n";

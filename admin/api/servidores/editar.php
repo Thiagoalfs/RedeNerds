@@ -121,7 +121,7 @@ try {
     $busca->execute([':id' => $id]);
     $servidorAtualizado = $busca->fetch(PDO::FETCH_ASSOC);
     if ($servidorAtualizado) {
-        $servidorAtualizado['_versao_hash'] = gerarHashRegistro($servidorAtualizado);
+        $servidorAtualizado['_versao_hash'] = gerarHashRegistro($servidorAtualizado, [], 'servidores');
     }
     registrarLogAdmin($pdo, 'editar', 'servidores', "Editou servidor '{$servername}' (#{$id})", $id);
 
