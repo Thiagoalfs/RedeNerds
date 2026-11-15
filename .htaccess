@@ -7,9 +7,6 @@
     # Redirecionamento 301 da rota de novidades para a secao da home
     RewriteRule ^novidades/?$ /#atualizacoes-section [R=301,L,NE]
 
-    # Redirecionamento do webmail para o servidor da Homehost (302 para não travar cache se mudar depois)
-    RewriteRule ^webmail(/.*)?$ https://h58.servidorhh.com/webmail/ [R=302,L]
-
     RewriteCond %{HTTPS} !=on
     RewriteCond %{HTTP:X-Forwarded-Proto} !^https$ [NC]
     RewriteCond %{HTTP:CF-Visitor} !'"scheme":"https"'
