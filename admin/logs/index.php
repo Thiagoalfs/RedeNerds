@@ -10,7 +10,7 @@ $filtroAcao = trim((string)($_GET['acao'] ?? ''));
 $dataInicio = trim((string)($_GET['data_inicio'] ?? ''));
 $dataFim = trim((string)($_GET['data_fim'] ?? ''));
 $pagina = max(1, (int)($_GET['page'] ?? 1));
-$porPagina = 50;
+$porPagina = 15;
 
 $modulos = [
     'auth' => 'Autenticação',
