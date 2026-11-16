@@ -465,6 +465,10 @@ require_once __DIR__ . '/../includes/admin_header.php';
                 padding-top: 50px !important;
                 box-sizing: border-box !important;
             }
+            #V-MailMessageList:has(.open) {
+                position: relative !important;
+                z-index: 102 !important;
+            }
             #V-MailMessageList .messageList {
                 height: calc(100vh - 50px) !important;
             }
@@ -477,7 +481,11 @@ require_once __DIR__ . '/../includes/admin_header.php';
                 margin: 0 !important;
                 background: var(--panel-bg-clr) !important;
                 border-bottom: 1px solid var(--border-color) !important;
-                position: static !important;
+                position: relative !important;
+                z-index: 30 !important;
+            }
+            #V-MailMessageList .btn-toolbar.admin-actions-bar .dropdown-menu {
+                z-index: 200 !important;
             }
             #V-MailMessageList .btn-toolbar.admin-actions-bar .btn:where(:not([hidden]):not([style*="display: none"]):not([style*="display:none"])),
             #V-MailMessageList .btn-toolbar.admin-actions-bar .icon-folder-add:where(:not([hidden]):not([style*="display: none"]):not([style*="display:none"])) {
@@ -965,14 +973,122 @@ require_once __DIR__ . '/../includes/admin_header.php';
                 background: ${isDark ? 'rgba(37, 99, 235, 0.14)' : 'rgba(37, 99, 235, 0.08)'} !important;
                 box-shadow: inset 3px 0 0 #2563eb !important;
             }
+            .messageListItem .sizeParent {
+                display: none !important;
+            }
+            .messageListItem {
+                align-items: center !important;
+            }
+            .messageListItem .messageCheckbox {
+                align-self: center !important;
+                padding: 0 0.5em !important;
+                display: inline-flex !important;
+                align-items: center !important;
+            }
+            html.sm-msgView-side .messageListItem > div + div {
+                display: grid !important;
+                grid-template-columns: minmax(0, 1fr) auto auto auto !important;
+                grid-template-rows: auto auto !important;
+                align-items: center !important;
+                column-gap: 8px !important;
+                row-gap: 2px !important;
+                padding: 8px 10px 8px 4px !important;
+            }
+            html.sm-msgView-side .messageListItem .senderParent {
+                grid-column: 1 !important;
+                grid-row: 1 !important;
+                min-width: 0 !important;
+            }
+            html.sm-msgView-side .messageListItem .subjectParent {
+                grid-column: 1 !important;
+                grid-row: 2 !important;
+                width: 100% !important;
+                min-width: 0 !important;
+            }
+            html.sm-msgView-side .messageListItem .attachmentParent {
+                grid-column: 2 !important;
+                grid-row: 1 / span 2 !important;
+                align-self: center !important;
+                margin: 0 !important;
+            }
+            html.sm-msgView-side .messageListItem time {
+                grid-column: 3 !important;
+                grid-row: 1 / span 2 !important;
+                align-self: center !important;
+                margin: 0 !important;
+            }
+            html.sm-msgView-side .messageListItem .flagParent {
+                grid-column: 4 !important;
+                grid-row: 1 / span 2 !important;
+                align-self: center !important;
+                margin: 0 !important;
+                display: inline-flex !important;
+                align-items: center !important;
+                justify-content: center !important;
+                line-height: 1 !important;
+            }
             .messageView .b-message-view-desc {
                 color: ${isDark ? '#64748b' : '#94a3b8'} !important;
                 font-size: 1rem !important;
                 font-weight: 400 !important;
             }
+            /* Barra superior do preview alinhada verticalmente à barra de pesquisa */
+            #V-MailMessageView .admin-preview-bar {
+                position: sticky !important;
+                top: 0 !important;
+                z-index: 5 !important;
+                height: var(--admin-preview-bar-h, 44px) !important;
+                min-height: var(--admin-preview-bar-h, 44px) !important;
+                display: flex !important;
+                align-items: center !important;
+                justify-content: space-between !important;
+                gap: 12px !important;
+                padding: 0 18px !important;
+                box-sizing: border-box !important;
+                background: var(--panel-bg-clr) !important;
+                border-bottom: 1px solid var(--border-color) !important;
+                font-family: var(--fontSans) !important;
+                flex-shrink: 0 !important;
+            }
+            #V-MailMessageView .admin-preview-bar .admin-preview-title {
+                display: flex !important;
+                align-items: center !important;
+                min-width: 0 !important;
+                flex: 1 1 auto !important;
+            }
+            #V-MailMessageView .admin-preview-bar .admin-preview-actions {
+                display: flex !important;
+                align-items: center !important;
+                gap: 4px !important;
+                flex-shrink: 0 !important;
+            }
+            #V-MailMessageView .admin-preview-bar .admin-preview-tag-trigger {
+                position: relative !important;
+                display: inline-flex !important;
+                align-items: center !important;
+                justify-content: center !important;
+                width: 28px !important;
+                height: 28px !important;
+                border-radius: 6px !important;
+                cursor: pointer !important;
+                opacity: 0.72 !important;
+                transition: background-color 0.14s ease, opacity 0.14s ease !important;
+            }
+            #V-MailMessageView .admin-preview-bar .admin-preview-tag-trigger:hover {
+                background: var(--folders-hover-bg-color) !important;
+                opacity: 1 !important;
+            }
+            #V-MailMessageView .admin-preview-bar .admin-preview-tag-trigger .dropdown-menu {
+                right: 0 !important;
+                left: auto !important;
+                z-index: 200 !important;
+            }
             /* Visualização de e-mail: tipografia sans-serif, hierarquia limpa e respiro */
             #V-MailMessageView .messageView {
                 font-family: var(--fontSans) !important;
+                height: calc(100vh - 50px) !important;
+                padding: 0 !important;
+                box-sizing: border-box !important;
             }
             #V-MailMessageView .b-message {
                 position: relative;
@@ -983,35 +1099,39 @@ require_once __DIR__ . '/../includes/admin_header.php';
                 background: transparent !important;
                 font-family: var(--fontSans) !important;
             }
-            #V-MailMessageView .subjectParent {
+            #V-MailMessageView .admin-preview-bar .subjectParent {
                 display: flex !important;
                 align-items: center !important;
                 gap: 8px !important;
-                padding-right: 92px !important;
-                margin-bottom: 12px !important;
+                min-width: 0 !important;
+                max-width: 100% !important;
+                margin: 0 !important;
+                padding: 0 !important;
                 font-family: var(--fontSans) !important;
             }
-            #V-MailMessageView .subjectParent .subject {
+            #V-MailMessageView .admin-preview-bar .subjectParent .subject {
                 font-family: var(--fontSans) !important;
-                font-size: 1.2rem !important;
+                font-size: 1rem !important;
                 font-weight: 600 !important;
-                line-height: 1.35 !important;
+                line-height: 1.3 !important;
                 letter-spacing: -0.01em !important;
                 color: var(--main-color) !important;
+                white-space: nowrap !important;
+                overflow: hidden !important;
+                text-overflow: ellipsis !important;
             }
-            #V-MailMessageView .subjectParent .infoParent,
-            #V-MailMessageView .subjectParent .flagParent {
+            #V-MailMessageView .admin-preview-bar .subjectParent .infoParent,
+            #V-MailMessageView .admin-preview-bar .subjectParent .flagParent {
+                flex-shrink: 0 !important;
                 opacity: 0.72;
                 transition: opacity 0.14s ease, color 0.14s ease;
             }
-            #V-MailMessageView .subjectParent .infoParent:hover,
-            #V-MailMessageView .subjectParent .flagParent:hover {
+            #V-MailMessageView .admin-preview-bar .subjectParent .infoParent:hover,
+            #V-MailMessageView .admin-preview-bar .subjectParent .flagParent:hover {
                 opacity: 1;
             }
-            #V-MailMessageView .subjectParent .close {
-                position: absolute !important;
-                top: 16px !important;
-                right: 18px !important;
+            #V-MailMessageView .admin-preview-bar .close {
+                position: static !important;
                 margin: 0 !important;
                 width: 28px !important;
                 height: 28px !important;
@@ -1022,15 +1142,21 @@ require_once __DIR__ . '/../includes/admin_header.php';
                 opacity: 0.7 !important;
                 transition: background-color 0.14s ease, opacity 0.14s ease !important;
             }
-            #V-MailMessageView .subjectParent .close:hover {
+            #V-MailMessageView .admin-preview-bar .close:hover {
                 background: var(--folders-hover-bg-color) !important;
                 opacity: 1 !important;
             }
-            #V-MailMessageView .message-fixed-button-toolbar {
-                top: 16px !important;
-                right: 52px !important;
+            #V-MailMessageView .admin-preview-bar .message-fixed-button-toolbar {
+                position: static !important;
+                top: auto !important;
+                right: auto !important;
+                margin: 0 !important;
+                padding: 0 !important;
+                display: inline-flex !important;
+                align-items: center !important;
+                gap: 4px !important;
             }
-            #V-MailMessageView .message-fixed-button-toolbar .btn {
+            #V-MailMessageView .admin-preview-bar .message-fixed-button-toolbar .btn {
                 width: 28px !important;
                 height: 28px !important;
                 padding: 0 !important;
@@ -1039,8 +1165,61 @@ require_once __DIR__ . '/../includes/admin_header.php';
                 justify-content: center !important;
                 border-radius: 6px !important;
             }
-            #V-MailMessageView .message-fixed-button-toolbar .btn:hover {
+            #V-MailMessageView .admin-preview-bar .message-fixed-button-toolbar .btn:hover {
                 background: var(--folders-hover-bg-color) !important;
+            }
+            #V-MailMessageView .admin-preview-bar .message-fixed-button-toolbar .dropdown-menu {
+                z-index: 200 !important;
+            }
+            #V-MailMessageView .admin-preview-bar .message-fixed-button-toolbar .btn.buttonEdit,
+            #V-MailMessageView .message-fixed-button-toolbar .buttonEdit {
+                display: none !important;
+            }
+            #V-MailMessageView .admin-reply-bar {
+                display: flex !important;
+                align-items: center !important;
+                gap: 8px !important;
+                margin-top: 10px !important;
+            }
+            #V-MailMessageView .admin-reply-bar:not(:has(.btn:not([style*="display: none"]):not([style*="display:none"]))) {
+                display: none !important;
+            }
+            #V-MailMessageView .admin-reply-bar > span {
+                display: inline-flex !important;
+                align-items: center !important;
+                gap: 8px !important;
+            }
+            #V-MailMessageView .admin-reply-bar .btn {
+                display: inline-flex !important;
+                align-items: center !important;
+                gap: 6px !important;
+                height: 28px !important;
+                padding: 0 10px !important;
+                border-radius: 6px !important;
+                border: 1px solid var(--border-color) !important;
+                background: transparent !important;
+                box-shadow: none !important;
+                color: var(--folders-color) !important;
+                font-size: 0.8rem !important;
+                line-height: 1 !important;
+                text-decoration: none !important;
+                transition: background-color 0.14s ease, color 0.14s ease, border-color 0.14s ease !important;
+            }
+            #V-MailMessageView .admin-reply-bar .btn:hover {
+                background: var(--folders-hover-bg-color) !important;
+                color: var(--folders-hover-color) !important;
+            }
+            #V-MailMessageView .admin-reply-bar .buttonReply::after,
+            #V-MailMessageView .admin-reply-bar .buttonReplyAll::after {
+                font-family: var(--fontSans) !important;
+                font-size: 0.8rem !important;
+                font-weight: 500 !important;
+            }
+            #V-MailMessageView .admin-reply-bar .buttonReply::after {
+                content: 'Responder';
+            }
+            #V-MailMessageView .admin-reply-bar .buttonReplyAll::after {
+                content: 'Responder a todos';
             }
             #V-MailMessageView .b-message > .messageItemHeader .informationShort {
                 display: flex !important;
@@ -1645,7 +1824,10 @@ require_once __DIR__ . '/../includes/admin_header.php';
                     color: var(--folders-hover-color) !important;
                 }
                 #V-MailMessageView .messageView {
-                    height: calc(100dvh - 95px) !important;
+                    height: calc(100dvh - 50px) !important;
+                }
+                #V-MailMessageView .admin-preview-bar {
+                    padding: 0 12px !important;
                 }
                 #V-SettingsPane {
                     padding: 58px 14px 20px !important;
@@ -1659,15 +1841,6 @@ require_once __DIR__ . '/../includes/admin_header.php';
                 }
                 #V-MailMessageView #messageItem .bodyText {
                     padding: 16px 16px 24px !important;
-                }
-                #V-MailMessageView .subjectParent {
-                    padding-right: 76px !important;
-                }
-                #V-MailMessageView .subjectParent .close {
-                    right: 12px !important;
-                }
-                #V-MailMessageView .message-fixed-button-toolbar {
-                    right: 44px !important;
                 }
                 #V-PopupsCompose {
                     width: 100vw !important;
@@ -2247,9 +2420,150 @@ require_once __DIR__ . '/../includes/admin_header.php';
         }
     }
 
+    function syncPreviewHeaderBar(doc, msgView) {
+        if (!msgView) return;
+
+        const applySearchBarHeight = () => {
+            const searchBar = doc.querySelector('#V-MailMessageList .second-toolbar, #V-MailMessageList .b-list-toolbar');
+            if (!searchBar) return;
+            const h = searchBar.getBoundingClientRect().height;
+            if (h > 20) {
+                msgView.style.setProperty('--admin-preview-bar-h', h.toFixed(2) + 'px');
+            }
+            if (!searchBar.dataset.adminPreviewResizeBound && doc.defaultView && typeof doc.defaultView.ResizeObserver === 'function') {
+                searchBar.dataset.adminPreviewResizeBound = '1';
+                const ro = new doc.defaultView.ResizeObserver(() => {
+                    const nextH = searchBar.getBoundingClientRect().height;
+                    if (nextH > 20) {
+                        msgView.style.setProperty('--admin-preview-bar-h', nextH.toFixed(2) + 'px');
+                    }
+                });
+                ro.observe(searchBar);
+            }
+        };
+
+        applySearchBarHeight();
+        if (doc.defaultView && typeof doc.defaultView.requestAnimationFrame === 'function') {
+            doc.defaultView.requestAnimationFrame(applySearchBarHeight);
+        }
+
+        const messageViewEl = msgView.querySelector('.messageView');
+        if (!messageViewEl) return;
+
+        // Remove barra antiga caso tenha sido inserida fora de .messageView
+        const staleOuterBar = msgView.querySelector(':scope > #admin-preview-bar');
+        if (staleOuterBar) staleOuterBar.remove();
+
+        let bar = messageViewEl.querySelector(':scope > #admin-preview-bar');
+        if (!bar) {
+            bar = doc.createElement('div');
+            bar.id = 'admin-preview-bar';
+            bar.className = 'admin-preview-bar';
+
+            const titleWrap = doc.createElement('div');
+            titleWrap.className = 'admin-preview-title';
+            const actionsWrap = doc.createElement('div');
+            actionsWrap.className = 'admin-preview-actions';
+            bar.appendChild(titleWrap);
+            bar.appendChild(actionsWrap);
+
+            messageViewEl.prepend(bar);
+        } else if (messageViewEl.firstElementChild !== bar) {
+            messageViewEl.prepend(bar);
+        }
+
+        const titleWrap = bar.querySelector('.admin-preview-title');
+        const actionsWrap = bar.querySelector('.admin-preview-actions');
+        const bMsg = msgView.querySelector('.b-message');
+        const hasVisibleMessage = Boolean(bMsg && bMsg.style.display !== 'none');
+
+        if (!hasVisibleMessage) {
+            if (titleWrap && titleWrap.childNodes.length) titleWrap.textContent = '';
+            if (actionsWrap && actionsWrap.childNodes.length) {
+                // Não remove fixedToolbar se ainda estiver dentro de bMsg, só limpa elementos soltos
+                Array.from(actionsWrap.children).forEach((el) => {
+                    if (!el.classList.contains('message-fixed-button-toolbar')) el.remove();
+                });
+            }
+            return;
+        }
+
+        const subjectParent = bMsg.querySelector('.messageItemHeader .subjectParent');
+        const fixedToolbar = msgView.querySelector('.message-fixed-button-toolbar');
+        const closeBtn = (subjectParent && subjectParent.querySelector('.close'))
+            || bMsg.querySelector('.messageItemHeader .close')
+            || actionsWrap.querySelector(':scope > .close');
+        const tagsWrap = bMsg.querySelector('.messageTags');
+        const tagTrigger = (tagsWrap
+            ? Array.from(tagsWrap.children).find((el) => !el.matches('[data-i18n="MESSAGE/TAGS"], .messageAssignedTags'))
+            : null) || actionsWrap.querySelector(':scope > .admin-preview-tag-trigger');
+
+        if (subjectParent) {
+            Array.from(titleWrap.children).forEach((el) => {
+                if (el !== subjectParent) el.remove();
+            });
+            if (subjectParent.parentElement !== titleWrap) {
+                titleWrap.appendChild(subjectParent);
+            }
+        }
+
+        // Aguarda o i18nUpdate do Knockout traduzir os itens de data-i18n antes de mover para fora de .b-message
+        const fixedToolbarReady = fixedToolbar && (
+            fixedToolbar.parentElement === actionsWrap ||
+            Array.from(fixedToolbar.querySelectorAll('a[data-i18n]')).some((a) => a.textContent.trim().length > 0)
+        );
+        if (fixedToolbar && !fixedToolbarReady) {
+            setTimeout(() => syncPreviewHeaderBar(doc, msgView), 50);
+        }
+
+        // Remove botões antigos antes de anexar os da mensagem atual (fixedToolbar é reutilizada pelo Knockout)
+        Array.from(actionsWrap.children).forEach((el) => {
+            if (el !== fixedToolbar && el !== tagTrigger && el !== closeBtn) {
+                el.remove();
+            }
+        });
+
+        if (fixedToolbar && fixedToolbarReady && fixedToolbar.parentElement !== actionsWrap) {
+            actionsWrap.appendChild(fixedToolbar);
+        }
+        if (tagTrigger) {
+            tagTrigger.classList.add('admin-preview-tag-trigger');
+            if (tagTrigger.parentElement !== actionsWrap) {
+                if (fixedToolbar && fixedToolbar.parentElement === actionsWrap) {
+                    actionsWrap.insertBefore(tagTrigger, fixedToolbar);
+                } else {
+                    actionsWrap.appendChild(tagTrigger);
+                }
+            }
+        }
+        if (closeBtn && closeBtn.parentElement !== actionsWrap) {
+            actionsWrap.appendChild(closeBtn);
+        }
+
+        // Move botões Responder / Responder a todos para baixo do cabeçalho do remetente/destinatário
+        const msgItemHeader = bMsg.querySelector('#messageItem > .messageItemHeader');
+        if (msgItemHeader) {
+            let replyBar = msgItemHeader.querySelector(':scope > .admin-reply-bar');
+            const replyWrap = (fixedToolbar && fixedToolbar.querySelector('span:has(.buttonReply, .buttonReplyAll)'))
+                || (replyBar && replyBar.querySelector('span:has(.buttonReply, .buttonReplyAll)'));
+            if (replyWrap) {
+                if (!replyBar) {
+                    replyBar = doc.createElement('div');
+                    replyBar.className = 'admin-reply-bar';
+                    msgItemHeader.appendChild(replyBar);
+                }
+                if (replyWrap.parentElement !== replyBar) {
+                    replyBar.textContent = '';
+                    replyBar.appendChild(replyWrap);
+                }
+            }
+        }
+    }
+
     function enhanceMessageView(doc) {
         const msgView = doc.getElementById('V-MailMessageView');
         if (msgView) {
+            syncPreviewHeaderBar(doc, msgView);
             const accountEmail = (doc.querySelector('#top-system-dropdown-id .accountPlace')?.getAttribute('title') || '').trim().toLowerCase();
             const senderEl = msgView.querySelector('.b-message > .messageItemHeader .from a, .b-message > .messageItemHeader .from, .informationFull tr:first-child td:last-child');
             const senderText = (senderEl ? senderEl.textContent : '').toLowerCase();
@@ -2260,11 +2574,6 @@ require_once __DIR__ . '/../includes/admin_header.php';
                 const nextDisplay = isOwnEmail ? '' : 'none';
                 if (editAsNewLi.style.display !== nextDisplay) editAsNewLi.style.display = nextDisplay;
             }
-            msgView.querySelectorAll('.buttonEdit').forEach((btn) => {
-                const target = btn.closest('.top-toolbar .btn-group') || btn;
-                const nextDisplay = isOwnEmail ? '' : 'none';
-                if (target.style.display !== nextDisplay) target.style.display = nextDisplay;
-            });
         }
 
         const infoRow = doc.querySelector('#V-MailMessageView .b-message > .messageItemHeader .informationShort');
@@ -2330,6 +2639,7 @@ require_once __DIR__ . '/../includes/admin_header.php';
                 });
             }
             tagsWrap.classList.toggle('admin-no-user-tags', visibleCount === 0);
+            tagsWrap.style.display = visibleCount === 0 ? 'none' : '';
             const labelEl = tagsWrap.querySelector('[data-i18n="MESSAGE/TAGS"]');
             if (labelEl) {
                 labelEl.style.display = visibleCount === 0 ? 'none' : '';
