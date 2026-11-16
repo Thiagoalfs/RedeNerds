@@ -51,7 +51,9 @@ $todosCargos = array_unique(array_merge($cargosOrdem, array_keys($grupos)));
         <p class="text-muted small mb-0"><span data-item-counter><?php echo pluralizar(count($membros), 'membro', 'membros'); ?></span> em <?php echo pluralizar(count($grupos), 'categoria', 'categorias'); ?></p>
     </div>
     <div class="d-flex gap-2">
+        <?php if (usuarioPodeAcessar('equipe_manage', $_SESSION['cargo_nivel'] ?? null)): ?>
         <a href="manage.php" class="btn btn-outline-primary btn-sm"><i class="fa-solid fa-layer-group me-1"></i> Gerenciar Cargos</a>
+        <?php endif; ?>
         <button type="button" class="btn btn-success btn-sm btn-abrir-criar-membro" data-cargo="">
             <i class="fa-solid fa-plus me-1"></i> Novo Membro
         </button>

@@ -1,5 +1,5 @@
 <?php
-$paginaAtiva = 'equipe';
+$paginaAtiva = 'equipe_manage';
 $tituloPagina = 'Gerenciar Cargos da Equipe';
 require_once __DIR__ . "/../includes/admin_header.php";
 
