@@ -27,7 +27,7 @@ O ecossistema combina páginas otimizadas com SEO completo e seções **dinâmic
 - **`servidores/`** e **Página Inicial** — Detalhes completos de cada servidor, downloads de modpack, cópia de IP em 1 clique, vitrine de parceiros e temas dinâmicos via `/api/servidores_api.php`.
 - **`equipe/`** — Listagem de membros da staff com hierarquia e cores personalizáveis, renderização segura contra XSS, fallback inteligente de skins e carrossel mobile via `/api/equipe_api.php`.
 - **`novidades/`** — Notícias e changelogs com paginação, busca, filtros e tags coloridas por servidor via `/api/novidades_api.php`.
-- **`admin/`** — Painel administrativo moderno com sidebar fixa, rate limiting contra força bruta, gestão de vendas, cupons, catálogo de VIPs e Chaves (com upload de imagens), parceiros, servidores, notícias, equipe e wiki.
+- **`admin/`** — Painel administrativo com RBAC no backend por cargo (revalidado no banco a cada requisição), logs de auditoria (`admin_logs`), gestão de usuários, e-mail, rate limiting contra força bruta, vendas, cupons, catálogo de VIPs e Chaves (com upload WebP), parceiros, servidores, notícias, equipe e wiki.
 - **`tests/`** — Suíte completa de testes automatizados cobrindo segurança, anti-spoofing de IP, geolocalização, idempotência transacional, atomicidade de webhooks e lógica de cálculo de pacotes.
 
 ---
@@ -50,12 +50,15 @@ RedeNerds/
 │   │   └── wiki/        # Endpoints para artigos e categorias da Wiki
 │   ├── chaves/          # Gestão de pacotes de chaves com upload de imagem e preview
 │   ├── cupons/          # Gestão de cupons de desconto (percentual / fixo)
-│   ├── equipe/          # Gestão de membros e hierarquia/cores de cargos
-│   ├── includes/        # Componentes compartilhados do admin (Header, Sidebar fixa, Footer, Toolbar)
+│   ├── email/           # Caixa e gestão de e-mails do painel
+│   ├── equipe/          # Gestão de membros e hierarquia/cores de cargos (manage.php restrito à Diretoria/Fundadores)
+│   ├── includes/        # Componentes compartilhados do admin (permissoes.php, logger.php, Header, Sidebar, Footer)
+│   ├── logs/            # Auditoria de ações administrativas (admin_logs) com filtros e paginação
 │   ├── noticias/        # Gestão de novidades com upload WebP e Discord Webhook
 │   ├── parceiros/       # Gestão completa de parceiros e banners
 │   ├── pedidos/         # Histórico de pedidos (VIPs e Chaves) e exportação CSV compatível com Excel
 │   ├── servidores/      # Gestão de servidores e temas
+│   ├── usuarios/        # Gestão de contas administrativas e hierarquia de permissões
 │   ├── vips/            # Gestão do catálogo de pacotes VIP
 │   └── wiki/            # Gestão de artigos, categorias e editor Markdown com upload de imagens
 ├── api/                 # Endpoints REST públicos e protegidos em PHP
@@ -69,6 +72,7 @@ RedeNerds/
 │   ├── images/          # Ícones 3D oficiais (Instagram, TikTok, YouTube, CurseForge, Discord) e banners
 │   └── servidores/      # Ícones oficiais dos servidores da rede
 ├── download/            # Página de download (launchers, modpacks, etc.)
+├── docker-init/         # Scripts SQL executados na inicialização inicial do container MySQL
 ├── equipe/              # Página pública da equipe (grid desktop, carrossel mobile e anti-XSS)
 ├── errors/404/          # Página 404 personalizada
 ├── loja/                # Página Oficial da Loja (painel VIPs & Chaves, checkout interativo)
@@ -81,10 +85,13 @@ RedeNerds/
 ├── suporte/             # Central de ajuda / FAQ / suporte aos jogadores
 ├── tests/               # Suíte de testes unitários e de integração (100% automatizados)
 ├── wiki/                # Central de Guias & Wiki pública
+├── Caddyfile            # Proxy reverso Caddy com SSL automático (Let's Encrypt)
+├── Dockerfile           # Imagem PHP 8.4 + Apache com extensões e hardening
+├── docker-compose.yml   # Orquestração dos containers (caddy, web e db MySQL 8.0)
 ├── index.html           # Página inicial (Landing Page com vitrine de servidores, parceiros e Discord)
 ├── index.css            # Estilos da landing page
 ├── robots.txt           # Diretrizes de indexação SEO e proteção de rotas privadas
-└── .htaccess            # Configurações do servidor Apache, compressão, segurança e cache
+└── .htaccess            # Configurações do Apache, proteção de arquivos sensíveis, cache e rewrite rules
 ```
 
 ---
@@ -199,7 +206,42 @@ O painel administrativo centraliza toda a gestão do ecossistema com proteção 
 
 ### 8. Gerenciador de Servidores (`admin/servidores/`) & Equipe (`admin/equipe/`)
 - Cadastro de servidores, IPs, links de modpack, temas visuais (`themecolor`) e lista de features.
-- Gestão de membros da equipe com hierarquia visual e seletor de cores Hexadecimal.
+- Gestão de membros da equipe com hierarquia visual e seletor de cores Hexadecimal (com `manage.php` e endpoints de cargos restritos no backend à Diretoria e Fundadores).
+
+### 9. Controle de Acesso (RBAC) & Auditoria (`admin/logs/`, `admin/usuarios/`)
+- Validação integral no backend em [`admin/sessao.php`](admin/sessao.php) e [`admin/includes/permissoes.php`](admin/includes/permissoes.php): a cada requisição, o cargo do usuário é revalidado no banco (`usuarios` + `equipe`) antes de liberar páginas ou endpoints.
+- Registro automático de auditoria administrativa na tabela `admin_logs` via [`admin/includes/logger.php`](admin/includes/logger.php), com filtros por módulo, ação, período e IP.
+
+---
+
+## 🐳 Infraestrutura Docker & Operação (VPS)
+
+O ambiente de produção roda isolado via **Docker Compose** (`docker-compose.yml`) com três serviços em rede interna (`nerdcube_net`):
+
+| Container | Imagem | Função |
+| :--- | :--- | :--- |
+| **`nerdcube_caddy`** | `caddy:2-alpine` | Proxy reverso nas portas `80` e `443` com emissão e renovação automática de SSL (Let's Encrypt) via `Caddyfile`. |
+| **`nerdcube_web`** | `php:8.4-apache` | Aplicação PHP 8.4 + Apache (com `expose_php = Off`, `display_errors = Off` e proteção de arquivos sensíveis no `.htaccess`). |
+| **`nerdcube_db`** | `mysql:8.0` | Banco de dados MySQL 8.0 isolado na rede interna (sem exposição pública da porta `3306`) e volume persistente `mysql_data`. |
+
+- **Variáveis de ambiente (`.env`):** Todas as credenciais (`DB_*`, `DOMAIN`, `API_SECRET_KEY`, `DISCORD_WEBHOOK_*`, `MERCADO_PAGO_*`, `DELIVERY_*`) são carregadas estritamente do ambiente via `env_require()` em `config.php`, sem fallbacks hardcoded.
+- **Auto-Deploy (CI/CD):** A cada push na branch `main`, o workflow `.github/workflows/deploy.yml` conecta via SSH na VPS, atualiza o código e executa `docker compose up -d --build`.
+
+### Comandos Úteis & Restauração de Backup
+
+```bash
+# Subir ou atualizar os containers na VPS
+docker compose up -d --build
+
+# Verificar versão do PHP em execução
+docker exec nerdcube_web php -v
+
+# Restaurar um backup compactado (.sql.gz) para o MySQL
+gunzip -c /caminho/do/backup.sql.gz | docker exec -i -e MYSQL_PWD="SUA_DB_ROOT_PASSWORD" nerdcube_db mysql -u root redenerds
+
+# Restaurar um dump SQL sem compressão (.sql)
+docker exec -i -e MYSQL_PWD="SUA_DB_ROOT_PASSWORD" nerdcube_db mysql -u root redenerds < /caminho/do/backup.sql
+```
 
 ---
 
@@ -231,11 +273,11 @@ O painel administrativo centraliza toda a gestão do ecossistema com proteção 
 ## 🛠️ Stack Tecnológica
 
 - **Frontend:** HTML5, CSS3 moderno (design responsivo, paleta escura sólida, variáveis CSS), JavaScript (ES6+ assíncrono, sanitização DOM, carrossel touch).
-- **Backend:** PHP 8+ com tipagem estrita (`declare(strict_types=1)`), PDO/MySQLi, cURL e tratamento de exceções.
-- **Banco de Dados:** MySQL / MariaDB com constraints relacionais, índices únicos em transações (`txid`) e suporte a migrations versionadas.
+- **Backend:** PHP 8.4 com tipagem estrita (`declare(strict_types=1)`), PDO/MySQLi, cURL, GD/WebP e tratamento de exceções.
+- **Banco de Dados:** MySQL 8.0 com constraints relacionais, índices únicos em transações (`txid`), auditoria (`admin_logs`) e suporte a migrations versionadas.
 - **Gateways & APIs:** Mercado Pago SDK/REST API, Discord Webhooks API, Minecraft Skins API.
-- **Qualidade & Segurança:** Suíte de testes automatizados com PHP Assertions, rate limiting de login, sanitização XSS, anti-spoofing Cloudflare e validação Zero-Trust.
-- **Infraestrutura:** Servidor Apache com `.htaccess` otimizado (gzip, cache headers, rewrite rules) e GitHub Actions para CI/CD.
+- **Qualidade & Segurança:** Suíte de testes automatizados com PHP Assertions, RBAC no backend revalidado por requisição, proteção CSRF em rotas de escrita, rate limiting de login/APIs, sanitização XSS, anti-spoofing Cloudflare e validação Zero-Trust.
+- **Infraestrutura:** Docker Compose (`caddy:2-alpine` com SSL automático, `php:8.4-apache` hardened, `mysql:8.0` isolado), `.htaccess` protegendo `.env`/`.git`/`config.php`/`*.sql` e GitHub Actions para CI/CD via SSH.
 
 ---
 
