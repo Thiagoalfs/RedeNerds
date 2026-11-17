@@ -146,8 +146,6 @@ function initNovidades() {
         newsContainer.innerHTML = entries.map(news => {
             const categoryKey = toCategoryKey(news.category);
             const categoryLabel = categoryLabels[categoryKey] || news.category || "";
-            const rawDesc = stripMarkdownSnippet(news.conteudo);
-            const descSnippet = rawDesc || "Clique para ver todos os detalhes e informações desta atualização.";
             const dataObj = news.criado_em ? new Date(String(news.criado_em).replace(" ", "T")) : new Date();
             const dataFormatada = !isNaN(dataObj.getTime()) ? dataObj.toLocaleDateString("pt-BR") : "";
 
@@ -158,11 +156,10 @@ function initNovidades() {
                 </div>
                 <div class="news-div-content">
                     <div class="news-div-meta">
+                        ${categoryLabel ? `<span class="news-div-tag" data-category="${categoryKey}">${escapeHTML(categoryLabel)}</span>` : "<span></span>"}
                         <span class="news-div-date">${dataFormatada}</span>
-                        ${categoryLabel ? `<span class="news-div-tag" data-category="${categoryKey}">${escapeHTML(categoryLabel)}</span>` : ""}
                     </div>
                     <h3 class="news-div-title">${escapeHTML(news.titulo)}</h3>
-                    <p class="news-div-desc">${escapeHTML(descSnippet)}</p>
                     <div class="news-div-footer">
                         <div class="author">
                             <img class="author-head" src="https://mc-heads.net/avatar/${encodeURIComponent(String(news.autor || 'Steve').trim())}" alt="${escapeHTML(news.autor)}">
