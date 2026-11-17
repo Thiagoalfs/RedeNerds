@@ -162,8 +162,9 @@
             </div>
         </div>
         <div class="d-flex align-items-center gap-1 flex-shrink-0">
-            <button type="button" class="btn-sidebar-logout" data-bs-toggle="modal" data-bs-target="#modalAlterarPropriaSenha" title="Alterar minha senha" aria-label="Alterar minha senha">
-                <i class="fa-solid fa-key"></i>
+            <button type="button" class="btn-sidebar-logout" id="btn-theme-toggle" onclick="alternarTemaAdmin()" title="Alternar tema (Claro / Escuro)" aria-label="Alternar tema">
+                <i class="fa-solid fa-moon theme-icon-dark"></i>
+                <i class="fa-solid fa-sun theme-icon-light"></i>
             </button>
             <a href="/admin/logout.php" class="btn-sidebar-logout" title="Sair do Painel">
                 <i class="fa-solid fa-right-from-bracket"></i>

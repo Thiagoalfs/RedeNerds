@@ -63,14 +63,7 @@ $tituloPagina = $tituloPagina ?? 'Painel Administrativo';
                     </div>
                 </div>
 
-                <div class="topbar-right">
-                    <!-- BOTÃO ALTERNAR TEMA (DARK / LIGHT) -->
-                    <button type="button" class="btn-theme-toggle" id="btn-theme-toggle" onclick="alternarTemaAdmin()" title="Alternar tema (Claro / Escuro)" aria-label="Alternar tema">
-                        <i class="fa-solid fa-moon theme-icon-dark"></i>
-                        <i class="fa-solid fa-sun theme-icon-light"></i>
-                        <span class="theme-label d-none d-xl-inline">Tema</span>
-                    </button>
-                </div>
+                <div class="topbar-right"></div>
             </header>
 
             <main class="admin-content">
