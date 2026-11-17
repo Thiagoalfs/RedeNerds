@@ -23,7 +23,7 @@ function gerarHashRegistro(array $row, array $ignorar = [], ?string $tabela = nu
     $somenteCampos = $tabela !== null ? camposConcorrenciaTabela($tabela) : null;
     $filtrado = [];
     foreach ($row as $k => $v) {
-        if (is_int($k) || in_array($k, $ignorar, true) || $k === '_versao_hash') {
+        if (is_int($k) || is_array($v) || is_object($v) || in_array($k, $ignorar, true) || $k === '_versao_hash') {
             continue;
         }
         if ($somenteCampos !== null && !in_array((string)$k, $somenteCampos, true)) {
@@ -131,4 +131,11 @@ function executarToggleAtomico(
     }
 
     return ['ok' => true, 'novo' => $novo, 'row' => $row];
+}
+
+function obterHashAtualRegistro(PDO $pdo, string $tabela, int $id, ?string $tabelaMapa = null): string {
+    $stmt = $pdo->prepare("SELECT * FROM `{$tabela}` WHERE id = :id LIMIT 1");
+    $stmt->execute([':id' => $id]);
+    $row = $stmt->fetch(PDO::FETCH_ASSOC);
+    return $row ? gerarHashRegistro($row, [], $tabelaMapa) : '';
 }

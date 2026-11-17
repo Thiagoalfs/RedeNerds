@@ -1511,6 +1511,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const tr = document.createElement('tr');
         tr.id = `vip-row-${v.id}`;
         tr.dataset.id = v.id;
+        tr.dataset.versaoHash = v._versao_hash || '';
         tr.dataset.servidorId = v.servidor_id || 0;
         tr.dataset.nome = v.nome || '';
         tr.dataset.packageId = v.packageId || '';

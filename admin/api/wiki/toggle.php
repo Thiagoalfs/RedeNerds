@@ -18,7 +18,11 @@ if ($id > 0 && isset($pdo) && $pdo instanceof PDO) {
 
         if ($isAjax) {
             header('Content-Type: application/json; charset=utf-8');
-            echo json_encode(["success" => true, "publicado" => $novo]);
+            echo json_encode([
+                "success" => true,
+                "publicado" => $novo,
+                "_versao_hash" => obterHashAtualRegistro($pdo, 'wiki_artigos', $id, 'wiki_artigos')
+            ]);
             exit;
         }
     } catch (Exception $e) {

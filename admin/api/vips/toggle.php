@@ -45,7 +45,11 @@ if (isset($pdo) && $pdo instanceof PDO) {
 
         if ($isAjax) {
             header('Content-Type: application/json; charset=utf-8');
-            echo json_encode(["success" => true, "ativo" => $novoStatus]);
+            echo json_encode([
+                "success" => true,
+                "ativo" => $novoStatus,
+                "_versao_hash" => obterHashAtualRegistro($pdo, 'vips', $id)
+            ]);
             exit;
         }
 

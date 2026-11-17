@@ -619,6 +619,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const tr = document.createElement('tr');
         tr.id = `artigo-row-${art.id}`;
         tr.dataset.id = art.id;
+        tr.dataset.versaoHash = art._versao_hash || '';
         tr.dataset.titulo = art.titulo || '';
         tr.dataset.slug = art.slug || '';
         tr.dataset.servidorId = art.servidor_id || '';

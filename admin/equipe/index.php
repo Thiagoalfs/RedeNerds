@@ -417,6 +417,7 @@ document.addEventListener('DOMContentLoaded', function() {
         tr.className = 'membro-row';
         tr.id = `membro-row-${m.id}`;
         tr.dataset.id = m.id;
+        tr.dataset.versaoHash = m._versao_hash || '';
         tr.dataset.nick = m.nick || '';
         tr.dataset.cargo = m.cargo || '';
         tr.draggable = true;

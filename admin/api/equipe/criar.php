@@ -62,6 +62,9 @@ try {
     $busca = $pdo->prepare("SELECT * FROM equipe WHERE id = :id LIMIT 1");
     $busca->execute([':id' => $novoId]);
     $membro = $busca->fetch(PDO::FETCH_ASSOC);
+    if ($membro) {
+        $membro['_versao_hash'] = gerarHashRegistro($membro, [], 'equipe');
+    }
 
     header('Content-Type: application/json; charset=utf-8');
     echo json_encode([

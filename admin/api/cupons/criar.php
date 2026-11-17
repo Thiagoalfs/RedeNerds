@@ -68,6 +68,9 @@ try {
     $busca = $pdo->prepare("SELECT * FROM cupons WHERE id = :id LIMIT 1");
     $busca->execute([':id' => $novoId]);
     $cupom = $busca->fetch(PDO::FETCH_ASSOC);
+    if ($cupom) {
+        $cupom['_versao_hash'] = gerarHashRegistro($cupom);
+    }
 
     header('Content-Type: application/json; charset=utf-8');
     echo json_encode([

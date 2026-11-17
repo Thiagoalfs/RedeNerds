@@ -690,6 +690,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const tr = document.createElement('tr');
         tr.id = `servidor-row-${s.id}`;
         tr.dataset.id = s.id;
+        tr.dataset.versaoHash = s._versao_hash || '';
         tr.dataset.servername = s.servername || '';
         tr.dataset.nome = s.nome || '';
         tr.dataset.ip = s.ip || '';

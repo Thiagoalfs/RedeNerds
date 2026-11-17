@@ -113,6 +113,9 @@ try {
     $busca = $pdo->prepare("SELECT * FROM vips WHERE id = :id LIMIT 1");
     $busca->execute([':id' => $novoId]);
     $vip = $busca->fetch(PDO::FETCH_ASSOC);
+    if ($vip) {
+        $vip['_versao_hash'] = gerarHashRegistro($vip);
+    }
 
     header('Content-Type: application/json; charset=utf-8');
     echo json_encode([

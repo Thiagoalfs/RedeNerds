@@ -115,6 +115,9 @@ try {
     $busca = $pdo->prepare("SELECT * FROM chaves WHERE id = :id LIMIT 1");
     $busca->execute([':id' => $novoId]);
     $chave = $busca->fetch(PDO::FETCH_ASSOC);
+    if ($chave) {
+        $chave['_versao_hash'] = gerarHashRegistro($chave);
+    }
 
     header('Content-Type: application/json; charset=utf-8');
     echo json_encode([

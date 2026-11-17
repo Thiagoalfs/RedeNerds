@@ -94,6 +94,9 @@ try {
     $busca = $pdo->prepare("SELECT * FROM servidores WHERE id = :id LIMIT 1");
     $busca->execute([':id' => $novoServidorId]);
     $servidor = $busca->fetch(PDO::FETCH_ASSOC);
+    if ($servidor) {
+        $servidor['_versao_hash'] = gerarHashRegistro($servidor, [], 'servidores');
+    }
 
     header('Content-Type: application/json; charset=utf-8');
     echo json_encode([

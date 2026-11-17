@@ -79,6 +79,9 @@ try {
     $busca = $pdo->prepare("SELECT * FROM novidades WHERE id = :id LIMIT 1");
     $busca->execute([':id' => $novoId]);
     $noticia = $busca->fetch(PDO::FETCH_ASSOC);
+    if ($noticia) {
+        $noticia['_versao_hash'] = gerarHashRegistro($noticia, [], 'novidades');
+    }
 
     $msgSucesso = "Novidade '{$titulo}' publicada com sucesso!";
     if ($enviar_webhook && $discordMsgId === null) {

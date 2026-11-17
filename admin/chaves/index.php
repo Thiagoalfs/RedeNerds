@@ -1454,6 +1454,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const tr = document.createElement('tr');
         tr.id = `chave-row-${c.id}`;
         tr.dataset.id = c.id;
+        tr.dataset.versaoHash = c._versao_hash || '';
         tr.dataset.servidorId = c.servidor_id || 0;
         tr.dataset.nome = c.nome || '';
         tr.dataset.packageId = c.packageId || '';

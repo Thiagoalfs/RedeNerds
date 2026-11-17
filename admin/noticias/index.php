@@ -514,6 +514,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const tr = document.createElement('tr');
         tr.id = `noticia-row-${n.id}`;
         tr.dataset.id = n.id;
+        tr.dataset.versaoHash = n._versao_hash || '';
         tr.dataset.titulo = n.titulo || '';
         tr.dataset.category = n.category || '';
         tr.dataset.categoriaEnvio = n.categoria_envio || 'Anúncios';

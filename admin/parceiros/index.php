@@ -603,6 +603,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const tr = document.createElement('tr');
         tr.id = `parceiro-row-${p.id}`;
         tr.dataset.id = p.id;
+        tr.dataset.versaoHash = p._versao_hash || '';
         tr.dataset.nome = p.nome || '';
         tr.dataset.foto = p.foto || '';
         tr.dataset.youtube = p.youtube || '';

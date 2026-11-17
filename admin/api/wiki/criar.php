@@ -105,6 +105,9 @@ try {
     ");
     $busca->execute([':id' => $novoId]);
     $artigo = $busca->fetch(PDO::FETCH_ASSOC);
+    if ($artigo) {
+        $artigo['_versao_hash'] = gerarHashRegistro($artigo, [], 'wiki_artigos');
+    }
 
     header('Content-Type: application/json; charset=utf-8');
     echo json_encode([

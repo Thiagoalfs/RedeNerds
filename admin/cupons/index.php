@@ -70,6 +70,7 @@ try {
     $cupons = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
     foreach ($cupons as $c) {
+        $c['_versao_hash'] = gerarHashRegistro($c);
         $st = statusDoCupom($c, $servidoresMap);
         $c['_status_info'] = $st;
 
@@ -100,7 +101,7 @@ function renderLinhaCupom(array $c, array $servidoresMap): string {
 
     $html = '<tr id="cupom-row-' . (int)$c['id'] . '" '
           . 'data-id="' . (int)$c['id'] . '" '
-          . 'data-versao-hash="' . htmlspecialchars(gerarHashRegistro($c), ENT_QUOTES, 'UTF-8') . '" '
+          . 'data-versao-hash="' . htmlspecialchars($c['_versao_hash'] ?? gerarHashRegistro($c, ['_status_info']), ENT_QUOTES, 'UTF-8') . '" '
           . 'data-codigo="' . htmlspecialchars($c['codigo'], ENT_QUOTES, 'UTF-8') . '" '
           . 'data-porcentagem="' . (float)$c['porcentagem_desconto'] . '" '
           . 'data-servidor-id="' . $sId . '" '
@@ -495,10 +496,11 @@ document.addEventListener('DOMContentLoaded', function() {
         const tr = document.createElement('tr');
         tr.id = `cupom-row-${c.id}`;
         tr.dataset.id = c.id;
+        tr.dataset.versaoHash = c._versao_hash || '';
         tr.dataset.codigo = c.codigo || '';
         tr.dataset.porcentagem = c.porcentagem_desconto || '0';
         tr.dataset.servidorId = c.servidor_id || '0';
-        tr.dataset.expiraEm = (c.expira_em || '').substring(0, 16);
+        tr.dataset.expiraEm = (c.expira_em || '').replace(' ', 'T').substring(0, 16);
         tr.dataset.ativo = c.ativo ? '1' : '0';
         tr.dataset.usos = c.usos_total || '0';
         tr.dataset.criadoEm = formatarDataBR(c.criado_em);

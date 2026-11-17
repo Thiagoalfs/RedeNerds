@@ -279,6 +279,18 @@
         let isVisibilityType = false;
 
         if (row) {
+          if (res._versao_hash) {
+            row.dataset.versaoHash = res._versao_hash;
+          }
+          if (res.ativo !== undefined && row.dataset.ativo !== undefined) {
+            row.dataset.ativo = novoStatus ? '1' : '0';
+          }
+          if (res.ativo !== undefined && row.dataset.enabled !== undefined) {
+            row.dataset.enabled = novoStatus ? '1' : '0';
+          }
+          if (res.publicado !== undefined && row.dataset.publicado !== undefined) {
+            row.dataset.publicado = novoStatus ? '1' : '0';
+          }
           const badge = row.querySelector('.badge-status, [data-status-badge]');
           if (badge) {
             isVisibilityType = badge.classList.contains('visivel') || badge.classList.contains('oculto') || badge.textContent.trim().toLowerCase().includes('vis');

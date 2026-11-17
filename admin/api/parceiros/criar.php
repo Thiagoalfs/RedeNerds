@@ -84,6 +84,9 @@ try {
     $busca = $pdo->prepare("SELECT * FROM parceiros WHERE id = :id LIMIT 1");
     $busca->execute([':id' => $novoId]);
     $parceiro = $busca->fetch(PDO::FETCH_ASSOC);
+    if ($parceiro) {
+        $parceiro['_versao_hash'] = gerarHashRegistro($parceiro);
+    }
 
     header('Content-Type: application/json; charset=utf-8');
     echo json_encode([
