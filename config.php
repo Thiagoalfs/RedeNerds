@@ -34,6 +34,7 @@ function env_require(string $key): string {
 // BANCO DE DADOS (100% via ambiente)
 // ========================================================
 $host = env_require('DB_HOST');
+$port = (int)(getenv('DB_PORT') ?: 3306);
 $user = env_require('DB_USER');
 $pass = env_require('DB_PASS');
 $db   = env_require('DB_NAME');
@@ -45,7 +46,7 @@ $db_error = null;
 // Tenta conexão via PDO (se a extensão pdo_mysql estiver ativa)
 if (extension_loaded('pdo_mysql')) {
     try {
-        $pdo = new PDO("mysql:host={$host};dbname={$db};charset=utf8mb4", $user, $pass, [
+        $pdo = new PDO("mysql:host={$host};port={$port};dbname={$db};charset=utf8mb4", $user, $pass, [
             PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
             PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
             PDO::ATTR_TIMEOUT            => 4
@@ -60,7 +61,7 @@ if (extension_loaded('pdo_mysql')) {
 if (extension_loaded('mysqli')) {
     try {
         mysqli_report(MYSQLI_REPORT_OFF);
-        $conn = @new mysqli($host, $user, $pass, $db);
+        $conn = @new mysqli($host, $user, $pass, $db, $port);
         if ($conn->connect_error) {
             if (!$db_error) $db_error = $conn->connect_error;
             $conn = null;
