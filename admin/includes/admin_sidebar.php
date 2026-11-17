@@ -171,3 +171,12 @@
         </div>
     </div>
 </aside>
+<script>
+(function () {
+    const nav = document.querySelector('#admin-sidebar .sidebar-nav');
+    if (!nav) return;
+    const saved = sessionStorage.getItem('admin_sidebar_scroll');
+    if (saved !== null) nav.scrollTop = parseInt(saved, 10) || 0;
+    nav.addEventListener('scroll', () => sessionStorage.setItem('admin_sidebar_scroll', String(nav.scrollTop)), { passive: true });
+})();
+</script>
