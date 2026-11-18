@@ -3,6 +3,7 @@ $paginaAtiva = 'dashboard';
 $tituloPagina = 'Dashboard';
 require_once __DIR__ . "/includes/admin_header.php";
 require_once __DIR__ . "/includes/servidores_admin.php";
+require_once __DIR__ . "/../api/loja/expiracao_helper.php";
 
 // 1. Consulta Métricas & KPIs
 $totalFaturamento = 0.00;
@@ -24,6 +25,7 @@ $metodosPagamento = [];
 
 try {
     if (isset($pdo) && $pdo instanceof PDO) {
+        expirarPedidosPendentes($pdo);
         $servidoresMap = carregarServidoresAdmin($pdo)['mapa'];
 
         // Métricas consolidadas de faturamento e vendas com comparação com o mês anterior

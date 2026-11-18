@@ -2,6 +2,7 @@
 $paginaAtiva = 'pedidos';
 $tituloPagina = 'Pedidos';
 require_once __DIR__ . "/../includes/admin_header.php";
+require_once __DIR__ . "/../../api/loja/expiracao_helper.php";
 
 if (!defined('POR_PAGINA')) {
     define('POR_PAGINA', 15);
@@ -24,6 +25,7 @@ $params = [];
 
 try {
     if (isset($pdo) && $pdo instanceof PDO) {
+        expirarPedidosPendentes($pdo);
         $stmtSrv = $pdo->query("SELECT id, servername, nome, themecolor, icon FROM servidores ORDER BY servername ASC");
         $servidoresList = $stmtSrv->fetchAll(PDO::FETCH_ASSOC);
         foreach ($servidoresList as $s) {
