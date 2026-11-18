@@ -2996,7 +2996,6 @@ dialog.loja-dialog[hidden],
   justify-content: center;
   background-color: var(--color-surface-card);
   border: 1px solid var(--color-border);
-  border-bottom: none;
   border-radius: 6px 6px 0 0;
   overflow: hidden;
 }
@@ -3065,9 +3064,8 @@ dialog.loja-dialog[hidden],
 .ranking-player-total {
   width: 100%;
   padding: 0.55rem 0.35rem;
-  background-color: #0b0e16;
-  border: 1px solid var(--color-border);
-  border-radius: 0 0 8px 8px;
+  background: transparent;
+  border: none;
   font-family: var(--font-mono);
   font-size: 0.88rem;
   font-weight: 600;
