@@ -2900,48 +2900,78 @@ dialog.loja-dialog[hidden],
   display: flex;
   justify-content: center;
   align-items: flex-end;
-  gap: 1rem;
+  gap: 0.75rem;
 }
 
 .ranking-podium-card {
   position: relative;
   flex: 1 1 0;
-  max-width: 260px;
+  max-width: 245px;
   min-width: 0;
   display: flex;
   flex-direction: column;
   align-items: center;
   text-align: center;
-  background-color: var(--color-surface-card);
-  border: 1px solid var(--color-border);
-  border-radius: 12px;
-  padding: 1.25rem 1rem 0 1rem;
-  box-shadow: var(--shadow-hard);
-  overflow: hidden;
+  background: transparent;
+  border: none;
+  padding: 0;
 }
 
 .ranking-podium-card.pos-1 {
   order: 2;
-  border-color: rgba(241, 196, 15, 0.55);
 }
 
 .ranking-podium-card.pos-2 {
   order: 1;
-  border-color: rgba(203, 213, 225, 0.4);
 }
 
 .ranking-podium-card.pos-3 {
   order: 3;
-  border-color: rgba(205, 127, 50, 0.45);
+}
+
+.ranking-nametag {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  max-width: 100%;
+  padding: 0.28rem 0.65rem;
+  margin-bottom: 0.55rem;
+  background-color: rgba(0, 0, 0, 0.62);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 4px;
+  font-family: 'Minecraft', monospace;
+  font-size: 0.88rem;
+  line-height: 1.2;
+  color: #FFFFFF;
+}
+
+.ranking-podium-card.pos-1 .ranking-nametag {
+  border-color: rgba(241, 196, 15, 0.45);
+}
+
+.ranking-crown {
+  color: #F1C40F;
+  font-size: 0.78rem;
+  flex-shrink: 0;
+}
+
+.ranking-nametag-text {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  min-width: 0;
 }
 
 .ranking-skin-wrap {
+  position: relative;
   display: flex;
   align-items: flex-end;
   justify-content: center;
   width: 100%;
   height: 150px;
-  margin-bottom: 0.75rem;
+  margin-bottom: -4px;
+  z-index: 2;
 }
 
 .ranking-podium-card.pos-1 .ranking-skin-wrap {
@@ -2955,55 +2985,96 @@ dialog.loja-dialog[hidden],
   object-fit: contain;
   image-rendering: pixelated;
   display: block;
+  filter: drop-shadow(0 8px 10px rgba(0, 0, 0, 0.55));
 }
 
-.ranking-player-nick {
-  font-weight: 700;
-  font-size: 1rem;
-  color: var(--color-text-main);
-  margin-bottom: 0.25rem;
+.ranking-pedestal {
+  position: relative;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--color-surface-card);
+  border: 1px solid var(--color-border);
+  border-bottom: none;
+  border-radius: 6px 6px 0 0;
   overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  max-width: 100%;
+}
+
+.ranking-pedestal::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+}
+
+.ranking-pedestal-rank {
+  font-family: 'Minecraft', monospace;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: 0.02em;
+}
+
+.ranking-podium-card.pos-1 .ranking-pedestal {
+  height: 122px;
+  background-color: #161922;
+  border-color: rgba(241, 196, 15, 0.4);
+  color: #F1C40F;
+}
+
+.ranking-podium-card.pos-1 .ranking-pedestal::before {
+  background-color: #F1C40F;
+}
+
+.ranking-podium-card.pos-1 .ranking-pedestal-rank {
+  font-size: 1.8rem;
+}
+
+.ranking-podium-card.pos-2 .ranking-pedestal {
+  height: 92px;
+  background-color: #121722;
+  border-color: rgba(203, 213, 225, 0.3);
+  color: #CBD5E1;
+}
+
+.ranking-podium-card.pos-2 .ranking-pedestal::before {
+  background-color: #CBD5E1;
+}
+
+.ranking-podium-card.pos-2 .ranking-pedestal-rank {
+  font-size: 1.45rem;
+}
+
+.ranking-podium-card.pos-3 .ranking-pedestal {
+  height: 68px;
+  background-color: #141720;
+  border-color: rgba(205, 127, 50, 0.35);
+  color: #E09145;
+}
+
+.ranking-podium-card.pos-3 .ranking-pedestal::before {
+  background-color: #E09145;
+}
+
+.ranking-podium-card.pos-3 .ranking-pedestal-rank {
+  font-size: 1.3rem;
 }
 
 .ranking-player-total {
+  width: 100%;
+  padding: 0.55rem 0.35rem;
+  background-color: #0b0e16;
+  border: 1px solid var(--color-border);
+  border-radius: 0 0 8px 8px;
   font-family: var(--font-mono);
   font-size: 0.88rem;
   font-weight: 600;
   color: var(--color-success);
-  margin-bottom: 1rem;
-}
-
-.ranking-pedestal {
-  width: calc(100% + 2rem);
-  margin: 0 -1rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: 800;
-  font-size: 1.05rem;
-  letter-spacing: 0.02em;
-  border-top: 1px solid var(--color-border);
-}
-
-.ranking-podium-card.pos-1 .ranking-pedestal {
-  height: 64px;
-  background-color: rgba(241, 196, 15, 0.14);
-  color: #F1C40F;
-}
-
-.ranking-podium-card.pos-2 .ranking-pedestal {
-  height: 48px;
-  background-color: rgba(203, 213, 225, 0.1);
-  color: #CBD5E1;
-}
-
-.ranking-podium-card.pos-3 .ranking-pedestal {
-  height: 36px;
-  background-color: rgba(205, 127, 50, 0.12);
-  color: #E09145;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .ranking-table-wrap {
@@ -3087,48 +3158,55 @@ dialog.loja-dialog[hidden],
 
 @media (max-width: 680px) {
   .ranking-podium {
-    gap: 0.45rem;
+    gap: 0.35rem;
   }
 
-  .ranking-podium-card {
-    padding: 0.65rem 0.35rem 0 0.35rem;
-    border-radius: 10px;
+  .ranking-nametag {
+    padding: 0.2rem 0.4rem;
+    margin-bottom: 0.35rem;
+    font-size: 0.68rem;
+    gap: 0.25rem;
+  }
+
+  .ranking-crown {
+    font-size: 0.65rem;
   }
 
   .ranking-skin-wrap {
-    height: 82px;
-    margin-bottom: 0.4rem;
+    height: 92px;
+    margin-bottom: -3px;
   }
 
   .ranking-podium-card.pos-1 .ranking-skin-wrap {
-    height: 104px;
+    height: 112px;
   }
 
-  .ranking-player-nick {
-    font-size: 0.78rem;
-    margin-bottom: 0.15rem;
+  .ranking-podium-card.pos-1 .ranking-pedestal {
+    height: 78px;
+  }
+
+  .ranking-podium-card.pos-2 .ranking-pedestal {
+    height: 58px;
+  }
+
+  .ranking-podium-card.pos-3 .ranking-pedestal {
+    height: 44px;
+  }
+
+  .ranking-podium-card.pos-1 .ranking-pedestal-rank {
+    font-size: 1.35rem;
+  }
+
+  .ranking-podium-card.pos-2 .ranking-pedestal-rank {
+    font-size: 1.15rem;
+  }
+
+  .ranking-podium-card.pos-3 .ranking-pedestal-rank {
+    font-size: 1.05rem;
   }
 
   .ranking-player-total {
     font-size: 0.7rem;
-    margin-bottom: 0.55rem;
-  }
-
-  .ranking-pedestal {
-    width: calc(100% + 0.7rem);
-    margin: 0 -0.35rem;
-    font-size: 0.85rem;
-  }
-
-  .ranking-podium-card.pos-1 .ranking-pedestal {
-    height: 44px;
-  }
-
-  .ranking-podium-card.pos-2 .ranking-pedestal {
-    height: 34px;
-  }
-
-  .ranking-podium-card.pos-3 .ranking-pedestal {
-    height: 26px;
+    padding: 0.42rem 0.2rem;
   }
 }

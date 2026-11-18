@@ -2797,14 +2797,22 @@
         const nick = String(item.nick || 'Steve');
         const safeNick = escapeHTML(nick);
         const bodyUrl = `https://mc-heads.net/body/${encodeURIComponent(nick)}/right`;
+        const crownHtml = pos === 1
+          ? '<i class="fa-solid fa-crown ranking-crown" aria-hidden="true"></i>'
+          : '';
         return `
           <article class="ranking-podium-card pos-${pos}">
+            <div class="ranking-nametag" title="${safeNick}">
+              ${crownHtml}
+              <span class="ranking-nametag-text">${safeNick}</span>
+            </div>
             <div class="ranking-skin-wrap">
               <img class="ranking-skin-body" src="${bodyUrl}" alt="Skin de ${safeNick}" loading="lazy" onerror="this.onerror=null;this.src='https://mc-heads.net/body/MHF_Steve/right';">
             </div>
-            <div class="ranking-player-nick" title="${safeNick}">${safeNick}</div>
+            <div class="ranking-pedestal">
+              <span class="ranking-pedestal-rank">${pos}º</span>
+            </div>
             <div class="ranking-player-total">${formatBRL(item.total)}</div>
-            <div class="ranking-pedestal">${pos}º</div>
           </article>
         `;
       }).join('');
