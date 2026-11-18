@@ -91,7 +91,6 @@ $emailsOrfaos = array_values(array_filter(
                             $corCargo = !empty($u['cargo_cor']) ? $u['cargo_cor'] : '#64748b';
                             $emailRaw = (string)($u['email'] ?? '');
                             $emailRecRaw = (string)($u['email_recuperacao'] ?? '');
-                            $emailCensurado = censurarEmail($emailRaw);
                             $emailRecCensurado = censurarEmail($emailRecRaw);
                             ?>
                             <tr id="usuario-row-<?php echo (int)$u['id']; ?>">
@@ -106,18 +105,7 @@ $emailsOrfaos = array_values(array_filter(
                                 </td>
                                 <td>
                                     <?php if ($emailRaw !== ''): ?>
-                                        <?php if ($ehProprio): ?>
-                                            <div class="d-inline-flex align-items-center gap-1">
-                                                <span class="font-monospace small js-own-email-text"
-                                                      data-masked="<?php echo htmlspecialchars($emailCensurado, ENT_QUOTES, 'UTF-8'); ?>"
-                                                      data-full="<?php echo htmlspecialchars($emailRaw, ENT_QUOTES, 'UTF-8'); ?>"><?php echo htmlspecialchars($emailCensurado, ENT_QUOTES, 'UTF-8'); ?></span>
-                                                <button type="button" class="btn btn-sm btn-link text-muted p-0 px-1 js-toggle-own-email" title="Mostrar e-mail completo" aria-label="Mostrar e-mail completo" aria-pressed="false">
-                                                    <i class="fa-regular fa-eye"></i>
-                                                </button>
-                                            </div>
-                                        <?php else: ?>
-                                            <span class="font-monospace small"><?php echo htmlspecialchars($emailCensurado, ENT_QUOTES, 'UTF-8'); ?></span>
-                                        <?php endif; ?>
+                                        <span class="font-monospace small"><?php echo htmlspecialchars($emailRaw, ENT_QUOTES, 'UTF-8'); ?></span>
                                     <?php else: ?>
                                         <span class="text-muted small">—</span>
                                     <?php endif; ?>
@@ -153,9 +141,8 @@ $emailsOrfaos = array_values(array_filter(
                                                     class="btn btn-sm btn-primary btn-abrir-editar-usuario"
                                                     data-id="<?php echo (int)$u['id']; ?>"
                                                     data-nick="<?php echo htmlspecialchars($nickExibir, ENT_QUOTES, 'UTF-8'); ?>"
-                                                    data-email="<?php echo $ehProprio ? htmlspecialchars($emailRaw, ENT_QUOTES, 'UTF-8') : ''; ?>"
+                                                    data-email="<?php echo htmlspecialchars($emailRaw, ENT_QUOTES, 'UTF-8'); ?>"
                                                     data-email-recuperacao="<?php echo $ehProprio ? htmlspecialchars($emailRecRaw, ENT_QUOTES, 'UTF-8') : ''; ?>"
-                                                    data-email-masked="<?php echo htmlspecialchars($emailCensurado, ENT_QUOTES, 'UTF-8'); ?>"
                                                     data-email-rec-masked="<?php echo htmlspecialchars($emailRecCensurado, ENT_QUOTES, 'UTF-8'); ?>"
                                                     data-tem-email="<?php echo ($emailRaw !== '' || $emailRecRaw !== '') ? '1' : '0'; ?>"
                                                     data-versao-hash="<?php echo htmlspecialchars(gerarHashRegistro($u, [], 'usuarios'), ENT_QUOTES, 'UTF-8'); ?>"
@@ -590,11 +577,9 @@ document.addEventListener('DOMContentLoaded', () => {
             const editVersaoHash = document.getElementById('editUsuarioVersaoHash');
             if (editVersaoHash) editVersaoHash.value = btn.dataset.versaoHash || '';
             editNick.textContent = btn.dataset.nick || '';
-            editEmail.required = ehProprio;
-            editEmail.value = ehProprio ? (btn.dataset.email || '') : '';
-            editEmail.placeholder = ehProprio
-                ? 'nome@redenerds.com.br'
-                : ((btn.dataset.emailMasked || 'nome@redenerds.com.br') + ' (em branco para manter)');
+            editEmail.required = true;
+            editEmail.value = btn.dataset.email || '';
+            editEmail.placeholder = 'nome@redenerds.com.br';
             if (editEmailRec) {
                 editEmailRec.value = ehProprio ? (btn.dataset.emailRecuperacao || '') : '';
                 editEmailRec.placeholder = ehProprio

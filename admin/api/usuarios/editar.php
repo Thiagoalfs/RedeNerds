@@ -15,7 +15,7 @@ if ($alvoId <= 0) {
     exit;
 }
 
-if ($email !== '' && !filter_var($email, FILTER_VALIDATE_EMAIL)) {
+if ($email === '' || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
     http_response_code(400);
     echo json_encode(["success" => false, "erro" => "Informe um e-mail corporativo válido."], JSON_UNESCAPED_UNICODE);
     exit;
@@ -35,7 +35,7 @@ if (!isset($pdo) || !($pdo instanceof PDO)) {
 
 try {
     $stmt = $pdo->prepare("
-        SELECT u.id, u.usuario, u.email, u.email_recuperacao, e.cargo
+        SELECT u.id, u.usuario, u.email_recuperacao, e.cargo
         FROM usuarios u
         LEFT JOIN equipe e ON (u.equipe_id = e.id OR (u.equipe_id IS NULL AND LOWER(e.nick) COLLATE utf8mb4_unicode_ci = LOWER(u.usuario) COLLATE utf8mb4_unicode_ci))
         WHERE u.id = :id
@@ -60,16 +60,7 @@ try {
         exit;
     }
 
-    if ($alvoId === $atorId && $email === '') {
-        http_response_code(400);
-        echo json_encode(["success" => false, "erro" => "Informe um e-mail corporativo válido."], JSON_UNESCAPED_UNICODE);
-        exit;
-    }
-
-    // Quando outro admin edita sem preencher o campo mascarado, preserva os e-mails atuais no banco
-    if ($alvoId !== $atorId && $email === '') {
-        $email = (string)($alvo['email'] ?? '');
-    }
+    // Quando outro admin edita sem preencher o e-mail de recuperação mascarado, preserva o atual no banco
     if ($alvoId !== $atorId && $emailRecuperacao === '') {
         $emailRecuperacao = (string)($alvo['email_recuperacao'] ?? '');
     }
