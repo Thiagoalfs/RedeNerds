@@ -104,6 +104,10 @@ define('DELIVERY_SERVERS', [
     'drefriends' => [
         'url'   => env_require('DELIVERY_DREFRIENDS_URL'),
         'token' => env_require('DELIVERY_DREFRIENDS_TOKEN'),
+    ],
+    'potatomaster2' => [
+        'url'   => env_require('DELIVERY_POTATOMASTER2_URL'),
+        'token' => env_require('DELIVERY_POTATOMASTER2_TOKEN'),
     ]
 ]);
 
