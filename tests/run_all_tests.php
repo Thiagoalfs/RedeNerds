@@ -18,7 +18,8 @@ $testFiles = [
     __DIR__ . "/sem_token_503_test.php",
     __DIR__ . "/chaves_loja_test.php",
     __DIR__ . "/audit_fixes_test.php",
-    __DIR__ . "/concorrencia_test.php"
+    __DIR__ . "/concorrencia_test.php",
+    __DIR__ . "/ranking_doadores_test.php"
 ];
 
 $total = count($testFiles);

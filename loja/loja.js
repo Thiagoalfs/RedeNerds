@@ -40,6 +40,7 @@
     setupInternationalHandlers();
     setupCouponHandlers();
     carregarCatalogoVips();
+    carregarRankingDoadores();
     verificarLocalidadeEstrangeira();
     verificarRetornoUrlCheckout();
 
@@ -2766,6 +2767,77 @@
     grid.addEventListener('scroll', () => {
       window.requestAnimationFrame(updateActiveDot);
     }, { passive: true });
+  }
+
+  // 8. RANKING DE MAIORES DOADORES
+  async function carregarRankingDoadores() {
+    const section = document.getElementById('loja-ranking-section');
+    const podiumEl = document.getElementById('loja-ranking-podium');
+    const tableWrap = document.getElementById('loja-ranking-table-wrap');
+    const tableBody = document.getElementById('loja-ranking-table-body');
+    if (!section || !podiumEl || !tableWrap || !tableBody) return;
+
+    try {
+      const res = await fetch('/api/loja/ranking_api.php');
+      if (!res.ok) return;
+      const data = await res.json();
+      const lista = (data && data.success && Array.isArray(data.ranking)) ? data.ranking : [];
+
+      if (lista.length === 0) {
+        section.hidden = true;
+        return;
+      }
+
+      const formatBRL = (val) => Number(val || 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+      const top3 = lista.slice(0, 3);
+      const rest = lista.slice(3, 5);
+
+      podiumEl.innerHTML = top3.map((item) => {
+        const pos = parseInt(item.posicao, 10) || 1;
+        const nick = String(item.nick || 'Steve');
+        const safeNick = escapeHTML(nick);
+        const bodyUrl = `https://mc-heads.net/body/${encodeURIComponent(nick)}/right`;
+        return `
+          <article class="ranking-podium-card pos-${pos}">
+            <div class="ranking-skin-wrap">
+              <img class="ranking-skin-body" src="${bodyUrl}" alt="Skin de ${safeNick}" loading="lazy" onerror="this.onerror=null;this.src='https://mc-heads.net/body/MHF_Steve/right';">
+            </div>
+            <div class="ranking-player-nick" title="${safeNick}">${safeNick}</div>
+            <div class="ranking-player-total">${formatBRL(item.total)}</div>
+            <div class="ranking-pedestal">${pos}º</div>
+          </article>
+        `;
+      }).join('');
+
+      if (rest.length > 0) {
+        tableBody.innerHTML = rest.map((item) => {
+          const pos = parseInt(item.posicao, 10) || 4;
+          const nick = String(item.nick || 'Steve');
+          const safeNick = escapeHTML(nick);
+          const headUrl = `https://mc-heads.net/avatar/${encodeURIComponent(nick)}`;
+          return `
+            <tr>
+              <td class="ranking-cell-pos">#${pos}</td>
+              <td>
+                <div class="ranking-cell-player">
+                  <img class="ranking-head-avatar" src="${headUrl}" alt="${safeNick}" loading="lazy" onerror="this.onerror=null;this.src='${DEFAULT_AVATAR}';">
+                  <span>${safeNick}</span>
+                </div>
+              </td>
+              <td class="ranking-cell-total">${formatBRL(item.total)}</td>
+            </tr>
+          `;
+        }).join('');
+        tableWrap.hidden = false;
+      } else {
+        tableBody.innerHTML = '';
+        tableWrap.hidden = true;
+      }
+
+      section.hidden = false;
+    } catch (err) {
+      console.error('Erro ao carregar ranking de doadores:', err);
+    }
   }
 
 })();
