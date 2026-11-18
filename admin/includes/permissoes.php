@@ -3,6 +3,23 @@
  * Mapa único de permissões e hierarquia de cargos do painel administrativo.
  */
 
+if (!function_exists('censurarEmail')) {
+    function censurarEmail(string $email): string {
+        $email = trim($email);
+        if ($email === '') {
+            return '';
+        }
+        $pos = strpos($email, '@');
+        if ($pos === false) {
+            return mb_substr($email, 0, 1, 'UTF-8') . '***';
+        }
+        $local = substr($email, 0, $pos);
+        $dominio = substr($email, $pos);
+        $primeira = $local !== '' ? mb_substr($local, 0, 1, 'UTF-8') : '';
+        return $primeira . '***' . $dominio;
+    }
+}
+
 if (!function_exists('normalizarCargoAdmin')) {
     function normalizarCargoAdmin(?string $cargo): ?string {
         $c = mb_strtolower(trim((string)$cargo), 'UTF-8');

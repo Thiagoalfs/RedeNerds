@@ -84,10 +84,15 @@ $emailsOrfaos = array_values(array_filter(
                         <?php foreach ($usuarios as $u): ?>
                             <?php
                             $nickExibir = $u['nick'] ?: $u['usuario'];
+                            $ehProprio = ((int)$u['id'] === $atorId);
                             $alvoNivel = normalizarCargoAdmin($u['cargo'] ?? null);
                             $podeEditar = podeEditarUsuario($atorNivel, $atorId, $alvoNivel, (int)$u['id']);
                             $podeExcluir = podeDeletarUsuario($atorNivel, $atorId, $alvoNivel, (int)$u['id']);
                             $corCargo = !empty($u['cargo_cor']) ? $u['cargo_cor'] : '#64748b';
+                            $emailRaw = (string)($u['email'] ?? '');
+                            $emailRecRaw = (string)($u['email_recuperacao'] ?? '');
+                            $emailCensurado = censurarEmail($emailRaw);
+                            $emailRecCensurado = censurarEmail($emailRecRaw);
                             ?>
                             <tr id="usuario-row-<?php echo (int)$u['id']; ?>">
                                 <td>
@@ -95,19 +100,40 @@ $emailsOrfaos = array_values(array_filter(
                                 </td>
                                 <td>
                                     <strong><?php echo htmlspecialchars($nickExibir, ENT_QUOTES, 'UTF-8'); ?></strong>
-                                    <?php if ((int)$u['id'] === $atorId): ?>
+                                    <?php if ($ehProprio): ?>
                                         <span class="badge bg-primary-subtle text-primary ms-1">Você</span>
                                     <?php endif; ?>
                                 </td>
                                 <td>
-                                    <?php if (!empty($u['email'])): ?>
-                                        <span class="font-monospace small"><?php echo htmlspecialchars($u['email'], ENT_QUOTES, 'UTF-8'); ?></span>
+                                    <?php if ($emailRaw !== ''): ?>
+                                        <?php if ($ehProprio): ?>
+                                            <div class="d-inline-flex align-items-center gap-1">
+                                                <span class="font-monospace small js-own-email-text"
+                                                      data-masked="<?php echo htmlspecialchars($emailCensurado, ENT_QUOTES, 'UTF-8'); ?>"
+                                                      data-full="<?php echo htmlspecialchars($emailRaw, ENT_QUOTES, 'UTF-8'); ?>"><?php echo htmlspecialchars($emailCensurado, ENT_QUOTES, 'UTF-8'); ?></span>
+                                                <button type="button" class="btn btn-sm btn-link text-muted p-0 px-1 js-toggle-own-email" title="Mostrar e-mail completo" aria-label="Mostrar e-mail completo" aria-pressed="false">
+                                                    <i class="fa-regular fa-eye"></i>
+                                                </button>
+                                            </div>
+                                        <?php else: ?>
+                                            <span class="font-monospace small"><?php echo htmlspecialchars($emailCensurado, ENT_QUOTES, 'UTF-8'); ?></span>
+                                        <?php endif; ?>
                                     <?php else: ?>
                                         <span class="text-muted small">—</span>
                                     <?php endif; ?>
-                                    <?php if (!empty($u['email_recuperacao'])): ?>
-                                        <div class="text-muted small font-monospace" title="E-mail de recuperação">
-                                            <i class="fa-solid fa-life-ring me-1"></i><?php echo htmlspecialchars($u['email_recuperacao'], ENT_QUOTES, 'UTF-8'); ?>
+                                    <?php if ($emailRecRaw !== ''): ?>
+                                        <div class="text-muted small font-monospace d-flex align-items-center gap-1" title="E-mail de recuperação">
+                                            <i class="fa-solid fa-life-ring"></i>
+                                            <?php if ($ehProprio): ?>
+                                                <span class="js-own-email-text"
+                                                      data-masked="<?php echo htmlspecialchars($emailRecCensurado, ENT_QUOTES, 'UTF-8'); ?>"
+                                                      data-full="<?php echo htmlspecialchars($emailRecRaw, ENT_QUOTES, 'UTF-8'); ?>"><?php echo htmlspecialchars($emailRecCensurado, ENT_QUOTES, 'UTF-8'); ?></span>
+                                                <button type="button" class="btn btn-sm btn-link text-muted p-0 px-1 js-toggle-own-email" title="Mostrar e-mail de recuperação completo" aria-label="Mostrar e-mail de recuperação completo" aria-pressed="false">
+                                                    <i class="fa-regular fa-eye"></i>
+                                                </button>
+                                            <?php else: ?>
+                                                <span><?php echo htmlspecialchars($emailRecCensurado, ENT_QUOTES, 'UTF-8'); ?></span>
+                                            <?php endif; ?>
                                         </div>
                                     <?php endif; ?>
                                 </td>
@@ -127,8 +153,11 @@ $emailsOrfaos = array_values(array_filter(
                                                     class="btn btn-sm btn-primary btn-abrir-editar-usuario"
                                                     data-id="<?php echo (int)$u['id']; ?>"
                                                     data-nick="<?php echo htmlspecialchars($nickExibir, ENT_QUOTES, 'UTF-8'); ?>"
-                                                    data-email="<?php echo htmlspecialchars((string)($u['email'] ?? ''), ENT_QUOTES, 'UTF-8'); ?>"
-                                                    data-email-recuperacao="<?php echo htmlspecialchars((string)($u['email_recuperacao'] ?? ''), ENT_QUOTES, 'UTF-8'); ?>"
+                                                    data-email="<?php echo $ehProprio ? htmlspecialchars($emailRaw, ENT_QUOTES, 'UTF-8') : ''; ?>"
+                                                    data-email-recuperacao="<?php echo $ehProprio ? htmlspecialchars($emailRecRaw, ENT_QUOTES, 'UTF-8') : ''; ?>"
+                                                    data-email-masked="<?php echo htmlspecialchars($emailCensurado, ENT_QUOTES, 'UTF-8'); ?>"
+                                                    data-email-rec-masked="<?php echo htmlspecialchars($emailRecCensurado, ENT_QUOTES, 'UTF-8'); ?>"
+                                                    data-tem-email="<?php echo ($emailRaw !== '' || $emailRecRaw !== '') ? '1' : '0'; ?>"
                                                     data-versao-hash="<?php echo htmlspecialchars(gerarHashRegistro($u, [], 'usuarios'), ENT_QUOTES, 'UTF-8'); ?>"
                                                     title="Editar e-mail / redefinir senha"
                                                     aria-label="Editar usuário <?php echo htmlspecialchars($nickExibir, ENT_QUOTES, 'UTF-8'); ?>">
@@ -541,6 +570,19 @@ document.addEventListener('DOMContentLoaded', () => {
         fbEdit.className = 'alert small ' + (ok ? 'alert-success' : 'alert-danger');
     };
 
+    document.addEventListener('click', (e) => {
+        const eyeBtn = e.target.closest('.js-toggle-own-email');
+        if (!eyeBtn) return;
+        const span = eyeBtn.parentElement?.querySelector('.js-own-email-text');
+        if (!span) return;
+        const exibindo = eyeBtn.getAttribute('aria-pressed') === 'true';
+        span.textContent = exibindo ? (span.dataset.masked || '') : (span.dataset.full || '');
+        eyeBtn.setAttribute('aria-pressed', exibindo ? 'false' : 'true');
+        eyeBtn.title = exibindo ? 'Mostrar e-mail completo' : 'Ocultar e-mail';
+        const icon = eyeBtn.querySelector('i');
+        if (icon) icon.className = exibindo ? 'fa-regular fa-eye' : 'fa-regular fa-eye-slash';
+    });
+
     document.querySelectorAll('.btn-abrir-editar-usuario').forEach((btn) => {
         btn.addEventListener('click', () => {
             const ehProprio = Number(btn.dataset.id) === atorId;
@@ -548,10 +590,19 @@ document.addEventListener('DOMContentLoaded', () => {
             const editVersaoHash = document.getElementById('editUsuarioVersaoHash');
             if (editVersaoHash) editVersaoHash.value = btn.dataset.versaoHash || '';
             editNick.textContent = btn.dataset.nick || '';
-            editEmail.value = btn.dataset.email || '';
-            if (editEmailRec) editEmailRec.value = btn.dataset.emailRecuperacao || '';
+            editEmail.required = ehProprio;
+            editEmail.value = ehProprio ? (btn.dataset.email || '') : '';
+            editEmail.placeholder = ehProprio
+                ? 'nome@redenerds.com.br'
+                : ((btn.dataset.emailMasked || 'nome@redenerds.com.br') + ' (em branco para manter)');
+            if (editEmailRec) {
+                editEmailRec.value = ehProprio ? (btn.dataset.emailRecuperacao || '') : '';
+                editEmailRec.placeholder = ehProprio
+                    ? 'pessoal@gmail.com'
+                    : (btn.dataset.emailRecMasked ? (btn.dataset.emailRecMasked + ' (em branco para manter)') : 'pessoal@gmail.com');
+            }
             if (editNovaSenha) editNovaSenha.value = '';
-            btnReset.disabled = !(btn.dataset.email || '').trim() && !(btn.dataset.emailRecuperacao || '').trim();
+            btnReset.disabled = btn.dataset.temEmail !== '1';
             blocoReset?.classList.toggle('d-none', ehProprio);
             blocoPropriaSenha?.classList.toggle('d-none', !ehProprio);
             fbEdit.className = 'alert d-none small';
