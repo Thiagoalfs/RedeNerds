@@ -10,13 +10,15 @@ if (!function_exists('censurarEmail')) {
             return '';
         }
         $pos = strpos($email, '@');
-        if ($pos === false) {
-            return mb_substr($email, 0, 1, 'UTF-8') . '***';
+        $local = $pos === false ? $email : substr($email, 0, $pos);
+        $dominio = $pos === false ? '' : substr($email, $pos);
+        $len = mb_strlen($local, 'UTF-8');
+        if ($len <= 1) {
+            return $local . '***' . $dominio;
         }
-        $local = substr($email, 0, $pos);
-        $dominio = substr($email, $pos);
-        $primeira = $local !== '' ? mb_substr($local, 0, 1, 'UTF-8') : '';
-        return $primeira . '***' . $dominio;
+        $primeira = mb_substr($local, 0, 1, 'UTF-8');
+        $ultima = mb_substr($local, -1, 1, 'UTF-8');
+        return $primeira . '***' . $ultima . $dominio;
     }
 }
 
