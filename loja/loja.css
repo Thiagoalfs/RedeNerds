@@ -3093,6 +3093,7 @@ dialog.loja-dialog[hidden],
   }
 
   .ranking-podium-card {
+    flex: 0 0 auto;
     max-width: none;
     width: 100%;
   }
