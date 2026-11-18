@@ -2792,8 +2792,8 @@
       const top3 = lista.slice(0, 3);
       const rest = lista.slice(3, 5);
 
-      podiumEl.innerHTML = top3.map((item) => {
-        const pos = parseInt(item.posicao, 10) || 1;
+      podiumEl.innerHTML = top3.map((item, idx) => {
+        const pos = parseInt(item.posicao, 10) || (idx + 1);
         const nick = String(item.nick || 'Steve');
         const safeNick = escapeHTML(nick);
         const bodyUrl = `https://mc-heads.net/body/${encodeURIComponent(nick)}/right`;
@@ -2810,8 +2810,8 @@
       }).join('');
 
       if (rest.length > 0) {
-        tableBody.innerHTML = rest.map((item) => {
-          const pos = parseInt(item.posicao, 10) || 4;
+        tableBody.innerHTML = rest.map((item, idx) => {
+          const pos = parseInt(item.posicao, 10) || (idx + 4);
           const nick = String(item.nick || 'Steve');
           const safeNick = escapeHTML(nick);
           const headUrl = `https://mc-heads.net/avatar/${encodeURIComponent(nick)}`;
@@ -2820,8 +2820,8 @@
               <td class="ranking-cell-pos">#${pos}</td>
               <td>
                 <div class="ranking-cell-player">
-                  <img class="ranking-head-avatar" src="${headUrl}" alt="${safeNick}" loading="lazy" onerror="this.onerror=null;this.src='${DEFAULT_AVATAR}';">
-                  <span>${safeNick}</span>
+                  <img class="ranking-head-avatar" src="${headUrl}" alt="" loading="lazy" onerror="this.onerror=null;this.src='${DEFAULT_AVATAR}';">
+                  <span class="ranking-cell-nick" title="${safeNick}">${safeNick}</span>
                 </div>
               </td>
               <td class="ranking-cell-total">${formatBRL(item.total)}</td>
