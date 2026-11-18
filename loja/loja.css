@@ -1155,6 +1155,41 @@ dialog.loja-dialog[hidden],
   max-width: 490px;
 }
 
+@keyframes lojaModalBackdropIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes lojaModalPopIn {
+  from {
+    transform: scale(0.94);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+#modal-pix-overlay:not([hidden]) {
+  animation: lojaModalBackdropIn 0.18s ease-out;
+}
+
+#modal-pix-overlay:not([hidden]) .checkout-dialog-card {
+  animation: lojaModalPopIn 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #modal-pix-overlay:not([hidden]),
+  #modal-pix-overlay:not([hidden]) .checkout-dialog-card {
+    animation: none !important;
+  }
+}
+
 .dialog-header {
   padding: 1.1rem 1.35rem;
   border-bottom: 1px solid rgba(255, 255, 255, 0.08);
