@@ -37,6 +37,25 @@ require_once __DIR__ . '/../includes/admin_header.php';
         min-height: 0;
     }
 }
+
+.email-fallback-banner {
+    position: absolute;
+    inset: 0;
+    z-index: 20;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.85rem;
+    padding: 1.5rem;
+    text-align: center;
+    background: var(--admin-bg);
+    color: var(--text-main);
+}
+
+.email-fallback-banner[hidden] {
+    display: none;
+}
 </style>
 
 <div class="email-frame-shell">
@@ -47,6 +66,12 @@ require_once __DIR__ . '/../includes/admin_header.php';
         title="Cliente de E-Mail RNMail"
         loading="eager"
     ></iframe>
+    <div id="email-fallback-banner" class="email-fallback-banner" hidden>
+        <p class="mb-0 text-muted">O cliente de e-mail demorou para responder.</p>
+        <button type="button" id="btn-reload-webmail" class="btn btn-primary btn-sm">
+            <i class="fa-solid fa-rotate-right me-1"></i> Recarregar E-Mail
+        </button>
+    </div>
 </div>
 
 <script>
@@ -2785,7 +2810,16 @@ require_once __DIR__ . '/../includes/admin_header.php';
                 }, true);
             }
             doc.documentElement.classList.remove('rl-fullscreen');
-            if (!doc._adminQuotaObserver && doc.body) {
+            if (!doc.body) {
+                if ((applyThemeToIframe._bodyRetries || 0) < 40) {
+                    applyThemeToIframe._bodyRetries = (applyThemeToIframe._bodyRetries || 0) + 1;
+                    setTimeout(applyThemeToIframe, 50);
+                }
+                return;
+            }
+            applyThemeToIframe._bodyRetries = 0;
+            checkWebmailRendered(doc);
+            if (!doc._adminQuotaObserver) {
                 let scheduled = false;
                 doc._adminQuotaObserver = new MutationObserver((mutations) => {
                     const onlyOwnWidget = mutations.every((m) =>
@@ -2803,6 +2837,7 @@ require_once __DIR__ . '/../includes/admin_header.php';
                         enhanceComposeModal(doc);
                         applyBranding(doc);
                         fixEmailContrast(doc, darkNow);
+                        checkWebmailRendered(doc);
                     });
                 });
                 doc._adminQuotaObserver.observe(doc.body, { childList: true, subtree: true });
@@ -2812,20 +2847,60 @@ require_once __DIR__ . '/../includes/admin_header.php';
         }
     }
 
+    const fallbackBanner = document.getElementById('email-fallback-banner');
+    const reloadBtn = document.getElementById('btn-reload-webmail');
+    let watchdogTimer = null;
+
+    function isWebmailRendered(doc) {
+        if (!doc || !doc.body) return false;
+        const loading = doc.getElementById('rl-loading');
+        const loadingVisible = loading && doc.defaultView && doc.defaultView.getComputedStyle(loading).display !== 'none';
+        if (loadingVisible) return false;
+        return Boolean(doc.querySelector('.LoginView, #V-MailFolderList, #V-SettingsMenu, #rl-app .b-content'));
+    }
+
+    function checkWebmailRendered(doc) {
+        if (isWebmailRendered(doc)) {
+            clearTimeout(watchdogTimer);
+            if (fallbackBanner) fallbackBanner.hidden = true;
+        }
+    }
+
+    function startWatchdog() {
+        clearTimeout(watchdogTimer);
+        if (fallbackBanner) fallbackBanner.hidden = true;
+        watchdogTimer = setTimeout(() => {
+            try {
+                const doc = frame.contentDocument;
+                if (!isWebmailRendered(doc) && fallbackBanner) {
+                    fallbackBanner.hidden = false;
+                }
+            } catch (_) {
+                if (fallbackBanner) fallbackBanner.hidden = false;
+            }
+        }, 9000);
+    }
+
+    if (reloadBtn) {
+        reloadBtn.addEventListener('click', () => {
+            startWatchdog();
+            frame.src = '/webmail/?_=' + Date.now();
+        });
+    }
+
     frame.addEventListener('load', () => {
-        clearInterval(earlyBrandTimer);
         applyThemeToIframe();
     });
 
-    let earlyTicks = 0;
-    const earlyBrandTimer = setInterval(() => {
-        earlyTicks++;
-        try {
-            const doc = frame.contentDocument;
-            if (doc) applyBranding(doc);
-        } catch (_) {}
-        if (earlyTicks >= 120) clearInterval(earlyBrandTimer);
-    }, 25);
+    startWatchdog();
+
+    // Se o iframe já terminou de carregar (cache) antes do listener ser registrado
+    try {
+        const doc = frame.contentDocument;
+        if (doc && doc.readyState === 'complete' && doc.location && doc.location.href !== 'about:blank') {
+            applyThemeToIframe();
+        }
+    } catch (_) {}
 
     const observer = new MutationObserver(applyThemeToIframe);
     observer.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
