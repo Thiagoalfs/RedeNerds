@@ -741,7 +741,6 @@
 #novidades-section,
 #atualizacoes-section,
 #servers-section,
-#patrocinador-section,
 #como-jogar-section,
 #parceiros-section,
 #discord-section {
@@ -1109,108 +1108,5 @@
 
     .discord-text h3 {
         font-size: 1.75rem;
-    }
-}
-
-/* =========================================
-   Seção Patrocinador Oficial (index.html)
-   ========================================= */
-.patrocinador-container {
-    width: 100%;
-    max-width: 620px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 20px;
-    box-sizing: border-box;
-}
-
-.patrocinador-banner-link {
-    display: block;
-    width: 100%;
-    border-radius: var(--radius-sm);
-    overflow: hidden;
-    position: relative;
-    text-decoration: none;
-    transition: transform 0.25s ease, filter 0.25s ease;
-}
-
-.patrocinador-banner-link:hover {
-    transform: translateY(-2px);
-    filter: brightness(1.05);
-}
-
-.patrocinador-banner-img {
-    width: 100%;
-    height: auto;
-    display: block;
-    object-fit: cover;
-}
-
-.patrocinador-actions {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 12px;
-    flex-wrap: wrap;
-    width: 100%;
-}
-
-.btn-patrocinador {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 9px;
-    padding: 12px 24px;
-    font-family: var(--font-main);
-    font-size: 0.95rem;
-    font-weight: 800;
-    text-transform: uppercase;
-    letter-spacing: 0.3px;
-    text-decoration: none;
-    border: 2px solid #000;
-    border-radius: var(--radius-sm);
-    box-shadow: var(--shadow-hard);
-    transition: transform 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease;
-    cursor: pointer;
-    box-sizing: border-box;
-}
-
-.btn-patrocinador i {
-    font-size: 1.05rem;
-}
-
-.btn-patrocinador:hover {
-    transform: translate(-2px, -2px);
-    box-shadow: var(--shadow-hard-lg);
-}
-
-.btn-patrocinador-insta {
-    background-color: #E1306C;
-    color: #FFFFFF !important;
-}
-
-.btn-patrocinador-insta:hover {
-    background-color: #C13584;
-}
-
-.btn-patrocinador-adquirir {
-    background-color: var(--color-primary);
-    color: #000000 !important;
-}
-
-.btn-patrocinador-adquirir:hover {
-    background-color: var(--color-primary-hover);
-}
-
-@media (max-width: 540px) {
-    .patrocinador-actions {
-        flex-direction: column;
-        width: 100%;
-        gap: 10px;
-    }
-
-    .btn-patrocinador {
-        width: 100%;
     }
 }
