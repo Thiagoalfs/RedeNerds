@@ -2831,6 +2831,8 @@
     const form = document.getElementById('form-gift-nick');
     const input = document.getElementById('input-gift-nick');
     const errEl = document.getElementById('gift-nick-error');
+    const previewImg = document.getElementById('gift-preview-img');
+    const previewLabel = document.getElementById('gift-preview-label');
     const donorSpan = document.getElementById('gift-modal-donor-nick');
     const btnOpen = document.getElementById('btn-open-gift-modal');
     const btnEdit = document.getElementById('btn-edit-gift-nick');
@@ -2840,9 +2842,17 @@
 
     if (!modal || !form || !input) return;
 
+    const atualizarPreviewPresente = (val) => {
+      const clean = (val || '').trim();
+      const target = /^[a-zA-Z0-9_]{3,16}$/.test(clean) ? clean : 'MHF_Steve';
+      if (previewImg) previewImg.src = `https://mc-heads.net/avatar/${encodeURIComponent(target)}`;
+      if (previewLabel) previewLabel.textContent = clean || 'Destinatário';
+    };
+
     const abrirModalPresente = () => {
       if (donorSpan) donorSpan.textContent = STATE.nick || 'sua conta';
       input.value = STATE.currentOrder.giftNick || '';
+      atualizarPreviewPresente(input.value);
       if (errEl) {
         errEl.textContent = '';
         errEl.hidden = true;
@@ -2850,6 +2860,8 @@
       modal.hidden = false;
       setTimeout(() => input.focus(), 50);
     };
+
+    input.addEventListener('input', () => atualizarPreviewPresente(input.value));
 
     const fecharModalPresente = () => {
       modal.hidden = true;

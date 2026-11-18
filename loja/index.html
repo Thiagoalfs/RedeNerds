@@ -25,7 +25,7 @@
     <link rel="stylesheet" href="/shared/shared.css?v=23">
     <link rel="stylesheet" href="/shared/navbar.css?v=14">
     <link rel="stylesheet" href="/shared/footer.css?v=6">
-    <link rel="stylesheet" href="loja.css?v=58">
+    <link rel="stylesheet" href="loja.css?v=59">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
     <!-- MERCADO PAGO SDK & SECURITY DEVICE ID -->
     <script src="https://www.mercadopago.com/v2/security.js" view="checkout"></script>
@@ -590,15 +590,18 @@
                 </button>
             </div>
             <div class="dialog-body">
-                <p class="dialog-lead">Informe o nickname do jogador que receberá este item no servidor. O valor continuará contabilizado na sua conta principal (<strong id="gift-modal-donor-nick"></strong>) para o ranking de doadores.</p>
-                <form id="form-gift-nick" class="dialog-form" novalidate>
-                    <div class="form-group">
+                <div class="avatar-preview-box">
+                    <img id="gift-preview-img" src="https://mc-heads.net/avatar/MHF_Steve" alt="Skin Destinatário">
+                    <span id="gift-preview-label" class="preview-nick-name">Destinatário</span>
+                </div>
+
+                <p class="gift-dialog-lead">O item será entregue para este nick. A doação continua registrada na sua conta principal (<strong id="gift-modal-donor-nick"></strong>).</p>
+
+                <form id="form-gift-nick" novalidate>
+                    <div class="form-field">
                         <label for="input-gift-nick">Nickname do Destinatário</label>
-                        <div class="input-icon-wrapper">
-                            <i class="fa-solid fa-user-plus input-icon"></i>
-                            <input type="text" id="input-gift-nick" name="gift_nick" placeholder="Ex: Steve" autocomplete="off" maxlength="16" required>
-                        </div>
-                        <span id="gift-nick-error" class="form-error-msg" hidden></span>
+                        <input type="text" id="input-gift-nick" name="gift_nick" placeholder="Ex: Steve" autocomplete="off" spellcheck="false" maxlength="16" required>
+                        <span id="gift-nick-error" class="field-error" hidden></span>
                     </div>
                     <div class="gift-modal-actions">
                         <button type="button" id="btn-cancel-gift-modal" class="btn-outline-action">Cancelar</button>
@@ -874,6 +877,6 @@
 
     <div id="footer"></div>
     <script src="/shared/navbar.js?v=21"></script>
-    <script src="loja.js?v=51"></script>
+    <script src="loja.js?v=52"></script>
 </body>
 </html>
