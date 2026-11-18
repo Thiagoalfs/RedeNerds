@@ -2892,15 +2892,6 @@ dialog.loja-dialog[hidden],
   margin-bottom: 1.75rem;
 }
 
-.ranking-title {
-  margin: 0;
-  font-family: var(--font-main);
-  font-size: 1.55rem;
-  font-weight: 800;
-  letter-spacing: -0.02em;
-  color: var(--color-text-main);
-}
-
 .ranking-podium {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
