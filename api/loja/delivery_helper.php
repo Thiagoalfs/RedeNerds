@@ -92,8 +92,11 @@ function enviarEntregaVip($pedido, $pdo = null) {
         $orderId = (string)$pedido['id'];
     }
 
-    // 2. Player (Nick do usuário)
-    $player = trim((string)($pedido['nick'] ?? ($pedido['player'] ?? '')));
+    // 2. Player (Destinatário do presente, se informado; caso contrário, o próprio comprador)
+    $destinatario = trim((string)($pedido['destinatario'] ?? ''));
+    $player = $destinatario !== ''
+        ? $destinatario
+        : trim((string)($pedido['nick'] ?? ($pedido['player'] ?? '')));
 
     // 3. Server Slug (Puxa o slug 'nome' do banco de dados na tabela servidores)
     $serverSlug = '';

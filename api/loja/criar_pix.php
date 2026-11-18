@@ -74,6 +74,7 @@ if (!$checkout['ok']) {
 }
 
 $nick = $checkout['nick'];
+$destinatario = $checkout['destinatario'];
 $tipoConta = $checkout['tipo_conta'];
 $servidor = $checkout['servidor'];
 $tipoProduto = $checkout['tipo_produto'];
@@ -104,12 +105,12 @@ $dbChaveId = ($tipoProduto === 'chave') ? $itemId : null;
 try {
     $stmt = $pdo->prepare("
         INSERT INTO pedidos (
-            txid, mp_payment_id, nick, pais_ip, tipo_conta, servidor, 
+            txid, mp_payment_id, nick, destinatario, pais_ip, tipo_conta, servidor, 
             tipo_produto, quantidade, chave_id, vip_id, vip_nome, cupom_codigo, 
             valor, valor_original, desconto_aplicado, status, metodo_pagamento, 
             pix_copia_cola, pix_qr_base64, cupom_computado, criado_em
         ) VALUES (
-            :txid, NULL, :nick, :pais_ip, :tipo_conta, :servidor, 
+            :txid, NULL, :nick, :destinatario, :pais_ip, :tipo_conta, :servidor, 
             :tipo_produto, :quantidade, :chave_id, :vip_id, :vip_nome, :cupom_codigo, 
             :valor, :valor_original, :desconto_aplicado, 'pendente', 'pix', 
             NULL, NULL, 0, NOW()
@@ -118,6 +119,7 @@ try {
     $stmt->execute([
         ':txid' => $txid,
         ':nick' => $nick,
+        ':destinatario' => $destinatario,
         ':pais_ip' => $paisIp,
         ':tipo_conta' => $tipoConta,
         ':servidor' => $servidor,
@@ -159,7 +161,18 @@ $mpPayload = [
     ],
     "notification_url" => $siteUrl . "/api/loja/webhook_mercadopago.php",
     "external_reference" => $txid,
-    "date_of_expiration" => $dateOfExpiration
+    "date_of_expiration" => $dateOfExpiration,
+    "metadata" => [
+        "txid" => $txid,
+        "nick" => $nick,
+        "destinatario" => $destinatario,
+        "tipo_conta" => $tipoConta,
+        "tipo_produto" => $tipoProduto,
+        "quantidade" => $quantidade,
+        "servidor" => $servidor,
+        "item_id" => $itemId,
+        "item_nome" => $itemNome
+    ]
 ];
 
 $ch = curl_init($mpUrl);

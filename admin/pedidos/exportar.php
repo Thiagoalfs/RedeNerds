@@ -120,7 +120,7 @@ if (!empty($filtroServidor)) {
 
 // Filtro de busca textual
 if (!empty($busca)) {
-    $where[] = "(nick LIKE :busca OR txid LIKE :busca OR payer_email LIKE :busca OR payer_cpf LIKE :busca OR servidor LIKE :busca OR vip_nome LIKE :busca)";
+    $where[] = "(nick LIKE :busca OR destinatario LIKE :busca OR txid LIKE :busca OR payer_email LIKE :busca OR payer_cpf LIKE :busca OR servidor LIKE :busca OR vip_nome LIKE :busca)";
     $params[':busca'] = "%{$busca}%";
 }
 
@@ -206,6 +206,7 @@ try {
         'Data de Criação',
         'Data de Pagamento',
         'Nick do Jogador',
+        'Destinatário (Presente)',
         'Tipo de Conta',
         'Pacote VIP',
         'Servidor',
@@ -268,6 +269,7 @@ try {
             $dataCriado,
             $dataPago,
             escaparCsv($row['nick'] ?? ''),
+            escaparCsv($row['destinatario'] ?? ''),
             escaparCsv(ucfirst($row['tipo_conta'] ?? 'Original')),
             escaparCsv($row['vip_nome'] ?? ''),
             escaparCsv($servidorNome ?: 'Geral'),

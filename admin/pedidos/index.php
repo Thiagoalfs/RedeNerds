@@ -69,7 +69,7 @@ try {
         }
 
         if (!empty($busca)) {
-            $where[] = "(nick LIKE :busca OR txid LIKE :busca OR payer_email LIKE :busca OR payer_cpf LIKE :busca OR servidor LIKE :busca OR vip_nome LIKE :busca)";
+            $where[] = "(nick LIKE :busca OR destinatario LIKE :busca OR txid LIKE :busca OR payer_email LIKE :busca OR payer_cpf LIKE :busca OR servidor LIKE :busca OR vip_nome LIKE :busca)";
             $params[':busca'] = "%{$busca}%";
         }
 

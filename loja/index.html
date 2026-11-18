@@ -25,7 +25,7 @@
     <link rel="stylesheet" href="/shared/shared.css?v=23">
     <link rel="stylesheet" href="/shared/navbar.css?v=14">
     <link rel="stylesheet" href="/shared/footer.css?v=6">
-    <link rel="stylesheet" href="loja.css?v=57">
+    <link rel="stylesheet" href="loja.css?v=58">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
     <!-- MERCADO PAGO SDK & SECURITY DEVICE ID -->
     <script src="https://www.mercadopago.com/v2/security.js" view="checkout"></script>
@@ -260,6 +260,29 @@
                             <div class="summary-price-col">
                                 <span class="summary-caption">Total à vista</span>
                                 <strong id="summary-price-display-mobile" class="summary-amount">R$ 0,00</strong>
+                            </div>
+                        </div>
+
+                        <!-- OPÇÃO: COMPRAR COMO PRESENTE -->
+                        <div class="checkout-gift-bar" id="checkout-gift-bar">
+                            <button type="button" id="btn-open-gift-modal" class="btn-gift-trigger">
+                                <i class="fa-solid fa-gift"></i>
+                                <span>Comprar como presente</span>
+                            </button>
+                            <div id="checkout-gift-banner" class="checkout-gift-banner" hidden>
+                                <div class="gift-banner-info">
+                                    <i class="fa-solid fa-gift gift-banner-icon"></i>
+                                    <div class="gift-banner-text">
+                                        <strong>Presente para: <span id="gift-recipient-label"></span></strong>
+                                        <small>Doação registrada em: <span id="gift-donor-label"></span></small>
+                                    </div>
+                                </div>
+                                <div class="gift-banner-actions">
+                                    <button type="button" id="btn-edit-gift-nick" class="btn-gift-mini" title="Alterar destinatário">Alterar</button>
+                                    <button type="button" id="btn-remove-gift" class="btn-gift-mini btn-gift-mini-danger" title="Remover presente" aria-label="Remover presente">
+                                        <i class="fa-solid fa-xmark"></i>
+                                    </button>
+                                </div>
                             </div>
                         </div>
 
@@ -557,6 +580,35 @@
         </div>
     </dialog>
 
+    <!-- MODAL 3: COMPRAR COMO PRESENTE (NICK DO DESTINATÁRIO) -->
+    <dialog id="modal-gift-nick-overlay" class="loja-dialog" hidden>
+        <div class="dialog-card gift-dialog-card">
+            <div class="dialog-header">
+                <h3><i class="fa-solid fa-gift" style="color: #F1C40F; margin-right: 6px;"></i>Comprar como Presente</h3>
+                <button type="button" class="dialog-close-btn" id="btn-close-gift-modal" aria-label="Fechar">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            <div class="dialog-body">
+                <p class="dialog-lead">Informe o nickname do jogador que receberá este item no servidor. O valor continuará contabilizado na sua conta principal (<strong id="gift-modal-donor-nick"></strong>) para o ranking de doadores.</p>
+                <form id="form-gift-nick" class="dialog-form" novalidate>
+                    <div class="form-group">
+                        <label for="input-gift-nick">Nickname do Destinatário</label>
+                        <div class="input-icon-wrapper">
+                            <i class="fa-solid fa-user-plus input-icon"></i>
+                            <input type="text" id="input-gift-nick" name="gift_nick" placeholder="Ex: Steve" autocomplete="off" maxlength="16" required>
+                        </div>
+                        <span id="gift-nick-error" class="form-error-msg" hidden></span>
+                    </div>
+                    <div class="gift-modal-actions">
+                        <button type="button" id="btn-cancel-gift-modal" class="btn-outline-action">Cancelar</button>
+                        <button type="submit" id="btn-confirm-gift-nick" class="btn-solid-primary">Confirmar Presente</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </dialog>
+
     <style>
     /* Tooltip e Gatilho do Benefício (i) */
     .benefit-info-trigger-wrap {
@@ -822,6 +874,6 @@
 
     <div id="footer"></div>
     <script src="/shared/navbar.js?v=21"></script>
-    <script src="loja.js?v=50"></script>
+    <script src="loja.js?v=51"></script>
 </body>
 </html>

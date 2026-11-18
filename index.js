@@ -11,6 +11,7 @@ const PARCEIROS_API_URL = '/api/parceiros_api.php';
 document.addEventListener('DOMContentLoaded', () => {
     carregarServidores();
     carregarParceiros();
+    carregarRankingDoadores();
     inicializarCarrosselServidores();
 });
 
@@ -448,4 +449,86 @@ function inicializarCarrosselServidores() {
 
     criarDots();
     atualizarEstadoCarrossel();
+}
+
+async function carregarRankingDoadores() {
+    const section = document.getElementById('loja-ranking-section');
+    const divider = document.getElementById('ranking-section-divider');
+    const podiumEl = document.getElementById('loja-ranking-podium');
+    const tableWrap = document.getElementById('loja-ranking-table-wrap');
+    const tableBody = document.getElementById('loja-ranking-table-body');
+    if (!section || !podiumEl || !tableWrap || !tableBody) return;
+
+    try {
+        const res = await fetch('/api/loja/ranking_api.php');
+        if (!res.ok) return;
+        const data = await res.json();
+        const lista = (data && data.success && Array.isArray(data.ranking)) ? data.ranking : [];
+
+        if (lista.length === 0) {
+            section.hidden = true;
+            if (divider) divider.hidden = true;
+            return;
+        }
+
+        const formatBRL = (val) => Number(val || 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+        const top3 = lista.slice(0, 3);
+        const rest = lista.slice(3, 5);
+        const defaultAvatar = 'https://mc-heads.net/avatar/MHF_Steve';
+
+        podiumEl.innerHTML = top3.map((item, idx) => {
+            const pos = parseInt(item.posicao, 10) || (idx + 1);
+            const nick = String(item.nick || 'Steve');
+            const safeNick = escapeHTML(nick);
+            const bodyUrl = `https://mc-heads.net/body/${encodeURIComponent(nick)}/right`;
+            const crownHtml = pos === 1
+                ? '<i class="fa-solid fa-crown ranking-crown" aria-hidden="true"></i>'
+                : '';
+            return `
+                <article class="ranking-podium-card pos-${pos}">
+                    <div class="ranking-nametag" title="${safeNick}">
+                        ${crownHtml}
+                        <span class="ranking-nametag-text">${safeNick}</span>
+                    </div>
+                    <div class="ranking-skin-wrap">
+                        <img class="ranking-skin-body" src="${bodyUrl}" alt="Skin de ${safeNick}" loading="lazy" onerror="this.onerror=null;this.src='https://mc-heads.net/body/MHF_Steve/right';">
+                    </div>
+                    <div class="ranking-pedestal">
+                        <span class="ranking-pedestal-rank">${pos}º</span>
+                    </div>
+                    <div class="ranking-player-total">${formatBRL(item.total)}</div>
+                </article>
+            `;
+        }).join('');
+
+        if (rest.length > 0) {
+            tableBody.innerHTML = rest.map((item, idx) => {
+                const pos = parseInt(item.posicao, 10) || (idx + 4);
+                const nick = String(item.nick || 'Steve');
+                const safeNick = escapeHTML(nick);
+                const headUrl = `https://mc-heads.net/avatar/${encodeURIComponent(nick)}`;
+                return `
+                    <tr>
+                        <td class="ranking-cell-pos">#${pos}</td>
+                        <td>
+                            <div class="ranking-cell-player">
+                                <img class="ranking-head-avatar" src="${headUrl}" alt="" loading="lazy" onerror="this.onerror=null;this.src='${defaultAvatar}';">
+                                <span class="ranking-cell-nick" title="${safeNick}">${safeNick}</span>
+                            </div>
+                        </td>
+                        <td class="ranking-cell-total">${formatBRL(item.total)}</td>
+                    </tr>
+                `;
+            }).join('');
+            tableWrap.hidden = false;
+        } else {
+            tableBody.innerHTML = '';
+            tableWrap.hidden = true;
+        }
+
+        section.hidden = false;
+        if (divider) divider.hidden = false;
+    } catch (err) {
+        console.error('Erro ao carregar ranking de doadores:', err);
+    }
 }

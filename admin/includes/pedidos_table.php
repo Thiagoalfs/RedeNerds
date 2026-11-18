@@ -60,7 +60,12 @@ $mostrarPaginacao = $mostrarPaginacao ?? false;
                                      onerror="this.src='https://mc-heads.net/avatar/MHF_Steve'">
                                 <div>
                                     <strong class="text-dark d-block"><?php echo htmlspecialchars($p['nick'], ENT_QUOTES, 'UTF-8'); ?></strong>
-                                    <small class="text-muted font-monospace" style="font-size: 0.72rem;">
+                                    <?php if (!empty($p['destinatario'])): ?>
+                                        <span class="badge bg-warning-subtle text-warning-emphasis border border-warning-subtle d-inline-flex align-items-center gap-1 my-1" style="font-size: 0.7rem;" title="Comprado como presente para <?php echo htmlspecialchars($p['destinatario'], ENT_QUOTES, 'UTF-8'); ?>">
+                                            <i class="fa-solid fa-gift"></i> Para: <?php echo htmlspecialchars($p['destinatario'], ENT_QUOTES, 'UTF-8'); ?>
+                                        </span>
+                                    <?php endif; ?>
+                                    <small class="text-muted font-monospace d-block" style="font-size: 0.72rem;">
                                         <?php echo htmlspecialchars(mb_strimwidth($p['txid'] ?? '', 0, 18, '...'), ENT_QUOTES, 'UTF-8'); ?>
                                     </small>
                                 </div>
@@ -210,6 +215,13 @@ $mostrarPaginacao = $mostrarPaginacao ?? false;
                         <span class="text-muted">Status:</span>
                         <span>${statusBadge}</span>
                     </li>
+                    ${p.destinatario ? `
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        <span class="text-muted">Presente para (Entrega):</span>
+                        <span class="badge bg-warning-subtle text-warning-emphasis border border-warning-subtle font-monospace">
+                            <i class="fa-solid fa-gift me-1"></i>${escapeHtml(p.destinatario)}
+                        </span>
+                    </li>` : ''}
                     <li class="list-group-item d-flex justify-content-between align-items-center">
                         <span class="text-muted">TXID / Transação:</span>
                         <span class="font-monospace text-break" style="font-size: 0.78rem;">${escapeHtml(p.txid) || '—'}</span>

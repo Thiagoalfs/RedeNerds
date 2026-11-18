@@ -119,9 +119,14 @@ function extrairDadosDescricaoPagamento(string $descricao, array $paymentInfo = 
 
     $tipoProdutoFinal = ($tipoProduto === 'chave' || ($quantidade !== null && $quantidade > 1) || stripos($descricao, 'chave') !== false) ? 'chave' : 'vip';
     $qtdFinal = max(1, $quantidade ?? 1);
+    $destinatario = !empty($metadata['destinatario']) ? trim((string)$metadata['destinatario']) : null;
+    if ($destinatario !== null && ($destinatario === '' || strcasecmp($destinatario, (string)$nick) === 0)) {
+        $destinatario = null;
+    }
 
     return [
         'nick' => $nick,
+        'destinatario' => $destinatario,
         'tipo_produto' => $tipoProdutoFinal,
         'quantidade' => $qtdFinal,
         'servidor' => !empty($servidor) ? $servidor : 'Survival',
@@ -159,11 +164,11 @@ function autoRecuperarPedidoMercadoPago(PDO $pdo, string $externalRef, mixed $pa
     try {
         $stmtIns = $pdo->prepare("
             INSERT INTO pedidos (
-                txid, mp_payment_id, nick, pais_ip, tipo_conta, servidor, 
+                txid, mp_payment_id, nick, destinatario, pais_ip, tipo_conta, servidor, 
                 tipo_produto, quantidade, chave_id, vip_id, vip_nome, 
                 valor, valor_original, status, metodo_pagamento, cupom_computado, criado_em, pago_em
             ) VALUES (
-                :txid, :mp_id, :nick, 'BR', 'original', :servidor, 
+                :txid, :mp_id, :nick, :destinatario, 'BR', 'original', :servidor, 
                 :tipo_produto, :quantidade, :chave_id, :vip_id, :vip_nome, 
                 :valor, :valor, 'pago', :metodo, 1, NOW(), NOW()
             )
@@ -172,6 +177,7 @@ function autoRecuperarPedidoMercadoPago(PDO $pdo, string $externalRef, mixed $pa
             ':txid' => $externalRef,
             ':mp_id' => $paymentId ? (string)$paymentId : null,
             ':nick' => $extraidos['nick'],
+            ':destinatario' => $extraidos['destinatario'] ?? null,
             ':servidor' => $extraidos['servidor'],
             ':tipo_produto' => $extraidos['tipo_produto'],
             ':quantidade' => $extraidos['quantidade'],
@@ -256,6 +262,16 @@ function cancelarPagamentoMercadoPago(string|int $mpPaymentId): bool {
  */
 function prepararCheckoutLoja(PDO $pdo, array $data): array {
     $nick = trim((string)($data['nick'] ?? ''));
+    $destinatarioRaw = trim((string)($data['destinatario'] ?? ''));
+    $destinatario = null;
+    if ($destinatarioRaw !== '') {
+        if (strlen($destinatarioRaw) < 3 || strlen($destinatarioRaw) > 16 || !preg_match('/^[a-zA-Z0-9_]+$/', $destinatarioRaw)) {
+            return ['ok' => false, 'status' => 400, 'erro' => 'Nick do destinatário inválido. Use de 3 a 16 caracteres alfanuméricos ou underline.'];
+        }
+        if (strcasecmp($destinatarioRaw, $nick) !== 0) {
+            $destinatario = $destinatarioRaw;
+        }
+    }
     $tipoConta = strtolower(trim((string)($data['tipo_conta'] ?? 'original')));
     if (!in_array($tipoConta, ['original', 'pirata'], true)) {
         $tipoConta = 'original';
@@ -353,6 +369,7 @@ function prepararCheckoutLoja(PDO $pdo, array $data): array {
     return [
         'ok' => true,
         'nick' => $nick,
+        'destinatario' => $destinatario,
         'tipo_conta' => $tipoConta,
         'servidor' => $servidorNome,
         'servidor_id' => $servidorId,

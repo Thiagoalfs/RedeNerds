@@ -183,6 +183,7 @@ if ($statusAtual === 'pago') {
         "aprovado" => true,
         "pago_em" => $pedido['pago_em'] ?? date('c'),
         "nick" => $pedido['nick'],
+        "destinatario" => $pedido['destinatario'] ?? null,
         "servidor" => $pedido['servidor'],
         "vip_nome" => $pedido['vip_nome']
     ], JSON_UNESCAPED_UNICODE);
@@ -328,6 +329,7 @@ if ($mpAccessToken) {
                     "aprovado" => true,
                     "pago_em" => date('c'),
                     "nick" => $pedido['nick'],
+                    "destinatario" => $pedido['destinatario'] ?? null,
                     "servidor" => $pedido['servidor'],
                     "vip_nome" => $pedido['vip_nome']
                 ], JSON_UNESCAPED_UNICODE);

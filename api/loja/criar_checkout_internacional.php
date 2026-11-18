@@ -80,6 +80,7 @@ if (!$checkout['ok']) {
 }
 
 $nick = $checkout['nick'];
+$destinatario = $checkout['destinatario'];
 $tipoConta = $checkout['tipo_conta'];
 $servidor = $checkout['servidor'];
 $tipoProduto = $checkout['tipo_produto'];
@@ -108,11 +109,11 @@ $dbChaveId = ($tipoProduto === 'chave') ? $itemId : null;
 try {
     $stmtIns = $pdo->prepare("
         INSERT INTO pedidos (
-            txid, mp_payment_id, nick, payer_email, payer_cpf, pais_ip, tipo_conta, servidor, 
+            txid, mp_payment_id, nick, destinatario, payer_email, payer_cpf, pais_ip, tipo_conta, servidor, 
             tipo_produto, quantidade, chave_id, vip_id, vip_nome, cupom_codigo, valor, valor_original, desconto_aplicado, 
             valor_total, status, metodo_pagamento, cupom_computado, criado_em
         ) VALUES (
-            :txid, NULL, :nick, :email, NULL, :pais_ip, :tipo_conta, :servidor,
+            :txid, NULL, :nick, :destinatario, :email, NULL, :pais_ip, :tipo_conta, :servidor,
             :tipo_produto, :quantidade, :chave_id, :vip_id, :vip_nome, :cupom_codigo, :valor, :valor_original, :desconto_aplicado,
             :valor_total, 'pendente', 'checkout_pro', 0, NOW()
         )
@@ -120,6 +121,7 @@ try {
     $stmtIns->execute([
         ':txid'              => $txid,
         ':nick'              => $nick,
+        ':destinatario'      => $destinatario,
         ':email'             => $email,
         ':pais_ip'           => $paisIp,
         ':tipo_conta'        => $tipoConta,
@@ -186,6 +188,7 @@ $preferencePayload = [
     "metadata" => [
         "txid" => $txid,
         "nick" => $nick,
+        "destinatario" => $destinatario,
         "tipo_conta" => $tipoConta,
         "tipo_produto" => $tipoProduto,
         "quantidade" => $quantidade,

@@ -21,6 +21,7 @@
     appliedCoupon: null, // { cupom, porcentagem, desconto, preco_original, preco_final }
     currentOrder: {
       txid: null,
+      giftNick: '',
       itemData: null,
       vipData: null, // fallback compatibility alias
       tipoProduto: 'vip', // 'vip' | 'chave'
@@ -39,6 +40,7 @@
     setupCardFormHandlers();
     setupInternationalHandlers();
     setupCouponHandlers();
+    setupGiftModalHandlers();
     carregarCatalogoVips();
     carregarRankingDoadores();
     verificarLocalidadeEstrangeira();
@@ -1028,7 +1030,7 @@
 
     if (!leftCol) return;
 
-    const playerNick = (STATE.nick || 'Jogador').trim();
+    const playerNick = obterNickDestinatarioAtual();
 
     // 1. Atualiza Skin 3D do Minecraft
     if (skinImg) {
@@ -1101,6 +1103,7 @@
     STATE.currentOrder.tipoProduto = tipoProduto;
     STATE.currentOrder.quantidade = 1;
     STATE.currentOrder.txid = null;
+    STATE.currentOrder.giftNick = '';
     removerCupom(false); // Reset limpo do cupom
 
     const dialog = document.getElementById('modal-pix-overlay');
@@ -1125,8 +1128,9 @@
     if (orderSummaryBox) orderSummaryBox.hidden = false;
     if (couponBox) couponBox.hidden = false;
     if (methodsNav) methodsNav.hidden = false;
-    if (summaryAvatar) summaryAvatar.src = `https://mc-heads.net/avatar/${encodeURIComponent(STATE.nick)}`;
-    if (summaryNick) summaryNick.textContent = STATE.nick;
+    if (summaryAvatar) summaryAvatar.src = `https://mc-heads.net/avatar/${encodeURIComponent(obterNickDestinatarioAtual())}`;
+    if (summaryNick) summaryNick.textContent = obterNickDestinatarioAtual();
+    atualizarEstadoPresenteCheckout();
     
     // Controle do seletor de quantidade (apenas para chaves)
     if (quantityGroup) {
@@ -1453,6 +1457,7 @@
     try {
       const payload = {
         nick: STATE.nick,
+        destinatario: STATE.currentOrder.giftNick || '',
         tipo_conta: STATE.tipoConta,
         servidor: item.serverInfo ? item.serverInfo.nome : '',
         tipo_produto: STATE.currentOrder.tipoProduto || 'vip',
@@ -1846,6 +1851,7 @@
         issuer_id: STATE.currentOrder.cardIssuerId || '',
         device_id: deviceId,
         nick: STATE.nick,
+        destinatario: STATE.currentOrder.giftNick || '',
         tipo_conta: STATE.tipoConta,
         servidor: item.serverInfo ? item.serverInfo.nome : '',
         tipo_produto: STATE.currentOrder.tipoProduto || 'vip',
@@ -1961,6 +1967,7 @@
     try {
       const payload = {
         nick: STATE.nick,
+        destinatario: STATE.currentOrder.giftNick || '',
         tipo_conta: STATE.tipoConta,
         servidor: item.serverInfo ? item.serverInfo.nome : '',
         tipo_produto: STATE.currentOrder.tipoProduto || 'vip',
@@ -2269,8 +2276,12 @@
     if (isChave && qtd > 1) {
       vipNome = `${vipNome} (x${qtd})`;
     }
+    const giftBar = document.getElementById('checkout-gift-bar');
+    if (giftBar) giftBar.hidden = true;
     const serverNome = data.servidor || item?.serverInfo?.nome || 'Servidor';
-    const nick = data.nick || STATE.nick || 'Jogador';
+    const dest = (data.destinatario || STATE.currentOrder.giftNick || '').trim();
+    const comprador = data.nick || STATE.nick || 'Jogador';
+    const nick = dest ? `${dest} (Presente de ${comprador})` : comprador;
     const txid = data.txid || STATE.currentOrder.txid || 'N/A';
     const metodo = data.metodo || (STATE.activePaymentMethod === 'card' ? 'Cartão de Crédito' : (STATE.activePaymentMethod === 'international' ? 'Checkout Pro Internacional' : 'PIX'));
 
@@ -2769,7 +2780,113 @@
     }, { passive: true });
   }
 
-  // 8. RANKING DE MAIORES DOADORES
+  // 8. COMPRA COMO PRESENTE (DESTINATÁRIO NO CHECKOUT)
+  function obterNickDestinatarioAtual() {
+    const gift = (STATE.currentOrder.giftNick || '').trim();
+    return gift || (STATE.nick || 'Jogador').trim();
+  }
+
+  function atualizarEstadoPresenteCheckout() {
+    const giftBar = document.getElementById('checkout-gift-bar');
+    const btnOpen = document.getElementById('btn-open-gift-modal');
+    const banner = document.getElementById('checkout-gift-banner');
+    const recipientLabel = document.getElementById('gift-recipient-label');
+    const donorLabel = document.getElementById('gift-donor-label');
+    const summaryAvatar = document.getElementById('summary-avatar-img');
+    const summaryNick = document.getElementById('summary-nick-display');
+
+    const giftNick = (STATE.currentOrder.giftNick || '').trim();
+    const isGift = giftNick !== '';
+    const destinatario = obterNickDestinatarioAtual();
+
+    if (giftBar) giftBar.hidden = false;
+    if (btnOpen) btnOpen.hidden = isGift;
+    if (banner) banner.hidden = !isGift;
+    if (recipientLabel) recipientLabel.textContent = giftNick;
+    if (donorLabel) donorLabel.textContent = STATE.nick || '';
+    if (summaryAvatar) summaryAvatar.src = `https://mc-heads.net/avatar/${encodeURIComponent(destinatario)}`;
+    if (summaryNick) summaryNick.textContent = destinatario;
+
+    if (STATE.currentOrder.itemData) {
+      renderCheckoutPlayerPreview(STATE.currentOrder.itemData, STATE.currentOrder.tipoProduto || 'vip');
+    }
+  }
+
+  function aplicarDestinatarioPresente(novoNick) {
+    const clean = (novoNick || '').trim();
+    const finalGift = (clean !== '' && clean.toLowerCase() !== (STATE.nick || '').toLowerCase()) ? clean : '';
+    if (finalGift === (STATE.currentOrder.giftNick || '')) return;
+
+    STATE.currentOrder.giftNick = finalGift;
+    if (STATE.currentOrder.txid) {
+      limparTimersCheckout();
+      STATE.currentOrder.txid = null;
+      switchPaymentMethod(null);
+    }
+    atualizarEstadoPresenteCheckout();
+  }
+
+  function setupGiftModalHandlers() {
+    const modal = document.getElementById('modal-gift-nick-overlay');
+    const form = document.getElementById('form-gift-nick');
+    const input = document.getElementById('input-gift-nick');
+    const errEl = document.getElementById('gift-nick-error');
+    const donorSpan = document.getElementById('gift-modal-donor-nick');
+    const btnOpen = document.getElementById('btn-open-gift-modal');
+    const btnEdit = document.getElementById('btn-edit-gift-nick');
+    const btnRemove = document.getElementById('btn-remove-gift');
+    const btnClose = document.getElementById('btn-close-gift-modal');
+    const btnCancel = document.getElementById('btn-cancel-gift-modal');
+
+    if (!modal || !form || !input) return;
+
+    const abrirModalPresente = () => {
+      if (donorSpan) donorSpan.textContent = STATE.nick || 'sua conta';
+      input.value = STATE.currentOrder.giftNick || '';
+      if (errEl) {
+        errEl.textContent = '';
+        errEl.hidden = true;
+      }
+      modal.hidden = false;
+      setTimeout(() => input.focus(), 50);
+    };
+
+    const fecharModalPresente = () => {
+      modal.hidden = true;
+    };
+
+    if (btnOpen) btnOpen.addEventListener('click', abrirModalPresente);
+    if (btnEdit) btnEdit.addEventListener('click', abrirModalPresente);
+    if (btnRemove) btnRemove.addEventListener('click', () => aplicarDestinatarioPresente(''));
+    if (btnClose) btnClose.addEventListener('click', fecharModalPresente);
+    if (btnCancel) btnCancel.addEventListener('click', fecharModalPresente);
+    modal.addEventListener('click', (e) => {
+      if (e.target === modal) fecharModalPresente();
+    });
+
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const nick = input.value.trim();
+      if (!/^[a-zA-Z0-9_]{3,16}$/.test(nick)) {
+        if (errEl) {
+          errEl.textContent = 'Nick inválido. Use de 3 a 16 caracteres (letras, números ou _).';
+          errEl.hidden = false;
+        }
+        return;
+      }
+      if (nick.toLowerCase() === (STATE.nick || '').toLowerCase()) {
+        if (errEl) {
+          errEl.textContent = 'Informe um nickname diferente da sua conta principal.';
+          errEl.hidden = false;
+        }
+        return;
+      }
+      aplicarDestinatarioPresente(nick);
+      fecharModalPresente();
+    });
+  }
+
+  // 9. RANKING DE MAIORES DOADORES
   async function carregarRankingDoadores() {
     const section = document.getElementById('loja-ranking-section');
     const podiumEl = document.getElementById('loja-ranking-podium');
