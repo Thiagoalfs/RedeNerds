@@ -2926,21 +2926,26 @@ dialog.loja-dialog[hidden],
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
-  padding: 0.58rem 0.85rem;
-  border-radius: 8px;
-  border: 1px dashed rgba(241, 196, 15, 0.45);
-  background-color: rgba(241, 196, 15, 0.08);
-  color: #F1C40F;
+  padding: 0.55rem 0.9rem;
+  border-radius: var(--radius-sm);
+  border: var(--border-width-sm) solid var(--color-border);
+  background: var(--color-surface-card);
+  color: var(--color-text-main);
   font-family: var(--font-main);
-  font-size: 0.86rem;
+  font-size: 0.84rem;
   font-weight: 600;
   cursor: pointer;
-  transition: background-color 0.15s ease, border-color 0.15s ease;
+  transition: all 0.15s ease;
+}
+
+.btn-gift-trigger i {
+  color: var(--color-primary);
 }
 
 .btn-gift-trigger:hover {
-  background-color: rgba(241, 196, 15, 0.15);
-  border-color: rgba(241, 196, 15, 0.75);
+  background: var(--color-surface-subtle);
+  border-color: var(--color-primary);
+  color: #FFFFFF;
 }
 
 .checkout-gift-banner {
@@ -2948,10 +2953,10 @@ dialog.loja-dialog[hidden],
   align-items: center;
   justify-content: space-between;
   gap: 0.65rem;
-  padding: 0.65rem 0.8rem;
-  border-radius: 8px;
-  background-color: rgba(241, 196, 15, 0.1);
-  border: 1px solid rgba(241, 196, 15, 0.35);
+  padding: 0.55rem 0.75rem;
+  border-radius: var(--radius-sm);
+  background: rgba(56, 189, 248, 0.08);
+  border: 1px solid rgba(56, 189, 248, 0.28);
 }
 
 .checkout-gift-banner[hidden],
@@ -2967,8 +2972,8 @@ dialog.loja-dialog[hidden],
 }
 
 .gift-banner-icon {
-  color: #F1C40F;
-  font-size: 1rem;
+  color: var(--color-primary);
+  font-size: 0.95rem;
   flex-shrink: 0;
 }
 
@@ -2979,7 +2984,7 @@ dialog.loja-dialog[hidden],
 }
 
 .gift-banner-text strong {
-  font-size: 0.84rem;
+  font-size: 0.82rem;
   color: #FFFFFF;
   white-space: nowrap;
   overflow: hidden;
@@ -2987,7 +2992,7 @@ dialog.loja-dialog[hidden],
 }
 
 .gift-banner-text small {
-  font-size: 0.74rem;
+  font-size: 0.73rem;
   color: var(--color-text-muted);
   white-space: nowrap;
   overflow: hidden;
@@ -3003,21 +3008,32 @@ dialog.loja-dialog[hidden],
 
 .btn-gift-mini {
   padding: 0.28rem 0.55rem;
-  border-radius: 6px;
-  border: 1px solid var(--color-border);
-  background-color: var(--color-surface-card);
-  color: var(--color-text-main);
+  border-radius: var(--radius-sm);
+  border: var(--border-width-sm) solid var(--color-border);
+  background: transparent;
+  color: var(--color-text-muted);
+  font-family: var(--font-main);
   font-size: 0.75rem;
   font-weight: 600;
   cursor: pointer;
+  transition: all 0.15s ease;
 }
 
 .btn-gift-mini:hover {
-  border-color: rgba(255, 255, 255, 0.25);
+  background: var(--color-surface-subtle);
+  color: #FFFFFF;
+  border-color: var(--color-border-strong);
 }
 
 .btn-gift-mini-danger {
-  color: #f87171;
+  color: #F87171;
+  border-color: transparent;
+}
+
+.btn-gift-mini-danger:hover {
+  background: rgba(239, 68, 68, 0.2);
+  color: #EF4444;
+  border-color: transparent;
 }
 
 .gift-dialog-card {
