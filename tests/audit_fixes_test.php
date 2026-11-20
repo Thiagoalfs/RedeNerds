@@ -145,4 +145,22 @@ foreach (['criar.php', 'editar.php'] as $cupomApi) {
 }
 echo "  [PASS] Migracao Scope 1 (collation, NULL sentinels, FKs, DATETIME) e bind NULL em cupons validados.\n";
 
+// 8. Teste de permissoes, validacao e helper de webhooks por servidor
+require_once __DIR__ . "/../admin/includes/permissoes.php";
+assert(normalizarCargoAdmin('Co-Fundador') === 'fundador', "Falha: Co-Fundador deve normalizar para fundador");
+assert(usuarioPodeAcessar('webhooks', 'fundador') === true, "Falha: fundador/co-fundador deve acessar webhooks");
+assert(usuarioPodeAcessar('webhooks', 'diretor') === true, "Falha: diretor deve acessar webhooks");
+assert(usuarioPodeAcessar('webhooks', 'coordenador') === false, "Falha: coordenador nao deve acessar webhooks");
+assert(usuarioPodeAcessar('webhooks', 'desenvolvedor') === false, "Falha: desenvolvedor nao deve acessar webhooks");
+
+require_once __DIR__ . "/../admin/noticias/webhook_helper.php";
+assert(discordWebhookUrlValida('https://discord.com/api/webhooks/123456789012345678/abc_DEF-123') === true, "Falha: URL valida de webhook Discord rejeitada");
+assert(discordWebhookUrlValida('https://evil.example.com/api/webhooks/123/abc') === false, "Falha: URL nao-Discord deve ser rejeitada");
+
+$whMigration = __DIR__ . "/../migrations/2026_11_20_servidores_webhooks.sql";
+assert(file_exists($whMigration), "Falha: migracao 2026_11_20_servidores_webhooks.sql deve existir");
+$whSql = file_get_contents($whMigration);
+assert(strpos($whSql, 'servidores_webhooks') !== false && strpos($whSql, 'fk_srv_webhooks_servidor') !== false, "Falha: migracao deve definir servidores_webhooks e FK");
+echo "  [PASS] Permissoes, validacao de URL e migracao de webhooks por servidor validados.\n";
+
 echo "✔ Todos os testes de correções de auditoria passaram com sucesso!\n";

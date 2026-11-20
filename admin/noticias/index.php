@@ -20,6 +20,7 @@ $servidoresMap = [];
 $servidoresList = [];
 $nicksEquipe = [];
 $categorias_envio = ['Anúncios', 'Atualizações'];
+$webhooksPorServidor = [];
 
 try {
     if (isset($pdo) && $pdo instanceof PDO) {
@@ -28,9 +29,27 @@ try {
         foreach ($srvRows as $s) {
             $servidoresList[] = $s['servername'];
             $servidoresMap[$s['servername']] = $s;
+            $webhooksPorServidor[$s['servername']] = ['Anúncios' => false, 'Atualizações' => false];
             if (!empty($s['nome'])) {
                 $servidoresMap[$s['nome']] = $s;
             }
+        }
+        try {
+            $stmtWh = $pdo->query("
+                SELECT s.servername, w.categoria
+                FROM servidores_webhooks w
+                INNER JOIN servidores s ON s.id = w.servidor_id
+                WHERE w.webhook_url IS NOT NULL AND w.webhook_url <> ''
+            ");
+            foreach ($stmtWh->fetchAll(PDO::FETCH_ASSOC) as $wh) {
+                $srvNome = (string)$wh['servername'];
+                $cat = (string)$wh['categoria'];
+                if (isset($webhooksPorServidor[$srvNome])) {
+                    $webhooksPorServidor[$srvNome][$cat] = true;
+                }
+            }
+        } catch (Throwable $eWh) {
+            error_log("Aviso webhooks novidades: " . $eWh->getMessage());
         }
         if (empty($servidoresList)) {
             $servidoresList = ['NerdSky', 'Potato Nerds', 'Nerd Dead'];
@@ -437,6 +456,77 @@ try {
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     const servidoresMap = <?php echo json_encode($servidoresMap, JSON_UNESCAPED_UNICODE); ?>;
+    const webhooksPorServidor = <?php echo json_encode($webhooksPorServidor, JSON_UNESCAPED_UNICODE); ?>;
+    const CATEGORIAS_ENVIO = <?php echo json_encode($categorias_envio, JSON_UNESCAPED_UNICODE); ?>;
+
+    function atualizarSeletorCanalEnvio(selectSrvId, selectCanalId, checkboxWebhookId, checkboxEveryoneId, valorPreferido) {
+        const srvEl = document.getElementById(selectSrvId);
+        const canalEl = document.getElementById(selectCanalId);
+        if (!srvEl || !canalEl) return;
+
+        const srvNome = srvEl.value || '';
+        const status = webhooksPorServidor[srvNome] || { 'Anúncios': false, 'Atualizações': false };
+        const disponiveis = CATEGORIAS_ENVIO.filter((cat) => Boolean(status[cat]));
+
+        canalEl.innerHTML = '';
+        if (disponiveis.length === 0) {
+            const opt = document.createElement('option');
+            opt.value = '';
+            opt.textContent = 'Webhooks não cadastrados';
+            opt.disabled = true;
+            opt.selected = true;
+            canalEl.appendChild(opt);
+        } else {
+            let primeiroDisponivel = null;
+            CATEGORIAS_ENVIO.forEach((cat) => {
+                const opt = document.createElement('option');
+                if (status[cat]) {
+                    opt.value = cat;
+                    opt.textContent = cat;
+                    if (!primeiroDisponivel) primeiroDisponivel = cat;
+                } else {
+                    opt.value = '';
+                    opt.textContent = `${cat} - Não vinculado`;
+                    opt.disabled = true;
+                }
+                canalEl.appendChild(opt);
+            });
+            canalEl.value = (valorPreferido && status[valorPreferido]) ? valorPreferido : (primeiroDisponivel || '');
+        }
+
+        const cbWh = checkboxWebhookId ? document.getElementById(checkboxWebhookId) : null;
+        const cbEv = checkboxEveryoneId ? document.getElementById(checkboxEveryoneId) : null;
+        if (cbWh) {
+            if (disponiveis.length === 0) {
+                cbWh.checked = false;
+                cbWh.disabled = true;
+            } else {
+                cbWh.disabled = false;
+            }
+        }
+        if (cbEv) {
+            if (disponiveis.length === 0) {
+                cbEv.checked = false;
+                cbEv.disabled = true;
+            } else {
+                cbEv.disabled = false;
+            }
+        }
+    }
+
+    const criarSrvSelect = document.getElementById('criar-noticia-category');
+    if (criarSrvSelect) {
+        criarSrvSelect.addEventListener('change', () => {
+            atualizarSeletorCanalEnvio('criar-noticia-category', 'criar-noticia-categoria-envio', 'criar-noticia-webhook', 'criar-noticia-everyone');
+        });
+        atualizarSeletorCanalEnvio('criar-noticia-category', 'criar-noticia-categoria-envio', 'criar-noticia-webhook', 'criar-noticia-everyone');
+    }
+    const editSrvSelect = document.getElementById('edit-noticia-category');
+    if (editSrvSelect) {
+        editSrvSelect.addEventListener('change', () => {
+            atualizarSeletorCanalEnvio('edit-noticia-category', 'edit-noticia-categoria-envio', null, null);
+        });
+    }
 
     const modalCriarEl = document.getElementById('modalCriarNoticia');
     const modalEditarEl = document.getElementById('modalEditarNoticia');
@@ -465,7 +555,7 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('edit-noticia-titulo').value = d.titulo || '';
         document.getElementById('modalEditarNoticiaTituloHeader').textContent = d.titulo || '';
         document.getElementById('edit-noticia-category').value = d.category || '';
-        document.getElementById('edit-noticia-categoria-envio').value = d.categoriaEnvio || 'Anúncios';
+        atualizarSeletorCanalEnvio('edit-noticia-category', 'edit-noticia-categoria-envio', null, null, d.categoriaEnvio || 'Anúncios');
         const autorSelect = document.getElementById('edit-noticia-autor');
         if (autorSelect) {
             let found = false;
@@ -623,6 +713,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
                 if (bsModalCriar) bsModalCriar.hide();
                 formCriar.reset();
+                atualizarSeletorCanalEnvio('criar-noticia-category', 'criar-noticia-categoria-envio', 'criar-noticia-webhook', 'criar-noticia-everyone');
                 const criarPreview = document.getElementById('criar-noticia-capa-preview');
                 if (criarPreview) {
                     criarPreview.style.borderStyle = 'dashed';

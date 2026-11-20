@@ -18,7 +18,7 @@
     $cargoExibicao = $_SESSION['cargo'] ?? 'Administrador';
     $podeVerGeral = usuarioPodeAcessar('dashboard', $cargoNivel) || usuarioPodeAcessar('email', $cargoNivel) || usuarioPodeAcessar('usuarios', $cargoNivel);
     $podeVerLoja = usuarioPodeAcessar('pedidos', $cargoNivel) || usuarioPodeAcessar('vips', $cargoNivel) || usuarioPodeAcessar('chaves', $cargoNivel) || usuarioPodeAcessar('cupons', $cargoNivel);
-    $podeVerRede = usuarioPodeAcessar('servidores', $cargoNivel) || usuarioPodeAcessar('equipe', $cargoNivel) || usuarioPodeAcessar('parceiros', $cargoNivel) || usuarioPodeAcessar('wiki', $cargoNivel) || usuarioPodeAcessar('noticias', $cargoNivel);
+    $podeVerRede = usuarioPodeAcessar('servidores', $cargoNivel) || usuarioPodeAcessar('equipe', $cargoNivel) || usuarioPodeAcessar('parceiros', $cargoNivel) || usuarioPodeAcessar('wiki', $cargoNivel) || usuarioPodeAcessar('noticias', $cargoNivel) || usuarioPodeAcessar('webhooks', $cargoNivel);
     ?>
     <nav class="sidebar-nav">
         <?php if ($podeVerGeral): ?>
@@ -147,6 +147,14 @@
             <div class="icon-wrap">
                 <i class="fa-solid fa-newspaper"></i>
                 <span>Novidades</span>
+            </div>
+        </a>
+        <?php endif; ?>
+        <?php if (usuarioPodeAcessar('webhooks', $cargoNivel)): ?>
+        <a href="/admin/webhooks/" class="nav-item-link <?php echo ($paginaAtiva === 'webhooks') ? 'active' : ''; ?>">
+            <div class="icon-wrap">
+                <i class="fa-brands fa-discord"></i>
+                <span>Webhooks</span>
             </div>
         </a>
         <?php endif; ?>

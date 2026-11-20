@@ -52,7 +52,13 @@ if (empty($capa)) {
 
 $discordMsgId = null;
 if ($enviar_webhook) {
-    $discordMsgId = enviarWebhookDiscord($categoria_envio, $titulo, $conteudo, $autor, $capa, $category, $marcar_everyone);
+    if ($categoria_envio === '' || !obterWebhookDiscordPorServidor($pdo ?? null, $category, $categoria_envio)) {
+        http_response_code(400);
+        header('Content-Type: application/json; charset=utf-8');
+        echo json_encode(["success" => false, "erro" => "O servidor '{$category}' não possui webhook cadastrado para o canal selecionado."], JSON_UNESCAPED_UNICODE);
+        exit;
+    }
+    $discordMsgId = enviarWebhookDiscord($categoria_envio, $titulo, $conteudo, $autor, $capa, $category, $marcar_everyone, $pdo ?? null);
 }
 
 try {

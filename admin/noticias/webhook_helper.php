@@ -53,22 +53,50 @@ function truncarTextoDiscord(string $texto, int $limite): string {
     return rtrim(mb_substr($texto, 0, max(1, $limite - 3), 'UTF-8')) . '...';
 }
 
+function discordWebhookUrlValida(string $url): bool {
+    return preg_match('#^https://(discord\.com|discordapp\.com)/api/webhooks/\d+/[A-Za-z0-9._-]+/?$#', trim($url)) === 1;
+}
+
+/**
+ * Busca a URL de webhook do Discord para um servidor e categoria no banco de dados.
+ */
+function obterWebhookDiscordPorServidor(?PDO $pdo, string $servidor, string $categoriaEnvio): ?string {
+    $db = ($pdo instanceof PDO) ? $pdo : (($GLOBALS['pdo'] ?? null) instanceof PDO ? $GLOBALS['pdo'] : null);
+    if (!$db) {
+        return null;
+    }
+    $srv = trim($servidor);
+    $cat = trim($categoriaEnvio);
+    if ($srv === '' || $cat === '') {
+        return null;
+    }
+    try {
+        $stmt = $db->prepare("
+            SELECT w.webhook_url
+            FROM servidores_webhooks w
+            INNER JOIN servidores s ON s.id = w.servidor_id
+            WHERE (s.servername = :srv OR s.nome = :srv)
+              AND w.categoria = :cat
+            LIMIT 1
+        ");
+        $stmt->execute([':srv' => $srv, ':cat' => $cat]);
+        $url = $stmt->fetchColumn();
+        return is_string($url) && trim($url) !== '' ? trim($url) : null;
+    } catch (Throwable $e) {
+        error_log("ERRO DISCORD WEBHOOK DB: " . $e->getMessage());
+        return null;
+    }
+}
+
 /**
  * Envia uma nova notícia para o Discord via Webhook e retorna o ID da mensagem criada.
  */
-function enviarWebhookDiscord($categoriaEnvio, $titulo, $conteudo, $autor, $capa, $servidor, $marcarEveryone = false) {
+function enviarWebhookDiscord($categoriaEnvio, $titulo, $conteudo, $autor, $capa, $servidor, $marcarEveryone = false, ?PDO $pdo = null) {
     discordUltimoErro('');
-    // 1. Verifica se a constante foi definida
-    if (empty(DISCORD_WEBHOOKS)) {
-        discordUltimoErro("Nenhum webhook configurado no config.php.");
-        error_log("ERRO DISCORD: Nenhum webhook configurado no config.php.");
-        return null;
-    }
-
-    $urlWebhook = trim((string)(DISCORD_WEBHOOKS[$categoriaEnvio] ?? ''));
+    $urlWebhook = obterWebhookDiscordPorServidor($pdo, (string)$servidor, (string)$categoriaEnvio);
     if (empty($urlWebhook)) {
-        discordUltimoErro("Nenhuma URL de webhook encontrada para '{$categoriaEnvio}'.");
-        error_log("ERRO DISCORD: Nenhuma URL de webhook encontrada para a categoria '{$categoriaEnvio}'.");
+        discordUltimoErro("Webhook não cadastrado para '{$servidor}' ({$categoriaEnvio}).");
+        error_log("ERRO DISCORD: Nenhum webhook cadastrado para '{$servidor}' na categoria '{$categoriaEnvio}'.");
         return null;
     }
 
@@ -152,9 +180,10 @@ function enviarWebhookDiscord($categoriaEnvio, $titulo, $conteudo, $autor, $capa
 /**
  * Edita uma mensagem já enviada no Discord via Webhook.
  */
-function editarWebhookDiscord($categoriaEnvio, $mensagemID, $titulo, $conteudo, $autor, $capa, $servidor) {
-    if (empty(DISCORD_WEBHOOKS) || !isset(DISCORD_WEBHOOKS[$categoriaEnvio])) {
-        error_log("ERRO DISCORD: nenhuma URL de webhook para a categoria '{$categoriaEnvio}'.");
+function editarWebhookDiscord($categoriaEnvio, $mensagemID, $titulo, $conteudo, $autor, $capa, $servidor, ?PDO $pdo = null) {
+    $urlWebhook = obterWebhookDiscordPorServidor($pdo, (string)$servidor, (string)$categoriaEnvio);
+    if (empty($urlWebhook)) {
+        error_log("ERRO DISCORD: nenhum webhook cadastrado para '{$servidor}' ({$categoriaEnvio}).");
         return false;
     }
     if (!discordMensagemIdValido($mensagemID)) {
@@ -162,7 +191,7 @@ function editarWebhookDiscord($categoriaEnvio, $mensagemID, $titulo, $conteudo, 
         return false;
     }
 
-    $url = rtrim(trim((string)DISCORD_WEBHOOKS[$categoriaEnvio]), '/') . "/messages/" . $mensagemID;
+    $url = rtrim($urlWebhook, '/') . "/messages/" . $mensagemID;
 
     $embed = [
         "title" => truncarTextoDiscord((string)$titulo, 256),
@@ -234,9 +263,10 @@ function editarWebhookDiscord($categoriaEnvio, $mensagemID, $titulo, $conteudo, 
 /**
  * Deleta uma mensagem do Discord enviada previamente via Webhook.
  */
-function deletarWebhookDiscord($categoriaEnvio, $mensagemID) {
-    if (empty(DISCORD_WEBHOOKS) || !isset(DISCORD_WEBHOOKS[$categoriaEnvio])) {
-        error_log("ERRO DISCORD: nenhuma URL de webhook para a categoria '{$categoriaEnvio}'.");
+function deletarWebhookDiscord($categoriaEnvio, $mensagemID, $servidor = '', ?PDO $pdo = null) {
+    $urlWebhook = obterWebhookDiscordPorServidor($pdo, (string)$servidor, (string)$categoriaEnvio);
+    if (empty($urlWebhook)) {
+        error_log("ERRO DISCORD: nenhum webhook cadastrado para '{$servidor}' ({$categoriaEnvio}).");
         return false;
     }
     if (!discordMensagemIdValido($mensagemID)) {
@@ -244,7 +274,7 @@ function deletarWebhookDiscord($categoriaEnvio, $mensagemID) {
         return false;
     }
 
-    $url = rtrim(DISCORD_WEBHOOKS[$categoriaEnvio], '/') . "/messages/" . $mensagemID;
+    $url = rtrim($urlWebhook, '/') . "/messages/" . $mensagemID;
 
     $ch = curl_init($url);
     $curlOpts = [

@@ -56,12 +56,12 @@ if (!function_exists('usuarioPodeAcessar')) {
             'fundador' => [
                 'dashboard', 'email', 'logs', 'usuarios',
                 'pedidos', 'vips', 'chaves', 'cupons',
-                'servidores', 'equipe', 'equipe_manage', 'parceiros', 'wiki', 'wiki_categorias', 'noticias',
+                'servidores', 'equipe', 'equipe_manage', 'parceiros', 'wiki', 'wiki_categorias', 'noticias', 'webhooks',
             ],
             'diretor' => [
                 'dashboard', 'email', 'logs', 'usuarios',
                 'pedidos', 'vips', 'chaves', 'cupons',
-                'servidores', 'equipe', 'equipe_manage', 'parceiros', 'wiki', 'wiki_categorias', 'noticias',
+                'servidores', 'equipe', 'equipe_manage', 'parceiros', 'wiki', 'wiki_categorias', 'noticias', 'webhooks',
             ],
             'coordenador' => [
                 'email',

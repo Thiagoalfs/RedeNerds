@@ -96,7 +96,7 @@ try {
     $discordMsgId = $noticiaAtual['discord_msg_id'] ?? null;
     if (!empty($discordMsgId)) {
         $canalOriginal = $noticiaAtual['categoria_envio'] ?: $categoria_envio;
-        editarWebhookDiscord($canalOriginal, $discordMsgId, $titulo, $conteudo, $autor, $capa, $category);
+        editarWebhookDiscord($canalOriginal, $discordMsgId, $titulo, $conteudo, $autor, $capa, $category, $pdo);
     }
 
     $busca = $pdo->prepare("SELECT * FROM novidades WHERE id = :id LIMIT 1");

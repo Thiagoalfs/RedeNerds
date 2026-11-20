@@ -31,7 +31,7 @@ if ($id <= 0) {
 
 if (isset($pdo) && $pdo instanceof PDO) {
     try {
-        $stmt = $pdo->prepare("SELECT titulo, categoria_envio, discord_msg_id FROM novidades WHERE id = :id LIMIT 1");
+        $stmt = $pdo->prepare("SELECT titulo, category, categoria_envio, discord_msg_id FROM novidades WHERE id = :id LIMIT 1");
         $stmt->execute([':id' => $id]);
         $noticia = $stmt->fetch(PDO::FETCH_ASSOC);
 
@@ -45,7 +45,7 @@ if (isset($pdo) && $pdo instanceof PDO) {
 
             // Remove também a mensagem correspondente do Discord
             if (!empty($noticia['discord_msg_id'])) {
-                deletarWebhookDiscord($noticia['categoria_envio'], $noticia['discord_msg_id']);
+                deletarWebhookDiscord($noticia['categoria_envio'], $noticia['discord_msg_id'], (string)($noticia['category'] ?? ''), $pdo);
             }
 
             if ($isAjax) {
