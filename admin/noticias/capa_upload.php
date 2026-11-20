@@ -58,6 +58,9 @@ function processarUploadCapa(?string $capaAtual = null): array
     $arquivo = $_FILES['capa_upload'];
 
     if ($arquivo['error'] !== UPLOAD_ERR_OK) {
+        if ($arquivo['error'] === UPLOAD_ERR_INI_SIZE || $arquivo['error'] === UPLOAD_ERR_FORM_SIZE) {
+            return [$capaAtual, "A imagem excede o limite de upload permitido pelo servidor (máx. 5MB)."];
+        }
         return [$capaAtual, "Erro ao enviar o arquivo (código {$arquivo['error']})."];
     }
 

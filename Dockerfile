@@ -18,11 +18,13 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
         opcache \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
 
-# 2. Hardening PHP: oculta versão nos headers e desabilita exibição de erros em produção
+# 2. Hardening PHP: oculta versão nos headers, desabilita exibição de erros em produção e ajusta limite de upload
 RUN { \
     echo "expose_php = Off"; \
     echo "display_errors = Off"; \
     echo "log_errors = On"; \
+    echo "upload_max_filesize = 10M"; \
+    echo "post_max_size = 12M"; \
 } > /usr/local/etc/php/conf.d/security.ini
 
 # 2. Habilita módulos do Apache e permite uso de .htaccess
