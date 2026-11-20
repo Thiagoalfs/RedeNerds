@@ -65,7 +65,7 @@ if (!function_exists('usuarioPodeAcessar')) {
             ],
             'coordenador' => [
                 'email',
-                'servidores', 'equipe', 'parceiros', 'wiki', 'wiki_categorias', 'noticias',
+                'servidores', 'equipe', 'parceiros', 'wiki', 'wiki_categorias', 'noticias', 'webhooks',
             ],
             'desenvolvedor' => [
                 'email',

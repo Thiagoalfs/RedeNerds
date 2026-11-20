@@ -150,7 +150,7 @@ require_once __DIR__ . "/../admin/includes/permissoes.php";
 assert(normalizarCargoAdmin('Co-Fundador') === 'fundador', "Falha: Co-Fundador deve normalizar para fundador");
 assert(usuarioPodeAcessar('webhooks', 'fundador') === true, "Falha: fundador/co-fundador deve acessar webhooks");
 assert(usuarioPodeAcessar('webhooks', 'diretor') === true, "Falha: diretor deve acessar webhooks");
-assert(usuarioPodeAcessar('webhooks', 'coordenador') === false, "Falha: coordenador nao deve acessar webhooks");
+assert(usuarioPodeAcessar('webhooks', 'coordenador') === true, "Falha: coordenador deve acessar webhooks");
 assert(usuarioPodeAcessar('webhooks', 'desenvolvedor') === false, "Falha: desenvolvedor nao deve acessar webhooks");
 
 require_once __DIR__ . "/../admin/noticias/webhook_helper.php";
