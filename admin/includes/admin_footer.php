@@ -58,6 +58,27 @@
         </div>
     </div>
 
+    <!-- MODAL COMPARTILHADO DE CONFIRMAÇÃO -->
+    <div class="modal fade" id="modalConfirmacaoAdmin" tabindex="-1" aria-labelledby="modalConfirmacaoAdminTitulo" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content shadow">
+                <div class="modal-header">
+                    <h5 class="modal-title fw-bold" id="modalConfirmacaoAdminTitulo">Confirmar Ação</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+                </div>
+                <div class="modal-body p-3 p-md-4">
+                    <p class="mb-0" id="modalConfirmacaoAdminMensagem"></p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-danger btn-sm" id="modalConfirmacaoAdminBtn">
+                        <i class="fa-solid fa-trash me-1"></i> <span id="modalConfirmacaoAdminBtnTexto">Excluir</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- BOOTSTRAP BUNDLE JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 

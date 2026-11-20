@@ -199,12 +199,12 @@ async function fazerUploadImagemWiki(file, ref = null) {
             }
         } else {
             const msg = 'Erro no envio da imagem: ' + (data.erro || 'Falha ao processar arquivo');
-            if (window.AdminToast) { window.AdminToast.error(msg); } else { alert(msg); }
+            if (window.AdminToast) { window.AdminToast.error(msg); } else { console.error(msg); }
         }
     } catch (err) {
         console.error('Erro no upload:', err);
         const msg = 'Erro ao enviar imagem. Verifique sua conexão.';
-        if (window.AdminToast) { window.AdminToast.error(msg); } else { alert(msg); }
+        if (window.AdminToast) { window.AdminToast.error(msg); } else { console.error(msg); }
     } finally {
         if (feedback) feedback.classList.add('d-none');
         if (btn) btn.disabled = false;

@@ -154,7 +154,7 @@ $coresPredefinidas = [
                                         <button type="button" class="btn btn-sm btn-primary" onclick="abrirModalEditarCargo(<?php echo (int)$c['id']; ?>, '<?php echo htmlspecialchars(addslashes($c['nome']), ENT_QUOTES, 'UTF-8'); ?>', '<?php echo htmlspecialchars(addslashes($cargoCor), ENT_QUOTES, 'UTF-8'); ?>', <?php echo (int)$c['ordem']; ?>, '<?php echo htmlspecialchars(gerarHashRegistro($c, ['total_membros'], 'equipe_cargos'), ENT_QUOTES, 'UTF-8'); ?>')">
                                             <i class="fa-solid fa-pen-to-square"></i> Editar
                                         </button>
-                                        <form method="POST" action="/admin/api/equipe/cargo_deletar.php" class="d-inline" onsubmit="return confirm('Tem certeza que deseja excluir o cargo <?php echo htmlspecialchars(addslashes($c['nome']), ENT_QUOTES, 'UTF-8'); ?>?');">
+                                        <form method="POST" action="/admin/api/equipe/cargo_deletar.php" class="d-inline" data-confirm="Tem certeza que deseja excluir o cargo <?php echo htmlspecialchars($c['nome'], ENT_QUOTES, 'UTF-8'); ?>?">
                                             <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($csrfToken, ENT_QUOTES, 'UTF-8'); ?>">
                                             <input type="hidden" name="id" value="<?php echo (int)$c['id']; ?>">
                                             <button type="submit" class="btn btn-sm btn-danger" title="<?php echo ($c['total_membros'] > 0) ? 'Mova ou exclua os membros deste cargo antes de deletar' : 'Excluir Cargo'; ?>" <?php echo ($c['total_membros'] > 0) ? 'disabled' : ''; ?>>

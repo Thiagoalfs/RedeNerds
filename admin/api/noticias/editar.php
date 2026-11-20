@@ -29,6 +29,8 @@ $conteudo        = trim($_POST['conteudo'] ?? $noticiaAtual['conteudo']);
 $autor           = trim((string)($noticiaAtual['autor'] ?? '')) ?: obterAutorLogadoEquipe($pdo ?? null);
 $category        = trim($_POST['category'] ?? $noticiaAtual['category']);
 $categoria_envio = trim($_POST['categoria_envio'] ?? $noticiaAtual['categoria_envio']);
+$enviar_webhook  = !empty($_POST['enviar_webhook']);
+$marcar_everyone = !empty($_POST['marcar_everyone']);
 
 if ($titulo === '' || mb_strlen($titulo) < 3) {
     http_response_code(400);
@@ -68,6 +70,13 @@ if (empty($capa)) {
     exit;
 }
 
+if ($enviar_webhook && ($categoria_envio === '' || !obterWebhookDiscordPorServidor($pdo ?? null, $category, $categoria_envio))) {
+    http_response_code(400);
+    header('Content-Type: application/json; charset=utf-8');
+    echo json_encode(["success" => false, "erro" => "O servidor '{$category}' não possui webhook cadastrado para o canal selecionado."], JSON_UNESCAPED_UNICODE);
+    exit;
+}
+
 try {
     $versaoHash = trim($_POST['_versao_hash'] ?? '');
     $pdo->beginTransaction();
@@ -92,11 +101,25 @@ try {
     require_once __DIR__ . "/../../../api/cache_helper.php";
     invalidarCache('novidades');
 
-    // Sincroniza a mensagem do Discord com o conteúdo editado
+    // Sincroniza a mensagem do Discord: remove do canal/servidor antigo se mudou ou foi desmarcado, e cria/edita no destino
     $discordMsgId = $noticiaAtual['discord_msg_id'] ?? null;
-    if (!empty($discordMsgId)) {
-        $canalOriginal = $noticiaAtual['categoria_envio'] ?: $categoria_envio;
-        editarWebhookDiscord($canalOriginal, $discordMsgId, $titulo, $conteudo, $autor, $capa, $category, $pdo);
+    $servidorOriginal = trim((string)($noticiaAtual['category'] ?? ''));
+    $canalOriginal = trim((string)($noticiaAtual['categoria_envio'] ?? ''));
+    $mudouDestino = (strcasecmp($servidorOriginal, $category) !== 0) || (strcasecmp($canalOriginal, $categoria_envio) !== 0);
+
+    if (!$enviar_webhook) {
+        if (!empty($discordMsgId)) {
+            deletarWebhookDiscord($canalOriginal ?: $categoria_envio, $discordMsgId, $servidorOriginal ?: $category, $pdo);
+            $pdo->prepare("UPDATE novidades SET discord_msg_id = NULL WHERE id = :id")->execute([':id' => $id]);
+        }
+    } elseif ($mudouDestino || empty($discordMsgId)) {
+        if (!empty($discordMsgId)) {
+            deletarWebhookDiscord($canalOriginal ?: $categoria_envio, $discordMsgId, $servidorOriginal ?: $category, $pdo);
+        }
+        $novoMsgId = enviarWebhookDiscord($categoria_envio, $titulo, $conteudo, $autor, $capa, $category, $marcar_everyone, $pdo);
+        $pdo->prepare("UPDATE novidades SET discord_msg_id = :msg_id WHERE id = :id")->execute([':msg_id' => $novoMsgId, ':id' => $id]);
+    } else {
+        editarWebhookDiscord($categoria_envio, $discordMsgId, $titulo, $conteudo, $autor, $capa, $category, $pdo);
     }
 
     $busca = $pdo->prepare("SELECT * FROM novidades WHERE id = :id LIMIT 1");

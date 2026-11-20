@@ -383,7 +383,7 @@
       const itemName = btn.dataset.name || 'este item';
       const confirmMsg = btn.dataset.confirm || `Tem certeza que deseja excluir "${itemName}"?`;
 
-      if (!window.confirm(confirmMsg)) return;
+      if (!(await AdminConfirm(confirmMsg, { titulo: 'Confirmar Exclusão', textoBotao: 'Excluir' }))) return;
 
       const row = btn.closest('tr');
       const originalHtml = btn.innerHTML;
@@ -533,10 +533,60 @@
     }
   }
 
-  // Inicialização automática
+  function AdminConfirm(mensagem, opcoes = {}) {
+    const modalEl = document.getElementById('modalConfirmacaoAdmin');
+    const msgEl = document.getElementById('modalConfirmacaoAdminMensagem');
+    const tituloEl = document.getElementById('modalConfirmacaoAdminTitulo');
+    const btnOk = document.getElementById('modalConfirmacaoAdminBtn');
+    const btnTexto = document.getElementById('modalConfirmacaoAdminBtnTexto');
+
+    if (!modalEl || !msgEl || !btnOk || typeof bootstrap === 'undefined') {
+      return Promise.resolve(false);
+    }
+
+    if (tituloEl) tituloEl.textContent = opcoes.titulo || 'Confirmar Exclusão';
+    if (btnTexto) btnTexto.textContent = opcoes.textoBotao || 'Excluir';
+    msgEl.textContent = mensagem || 'Tem certeza que deseja continuar?';
+
+    const bsModal = bootstrap.Modal.getOrCreateInstance(modalEl);
+
+    return new Promise((resolve) => {
+      let resolvido = false;
+      const finalizar = (resultado) => {
+        if (resolvido) return;
+        resolvido = true;
+        btnOk.removeEventListener('click', onConfirm);
+        modalEl.removeEventListener('hidden.bs.modal', onHidden);
+        resolve(resultado);
+      };
+      const onConfirm = () => {
+        finalizar(true);
+        bsModal.hide();
+      };
+      const onHidden = () => finalizar(false);
+
+      btnOk.addEventListener('click', onConfirm);
+      modalEl.addEventListener('hidden.bs.modal', onHidden);
+      bsModal.show();
+    });
+  }
+
   // Inicialização automática e atalhos de produtividade nos modais
   document.addEventListener('DOMContentLoaded', () => {
     setupAsyncTableActions();
+
+    // Confirmação via modal para formulários tradicionais com data-confirm
+    document.addEventListener('submit', async (e) => {
+      const form = e.target;
+      if (!(form instanceof HTMLFormElement) || !form.dataset.confirm || form.dataset.confirmOk === '1') {
+        return;
+      }
+      e.preventDefault();
+      if (await AdminConfirm(form.dataset.confirm, { titulo: 'Confirmar Exclusão', textoBotao: 'Excluir' })) {
+        form.dataset.confirmOk = '1';
+        form.submit();
+      }
+    });
 
     // Autofocus inteligente ao abrir qualquer modal do Bootstrap
     document.addEventListener('shown.bs.modal', (e) => {
@@ -569,5 +619,6 @@
   // Exportação global
   window.AdminToast = AdminToast;
   window.AdminApi = AdminApi;
+  window.AdminConfirm = AdminConfirm;
 
 })(window, document);

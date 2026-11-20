@@ -62,7 +62,7 @@ try {
         $totalPaginas = max(1, (int)ceil($totalNoticias / POR_PAGINA));
 
         $stmt = $pdo->prepare("
-            SELECT id, titulo, conteudo, category, categoria_envio, capa, criado_em, autor 
+            SELECT id, titulo, conteudo, category, categoria_envio, capa, criado_em, autor, discord_msg_id 
             FROM novidades 
             $whereSql 
             ORDER BY criado_em DESC 
@@ -169,6 +169,7 @@ try {
                                 data-categoria-envio="<?php echo htmlspecialchars($n['categoria_envio'] ?? 'Anúncios', ENT_QUOTES, 'UTF-8'); ?>"
                                 data-autor="<?php echo htmlspecialchars($n['autor'] ?? '', ENT_QUOTES, 'UTF-8'); ?>"
                                 data-capa="<?php echo htmlspecialchars($n['capa'] ?? '', ENT_QUOTES, 'UTF-8'); ?>"
+                                data-discord-msg-id="<?php echo htmlspecialchars($n['discord_msg_id'] ?? '', ENT_QUOTES, 'UTF-8'); ?>"
                                 data-conteudo="<?php echo htmlspecialchars($n['conteudo'] ?? '', ENT_QUOTES, 'UTF-8'); ?>"
                                 data-criado-em="<?php echo date('d/m/Y H:i', strtotime($n['criado_em'])); ?>">
                                 <td>
@@ -389,6 +390,18 @@ try {
                             </div>
                         </div>
                     </div>
+
+                    <div class="p-3 bg-light border rounded">
+                        <h6 class="fw-bold mb-2">Notificação no Discord</h6>
+                        <div class="form-check mb-2">
+                            <input class="form-check-input" type="checkbox" id="edit-noticia-webhook" name="enviar_webhook" value="1">
+                            <label class="form-check-label fw-semibold" for="edit-noticia-webhook">Enviar / manter anúncio no Discord</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="edit-noticia-everyone" name="marcar_everyone" value="1">
+                            <label class="form-check-label text-muted" for="edit-noticia-everyone">Marcar @everyone ao reenviar mensagem (ex.: ao trocar servidor/canal)</label>
+                        </div>
+                    </div>
                 </div>
 
                 <div class="modal-footer">
@@ -408,7 +421,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const webhooksPorServidor = <?php echo json_encode($webhooksPorServidor, JSON_UNESCAPED_UNICODE); ?>;
     const CATEGORIAS_ENVIO = <?php echo json_encode($categorias_envio, JSON_UNESCAPED_UNICODE); ?>;
 
-    function atualizarSeletorCanalEnvio(selectSrvId, selectCanalId, checkboxWebhookId, checkboxEveryoneId, valorPreferido) {
+    function atualizarSeletorCanalEnvio(selectSrvId, selectCanalId, checkboxWebhookId, checkboxEveryoneId, valorPreferido, marcarPorPadrao = false) {
         const srvEl = document.getElementById(selectSrvId);
         const canalEl = document.getElementById(selectCanalId);
         if (!srvEl || !canalEl) return;
@@ -451,6 +464,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 cbWh.disabled = true;
             } else {
                 cbWh.disabled = false;
+                if (marcarPorPadrao) cbWh.checked = true;
             }
         }
         if (cbEv) {
@@ -466,14 +480,14 @@ document.addEventListener('DOMContentLoaded', function() {
     const criarSrvSelect = document.getElementById('criar-noticia-category');
     if (criarSrvSelect) {
         criarSrvSelect.addEventListener('change', () => {
-            atualizarSeletorCanalEnvio('criar-noticia-category', 'criar-noticia-categoria-envio', 'criar-noticia-webhook', 'criar-noticia-everyone');
+            atualizarSeletorCanalEnvio('criar-noticia-category', 'criar-noticia-categoria-envio', 'criar-noticia-webhook', 'criar-noticia-everyone', null, true);
         });
-        atualizarSeletorCanalEnvio('criar-noticia-category', 'criar-noticia-categoria-envio', 'criar-noticia-webhook', 'criar-noticia-everyone');
+        atualizarSeletorCanalEnvio('criar-noticia-category', 'criar-noticia-categoria-envio', 'criar-noticia-webhook', 'criar-noticia-everyone', null, true);
     }
     const editSrvSelect = document.getElementById('edit-noticia-category');
     if (editSrvSelect) {
         editSrvSelect.addEventListener('change', () => {
-            atualizarSeletorCanalEnvio('edit-noticia-category', 'edit-noticia-categoria-envio', null, null);
+            atualizarSeletorCanalEnvio('edit-noticia-category', 'edit-noticia-categoria-envio', 'edit-noticia-webhook', 'edit-noticia-everyone');
         });
     }
 
@@ -504,7 +518,11 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('edit-noticia-titulo').value = d.titulo || '';
         document.getElementById('modalEditarNoticiaTituloHeader').textContent = d.titulo || '';
         document.getElementById('edit-noticia-category').value = d.category || '';
-        atualizarSeletorCanalEnvio('edit-noticia-category', 'edit-noticia-categoria-envio', null, null, d.categoriaEnvio || 'Anúncios');
+        const editCbWh = document.getElementById('edit-noticia-webhook');
+        const editCbEv = document.getElementById('edit-noticia-everyone');
+        if (editCbWh) editCbWh.checked = Boolean(d.discordMsgId);
+        if (editCbEv) editCbEv.checked = false;
+        atualizarSeletorCanalEnvio('edit-noticia-category', 'edit-noticia-categoria-envio', 'edit-noticia-webhook', 'edit-noticia-everyone', d.categoriaEnvio || 'Anúncios');
         document.getElementById('edit-noticia-conteudo').value = d.conteudo || '';
         document.getElementById('edit-noticia-capa-upload').value = '';
         const editCapaName = document.getElementById('edit-noticia-capa-upload-name');
@@ -559,6 +577,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 dataFormatada = `${dia}/${mes}/${ano} ${hora}:${min}`;
             }
         }
+        tr.dataset.capa = n.capa || '';
+        tr.dataset.discordMsgId = n.discord_msg_id || '';
         tr.dataset.criadoEm = dataFormatada;
 
         const capaHtml = n.capa 
@@ -644,7 +664,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
                 if (bsModalCriar) bsModalCriar.hide();
                 formCriar.reset();
-                atualizarSeletorCanalEnvio('criar-noticia-category', 'criar-noticia-categoria-envio', 'criar-noticia-webhook', 'criar-noticia-everyone');
+                atualizarSeletorCanalEnvio('criar-noticia-category', 'criar-noticia-categoria-envio', 'criar-noticia-webhook', 'criar-noticia-everyone', null, true);
                 const criarPreview = document.getElementById('criar-noticia-capa-preview');
                 if (criarPreview) {
                     criarPreview.style.borderStyle = 'dashed';

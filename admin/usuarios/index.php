@@ -711,7 +711,7 @@ document.addEventListener('DOMContentLoaded', () => {
     document.querySelectorAll('.btn-deletar-orfao').forEach((btn) => {
         btn.addEventListener('click', async () => {
             const email = btn.dataset.email || '';
-            if (!email || !confirm(`Tem certeza que deseja deletar a caixa de e-mail "${email}"? Esta ação não pode ser desfeita.`)) {
+            if (!email || !(await window.AdminConfirm(`Tem certeza que deseja deletar a caixa de e-mail "${email}"? Esta ação não pode ser desfeita.`, { titulo: 'Confirmar Exclusão', textoBotao: 'Excluir' }))) {
                 return;
             }
             const row = btn.closest('tr');

@@ -135,7 +135,7 @@
           if (window.AdminToast && typeof window.AdminToast.error === 'function') {
             window.AdminToast.error('Recursos assíncronos indisponíveis. Recarregue a página.');
           } else {
-            alert('Recursos assíncronos indisponíveis. Recarregue a página.');
+            console.error('Recursos assíncronos indisponíveis. Recarregue a página.');
           }
           return;
         }
