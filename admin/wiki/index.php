@@ -16,43 +16,6 @@ try {
     $servidores = [];
 }
 
-$nicksEquipe = [];
-try {
-    $cargosPermitidos = [
-        'Fundadores', 'Fundador',
-        'Diretores', 'Diretor',
-        'Coordenadores', 'Coordenador',
-        'Administradores', 'Administrador',
-        'Desenvolvedores', 'Desenvolvedor',
-        'Developers', 'Developer',
-        'Devs', 'Dev'
-    ];
-    $placeholders = implode(',', array_fill(0, count($cargosPermitidos), '?'));
-    $stmtEquipe = $pdo->prepare("
-        SELECT DISTINCT nick 
-        FROM equipe 
-        WHERE nick IS NOT NULL AND nick != '' 
-          AND (
-              cargo IN ($placeholders) 
-              OR LOWER(cargo) LIKE '%fundad%' 
-              OR LOWER(cargo) LIKE '%direto%' 
-              OR LOWER(cargo) LIKE '%coordena%' 
-              OR LOWER(cargo) LIKE '%admin%'
-              OR LOWER(cargo) LIKE '%desenvolv%'
-              OR LOWER(cargo) LIKE '%developer%'
-              OR LOWER(cargo) LIKE '%dev%'
-          )
-        ORDER BY nick ASC
-    ");
-    $stmtEquipe->execute($cargosPermitidos);
-    $nicksEquipe = $stmtEquipe->fetchAll(PDO::FETCH_COLUMN, 0);
-} catch (PDOException $e) {
-    $nicksEquipe = [];
-}
-if (empty($nicksEquipe)) {
-    $nicksEquipe = [$_SESSION['usuario_nome'] ?? 'Admin'];
-}
-
 $where = [];
 $params = [];
 
@@ -301,21 +264,9 @@ $categoriasIniciais = $primeiroServidorId > 0 ? getCategoriasServidorWiki($pdo, 
                         </div>
                     </div>
 
-                    <div class="row g-2 mb-2">
-                        <div class="col-md-8">
-                            <label for="criar-titulo" class="form-label fw-bold">Título do Artigo <span class="text-danger">*</span></label>
-                            <input type="text" class="form-control" id="criar-titulo" name="titulo" placeholder="Ex: Como criar e proteger seu terreno" required>
-                        </div>
-                        <div class="col-md-4">
-                            <label for="criar-autor" class="form-label fw-bold">Autor <span class="text-danger">*</span></label>
-                            <select class="form-select" id="criar-autor" name="autor" required>
-                                <?php foreach ($nicksEquipe as $nk): ?>
-                                    <option value="<?php echo htmlspecialchars($nk, ENT_QUOTES, 'UTF-8'); ?>">
-                                        <?php echo htmlspecialchars($nk, ENT_QUOTES, 'UTF-8'); ?>
-                                    </option>
-                                <?php endforeach; ?>
-                            </select>
-                        </div>
+                    <div class="mb-2">
+                        <label for="criar-titulo" class="form-label fw-bold">Título do Artigo <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="criar-titulo" name="titulo" placeholder="Ex: Como criar e proteger seu terreno" required>
                     </div>
 
                     <div class="mb-3">
@@ -387,21 +338,9 @@ $categoriasIniciais = $primeiroServidorId > 0 ? getCategoriasServidorWiki($pdo, 
                         </div>
                     </div>
 
-                    <div class="row g-2 mb-2">
-                        <div class="col-md-8">
-                            <label for="edit-titulo" class="form-label fw-bold">Título do Artigo <span class="text-danger">*</span></label>
-                            <input type="text" class="form-control" id="edit-titulo" name="titulo" required>
-                        </div>
-                        <div class="col-md-4">
-                            <label for="edit-autor" class="form-label fw-bold">Autor <span class="text-danger">*</span></label>
-                            <select class="form-select" id="edit-autor" name="autor" required>
-                                <?php foreach ($nicksEquipe as $nk): ?>
-                                    <option value="<?php echo htmlspecialchars($nk, ENT_QUOTES, 'UTF-8'); ?>">
-                                        <?php echo htmlspecialchars($nk, ENT_QUOTES, 'UTF-8'); ?>
-                                    </option>
-                                <?php endforeach; ?>
-                            </select>
-                        </div>
+                    <div class="mb-2">
+                        <label for="edit-titulo" class="form-label fw-bold">Título do Artigo <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="edit-titulo" name="titulo" required>
                     </div>
 
                     <div class="mb-3">
@@ -690,26 +629,6 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('edit-titulo').value = dataset.titulo || '';
         document.getElementById('edit-conteudo').value = dataset.conteudo || '';
         document.getElementById('edit-publicado').checked = (dataset.publicado === '1');
-
-        // Selecionar autor se existir na lista
-        const autorSelect = document.getElementById('edit-autor');
-        if (autorSelect) {
-            let found = false;
-            for (let opt of autorSelect.options) {
-                if (opt.value === dataset.autor) {
-                    opt.selected = true;
-                    found = true;
-                    break;
-                }
-            }
-            if (!found && dataset.autor) {
-                const newOpt = document.createElement('option');
-                newOpt.value = dataset.autor;
-                newOpt.textContent = dataset.autor;
-                newOpt.selected = true;
-                autorSelect.appendChild(newOpt);
-            }
-        }
 
         // Selecionar servidor e carregar categorias correspondentes
         const srvSelect = document.getElementById('edit-servidor_id');

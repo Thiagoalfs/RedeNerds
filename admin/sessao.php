@@ -191,3 +191,18 @@ if (!function_exists('pluralizar')) {
         return $quantidade . ' ' . ($quantidade === 1 ? $singular : $plural);
     }
 }
+
+if (!function_exists('obterAutorLogadoEquipe')) {
+    function obterAutorLogadoEquipe(?PDO $pdo): string {
+        $equipeId = (int)($_SESSION['equipe_id'] ?? 0);
+        if ($pdo instanceof PDO && $equipeId > 0) {
+            $st = $pdo->prepare("SELECT nick FROM equipe WHERE id = :id LIMIT 1");
+            $st->execute([':id' => $equipeId]);
+            $nick = trim((string)$st->fetchColumn());
+            if ($nick !== '') {
+                return $nick;
+            }
+        }
+        return trim((string)($_SESSION['usuario_nome'] ?? ''));
+    }
+}

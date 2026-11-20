@@ -55,35 +55,6 @@ try {
             $servidoresList = ['NerdSky', 'Potato Nerds', 'Nerd Dead'];
         }
 
-        $cargosPermitidos = [
-            'Fundadores', 'Fundador',
-            'Diretores', 'Diretor',
-            'Coordenadores', 'Coordenador',
-            'Administradores', 'Administrador',
-            'Desenvolvedores', 'Desenvolvedor',
-            'Developers', 'Developer',
-            'Devs', 'Dev'
-        ];
-        $placeholders = implode(',', array_fill(0, count($cargosPermitidos), '?'));
-        $stmtEquipe = $pdo->prepare("
-            SELECT DISTINCT nick 
-            FROM equipe 
-            WHERE nick IS NOT NULL AND nick != '' 
-              AND (
-                  cargo IN ($placeholders) 
-                  OR LOWER(cargo) LIKE '%fundad%' 
-                  OR LOWER(cargo) LIKE '%direto%' 
-                  OR LOWER(cargo) LIKE '%coordena%' 
-                  OR LOWER(cargo) LIKE '%admin%'
-                  OR LOWER(cargo) LIKE '%desenvolv%'
-                  OR LOWER(cargo) LIKE '%developer%'
-                  OR LOWER(cargo) LIKE '%dev%'
-              )
-            ORDER BY nick ASC
-        ");
-        $stmtEquipe->execute($cargosPermitidos);
-        $nicksEquipe = $stmtEquipe->fetchAll(PDO::FETCH_COLUMN, 0);
-
         $stmtCount = $pdo->prepare("SELECT COUNT(*) FROM novidades $whereSql");
         $stmtCount->execute($params);
         $totalNoticias = (int)$stmtCount->fetchColumn();
@@ -268,7 +239,7 @@ try {
                     </div>
 
                     <div class="row g-2 mb-2">
-                        <div class="col-md-4">
+                        <div class="col-md-6">
                             <label for="criar-noticia-category" class="form-label fw-bold">Servidor Relacionado</label>
                             <select class="form-select" id="criar-noticia-category" name="category">
                                 <?php foreach ($servidoresList as $srv): ?>
@@ -278,23 +249,12 @@ try {
                                 <?php endforeach; ?>
                             </select>
                         </div>
-                        <div class="col-md-4">
+                        <div class="col-md-6">
                             <label for="criar-noticia-categoria-envio" class="form-label fw-bold">Canal de Envio</label>
                             <select class="form-select" id="criar-noticia-categoria-envio" name="categoria_envio">
                                 <?php foreach ($categorias_envio as $cEnv): ?>
                                     <option value="<?php echo htmlspecialchars($cEnv, ENT_QUOTES, 'UTF-8'); ?>">
                                         <?php echo htmlspecialchars($cEnv, ENT_QUOTES, 'UTF-8'); ?>
-                                    </option>
-                                <?php endforeach; ?>
-                            </select>
-                        </div>
-                        <div class="col-md-4">
-                            <label for="criar-noticia-autor" class="form-label fw-bold">Autor da Postagem <span class="text-danger">*</span></label>
-                            <select class="form-select" id="criar-noticia-autor" name="autor" required>
-                                <option value="">Selecione o autor...</option>
-                                <?php foreach ($nicksEquipe as $nk): ?>
-                                    <option value="<?php echo htmlspecialchars($nk, ENT_QUOTES, 'UTF-8'); ?>">
-                                        <?php echo htmlspecialchars($nk, ENT_QUOTES, 'UTF-8'); ?>
                                     </option>
                                 <?php endforeach; ?>
                             </select>
@@ -378,7 +338,7 @@ try {
                     </div>
 
                     <div class="row g-2 mb-2">
-                        <div class="col-md-4">
+                        <div class="col-md-6">
                             <label for="edit-noticia-category" class="form-label fw-bold">Servidor Relacionado</label>
                             <select class="form-select" id="edit-noticia-category" name="category">
                                 <?php foreach ($servidoresList as $srv): ?>
@@ -388,23 +348,12 @@ try {
                                 <?php endforeach; ?>
                             </select>
                         </div>
-                        <div class="col-md-4">
+                        <div class="col-md-6">
                             <label for="edit-noticia-categoria-envio" class="form-label fw-bold">Canal de Envio</label>
                             <select class="form-select" id="edit-noticia-categoria-envio" name="categoria_envio">
                                 <?php foreach ($categorias_envio as $cEnv): ?>
                                     <option value="<?php echo htmlspecialchars($cEnv, ENT_QUOTES, 'UTF-8'); ?>">
                                         <?php echo htmlspecialchars($cEnv, ENT_QUOTES, 'UTF-8'); ?>
-                                    </option>
-                                <?php endforeach; ?>
-                            </select>
-                        </div>
-                        <div class="col-md-4">
-                            <label for="edit-noticia-autor" class="form-label fw-bold">Autor da Postagem <span class="text-danger">*</span></label>
-                            <select class="form-select" id="edit-noticia-autor" name="autor" required>
-                                <option value="">Selecione o autor...</option>
-                                <?php foreach ($nicksEquipe as $nk): ?>
-                                    <option value="<?php echo htmlspecialchars($nk, ENT_QUOTES, 'UTF-8'); ?>">
-                                        <?php echo htmlspecialchars($nk, ENT_QUOTES, 'UTF-8'); ?>
                                     </option>
                                 <?php endforeach; ?>
                             </select>
@@ -556,24 +505,6 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('modalEditarNoticiaTituloHeader').textContent = d.titulo || '';
         document.getElementById('edit-noticia-category').value = d.category || '';
         atualizarSeletorCanalEnvio('edit-noticia-category', 'edit-noticia-categoria-envio', null, null, d.categoriaEnvio || 'Anúncios');
-        const autorSelect = document.getElementById('edit-noticia-autor');
-        if (autorSelect) {
-            let found = false;
-            for (let opt of autorSelect.options) {
-                if (opt.value === d.autor) {
-                    opt.selected = true;
-                    found = true;
-                    break;
-                }
-            }
-            if (!found && d.autor) {
-                const newOpt = document.createElement('option');
-                newOpt.value = d.autor;
-                newOpt.textContent = d.autor;
-                newOpt.selected = true;
-                autorSelect.appendChild(newOpt);
-            }
-        }
         document.getElementById('edit-noticia-conteudo').value = d.conteudo || '';
         document.getElementById('edit-noticia-capa-upload').value = '';
         const editCapaName = document.getElementById('edit-noticia-capa-upload-name');

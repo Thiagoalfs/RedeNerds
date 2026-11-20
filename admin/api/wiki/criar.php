@@ -8,7 +8,7 @@ $servidor_id  = (int)($_POST['servidor_id'] ?? 0);
 $categoria_id = (int)($_POST['categoria_id'] ?? 0);
 $titulo       = trim($_POST['titulo'] ?? '');
 $conteudo     = trim($_POST['conteudo'] ?? '');
-$autor        = trim($_POST['autor'] ?? '');
+$autor        = obterAutorLogadoEquipe($pdo ?? null);
 $publicado    = !empty($_POST['publicado']) ? 1 : 0;
 
 if ($servidor_id <= 0) {

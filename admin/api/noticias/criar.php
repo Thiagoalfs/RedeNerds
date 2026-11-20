@@ -7,7 +7,7 @@ exigirCSRF();
 
 $titulo          = trim($_POST['titulo'] ?? '');
 $conteudo        = trim($_POST['conteudo'] ?? '');
-$autor           = trim($_POST['autor'] ?? '');
+$autor           = obterAutorLogadoEquipe($pdo ?? null);
 $category        = trim($_POST['category'] ?? 'NerdSky');
 $categoria_envio = trim($_POST['categoria_envio'] ?? 'Anúncios');
 

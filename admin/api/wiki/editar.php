@@ -33,7 +33,7 @@ $servidor_id  = (int)($_POST['servidor_id'] ?? $artigoAtual['servidor_id']);
 $categoria_id = (int)($_POST['categoria_id'] ?? $artigoAtual['categoria_id']);
 $titulo       = trim($_POST['titulo'] ?? $artigoAtual['titulo']);
 $conteudo     = trim($_POST['conteudo'] ?? $artigoAtual['conteudo']);
-$autor        = trim($_POST['autor'] ?? $artigoAtual['autor']);
+$autor        = trim((string)($artigoAtual['autor'] ?? '')) ?: obterAutorLogadoEquipe($pdo ?? null);
 $publicado    = isset($_POST['publicado']) ? (!empty($_POST['publicado']) ? 1 : 0) : (int)$artigoAtual['publicado'];
 
 if ($servidor_id <= 0) {

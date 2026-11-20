@@ -26,7 +26,7 @@ if (!$noticiaAtual) {
 
 $titulo          = trim($_POST['titulo'] ?? $noticiaAtual['titulo']);
 $conteudo        = trim($_POST['conteudo'] ?? $noticiaAtual['conteudo']);
-$autor           = trim($_POST['autor'] ?? $noticiaAtual['autor']);
+$autor           = trim((string)($noticiaAtual['autor'] ?? '')) ?: obterAutorLogadoEquipe($pdo ?? null);
 $category        = trim($_POST['category'] ?? $noticiaAtual['category']);
 $categoria_envio = trim($_POST['categoria_envio'] ?? $noticiaAtual['categoria_envio']);
 
