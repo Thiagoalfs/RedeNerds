@@ -9,10 +9,17 @@ header('Content-Type: application/json; charset=utf-8');
 $servidorId = (int)($_POST['servidor_id'] ?? 0);
 $urlAnuncios = trim((string)($_POST['webhook_anuncios'] ?? ''));
 $urlAtualizacoes = trim((string)($_POST['webhook_atualizacoes'] ?? ''));
+$roleId = trim((string)($_POST['discord_role_id'] ?? ''));
 
 if ($servidorId <= 0) {
     http_response_code(400);
     echo json_encode(["success" => false, "erro" => "Servidor inválido."], JSON_UNESCAPED_UNICODE);
+    exit;
+}
+
+if ($roleId !== '' && preg_match('/^\d{15,25}$/', $roleId) !== 1) {
+    http_response_code(400);
+    echo json_encode(["success" => false, "erro" => "ID do cargo do Discord inválido. Informe apenas números (15 a 25 dígitos)."], JSON_UNESCAPED_UNICODE);
     exit;
 }
 
@@ -63,6 +70,8 @@ try {
             $stmtUpsert->execute([':sid' => $servidorId, ':cat' => $cat, ':url' => $url]);
         }
     }
+    $pdo->prepare("UPDATE servidores SET discord_role_id = :role_id WHERE id = :sid")
+        ->execute([':role_id' => $roleId !== '' ? $roleId : null, ':sid' => $servidorId]);
     $pdo->commit();
 
     registrarLogAdmin($pdo, 'editar', 'webhooks', "Atualizou webhooks do servidor '{$srv['servername']}' (#{$servidorId})", $servidorId);
@@ -73,6 +82,7 @@ try {
         "servidor_id" => $servidorId,
         "anuncios" => $urlAnuncios !== '',
         "atualizacoes" => $urlAtualizacoes !== '',
+        "discord_role_id" => $roleId,
     ], JSON_UNESCAPED_UNICODE);
 } catch (Throwable $e) {
     if ($pdo->inTransaction()) {

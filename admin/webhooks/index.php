@@ -14,7 +14,7 @@ $totalPendentes = 0;
 try {
     if (isset($pdo) && $pdo instanceof PDO) {
         $servidores = $pdo->query("
-            SELECT id, servername, nome, icon, themecolor, enabled
+            SELECT id, servername, nome, icon, themecolor, enabled, discord_role_id
             FROM servidores
             ORDER BY servername ASC
         ")->fetchAll(PDO::FETCH_ASSOC);
@@ -135,7 +135,10 @@ function renderTabelaWebhooks(array $lista, array $webhooksPorServidor, string $
                         ?>
                         <tr data-servidor-id="<?php echo $sid; ?>">
                             <td class="text-center"><?php echo renderIconeWebhook($srv['icon'] ?? null); ?></td>
-                            <td><div class="fw-bold"><?php echo htmlspecialchars($srv['servername'], ENT_QUOTES, 'UTF-8'); ?></div></td>
+                            <td>
+                                <div class="fw-bold"><?php echo htmlspecialchars($srv['servername'], ENT_QUOTES, 'UTF-8'); ?></div>
+                                <small class="text-muted font-monospace js-col-role"><?php echo !empty($srv['discord_role_id']) ? 'Cargo ID: ' . htmlspecialchars($srv['discord_role_id'], ENT_QUOTES, 'UTF-8') : 'Sem cargo de menção'; ?></small>
+                            </td>
                             <td class="js-col-anuncios">
                                 <?php if ($temAnuncios): ?>
                                     <span class="badge-status visivel"><i class="fa-solid fa-check me-1"></i>Cadastrado</span>
@@ -162,6 +165,7 @@ function renderTabelaWebhooks(array $lista, array $webhooksPorServidor, string $
                                     data-servidor-nome="<?php echo htmlspecialchars($srv['servername'], ENT_QUOTES, 'UTF-8'); ?>"
                                     data-url-anuncios="<?php echo htmlspecialchars($wAnuncios, ENT_QUOTES, 'UTF-8'); ?>"
                                     data-url-atualizacoes="<?php echo htmlspecialchars($wAtualizacoes, ENT_QUOTES, 'UTF-8'); ?>"
+                                    data-role-id="<?php echo htmlspecialchars((string)($srv['discord_role_id'] ?? ''), ENT_QUOTES, 'UTF-8'); ?>"
                                 >
                                     <i class="fa-solid fa-pen-to-square me-1"></i>Configurar
                                 </button>
@@ -210,10 +214,15 @@ function renderTabelaWebhooks(array $lista, array $webhooksPorServidor, string $
                         <input type="url" class="form-control form-control-sm" id="webhook-url-anuncios" name="webhook_anuncios" placeholder="https://discord.com/api/webhooks/...">
                         <div class="form-text">Deixe em branco para desvincular o canal de Anúncios deste servidor.</div>
                     </div>
-                    <div class="mb-1">
+                    <div class="mb-3">
                         <label for="webhook-url-atualizacoes" class="form-label fw-bold">Webhook de Atualizações</label>
                         <input type="url" class="form-control form-control-sm" id="webhook-url-atualizacoes" name="webhook_atualizacoes" placeholder="https://discord.com/api/webhooks/...">
                         <div class="form-text">Deixe em branco para desvincular o canal de Atualizações deste servidor.</div>
+                    </div>
+                    <div class="mb-1">
+                        <label for="webhook-role-id" class="form-label fw-bold">ID do Cargo no Discord (Menção)</label>
+                        <input type="text" inputmode="numeric" pattern="\d{15,25}" class="form-control form-control-sm font-monospace" id="webhook-role-id" name="discord_role_id" placeholder="Ex: 1234567890123456789 (opcional)">
+                        <div class="form-text">Cargo mencionado ao marcar a opção de menção em Novidades. Se vazio, usa <code>@everyone</code>.</div>
                     </div>
                 </div>
                 <div class="modal-footer">
@@ -236,6 +245,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const spanNome = document.getElementById('webhook-servidor-nome');
     const inputAnuncios = document.getElementById('webhook-url-anuncios');
     const inputAtualizacoes = document.getElementById('webhook-url-atualizacoes');
+    const inputRoleId = document.getElementById('webhook-role-id');
     const btnSalvar = document.getElementById('btn-salvar-webhook');
 
     function atualizarContadoresWebhooks() {
@@ -262,6 +272,7 @@ document.addEventListener('DOMContentLoaded', function() {
             spanNome.textContent = btn.dataset.servidorNome || '';
             inputAnuncios.value = btn.dataset.urlAnuncios || '';
             inputAtualizacoes.value = btn.dataset.urlAtualizacoes || '';
+            if (inputRoleId) inputRoleId.value = btn.dataset.roleId || '';
         });
     }
 
@@ -283,6 +294,11 @@ document.addEventListener('DOMContentLoaded', function() {
                     if (btn) {
                         btn.dataset.urlAnuncios = inputAnuncios.value.trim();
                         btn.dataset.urlAtualizacoes = inputAtualizacoes.value.trim();
+                        btn.dataset.roleId = res.discord_role_id || '';
+                    }
+                    const colRole = row.querySelector('.js-col-role');
+                    if (colRole) {
+                        colRole.textContent = res.discord_role_id ? ('Cargo ID: ' + res.discord_role_id) : 'Sem cargo de menção';
                     }
                     const colAn = row.querySelector('.js-col-anuncios');
                     const colAt = row.querySelector('.js-col-atualizacoes');

@@ -57,10 +57,7 @@ function discordWebhookUrlValida(string $url): bool {
     return preg_match('#^https://(discord\.com|discordapp\.com)/api/webhooks/\d+/[A-Za-z0-9._-]+/?$#', trim($url)) === 1;
 }
 
-/**
- * Busca a URL de webhook do Discord para um servidor e categoria no banco de dados.
- */
-function obterWebhookDiscordPorServidor(?PDO $pdo, string $servidor, string $categoriaEnvio): ?string {
+function obterConfigWebhookDiscordPorServidor(?PDO $pdo, string $servidor, string $categoriaEnvio): ?array {
     $db = ($pdo instanceof PDO) ? $pdo : (($GLOBALS['pdo'] ?? null) instanceof PDO ? $GLOBALS['pdo'] : null);
     if (!$db) {
         return null;
@@ -72,7 +69,7 @@ function obterWebhookDiscordPorServidor(?PDO $pdo, string $servidor, string $cat
     }
     try {
         $stmt = $db->prepare("
-            SELECT w.webhook_url
+            SELECT w.webhook_url, s.discord_role_id
             FROM servidores_webhooks w
             INNER JOIN servidores s ON s.id = w.servidor_id
             WHERE (s.servername = :srv OR s.nome = :srv)
@@ -80,8 +77,15 @@ function obterWebhookDiscordPorServidor(?PDO $pdo, string $servidor, string $cat
             LIMIT 1
         ");
         $stmt->execute([':srv' => $srv, ':cat' => $cat]);
-        $url = $stmt->fetchColumn();
-        return is_string($url) && trim($url) !== '' ? trim($url) : null;
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+        if (!$row || trim((string)($row['webhook_url'] ?? '')) === '') {
+            return null;
+        }
+        $roleId = trim((string)($row['discord_role_id'] ?? ''));
+        return [
+            'url' => trim((string)$row['webhook_url']),
+            'role_id' => $roleId !== '' ? $roleId : null,
+        ];
     } catch (Throwable $e) {
         error_log("ERRO DISCORD WEBHOOK DB: " . $e->getMessage());
         return null;
@@ -89,19 +93,40 @@ function obterWebhookDiscordPorServidor(?PDO $pdo, string $servidor, string $cat
 }
 
 /**
+ * Busca a URL de webhook do Discord para um servidor e categoria no banco de dados.
+ */
+function obterWebhookDiscordPorServidor(?PDO $pdo, string $servidor, string $categoriaEnvio): ?string {
+    $cfg = obterConfigWebhookDiscordPorServidor($pdo, $servidor, $categoriaEnvio);
+    return $cfg ? $cfg['url'] : null;
+}
+
+/**
  * Envia uma nova notícia para o Discord via Webhook e retorna o ID da mensagem criada.
  */
 function enviarWebhookDiscord($categoriaEnvio, $titulo, $conteudo, $autor, $capa, $servidor, $marcarEveryone = false, ?PDO $pdo = null) {
     discordUltimoErro('');
-    $urlWebhook = obterWebhookDiscordPorServidor($pdo, (string)$servidor, (string)$categoriaEnvio);
-    if (empty($urlWebhook)) {
+    $cfg = obterConfigWebhookDiscordPorServidor($pdo, (string)$servidor, (string)$categoriaEnvio);
+    if (!$cfg) {
         discordUltimoErro("Webhook não cadastrado para '{$servidor}' ({$categoriaEnvio}).");
         error_log("ERRO DISCORD: Nenhum webhook cadastrado para '{$servidor}' na categoria '{$categoriaEnvio}'.");
         return null;
     }
+    $urlWebhook = $cfg['url'];
+    $roleId = $cfg['role_id'];
 
     $url = $urlWebhook . (strpos($urlWebhook, '?') !== false ? '&wait=true' : '?wait=true');
-    $content = $marcarEveryone ? "@everyone" : "";
+    $content = '';
+    $bodyPayload = [
+        "embeds" => []
+    ];
+    if ($marcarEveryone) {
+        if (!empty($roleId)) {
+            $content = "<@&{$roleId}>";
+            $bodyPayload["allowed_mentions"] = ["roles" => [$roleId]];
+        } else {
+            $content = "@everyone";
+        }
+    }
 
     $embed = [
         "title" => truncarTextoDiscord((string)$titulo, 256),
@@ -122,10 +147,9 @@ function enviarWebhookDiscord($categoriaEnvio, $titulo, $conteudo, $autor, $capa
         $embed["image"] = ["url" => $urlCapaFormatada];
     }
 
-    $payload = json_encode([
-        "content" => $content,
-        "embeds" => [$embed]
-    ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+    $bodyPayload["content"] = $content;
+    $bodyPayload["embeds"] = [$embed];
+    $payload = json_encode($bodyPayload, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
 
     if (!$payload) {
         error_log("ERRO DISCORD: Falha ao converter payload para JSON.");

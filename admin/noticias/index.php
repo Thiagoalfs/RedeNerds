@@ -24,12 +24,16 @@ $webhooksPorServidor = [];
 
 try {
     if (isset($pdo) && $pdo instanceof PDO) {
-        $stmtSrv = $pdo->query("SELECT id, servername, nome, themecolor, icon FROM servidores ORDER BY servername ASC");
+        $stmtSrv = $pdo->query("SELECT id, servername, nome, themecolor, icon, discord_role_id FROM servidores ORDER BY servername ASC");
         $srvRows = $stmtSrv->fetchAll(PDO::FETCH_ASSOC);
         foreach ($srvRows as $s) {
             $servidoresList[] = $s['servername'];
             $servidoresMap[$s['servername']] = $s;
-            $webhooksPorServidor[$s['servername']] = ['Anúncios' => false, 'Atualizações' => false];
+            $webhooksPorServidor[$s['servername']] = [
+                'Anúncios' => false,
+                'Atualizações' => false,
+                'role_id' => !empty($s['discord_role_id']) ? (string)$s['discord_role_id'] : null,
+            ];
             if (!empty($s['nome'])) {
                 $servidoresMap[$s['nome']] = $s;
             }
@@ -300,7 +304,7 @@ try {
                         </div>
                         <div class="form-check">
                             <input class="form-check-input" type="checkbox" id="criar-noticia-everyone" name="marcar_everyone" value="1">
-                            <label class="form-check-label text-muted" for="criar-noticia-everyone">Marcar @everyone na mensagem</label>
+                            <label class="form-check-label text-muted" for="criar-noticia-everyone" id="criar-noticia-everyone-label">Mencionar cargo do servidor na mensagem</label>
                         </div>
                     </div>
                 </div>
@@ -399,7 +403,7 @@ try {
                         </div>
                         <div class="form-check">
                             <input class="form-check-input" type="checkbox" id="edit-noticia-everyone" name="marcar_everyone" value="1">
-                            <label class="form-check-label text-muted" for="edit-noticia-everyone">Marcar @everyone ao reenviar mensagem (ex.: ao trocar servidor/canal)</label>
+                            <label class="form-check-label text-muted" for="edit-noticia-everyone" id="edit-noticia-everyone-label">Mencionar cargo do servidor ao reenviar mensagem</label>
                         </div>
                     </div>
                 </div>
@@ -474,7 +478,21 @@ document.addEventListener('DOMContentLoaded', function() {
             } else {
                 cbEv.disabled = false;
             }
+            const lblEv = docLabel(checkboxEveryoneId);
+            if (lblEv) {
+                const isEdit = checkboxEveryoneId === 'edit-noticia-everyone';
+                const acaoTxt = isEdit ? 'ao reenviar mensagem' : 'na mensagem';
+                if (status.role_id) {
+                    lblEv.innerHTML = `Mencionar cargo do servidor ${acaoTxt} <span class="badge bg-primary bg-opacity-10 text-primary border border-primary border-opacity-25 font-monospace ms-1">ID: ${escapeHtml(status.role_id)}</span>`;
+                } else {
+                    lblEv.textContent = `Mencionar @everyone ${acaoTxt} (sem cargo vinculado)`;
+                }
+            }
         }
+    }
+
+    function docLabel(inputId) {
+        return inputId ? document.getElementById(inputId + '-label') : null;
     }
 
     const criarSrvSelect = document.getElementById('criar-noticia-category');
