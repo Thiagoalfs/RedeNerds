@@ -616,9 +616,81 @@
     });
   });
 
+  function AdminSetupDragList(containerId, rowSelector, handleSelector = '.drag-handle') {
+    const container = document.getElementById(containerId);
+    if (!container) return;
+
+    let draggedRow = null;
+    let activeHandleRow = null;
+
+    container.addEventListener('pointerdown', (e) => {
+      const handle = e.target.closest(handleSelector);
+      const row = handle ? handle.closest(rowSelector) : null;
+      if (row && row.parentNode === container) {
+        activeHandleRow = row;
+        row.draggable = true;
+      }
+    });
+
+    const resetDraggable = () => {
+      if (activeHandleRow) {
+        activeHandleRow.draggable = false;
+        activeHandleRow = null;
+      }
+      if (draggedRow) {
+        draggedRow.draggable = false;
+        draggedRow.classList.remove('dragging');
+      }
+    };
+
+    document.addEventListener('pointerup', () => {
+      if (!draggedRow) resetDraggable();
+    });
+
+    container.addEventListener('dragstart', (e) => {
+      const row = e.target.closest(rowSelector);
+      if (!row || row.parentNode !== container || row !== activeHandleRow) {
+        e.preventDefault();
+        resetDraggable();
+        return;
+      }
+      draggedRow = row;
+      row.classList.add('dragging');
+      e.dataTransfer.effectAllowed = 'move';
+      e.dataTransfer.setData('text/plain', '');
+    });
+
+    container.addEventListener('dragend', () => {
+      container.querySelectorAll(rowSelector).forEach((r) => {
+        r.classList.remove('drag-over', 'dragging');
+        r.draggable = false;
+      });
+      draggedRow = null;
+      activeHandleRow = null;
+    });
+
+    container.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      e.dataTransfer.dropEffect = 'move';
+      const targetRow = e.target.closest(rowSelector);
+      if (!targetRow || !draggedRow || targetRow === draggedRow || targetRow.parentNode !== container) return;
+      const bounding = targetRow.getBoundingClientRect();
+      if (e.clientY - (bounding.y + bounding.height / 2) > 0) {
+        targetRow.after(draggedRow);
+      } else {
+        targetRow.before(draggedRow);
+      }
+    });
+
+    container.addEventListener('drop', (e) => {
+      e.preventDefault();
+    });
+  }
+
   // Exportação global
   window.AdminToast = AdminToast;
   window.AdminApi = AdminApi;
   window.AdminConfirm = AdminConfirm;
+  window.AdminSetupDragList = AdminSetupDragList;
 
 })(window, document);

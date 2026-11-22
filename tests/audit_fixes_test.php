@@ -163,4 +163,20 @@ $whSql = file_get_contents($whMigration);
 assert(strpos($whSql, 'servidores_webhooks') !== false && strpos($whSql, 'fk_srv_webhooks_servidor') !== false, "Falha: migracao deve definir servidores_webhooks e FK");
 echo "  [PASS] Permissoes, validacao de URL e migracao de webhooks por servidor validados.\n";
 
+// 9. Teste de permissoes, sanitizacao de pasta e migracao de uploads genericos
+assert(usuarioPodeAcessar('upload', 'fundador') === true, "Falha: fundador/co-fundador deve acessar upload");
+assert(usuarioPodeAcessar('upload', 'diretor') === true, "Falha: diretor deve acessar upload");
+assert(usuarioPodeAcessar('upload', 'coordenador') === true, "Falha: coordenador deve acessar upload");
+assert(usuarioPodeAcessar('upload', 'desenvolvedor') === false, "Falha: desenvolvedor nao deve acessar upload");
+
+require_once __DIR__ . "/../admin/upload/upload_helper.php";
+assert(uploadNormalizarPasta('/images/') === 'images', "Falha: pasta images deve normalizar");
+assert(uploadNormalizarPasta('eventos/2026') === 'eventos/2026', "Falha: subpasta valida deve ser aceita");
+assert(uploadNormalizarPasta('../config') === null, "Falha: path traversal deve ser rejeitado");
+assert(uploadNormalizarPasta('fonts') === null, "Falha: pasta fonts deve ser rejeitada");
+
+$upMigration = __DIR__ . "/../migrations/2026_11_22_site_uploads.sql";
+assert(file_exists($upMigration) && strpos(file_get_contents($upMigration), 'site_uploads') !== false, "Falha: migracao site_uploads deve existir");
+echo "  [PASS] Permissoes, sanitizacao de pasta e migracao de uploads validados.\n";
+
 echo "✔ Todos os testes de correções de auditoria passaram com sucesso!\n";

@@ -16,7 +16,7 @@
     <?php
     $cargoNivel = $_SESSION['cargo_nivel'] ?? null;
     $cargoExibicao = $_SESSION['cargo'] ?? 'Administrador';
-    $podeVerGeral = usuarioPodeAcessar('dashboard', $cargoNivel) || usuarioPodeAcessar('email', $cargoNivel) || usuarioPodeAcessar('usuarios', $cargoNivel);
+    $podeVerGeral = usuarioPodeAcessar('dashboard', $cargoNivel) || usuarioPodeAcessar('email', $cargoNivel) || usuarioPodeAcessar('usuarios', $cargoNivel) || usuarioPodeAcessar('upload', $cargoNivel);
     $podeVerLoja = usuarioPodeAcessar('pedidos', $cargoNivel) || usuarioPodeAcessar('vips', $cargoNivel) || usuarioPodeAcessar('chaves', $cargoNivel) || usuarioPodeAcessar('cupons', $cargoNivel);
     $podeVerRede = usuarioPodeAcessar('servidores', $cargoNivel) || usuarioPodeAcessar('equipe', $cargoNivel) || usuarioPodeAcessar('parceiros', $cargoNivel) || usuarioPodeAcessar('wiki', $cargoNivel) || usuarioPodeAcessar('noticias', $cargoNivel) || usuarioPodeAcessar('webhooks', $cargoNivel);
     ?>
@@ -53,6 +53,14 @@
             <div class="icon-wrap">
                 <i class="fa-solid fa-user-shield"></i>
                 <span>Usuários</span>
+            </div>
+        </a>
+        <?php endif; ?>
+        <?php if (usuarioPodeAcessar('upload', $cargoNivel)): ?>
+        <a href="/admin/upload/" class="nav-item-link <?php echo ($paginaAtiva === 'upload') ? 'active' : ''; ?>">
+            <div class="icon-wrap">
+                <i class="fa-solid fa-cloud-arrow-up"></i>
+                <span>Upload</span>
             </div>
         </a>
         <?php endif; ?>

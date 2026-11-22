@@ -734,10 +734,10 @@ try {
                             </button>
                         </label>
                         <div id="container-vantagens-criar-vip" class="d-flex flex-column gap-2">
-                            <div class="input-group input-group-sm vantagem-vip-row" draggable="true">
+                            <div class="input-group input-group-sm vantagem-vip-row">
                                 <span class="input-group-text bg-light text-muted drag-handle" title="Arrastar para reordenar" style="cursor: grab;"><i class="fa-solid fa-grip-vertical"></i></span>
                                 <span class="input-group-text bg-light text-success"><i class="fa-solid fa-check"></i></span>
-                                <input type="text" class="form-control" name="vantagens[]" value="TAG [tag] na tablist" placeholder="Ex: Tag especial e comandos exclusivos" required>
+                                <input type="text" class="form-control" name="vantagens[]" value="" placeholder="Ex: Acesso antecipado ao servidor" required>
                                 <button type="button" class="btn btn-outline-danger btn-remove-vantagem-vip" title="Remover benefício"><i class="fa-solid fa-trash"></i></button>
                             </div>
                         </div>
@@ -1335,11 +1335,10 @@ document.addEventListener('DOMContentLoaded', function() {
         if (!container) return;
         const div = document.createElement('div');
         div.className = 'input-group input-group-sm vantagem-vip-row';
-        div.setAttribute('draggable', 'true');
         div.innerHTML = `
             <span class="input-group-text bg-light text-muted drag-handle" title="Arrastar para reordenar" style="cursor: grab;"><i class="fa-solid fa-grip-vertical"></i></span>
             <span class="input-group-text bg-light text-success"><i class="fa-solid fa-check"></i></span>
-            <input type="text" class="form-control" name="vantagens[]" value="${escapeHtml(valor)}" placeholder="Ex: TAG [tag] na tablist" required>
+            <input type="text" class="form-control" name="vantagens[]" value="${escapeHtml(valor)}" placeholder="Ex: Kit exclusivo e comandos extras" required>
             <button type="button" class="btn btn-outline-danger btn-remove-vantagem-vip" title="Remover benefício"><i class="fa-solid fa-trash"></i></button>
         `;
         container.appendChild(div);
@@ -1365,59 +1364,11 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
-    // Drag and Drop para reordenação de benefícios (estilo admin/equipe)
-    function setupDragAndDropVantagens(containerId) {
-        const container = document.getElementById(containerId);
-        if (!container) return;
-
-        let draggedRow = null;
-
-        container.addEventListener('dragstart', function(e) {
-            // Evita drag se o usuário estiver selecionando texto no input ou clicando no botão remover
-            if (e.target.tagName === 'INPUT' || e.target.tagName === 'BUTTON' || e.target.closest('button')) {
-                e.preventDefault();
-                return;
-            }
-
-            const row = e.target.closest('.vantagem-vip-row');
-            if (!row || row.parentNode !== container) return;
-
-            draggedRow = row;
-            row.classList.add('dragging');
-            e.dataTransfer.effectAllowed = 'move';
-            e.dataTransfer.setData('text/plain', '');
-        });
-
-        container.addEventListener('dragend', function(e) {
-            const row = e.target.closest('.vantagem-vip-row') || draggedRow;
-            if (row) row.classList.remove('dragging');
-            container.querySelectorAll('.vantagem-vip-row').forEach(r => r.classList.remove('drag-over', 'dragging'));
-            draggedRow = null;
-        });
-
-        container.addEventListener('dragover', function(e) {
-            e.preventDefault();
-            e.dataTransfer.dropEffect = 'move';
-
-            const targetRow = e.target.closest('.vantagem-vip-row');
-            if (!targetRow || !draggedRow || targetRow === draggedRow || targetRow.parentNode !== container) return;
-
-            const bounding = targetRow.getBoundingClientRect();
-            const offset = bounding.y + (bounding.height / 2);
-            if (e.clientY - offset > 0) {
-                targetRow.after(draggedRow);
-            } else {
-                targetRow.before(draggedRow);
-            }
-        });
-
-        container.addEventListener('drop', function(e) {
-            e.preventDefault();
-        });
+    // Drag and Drop restrito ao handle (.drag-handle)
+    if (window.AdminSetupDragList) {
+        window.AdminSetupDragList('container-vantagens-criar-vip', '.vantagem-vip-row');
+        window.AdminSetupDragList('container-vantagens-edit-vip', '.vantagem-vip-row');
     }
-
-    setupDragAndDropVantagens('container-vantagens-criar-vip');
-    setupDragAndDropVantagens('container-vantagens-edit-vip');
 
     const btnAddCriar = document.getElementById('btn-add-vantagem-criar-vip');
     if (btnAddCriar) {
@@ -1491,8 +1442,9 @@ document.addEventListener('DOMContentLoaded', function() {
             } catch (e) {
                 listaV = [];
             }
+            listaV = listaV.filter(v => !/^\s*tag\s+\[.*?\]\s+na\s+tablist\s*$/i.test(String(v || '').trim()));
             if (listaV.length === 0) {
-                listaV = ['TAG [tag] na tablist'];
+                listaV = [''];
             }
             listaV.forEach(v => addVantagemVipRow('container-vantagens-edit-vip', v));
         }
@@ -1628,7 +1580,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 const cCriar = document.getElementById('container-vantagens-criar-vip');
                 if (cCriar) {
                     cCriar.innerHTML = '';
-                    addVantagemVipRow('container-vantagens-criar-vip', 'TAG [tag] na tablist');
+                    addVantagemVipRow('container-vantagens-criar-vip', '');
                 }
 
                 if (res.vip) {

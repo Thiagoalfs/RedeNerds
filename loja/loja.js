@@ -885,8 +885,15 @@
           : `style="color: ${escapeHTML(cor1)}; font-weight: 800;"`;
 
         const parsedTagStringHtml = (corTipo === 'string' && corString) ? parseMinecraftString(corString) : '';
+        const vipTagNomeLimpo = String(vip.nome || '').replace(/^\s*vip\s*/i, '').replace(/\s+/g, '');
+        const tagBadgeHtml = parsedTagStringHtml
+          ? `<span class="vip-tag-badge"><strong class="vip-tag-mc-string" style="font-weight: 800;">${parsedTagStringHtml}</strong></span>`
+          : `<span class="vip-tag-badge"><strong ${tagTextStyle}>${escapeHTML(vipTagNomeLimpo || vip.nome || 'VIP')}</strong></span>`;
+        const hardcodedTagHtml = `<li class="vip-benefit-hero"><i class="fa-solid fa-tag"></i> <span>TAG ${tagBadgeHtml} na tablist</span></li>`;
 
-        const vantagensHtml = (vip.vantagens || []).map((v, vIndex) => {
+        const vantagensHtml = hardcodedTagHtml + (vip.vantagens || [])
+          .filter((v) => !/^\s*tag\s+\[.*?\]\s+na\s+tablist\s*$/i.test(String(v || '').trim()))
+          .map((v, vIndex) => {
           let item = (v || '').trim();
           let infoTexto = '';
 
@@ -897,7 +904,7 @@
           }
 
           const iconeCls = obterIconeVantagem(item);
-          const isHero = (vIndex === 0 || item.toLowerCase().includes('tag ['));
+          const isHero = item.toLowerCase().includes('tag [');
 
           let itemHtml = escapeHTML(item);
           if (parsedTagStringHtml) {

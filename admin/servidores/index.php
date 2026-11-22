@@ -355,6 +355,7 @@ function renderIconeTable(?string $icone): string {
                         </label>
                         <div id="container-features-criar-srv" class="d-flex flex-column gap-2">
                             <div class="input-group input-group-sm feature-row">
+                                <span class="input-group-text bg-light text-muted drag-handle" title="Arrastar para reordenar" style="cursor: grab;"><i class="fa-solid fa-grip-vertical"></i></span>
                                 <input type="text" class="form-control" name="features[]" value="Economia balanceada" placeholder="Ex: Novo recurso" required>
                                 <button type="button" class="btn btn-outline-danger btn-remove-feature"><i class="fa-solid fa-trash"></i></button>
                             </div>
@@ -560,6 +561,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const div = document.createElement('div');
         div.className = 'input-group input-group-sm feature-row';
         div.innerHTML = `
+            <span class="input-group-text bg-light text-muted drag-handle" title="Arrastar para reordenar" style="cursor: grab;"><i class="fa-solid fa-grip-vertical"></i></span>
             <input type="text" class="form-control" name="features[]" value="${escapeHtml(valor)}" placeholder="Ex: Novo recurso" required>
             <button type="button" class="btn btn-outline-danger btn-remove-feature"><i class="fa-solid fa-trash"></i></button>
         `;
@@ -585,6 +587,11 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     });
+
+    if (window.AdminSetupDragList) {
+        window.AdminSetupDragList('container-features-criar-srv', '.feature-row');
+        window.AdminSetupDragList('container-features-edit-srv', '.feature-row');
+    }
 
     const btnAddCriar = document.getElementById('btn-add-feature-criar-srv');
     if (btnAddCriar) {
