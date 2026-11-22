@@ -94,9 +94,14 @@ $baseUrl = uploadBaseSiteUrl();
                         ?>
                         <tr id="<?php echo $img['id'] ? 'upload-row-' . (int)$img['id'] : ''; ?>">
                             <td>
-                                <a href="<?php echo htmlspecialchars($img['caminho_publico'], ENT_QUOTES, 'UTF-8'); ?>" target="_blank" rel="noopener">
-                                    <img src="<?php echo htmlspecialchars($img['caminho_publico'], ENT_QUOTES, 'UTF-8'); ?>" class="rounded border" width="52" height="36" style="object-fit: cover;" alt="" loading="lazy">
-                                </a>
+                                <button type="button"
+                                        class="btn p-0 border-0 bg-transparent js-abrir-preview-upload"
+                                        data-src="<?php echo htmlspecialchars($img['caminho_publico'], ENT_QUOTES, 'UTF-8'); ?>"
+                                        data-nome="<?php echo htmlspecialchars($img['nome'], ENT_QUOTES, 'UTF-8'); ?>"
+                                        data-url="<?php echo htmlspecialchars($urlCompleta, ENT_QUOTES, 'UTF-8'); ?>"
+                                        title="Ampliar imagem">
+                                    <img src="<?php echo htmlspecialchars($img['caminho_publico'], ENT_QUOTES, 'UTF-8'); ?>" class="rounded border" width="52" height="36" style="object-fit: cover; cursor: zoom-in;" alt="" loading="lazy">
+                                </button>
                             </td>
                             <td>
                                 <div class="fw-semibold text-truncate" style="max-width: 280px;" title="<?php echo htmlspecialchars($img['nome'], ENT_QUOTES, 'UTF-8'); ?>">
@@ -120,18 +125,17 @@ $baseUrl = uploadBaseSiteUrl();
                                             title="Copiar link completo">
                                         <i class="fa-regular fa-copy me-1"></i>Copiar
                                     </button>
-                                    <?php if ($img['registrado'] && $img['id']): ?>
                                     <button type="button"
                                             class="btn btn-sm btn-danger"
                                             data-action="async-delete"
                                             data-url="/admin/api/upload/deletar.php"
-                                            data-id="<?php echo (int)$img['id']; ?>"
+                                            data-id="<?php echo (int)($img['id'] ?? 0); ?>"
+                                            data-caminho="<?php echo htmlspecialchars($img['caminho_publico'], ENT_QUOTES, 'UTF-8'); ?>"
                                             data-name="<?php echo htmlspecialchars($img['nome'], ENT_QUOTES, 'UTF-8'); ?>"
                                             data-confirm="Deletar a imagem <?php echo htmlspecialchars($img['nome'], ENT_QUOTES, 'UTF-8'); ?>? O arquivo físico será removido."
                                             title="Deletar">
                                         <i class="fa-solid fa-trash"></i>
                                     </button>
-                                    <?php endif; ?>
                                 </div>
                             </td>
                         </tr>
@@ -144,6 +148,27 @@ $baseUrl = uploadBaseSiteUrl();
 </div>
 
 <?php require_once __DIR__ . "/../includes/paginacao.php"; renderPaginacaoAdmin($pagina, $totalPaginas, ['pasta' => $filtroPasta, 'busca' => $busca]); ?>
+
+<!-- MODAL: PREVIEW DE IMAGEM -->
+<div class="modal fade" id="modalPreviewImagemUpload" tabindex="-1" aria-labelledby="modalPreviewImagemUploadTitulo" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-xl" style="max-width: 94vw;">
+        <div class="modal-content shadow">
+            <div class="modal-header">
+                <h5 class="modal-title fw-bold text-truncate" id="modalPreviewImagemUploadTitulo">Preview da Imagem</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+            </div>
+            <div class="modal-body p-3 text-center">
+                <img id="preview-upload-img" src="" alt="" class="rounded border" style="max-width: 100%; max-height: 78vh; object-fit: contain;">
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Fechar</button>
+                <button type="button" class="btn btn-primary btn-sm js-copiar-link-upload" id="btn-copiar-preview-upload" data-url="">
+                    <i class="fa-regular fa-copy me-1"></i>Copiar Link
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
 
 <!-- MODAL: ENVIAR IMAGEM -->
 <div class="modal fade" id="modalEnviarUpload" tabindex="-1" aria-labelledby="modalEnviarUploadLabel" aria-hidden="true">
@@ -248,7 +273,22 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
+    const modalPreviewEl = document.getElementById('modalPreviewImagemUpload');
+    const bsModalPreview = modalPreviewEl && window.bootstrap ? bootstrap.Modal.getOrCreateInstance(modalPreviewEl) : null;
+    const previewImgFull = document.getElementById('preview-upload-img');
+    const previewTituloFull = document.getElementById('modalPreviewImagemUploadTitulo');
+    const previewCopiarBtn = document.getElementById('btn-copiar-preview-upload');
+
     document.addEventListener('click', (e) => {
+        const previewTrigger = e.target.closest('.js-abrir-preview-upload');
+        if (previewTrigger && bsModalPreview && previewImgFull) {
+            previewImgFull.src = previewTrigger.dataset.src || '';
+            previewImgFull.alt = previewTrigger.dataset.nome || '';
+            if (previewTituloFull) previewTituloFull.textContent = previewTrigger.dataset.nome || 'Preview da Imagem';
+            if (previewCopiarBtn) previewCopiarBtn.dataset.url = previewTrigger.dataset.url || '';
+            bsModalPreview.show();
+            return;
+        }
         const btn = e.target.closest('.js-copiar-link-upload');
         if (btn) {
             copiarUrl(btn.dataset.url || '');
@@ -316,9 +356,14 @@ document.addEventListener('DOMContentLoaded', function() {
                     tr.className = 'table-row-highlight';
                     tr.innerHTML = `
                         <td>
-                            <a href="${escapeHtml(it.caminho_publico)}" target="_blank" rel="noopener">
-                                <img src="${escapeHtml(it.caminho_publico)}" class="rounded border" width="52" height="36" style="object-fit: cover;" alt="">
-                            </a>
+                            <button type="button"
+                                    class="btn p-0 border-0 bg-transparent js-abrir-preview-upload"
+                                    data-src="${escapeHtml(it.caminho_publico)}"
+                                    data-nome="${escapeHtml(it.nome)}"
+                                    data-url="${escapeHtml(it.url_completa)}"
+                                    title="Ampliar imagem">
+                                <img src="${escapeHtml(it.caminho_publico)}" class="rounded border" width="52" height="36" style="object-fit: cover; cursor: zoom-in;" alt="">
+                            </button>
                         </td>
                         <td>
                             <div class="fw-semibold text-truncate" style="max-width: 280px;">${escapeHtml(it.nome)}</div>

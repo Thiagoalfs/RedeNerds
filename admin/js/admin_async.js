@@ -380,6 +380,7 @@
 
       const url = btn.dataset.url;
       const id = btn.dataset.id;
+      const caminho = btn.dataset.caminho || '';
       const itemName = btn.dataset.name || 'este item';
       const confirmMsg = btn.dataset.confirm || `Tem certeza que deseja excluir "${itemName}"?`;
 
@@ -391,7 +392,9 @@
       btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>';
 
       try {
-        const res = await AdminApi.post(url, { id, format: 'json' });
+        const payload = { id, format: 'json' };
+        if (caminho) payload.caminho_publico = caminho;
+        const res = await AdminApi.post(url, payload);
 
         if (row) {
           row.style.transition = 'all 0.3s ease';
